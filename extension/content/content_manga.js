@@ -1638,6 +1638,9 @@ if (!window.__manga_translator_content_injected) {
         }
 
         function startSingleImageTranslation(img) {
+            if (readerDisposed) {
+                return { ok: false, reason: 'image_ineligible' };
+            }
             if (!clickToTranslateEnabled) {
                 return { ok: false, reason: 'disabled' };
             }
@@ -2561,7 +2564,7 @@ if (!window.__manga_translator_content_injected) {
         function persistTranslatedUpdateWithSideEffects(pageIndex, dataUrl, meta = {}) {
             const gtc = meta.gtc || {};
             if (gtc.hash) {
-                saveGlobalTranslationCacheEntry(gtc.hash, dataUrl, {
+                Promise.resolve(saveGlobalTranslationCacheEntry(gtc.hash, dataUrl, {
                     dHash:              gtc.dHash || null,
                     wHash:              gtc.wHash || null,
                     pHash:              gtc.pHash || null,
@@ -2573,7 +2576,18 @@ if (!window.__manga_translator_content_injected) {
                     height:             meta.height || 0,
                     mimeType:           (dataUrl.match(/^data:([^;]+);/) || [])[1] || null,
                     fingerprintVersion: gtc.fingerprintVersion || 'visual-v1',
-                }).catch(() => {});
+                })).then((saved) => {
+                    if (saved === false) {
+                        sendLog('warn', 'GTC_SAVE_FAILED', 'Cache GTC auxiliar não foi persistido; a página seguirá normalmente', {
+                            hash: String(gtc.hash).slice(0, 16),
+                        });
+                    }
+                }).catch((error) => {
+                    sendLog('warn', 'GTC_SAVE_FAILED', 'Falha no cache GTC auxiliar; a página seguirá normalmente', {
+                        hash: String(gtc.hash).slice(0, 16),
+                        error: error && error.message ? error.message : String(error),
+                    });
+                });
             }
 
             return persistTranslatedPage(pageIndex, dataUrl, meta).then((result) => {

@@ -24,6 +24,14 @@
         });
     }
 
+    function operationTimestamp() {
+        const perf = rootScope.performance || (typeof performance !== 'undefined' ? performance : null);
+        const timestamp = perf && Number.isFinite(perf.timeOrigin) && typeof perf.now === 'function'
+            ? perf.timeOrigin + perf.now()
+            : Date.now();
+        return Number.isFinite(timestamp) ? timestamp : Date.now();
+    }
+
     function getCleanUrl(rawUrl) {
         if (!rawUrl || rawUrl.startsWith('data:') || rawUrl.startsWith('blob:')) return null;
         try {
@@ -113,10 +121,7 @@
     async function queryGlobalTranslationCache(hashes) {
         const normalized = unique(hashes); if (!normalized.length) return {};
         const response = await sendRuntimeMessageAsync({ action: 'GTC_QUERY_MANY', hashes: normalized });
-        if (response && response.ok && response.entriesByHash) return response.entriesByHash;
-        if (!rootScope.chrome || !chrome.storage || !chrome.storage.local) return {};
-        const legacy = await new Promise(resolve => chrome.storage.local.get(normalized.map(hash => `gtc_${hash}`), resolve));
-        return normalized.reduce((entries, hash) => { if (legacy[`gtc_${hash}`]) entries[hash] = legacy[`gtc_${hash}`]; return entries; }, {});
+        return response && response.ok && response.entriesByHash ? response.entriesByHash : {};
     }
     async function queryGlobalTranslationCacheByDHash(dHashes) {
         const d = unique(dHashes); if (!d.length) return {};
@@ -144,60 +149,26 @@
         const response = await sendRuntimeMessageAsync({ action: 'GTC_QUERY_BY_PERCEPTUAL_RELAXED', wHashes: w, pHashes: p });
         return response && response.ok && response.entriesByPerceptualRelaxed ? response.entriesByPerceptualRelaxed : {};
     }
-    const gtcSaveChains = new Map();
-
     async function saveGlobalTranslationCacheEntry(hash, translatedDataUrl, metadata = {}) {
         if (!hash || !translatedDataUrl) return false;
-
-        const chainKey = String(hash).trim().toLowerCase();
-        const previous = gtcSaveChains.get(chainKey) || Promise.resolve();
-        const task = previous.catch(() => {}).then(async () => {
-            const response = await sendRuntimeMessageAsync({
-                action: 'GTC_SAVE',
-                hash,
-                translatedDataUrl,
-                dHash: metadata.dHash || null,
-                wHash: metadata.wHash || null,
-                pHash: metadata.pHash || null,
-                wHashCrop: metadata.wHashCrop || null,
-                pHashCrop: metadata.pHashCrop || null,
-                regionalHashes: metadata.regionalHashes || null,
-                cleanUrl: metadata.cleanUrl || null,
-                width: metadata.width || 0,
-                height: metadata.height || 0,
-                fingerprintVersion: metadata.fingerprintVersion || 'visual-v3',
-                mimeType: metadata.mimeType || null,
-            });
-
-            const legacyKey = `gtc_${hash}`;
-            const hasLegacyStorage = Boolean(
-                rootScope.chrome
-                && chrome.storage
-                && chrome.storage.local
-            );
-
-            if (response && response.ok) {
-                // IndexedDB venceu para este hash. Qualquer fallback legado criado
-                // por uma tentativa anterior deve desaparecer para nunca ressurgir
-                // como tradução stale se uma consulta futura cair no fallback.
-                if (hasLegacyStorage && typeof chrome.storage.local.remove === 'function') {
-                    await new Promise(resolve => chrome.storage.local.remove(legacyKey, resolve));
-                }
-                return true;
-            }
-
-            if (hasLegacyStorage) {
-                await chrome.storage.local.set({ [legacyKey]: translatedDataUrl });
-            }
-            return false;
+        const response = await sendRuntimeMessageAsync({
+            action: 'GTC_SAVE',
+            hash,
+            translatedDataUrl,
+            operationAt: operationTimestamp(),
+            dHash: metadata.dHash || null,
+            wHash: metadata.wHash || null,
+            pHash: metadata.pHash || null,
+            wHashCrop: metadata.wHashCrop || null,
+            pHashCrop: metadata.pHashCrop || null,
+            regionalHashes: metadata.regionalHashes || null,
+            cleanUrl: metadata.cleanUrl || null,
+            width: metadata.width || 0,
+            height: metadata.height || 0,
+            fingerprintVersion: metadata.fingerprintVersion || 'visual-v3',
+            mimeType: metadata.mimeType || null,
         });
-
-        gtcSaveChains.set(chainKey, task);
-        try {
-            return await task;
-        } finally {
-            if (gtcSaveChains.get(chainKey) === task) gtcSaveChains.delete(chainKey);
-        }
+        return Boolean(response && response.ok);
     }
     function confirmWithRegionalHashes(queryRegional, entryRegional) {
         const api = fingerprintApi();
