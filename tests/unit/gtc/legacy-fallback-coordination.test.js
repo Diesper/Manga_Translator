@@ -238,6 +238,36 @@ describe('GTC legacy fallback coordination', () => {
         expect(logger).toHaveBeenCalledWith('warn', 'GTC_LEGACY_READ_FAILED', expect.any(String), expect.any(Object));
     });
 
+    test('does not overwrite a fallback when a failed modern save cannot read its timestamp', async () => {
+        await storage.set({
+            gtc_hash: 'newer-fallback',
+            gtc_meta_hash: { schemaVersion: 1, updatedAt: 200 },
+        });
+        const repository = createInMemoryRepository();
+        repository.put = async () => { throw new Error('IndexedDB unavailable'); };
+        const originalGet = storage.get.bind(storage);
+        storage.get = (_keys, callback) => {
+            runtime.lastError = { message: 'storage read failed' };
+            callback({});
+            runtime.lastError = null;
+        };
+        const handler = createGtcRuntimeHandler({ repository, logger });
+
+        const response = await invoke(handler, {
+            action: 'GTC_SAVE',
+            hash: 'hash',
+            translatedDataUrl: 'older-payload',
+            operationAt: 100,
+        });
+        storage.get = originalGet;
+
+        expect(response).toEqual(expect.objectContaining({ ok: false }));
+        expect(await storage.get(['gtc_hash', 'gtc_meta_hash'])).toEqual({
+            gtc_hash: 'newer-fallback',
+            gtc_meta_hash: { schemaVersion: 1, updatedAt: 200 },
+        });
+    });
+
     test('clears legacy fallback payloads and metadata together with the modern cache', async () => {
         await storage.set({
             gtc_legacy: 'legacy-value',
