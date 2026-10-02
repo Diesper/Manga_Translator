@@ -57,6 +57,52 @@ function loadSources(root) {
   };
 }
 
+function stepBlockForFragment(source, fragment) {
+  const lines = String(source || '').split(/\r?\n/);
+  const index = lines.findIndex((line) => line.includes(fragment));
+  if (index < 0) return '';
+  let start = index;
+  while (start > 0 && !/^\s*- name:\s*/.test(lines[start])) start -= 1;
+  if (!/^\s*- name:\s*/.test(lines[start])) start = index;
+  let end = index + 1;
+  while (end < lines.length && !/^\s*- name:\s*/.test(lines[end])) end += 1;
+  return lines.slice(start, end).join('\n');
+}
+
+function disabledControlProblems(key, source, fragments) {
+  const problems = [];
+  const criticalWholeWorkflow = new Set(['protocol', 'handoff', 'human', 'transition']);
+  if (criticalWholeWorkflow.has(key)) {
+    const forbidden = [
+      { re:/^\s*continue-on-error:\s*true\s*$/mi, label:'continue-on-error: true' },
+      { re:/^\s*if:\s*(?:\$\{\{\s*)?false(?:\s*\}\})?\s*$/mi, label:'if: false' },
+      { re:/\|\|\s*true(?:\s|$)/m, label:'|| true' },
+      { re:/;\s*true\s*$/m, label:'; true' },
+    ];
+    for (const item of forbidden) {
+      if (item.re.test(source)) {
+        problems.push(key + ': workflow crítico contém bypass proibido: ' + item.label);
+      }
+    }
+  }
+
+  for (const fragment of fragments || []) {
+    const block = stepBlockForFragment(source, fragment);
+    if (!block) continue;
+    if (/^\s*continue-on-error:\s*true\s*$/mi.test(block)) {
+      problems.push(key + ': controle obrigatório tolera falha: ' + fragment);
+    }
+    if (/^\s*if:\s*(?:\$\{\{\s*)?false(?:\s*\}\})?\s*$/mi.test(block)) {
+      problems.push(key + ': controle obrigatório desativado por if=false: ' + fragment);
+    }
+    const runLine = block.split(/\r?\n/).find((line) => line.includes(fragment)) || '';
+    if (/\|\|\s*true(?:\s|$)/.test(runLine) || /;\s*true\s*$/.test(runLine)) {
+      problems.push(key + ': controle obrigatório mascarado por shell bypass: ' + fragment);
+    }
+  }
+  return problems;
+}
+
 function validateSources(sources) {
   const problems = [];
   for (const [key, fragments] of Object.entries(REQUIRED)) {
@@ -70,6 +116,7 @@ function validateSources(sources) {
         problems.push(key + ': controle obrigatório ausente: ' + fragment);
       }
     }
+    problems.push(...disabledControlProblems(key, source, fragments));
   }
 
   const handoff = String(sources?.handoff || '');
@@ -97,5 +144,7 @@ if (require.main === module) main();
 module.exports = {
   REQUIRED,
   loadSources,
+  stepBlockForFragment,
+  disabledControlProblems,
   validateSources,
 };
