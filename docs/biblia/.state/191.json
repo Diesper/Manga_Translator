@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "7512f2686f5651874b3b7ef8bdfc15ea9f9cfb00",
+  "source_sha": "187e5e4b70eacae472df0f548a7e713ec02a4611",
   "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
@@ -541,7 +541,7 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T03:12:00Z",
       "audit_finding": "Encontrado na passagem adversarial de callback tardio após persistência.",
-      "repair_progress": "REGRESSION_ADDED_AWAITING_RED_PROOF"
+      "repair_progress": "REGRESSION_SCENARIO_CORRECTED_AWAITING_RED_PROOF"
     }
   ],
   "document_quality": {
@@ -867,6 +867,15 @@
       "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-015 HIGH: persistência tardia de A pode executar checkIfComplete sobre B após cancelamento/reentrada; regression adicionada aguardando red proof."
+    },
+    {
+      "at_utc": "2026-10-02T03:13:30Z",
+      "type": "TEST_SCENARIO_CORRECTED",
+      "source_sha": "187e5e4b70eacae472df0f548a7e713ec02a4611",
+      "bible_sha": "32ab283383118d5324abf4facfc611e257b4aea1",
+      "production_sha": "e55d6e4785683ab21026e84196497f68a6722b5e",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-015 scenario now uses image 0 for cancelled batch A and image 1 for batch B, removing translated-image reentry artifact while preserving delayed persistence race."
     }
   ],
   "evidence": [
