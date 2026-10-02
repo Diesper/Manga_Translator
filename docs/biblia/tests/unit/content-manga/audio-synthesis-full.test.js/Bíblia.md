@@ -94,23 +94,23 @@ A suíte preserva os edge cases úteis da versão antiga, agora pelo runtime rea
 
 ## 8. Audit requests
 
-### 191-001 — TEST_AUTHENTICITY — IMPLEMENTED_AWAITING_CI
+### 191-001 — TEST_AUTHENTICITY — RESOLVED
 
 **Correção:** mirrors removidos. O teste dispara `playErrorSound()` e `playSuccessSound()` dentro da closure real de `content_manga.js`.
 
-**Validação pendente:** execução focal e suíte relacionada no SHA atual.
+**Validação:** run `36948794013`, jobs Node 20 `110657136470` e Node 22 `110657136461`: `audio-synthesis-full.test.js` passou 5/5 nos dois ambientes.
 
-### 191-002 — STALE_TEST_CONTRACT — IMPLEMENTED_AWAITING_CI
+### 191-002 — STALE_TEST_CONTRACT — RESOLVED
 
 **Correção:** cabeçalho/escopo agora descrevem integração real e a suíte cobre explicitamente contexto reutilizável, estado `suspended`, `resume()` e telemetria.
 
-**Validação pendente:** execução focal e suíte relacionada no SHA atual.
+**Validação:** os mesmos jobs Node 20/22 passaram também `replacement-and-completion-real.test.js`, incluindo reuso de `AudioContext`, supressão em `hasErrors` e falha de `resume()`.
 
-### 191-003 — TEST_STRENGTH_REVIEW — IMPLEMENTED_AWAITING_CI
+### 191-003 — TEST_STRENGTH_REVIEW — RESOLVED
 
 **Correção:** `createOscillator()` e `createGain()` criam mocks distintos a cada chamada; cada nota é validada contra seu próprio oscillator/gain.
 
-**Validação pendente:** execução focal e suíte relacionada no SHA atual.
+**Validação:** os cinco casos focais passaram em Node 20 e Node 22, incluindo dois nós independentes no som de erro e três pares independentes no arpejo de sucesso.
 
 ## 9. Findings distribuídos da revisão anterior
 
@@ -120,7 +120,7 @@ A documentação antiga omitia posições e misturava fronteiras de seções. Es
 
 ### lifecycle de requests — CORRIGIDO
 
-A documentação antiga rotulava 191-001/002/003 como OPEN. O state canônico os registra como ACCEPTED; esta revisão os representa como correções implementadas aguardando validação executável.
+A documentação antiga rotulava 191-001/002/003 como OPEN. Após correção e execução em Node 20/22, as três requests podem ser encerradas como RESOLVED no state canônico.
 
 ## 10. Evidência atual
 
@@ -128,9 +128,12 @@ Até esta atualização:
 
 - parse JavaScript estático: **PASS**;
 - source/Bíblia: **sincronizados para o SHA acima**;
-- execução Jest/CI da revisão nova: **PENDENTE**.
+- run `36948794013`, Node 20 job `110657136470`: **PASS** do arquivo focal 5/5;
+- run `36948794013`, Node 22 job `110657136461`: **PASS** do arquivo focal 5/5;
+- `replacement-and-completion-real.test.js`: **PASS** nos mesmos dois jobs;
+- Smoke Tests e JS Syntax Check do mesmo run: **PASS**.
 
-Nenhuma request é marcada RESOLVED apenas por inspeção estática.
+Os jobs `Unit + Integration` terminaram vermelhos por uma falha **externa a #191** em `tests/integration/performance.test.js` (`PERF-09`: `blob.arrayBuffer is not a function` em `storage-manager.js`). Essa falha não atingiu nem o arquivo focal nem a suíte relacionada de áudio.
 
 ## 11. Limites honestos
 
@@ -567,5 +570,6 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - Estado suspended/resume: coberto.
 - Fallback webkit: coberto.
 - Falha silenciosa de criação no som de erro: coberta.
-- CI do SHA atual: ainda necessário antes de fechar as requests.
+- CI focal do SHA atual: PASS em Node 20 e Node 22; suíte relacionada também PASS nos dois ambientes.
 - Reauditoria adversarial do harness: corrigida espera do segundo lote por incremento de `START_BATCH` e alinhada semântica real `keepAlive: undefined` de `SHOW_ERROR_INTEGRATED`.
+- Falha global remanescente do run pertence a `PERF-09`/storage-manager e foi explicitamente separada da evidência de #191.
