@@ -172,6 +172,10 @@ jobs:
         if: ${{ always() }}
         run: npm run bible:lifecycle:metrics
 
+      - name: Enforce anti-loop lifecycle SLOs
+        if: ${{ always() }}
+        run: npm run bible:lifecycle:metrics:check
+
       - name: Validate HUMAN protected diff
         if: ${{ always() && github.event_name == 'push' }}
         run: node scripts/validation/verify-human-protected-diff.js --base "${{ github.event.before }}"
