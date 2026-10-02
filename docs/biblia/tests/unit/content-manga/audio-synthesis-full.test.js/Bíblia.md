@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
 > **Estado documental:** correções 191-007 a 191-014 aplicadas; revisão atual aguardando validação executável final e novo par PRIMARY + ADVERSARIAL independente  
-> **SHA auditado:** `878bbe04a4ad6409321dd8bbdcc7c18fb874bcc3`  
+> **SHA auditado:** `b21edb0d42e61cf03cce9d0e4104773205c18c93`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
-> **Linhas textuais:** **1461**  
-> **Posições documentais:** **1462**, contando o LF final  
+> **Linhas textuais:** **1463**  
+> **Posições documentais:** **1464**, contando o LF final  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -217,7 +217,19 @@ A revisão adiciona `UPDATE_IMAGE tardio do lote concluído é rejeitado sem sub
 
 O runtime agora rejeita `UPDATE_IMAGE` identificado quando `_currentBatchId` é nulo ou diferente, preservando compatibilidade para mensagens legadas sem `batchId`.
 
-A prova pré-fix foi congelada no run `36958466821`; a validação pós-fix usa production SHA `e55d6e4785683ab21026e84196497f68a6722b5e`.
+### Red proof válido
+
+Run pré-fix `36958466821`:
+- Node 20 job `110686626267`: **1 falha, 41 passes**;
+- Node 22 job `110686626342`: **1 falha, 41 passes**;
+- a falha foi exatamente o novo caso 191-014;
+- o runtime pré-fix respondeu `{ ok:true, persisted:true, domApplied:false }` ao update tardio em vez de `{ ok:false, reason:'stale_batch' }`.
+
+### Ajuste de harness pós-fix
+
+O primeiro run pós-fix `36958500712` chegou ao guard correto, mas a assertion auxiliar `keepAlive===true` era inválida para ACK síncrono: `dispatchToContent` pode resolver `sendResponse()` antes de capturar o booleano retornado pelo listener. Essa assertion foi removida sem reduzir o contrato principal.
+
+A revisão atual mantém `stale_batch`, DOM intacto, `STALE_UPDATE` e cardinalidade de completion como assertions obrigatórias. Production SHA atual: `e55d6e4785683ab21026e84196497f68a6722b5e`.
 
 ## 18. Evidência executável
 
@@ -231,7 +243,7 @@ Workflow **Audio Synthesis Selftest**, run `36955506902`, commit `942281386ae695
 
 ### Revisão atual
 
-A revisão `878bbe04a4ad6409321dd8bbdcc7c18fb874bcc3` contém 33 testes e depende de `content_manga.js` SHA `e55d6e4785683ab21026e84196497f68a6722b5e`. Runs históricos permanecem como baseline/red proof; o fechamento exige CI verde deste par exato.
+A revisão `b21edb0d42e61cf03cce9d0e4104773205c18c93` contém 33 testes e depende de `content_manga.js` SHA `e55d6e4785683ab21026e84196497f68a6722b5e`. O fechamento exige CI verde deste par exato.
 
 ## 19. Reauditoria adversarial pós-correção
 
@@ -1209,7 +1221,9 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             expectAck: true,
         });
 
-        expect(lateResult.keepAlive).toBe(true);
+        // O stale ACK é síncrono: dispatchToContent pode resolver antes de
+        // capturar o booleano retornado pelo listener. O contrato relevante é
+        // a resposta stale + ausência de mutação, não o valor auxiliar keepAlive.
         expect(lateResult.response).toEqual({
             ok: false,
             reason: 'stale_batch',
@@ -1751,25 +1765,25 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - **768–825:** caso 15 — `SHOW_ERROR_INTEGRATED stale não toca erro nem contamina o lote atual`.
 - **826–865:** caso 16 — `BATCH_COMPLETE duplicado do lote concluído não toca sucesso novamente`.
 - **866–906:** caso 17 — `SHOW_ERROR_INTEGRATED tardio do lote concluído não toca erro nem altera UI`.
-- **907–965:** caso 18 — `UPDATE_IMAGE tardio do lote concluído é rejeitado sem substituir a imagem`.
-- **966–1028:** caso 19 — `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`.
-- **1029–1067:** caso 20 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
-- **1068–1093:** caso 21 — `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`.
-- **1094–1124:** caso 22 — `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`.
-- **1125–1163:** caso 23 — `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`.
-- **1164–1194:** caso 24 — `erro em estado interrupted registra skip sem tentar resume`.
-- **1195–1223:** caso 25 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
-- **1224–1250:** caso 26 — `resume resolvido sem estado running não agenda som e registra skip`.
-- **1251–1279:** caso 27 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
-- **1280–1313:** caso 28 — `contexto suspended só agenda sucesso depois de resume real completar`.
-- **1314–1346:** caso 29 — `erro com resume resolvido sem running registra skip e não cria notas`.
-- **1347–1377:** caso 30 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
-- **1378–1408:** caso 31 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
-- **1409–1432:** caso 32 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
-- **1433–1461:** caso 33 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
-- **1462:** LF terminal.
+- **907–967:** caso 18 — `UPDATE_IMAGE tardio do lote concluído é rejeitado sem substituir a imagem`.
+- **968–1030:** caso 19 — `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`.
+- **1031–1069:** caso 20 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
+- **1070–1095:** caso 21 — `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`.
+- **1096–1126:** caso 22 — `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`.
+- **1127–1165:** caso 23 — `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`.
+- **1166–1196:** caso 24 — `erro em estado interrupted registra skip sem tentar resume`.
+- **1197–1225:** caso 25 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
+- **1226–1252:** caso 26 — `resume resolvido sem estado running não agenda som e registra skip`.
+- **1253–1281:** caso 27 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
+- **1282–1315:** caso 28 — `contexto suspended só agenda sucesso depois de resume real completar`.
+- **1316–1348:** caso 29 — `erro com resume resolvido sem running registra skip e não cria notas`.
+- **1349–1379:** caso 30 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
+- **1380–1410:** caso 31 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
+- **1411–1434:** caso 32 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
+- **1435–1463:** caso 33 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
+- **1464:** LF terminal.
 
-**Cobertura documental:** **1462/1462 posições**, contíguas e sem overlap.
+**Cobertura documental:** **1464/1464 posições**, contíguas e sem overlap.
 
 ## 22. Pontuação provisória pós-correção
 
