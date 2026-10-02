@@ -1341,7 +1341,11 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             configurable: true,
         });
 
+        await storageMock.set({ autoDownload: true });
         await loadOnePage();
+        const retryImage = document.querySelector('[data-testid="img-0"]');
+        retryImage.dataset.origHash = 'hash-retry-final';
+
         await startBatch();
         const liveBatch = [...sentMessages].reverse().find(message =>
             message.action === 'START_BATCH'
@@ -1360,6 +1364,17 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             reason: 'persist_failed',
         }));
         expect(saveAttempts).toBe(1);
+        expect(sentMessages.filter(message =>
+            message.action === 'GTC_SAVE'
+            && message.hash === 'hash-retry-final'
+        )).toEqual([
+            expect.objectContaining({
+                translatedDataUrl: 'data:image/png;base64,RkFJTF9GSVJTVC==',
+            }),
+        ]);
+        expect(sentMessages.filter(message =>
+            message.action === 'DOWNLOAD_IMAGE'
+        )).toHaveLength(0);
 
         const afterFailure = await dispatchToContent(runtimeMock, {
             action: 'GET_FLOATING_BUTTON_STATUS',
@@ -1407,6 +1422,20 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
         expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
             .toBe('data:image/png;base64,UkVUUllfT0s=');
+
+        const retryGtcSaves = sentMessages.filter(message =>
+            message.action === 'GTC_SAVE'
+            && message.hash === 'hash-retry-final'
+        );
+        expect(retryGtcSaves).toHaveLength(2);
+        expect(retryGtcSaves[1]).toEqual(expect.objectContaining({
+            translatedDataUrl: 'data:image/png;base64,UkVUUllfT0s=',
+        }));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'DOWNLOAD_IMAGE',
+            url: 'data:image/png;base64,UkVUUllfT0s=',
+        }));
+
         await waitFor(() => oscillators.length === 3);
 
         const finalStatus = await dispatchToContent(runtimeMock, {
