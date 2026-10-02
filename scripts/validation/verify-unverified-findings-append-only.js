@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '../..');
+const FINDING_APPEND_ONLY_EFFECTIVE_AT_UTC = '2026-10-02T07:28:18Z';
 
 function git(args) {
   return childProcess.execFileSync('git', args, {
@@ -12,6 +13,18 @@ function git(args) {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'ignore'],
   });
+}
+
+function parseRawHistory(output) {
+  return String(output || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith(':'))
+    .map((line) => {
+      const match = /^:(\d{6})\s+(\d{6})\s+([0-9a-f]{40})\s+([0-9a-f]{40})\s+([A-Z])\t(.+)$/i.exec(line);
+      if (!match) return { status:'?', file:line };
+      return { status:match[5].toUpperCase(), file:match[6].replace(/\\/g,'/') };
+    });
 }
 
 function parseBase(argv) {
@@ -91,25 +104,54 @@ function verify(base) {
   return { skipped: false, problems };
 }
 
-function main(argv = process.argv.slice(2)) {
-  const result = verify(parseBase(argv));
-  if (result.skipped) {
-    console.log('Unverified findings append-only: SKIP — base SHA indisponível');
-    return;
+function verifyHistoricalAppendOnly() {
+  const problems = [];
+  const raw = git([
+    'log',
+    '--since=' + FINDING_APPEND_ONLY_EFFECTIVE_AT_UTC,
+    '--format=',
+    '--raw',
+    '--no-abbrev',
+    '--full-index',
+    '--no-renames',
+    '--',
+    'docs/biblia/.coordination/unverified-findings',
+    'docs/biblia/.coordination/unverified-finding-events',
+  ]);
+  for (const change of parseRawHistory(raw)) {
+    if (!artifactKind(change.file)) continue;
+    if (change.status !== 'A') {
+      problems.push(
+        'finding/event histórico não é append-only: status=' + change.status + ' file=' + change.file
+      );
+    }
   }
-  if (result.problems.length) {
+  return { problems };
+}
+
+function main(argv = process.argv.slice(2)) {
+  const incremental = verify(parseBase(argv));
+  const historical = verifyHistoricalAppendOnly();
+  const problems = [...new Set([...(incremental.problems || []), ...(historical.problems || [])])];
+  if (problems.length) {
     console.error('Unverified findings append-only: BLOCKED');
-    for (const problem of result.problems) console.error('- ' + problem);
+    for (const problem of problems) console.error('- ' + problem);
     process.exit(1);
   }
-  console.log('Unverified findings append-only: PASS');
+  console.log(
+    'Unverified findings append-only: PASS'
+    + (incremental.skipped ? ' — incremental base unavailable; full Git history verified' : '')
+  );
 }
 
 if (require.main === module) main();
 
 module.exports = {
+  FINDING_APPEND_ONLY_EFFECTIVE_AT_UTC,
+  parseRawHistory,
   parseBase,
   artifactKind,
   addedArtifactProblems,
   verify,
+  verifyHistoricalAppendOnly,
 };
