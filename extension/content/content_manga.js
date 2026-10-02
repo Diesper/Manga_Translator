@@ -170,6 +170,7 @@ if (!window.__manga_translator_content_injected) {
     let _failedPersistenceUpdateKeys = new Set();
     let _failedPersistenceUpdateMeta = new Map();
     let _pendingPersistenceUpdates = new Map();
+    let _persistedUpdatePayloads = new Map();
     let _currentBatchId = null;
     let _localBatchStatus = 'idle';
     let _localBatchQueuePosition = null;
@@ -1855,6 +1856,7 @@ if (!window.__manga_translator_content_injected) {
             _failedPersistenceUpdateKeys.clear();
             _failedPersistenceUpdateMeta.clear();
             _pendingPersistenceUpdates.clear();
+            _persistedUpdatePayloads.clear();
             _localBatchStatus = 'starting';
             _localBatchQueuePosition = null;
             if (buttonShouldExist()) {
@@ -2627,14 +2629,47 @@ if (!window.__manga_translator_content_injected) {
                     ? _pendingPersistenceUpdates.get(persistenceRetryKey)
                     : null;
                 if (pendingPersistence) {
+                    if (pendingPersistence.dataUrl !== request.newSrc) {
+                        sendLog('warn', 'DUPLICATE_UPDATE_CONFLICT',
+                            'UPDATE_IMAGE conflitante rejeitado enquanto a persistência original está em andamento.', {
+                                batchId: String(acceptedBatchId || '').slice(0, 8),
+                                index: request.index,
+                            });
+                        ack({ ok: false, reason: 'payload_conflict' });
+                        return wantsAck;
+                    }
+
                     sendLog('info', 'DUPLICATE_UPDATE_PENDING',
                         'UPDATE_IMAGE duplicado aguardando a persistência já em andamento.', {
                             batchId: String(acceptedBatchId || '').slice(0, 8),
                             index: request.index,
                         });
-                    pendingPersistence
+                    pendingPersistence.promise
                         .then(() => ack({ ok: true, persisted: true, domApplied: false }))
                         .catch(() => ack({ ok: false, reason: 'persist_failed' }));
+                    return wantsAck;
+                }
+
+                const persistedPayload = persistenceRetryKey
+                    ? _persistedUpdatePayloads.get(persistenceRetryKey)
+                    : undefined;
+                if (persistedPayload !== undefined) {
+                    if (persistedPayload !== request.newSrc) {
+                        sendLog('warn', 'DUPLICATE_UPDATE_CONFLICT',
+                            'UPDATE_IMAGE conflitante rejeitado após persistência do índice.', {
+                                batchId: String(acceptedBatchId || '').slice(0, 8),
+                                index: request.index,
+                            });
+                        ack({ ok: false, reason: 'payload_conflict' });
+                        return wantsAck;
+                    }
+
+                    sendLog('info', 'DUPLICATE_UPDATE_IGNORED',
+                        'UPDATE_IMAGE duplicado confirmado pelo payload já persistido.', {
+                            batchId: String(acceptedBatchId || '').slice(0, 8),
+                            index: request.index,
+                        });
+                    ack({ ok: true, persisted: true, domApplied: false });
                     return wantsAck;
                 }
 
@@ -2667,21 +2702,6 @@ if (!window.__manga_translator_content_injected) {
                                 persistenceMeta || undefined
                             );
                             break;
-                        }
-
-                        if (
-                            img.dataset.translated === 'true'
-                            && _countedJobIndices.has(request.index)
-                        ) {
-                            // Duplicata de um resultado já persistido/contabilizado:
-                            // não reescreva storage com um payload divergente do DOM.
-                            sendLog('info', 'DUPLICATE_UPDATE_IGNORED',
-                                'UPDATE_IMAGE duplicado ignorado após conclusão do índice.', {
-                                    batchId: String(acceptedBatchId || '').slice(0, 8),
-                                    index: request.index,
-                                });
-                            ack({ ok: true, persisted: true, domApplied: false });
-                            return wantsAck;
                         }
 
                         const origSourceUrl    = img.getAttribute('src') || img.dataset.src || img.dataset.lazySrc || img.getAttribute('data-original') || '';
@@ -2740,14 +2760,16 @@ if (!window.__manga_translator_content_injected) {
                 }
 
                 if (persistenceRetryKey && persistPromise) {
-                    _pendingPersistenceUpdates.set(persistenceRetryKey, persistPromise);
+                    _pendingPersistenceUpdates.set(persistenceRetryKey, {
+                        promise: persistPromise,
+                        dataUrl: request.newSrc,
+                    });
                 }
 
                 const clearPendingPersistence = () => {
-                    if (
-                        persistenceRetryKey
-                        && _pendingPersistenceUpdates.get(persistenceRetryKey) === persistPromise
-                    ) {
+                    if (!persistenceRetryKey) return;
+                    const pending = _pendingPersistenceUpdates.get(persistenceRetryKey);
+                    if (pending && pending.promise === persistPromise) {
                         _pendingPersistenceUpdates.delete(persistenceRetryKey);
                     }
                 };
@@ -2770,6 +2792,7 @@ if (!window.__manga_translator_content_injected) {
                     .then(() => {
                         clearPendingPersistence();
                         if (persistenceRetryKey) {
+                            _persistedUpdatePayloads.set(persistenceRetryKey, request.newSrc);
                             _failedPersistenceUpdateKeys.delete(persistenceRetryKey);
                             _failedPersistenceUpdateMeta.delete(persistenceRetryKey);
                         }
