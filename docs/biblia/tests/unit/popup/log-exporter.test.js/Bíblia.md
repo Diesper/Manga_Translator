@@ -1,7 +1,7 @@
 # Bíblia técnica — tests/unit/popup/log-exporter.test.js
 
 > **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA APROVADA  
-> **SHA auditado:** `7149c3eb155c345094b73ef2355aea1b479dfebb`  
+> **SHA auditado:** `5e4ccdb9c64599f66ff9bb370364b871a7e5f9e6`  
 > **Agente responsável:** AGENTE 25  
 > **Tipo:** suíte Jest/JSDOM do popup real — logs, filtro, export e cópia  
 > **Linhas textuais:** **219**  
@@ -367,13 +367,47 @@ describe('Log Buffer e Exportador — popup.js', () => {
         expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('BATCH_DONE'));
         expect(document.getElementById('btn-log-copy').textContent).toBe('Copiado!');
     });
+    test('beforeunload remove o listener de storage dos logs e limpa o estado global', async () => {
+        await storageMock.set({
+            translatorLog: [{ ts: Date.now(), level: 'info', source: 'bg', action: 'CLEANUP', detail: 'cleanup' }],
+            enabledDomains: ['manga.test'],
+        });
+        const activeTab = await tabsMock.create({
+            url: 'https://manga.test/ch1',
+            active: true,
+            title: 'Manga Test',
+        });
+        tabsMock._activeTabId = activeTab.id;
+
+        const removeListenerSpy = jest.spyOn(chrome.storage.onChanged, 'removeListener');
+
+        await loadExtensionPage({
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
+            fireDOMContentLoaded: true,
+        });
+        await flushAsyncTasks(8);
+        await openLogsSection();
+
+        const installedListener = window.logStorageListener;
+        expect(typeof installedListener).toBe('function');
+        expect(window.logListenerAdded).toBe(true);
+
+        window.dispatchEvent(new Event('beforeunload'));
+
+        expect(removeListenerSpy).toHaveBeenCalledWith(installedListener);
+        expect(window.logStorageListener).toBeNull();
+        expect(window.logListenerAdded).toBe(false);
+        expect(window.logPoller).toBeNull();
+    });
+
 });
 
 ```
 
 ## 12. Cobertura documental por linha/posição
 
-Faixas contíguas cobrindo **1–223**; 223 é o newline terminal.
+Faixas contíguas cobrindo **1–257**; 257 é o newline terminal.
 
 ### Posições 1–6 — cabeçalho
 Declara visualização, filtro, limpeza e export. Limpeza não aparece nos cenários. **Evidência:** 🟦 editorial.
@@ -423,21 +457,27 @@ Linha vazia.
 ### Posições 194–220 — cópia
 Filtro warn + clipboard real mockado prova cópia de todos os logs e label. **Evidência:** ✅ PROVADO DIRETAMENTE.
 
-### Posição 221 — fechamento
+### Posições 221–253 — cleanup explícito de logs no beforeunload
+Abre a aba de logs, captura o listener registrado em `chrome.storage.onChanged`, dispara `beforeunload` e prova remoção do listener + limpeza de `logStorageListener`, `logListenerAdded` e `logPoller`. **Evidência:** ✅ PROVADO DIRETAMENTE.
+
+### Posição 254 — separador
+Linha vazia.
+
+### Posição 255 — fechamento
 Fecha describe. **Evidência:** 🟨 estrutural.
 
-### Posição 222 — linha vazia final textual
+### Posição 256 — linha vazia final textual
 Sem comportamento.
 
-### Posição 223 — newline terminal
+### Posição 257 — newline terminal
 Terminador do blob. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
 
 ## 13. Autoauditoria documental
 
 - SHA reconfirmado antes da escrita.
 - Fonte integral embutida e posteriormente verificável contra o blob.
-- **223/223 posições** documentadas.
+- **257/257 posições** documentadas.
 - A suíte usa popup real; lacunas não foram preenchidas alterando testes.
 - Nenhum arquivo externo foi modificado.
 
-**Resultado da sincronização:** fonte integral e cobertura estrutural atualizadas para `7149c3eb155c345094b73ef2355aea1b479dfebb`; a revisão permanece READY_FOR_AUDIT e exige auditoria independente nova.
+**Resultado da sincronização:** fonte integral e cobertura estrutural atualizadas para `5e4ccdb9c64599f66ff9bb370364b871a7e5f9e6`; a revisão permanece READY_FOR_AUDIT e exige auditoria independente nova.
