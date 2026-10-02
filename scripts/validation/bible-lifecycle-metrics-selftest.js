@@ -67,4 +67,19 @@ assert.ok(rendered.includes('p90_cycles='));
 assert.ok(rendered.includes('ai_work_units='));
 console.log('PASS metrics render is audit-friendly');
 
+assert.deepStrictEqual(metrics.targetProblems(metrics.buildMetrics([
+  state(10,0), state(11,0), state(12,1), state(13,0),
+])), []);
+assert.strictEqual(metrics.enforceTargets(metrics.buildMetrics([
+  state(20,0), state(21,0), state(22,0), state(23,0),
+])).units, 4);
+console.log('PASS lifecycle SLO gate accepts healthy corpus');
+
+const targetProblems = metrics.targetProblems(result);
+assert.ok(targetProblems.some((item) => item.includes('mean correction cycles')));
+assert.ok(targetProblems.some((item) => item.includes('p90 correction cycles')));
+assert.ok(targetProblems.some((item) => item.includes('HUMAN escalation')));
+assert.throws(() => metrics.enforceTargets(result), /BIBLE_LIFECYCLE_SLO_BLOCKED/);
+console.log('PASS lifecycle SLO gate rejects violated targets');
+
 console.log('Bible lifecycle metrics self-test: SUCCESS');
