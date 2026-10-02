@@ -517,6 +517,77 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
     return { state: next, consumed_token_id: token.token_id };
   }
 
+  if (action === 'REFRESH_REVISION_FOR_AUDIT') {
+    if (!['COMPLETED', 'READY_FOR_AUDIT', 'CHANGES_REQUIRED'].includes(state.status)) {
+      throw new Error('REVISION_REFRESH_STATUS_INVALID:' + state.status);
+    }
+    const nextTestSha = request.test_sha;
+    const nextBibleSha = request.bible_sha;
+    const nextProductionSha = request.production_sha === undefined
+      ? snapshot.production_sha
+      : request.production_sha;
+    if (!life.validSha(nextTestSha)) throw new Error('REVISION_REFRESH_TEST_SHA_INVALID');
+    if (!life.validSha(nextBibleSha)) throw new Error('REVISION_REFRESH_BIBLE_SHA_INVALID');
+    if (nextProductionSha !== null && nextProductionSha !== undefined
+      && !life.validSha(nextProductionSha)) throw new Error('REVISION_REFRESH_PRODUCTION_SHA_INVALID');
+
+    const priorRevisionId = snapshot.revision_id;
+    const candidate = {
+      production_sha: nextProductionSha ? String(nextProductionSha).toLowerCase() : null,
+      test_sha: String(nextTestSha).toLowerCase(),
+      bible_sha: String(nextBibleSha).toLowerCase(),
+    };
+    const nextRevision = life.revisionIdentity(state, candidate);
+    if (nextRevision.revision_id === priorRevisionId) throw new Error('REVISION_REFRESH_REQUIRES_DRIFT');
+
+    const previousSourceSha = state.source_sha || null;
+    const previousBibleSha = state.bible_sha || null;
+    const previousProductionSha = snapshot.production_sha || null;
+    next.source_sha = candidate.test_sha;
+    next.test_sha = candidate.test_sha;
+    next.bible_sha = candidate.bible_sha;
+    next.production_sha = candidate.production_sha;
+    const nextEpoch = snapshot.audit_epoch + 1;
+    const handoffId = String(state.index).padStart(3, '0')
+      + '-e' + nextEpoch + '-' + life.sha256(life.stableJson({
+        index: state.index,
+        epoch: nextEpoch,
+        at_utc: at,
+        event: life.REVISION_REFRESH_EVENT,
+        test_sha: next.test_sha,
+        bible_sha: next.bible_sha,
+        production_sha: next.production_sha,
+      })).slice(0, 12);
+
+    life.appendLifecycleEvent(next.history, {
+      at_utc: at,
+      type: life.REVISION_REFRESH_EVENT,
+      from_status: state.status,
+      to_status: 'READY_FOR_AUDIT',
+      actor,
+      previous_source_sha: previousSourceSha,
+      previous_bible_sha: previousBibleSha,
+      previous_production_sha: previousProductionSha,
+      previous_revision_id: priorRevisionId,
+      source_sha: next.source_sha,
+      test_sha: next.test_sha,
+      bible_sha: next.bible_sha,
+      production_sha: next.production_sha,
+      revision_id: nextRevision.revision_id,
+      correction_cycle: snapshot.current_escalation_cycle,
+      audit_epoch: nextEpoch,
+      handoff_id: handoffId,
+      reason: String(request.reason || 'Revisão externa legítima vinculada ao working tree e devolvida para auditoria independente.'),
+    });
+    next.status = 'READY_FOR_AUDIT';
+    next.agent = null;
+    next.completed_at_utc = null;
+    next.updated_at_utc = at;
+    const after = life.lifecycleSnapshot(next, candidate);
+    persistSnapshot(next, after);
+    return { state: next, handoff_id: after.handoff_id, audit_epoch: after.audit_epoch };
+  }
+
   if (action === 'HANDOFF_FOR_AUDIT') {
     if (state.status !== 'IN_PROGRESS') throw new Error('HANDOFF_REQUIRES_IN_PROGRESS');
     if (state.agent && state.agent !== actor) throw new Error('HANDOFF_ACTOR_NOT_OWNER');
@@ -893,6 +964,11 @@ function main(argv=process.argv.slice(2)) {
       const working=currentWorkingIdentity(root,state);
       const drift=revisionBindingProblems(token || {},working);
       if (drift.length) throw new Error('TOKEN_WORKING_REVISION_STALE:'+drift.join(','));
+    } else if (action === 'REFRESH_REVISION_FOR_AUDIT') {
+      if ((model.active_claims_and_leases || []).some((rel)=>ownershipIndex(rel)===state.index)) {
+        throw new Error('REVISION_REFRESH_BLOCKED_BY_ACTIVE_AUDIT_LEASE');
+      }
+      Object.assign(request, workingRevision(root, state));
     } else if (action === 'HANDOFF_FOR_AUDIT') {
       request.reservation_path=assertCorrectionReservation(root,state,request.actor);
       Object.assign(request, workingRevision(root, state));

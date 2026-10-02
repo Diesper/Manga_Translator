@@ -78,6 +78,28 @@ assert.strictEqual(afterOnlyHandoff.audit_epoch,initialNoCycle.audit_epoch+1);
 console.log('PASS finding/audit/retry events do not increment cycle or audit epoch');
 console.log('PASS correction handoff alone increments cycle and audit epoch');
 
+const refreshOnly = baseState();
+const refreshBefore = life.lifecycleSnapshot(refreshOnly);
+refreshOnly.source_sha = sha('d');
+refreshOnly.bible_sha = sha('e');
+refreshOnly.history.push({
+  at_utc:'2026-10-02T06:25:00Z',
+  type:life.REVISION_REFRESH_EVENT,
+  from_status:'COMPLETED',
+  to_status:'READY_FOR_AUDIT',
+  source_sha:refreshOnly.source_sha,
+  test_sha:refreshOnly.source_sha,
+  bible_sha:refreshOnly.bible_sha,
+  audit_epoch:1,
+});
+const refreshAfter = life.lifecycleSnapshot(refreshOnly);
+assert.strictEqual(refreshAfter.correction_cycle, refreshBefore.correction_cycle);
+assert.strictEqual(refreshAfter.lifetime_correction_cycles, refreshBefore.lifetime_correction_cycles);
+assert.strictEqual(refreshAfter.audit_epoch, refreshBefore.audit_epoch + 1);
+assert.strictEqual(life.auditFenceEvents(refreshOnly).length, 1);
+assert.strictEqual(life.handoffEvents(refreshOnly).length, 0);
+console.log('PASS revision refresh increments audit epoch without correction cycle');
+
 const same = life.revisionIdentity(s);
 const changed = life.revisionIdentity({...s, source_sha: sha('d')});
 assert.notStrictEqual(same.revision_id, changed.revision_id);

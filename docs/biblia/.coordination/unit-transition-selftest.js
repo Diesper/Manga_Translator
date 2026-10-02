@@ -246,6 +246,54 @@ assert.strictEqual(life.revisionIdentity(aborted.state).revision_id,abortRevisio
 console.log('PASS SAFE_ABORT does not increment correction cycle');
 console.log('PASS SAFE_ABORT preserves history, revision and finding provenance and returns audit-able');
 
+const refreshInput = state(2);
+refreshInput.status='COMPLETED';
+refreshInput.completed_at_utc='2026-10-02T06:20:00Z';
+const refreshBefore = life.lifecycleSnapshot(refreshInput);
+const refreshed = transition.planTransition({
+  state: refreshInput,
+  request:{
+    action:'REFRESH_REVISION_FOR_AUDIT',
+    actor:'MAINTAINER',
+    at_utc:'2026-10-02T06:31:20Z',
+    test_sha:'d'.repeat(40),
+    bible_sha:'e'.repeat(40),
+    production_sha:'f'.repeat(40),
+  },
+});
+const refreshAfter = life.lifecycleSnapshot(refreshed.state);
+assert.strictEqual(refreshed.state.status,'READY_FOR_AUDIT');
+assert.strictEqual(refreshed.state.source_sha,'d'.repeat(40));
+assert.strictEqual(refreshed.state.completed_at_utc,null);
+assert.strictEqual(refreshAfter.correction_cycle,refreshBefore.correction_cycle);
+assert.strictEqual(refreshAfter.lifetime_correction_cycles,refreshBefore.lifetime_correction_cycles);
+assert.strictEqual(refreshAfter.audit_epoch,refreshBefore.audit_epoch+1);
+assert.ok(refreshed.state.history.some((e)=>e.type===life.REVISION_REFRESH_EVENT));
+assert.throws(()=>transition.planTransition({
+  state:refreshed.state,
+  request:{
+    action:'REFRESH_REVISION_FOR_AUDIT',
+    actor:'MAINTAINER',
+    at_utc:'2026-10-02T06:31:21Z',
+    test_sha:'d'.repeat(40),
+    bible_sha:'e'.repeat(40),
+    production_sha:'f'.repeat(40),
+  },
+}),/REVISION_REFRESH_REQUIRES_DRIFT/);
+const refreshInvalid = state(1);
+refreshInvalid.status='IN_PROGRESS';
+assert.throws(()=>transition.planTransition({
+  state:refreshInvalid,
+  request:{
+    action:'REFRESH_REVISION_FOR_AUDIT',
+    actor:'MAINTAINER',
+    at_utc:'2026-10-02T06:31:22Z',
+    test_sha:'d'.repeat(40),
+    bible_sha:'e'.repeat(40),
+  },
+}),/REVISION_REFRESH_STATUS_INVALID/);
+console.log('PASS REFRESH_REVISION_FOR_AUDIT invalidates audits without correction escalation');
+
 const correctedHandoff = transition.planTransition({
   state: planned.state,
   request: {

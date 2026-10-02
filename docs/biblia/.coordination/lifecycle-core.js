@@ -4,6 +4,7 @@ const crypto = require('crypto');
 
 const LIFECYCLE_POLICY_EFFECTIVE_AT_UTC = '2026-10-02T06:20:00.000Z';
 const HANDOFF_EVENT = 'CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT';
+const REVISION_REFRESH_EVENT = 'REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT';
 const HUMAN_RESET_EVENT = 'HUMAN_RESET_ESCALATION';
 const SAFE_ABORT_EVENT = 'PROTECTED_HANDOFF_UNAUTHORIZED_CORRECTION_ABORTED';
 
@@ -136,6 +137,15 @@ function handoffEvents(state) {
     .filter(({ entry }) => entry?.type === HANDOFF_EVENT);
 }
 
+function auditFenceEvents(state) {
+  return historyOf(state)
+    .map((entry, position) => ({ entry, position }))
+    .filter(({ entry }) => (
+      entry?.type === HANDOFF_EVENT
+      || entry?.type === REVISION_REFRESH_EVENT
+    ));
+}
+
 function correctionCycles(state) {
   const handoffs = handoffEvents(state);
   const lifetime = handoffs.length;
@@ -154,11 +164,11 @@ function correctionCycles(state) {
 }
 
 function auditEpoch(state) {
-  return handoffEvents(state).length;
+  return auditFenceEvents(state).length;
 }
 
 function latestHandoff(state) {
-  const all = handoffEvents(state);
+  const all = auditFenceEvents(state);
   return all.length ? all[all.length - 1] : null;
 }
 
@@ -376,7 +386,9 @@ function lifecycleSnapshot(state, options = {}) {
 function humanPermanentlyClosed(state) {
   if (state?.status !== 'COMPLETED') return false;
   const history = historyOf(state);
-  const latestHandoff = [...history].reverse().findIndex((entry) => entry?.type === HANDOFF_EVENT);
+  const latestHandoff = [...history].reverse().findIndex((entry) => (
+    entry?.type === HANDOFF_EVENT || entry?.type === REVISION_REFRESH_EVENT
+  ));
   const latestClose = [...history].reverse().findIndex((entry) => entry?.type === 'HUMAN_PERMANENTLY_CLOSED');
   if (latestClose < 0) return false;
   // reverse indexes: smaller means later in the original history.
@@ -388,7 +400,9 @@ function activeHumanAuthorizedCorrection(state) {
   const history = historyOf(state);
   for (let i = history.length - 1; i >= 0; i -= 1) {
     const entry = history[i];
-    if (entry?.type === HANDOFF_EVENT || entry?.type === SAFE_ABORT_EVENT) return false;
+    if (entry?.type === HANDOFF_EVENT
+      || entry?.type === REVISION_REFRESH_EVENT
+      || entry?.type === SAFE_ABORT_EVENT) return false;
     if (entry?.type !== 'HUMAN_AUTHORIZED_CORRECTION_STARTED') continue;
     const tokenId = String(entry?.correction_token_id || '').trim();
     const approvalId = String(entry?.approval_id || '').trim();
@@ -549,6 +563,7 @@ function evaluateLifecycleStates(states, options = {}) {
 module.exports = {
   LIFECYCLE_POLICY_EFFECTIVE_AT_UTC,
   HANDOFF_EVENT,
+  REVISION_REFRESH_EVENT,
   HUMAN_RESET_EVENT,
   SAFE_ABORT_EVENT,
   ESCALATION,
@@ -561,6 +576,7 @@ module.exports = {
   validSha,
   escalationForCycle,
   handoffEvents,
+  auditFenceEvents,
   correctionCycles,
   auditEpoch,
   latestHandoff,

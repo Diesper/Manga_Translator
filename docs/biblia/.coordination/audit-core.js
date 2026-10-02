@@ -408,7 +408,8 @@ function latestProtectedHandoff(state, options = {}) {
       at_ms: Date.parse(entry?.at_utc || ''),
     }))
     .filter(({ entry, at_ms }) => (
-      entry?.type === 'CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT'
+      (entry?.type === lifecycleCore.HANDOFF_EVENT
+        || entry?.type === lifecycleCore.REVISION_REFRESH_EVENT)
       && Number.isFinite(at_ms)
       && at_ms >= effectiveAtMs
       && String(entry?.source_sha || '').toLowerCase() === currentSource
@@ -576,17 +577,19 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
   const problems = [];
   for (const state of states || []) {
     const history = Array.isArray(state?.history) ? state.history : [];
-    const handoffs = history
+    const auditFences = history
       .map((entry, position) => ({
         entry,
         position,
         at_ms: Date.parse(entry?.at_utc || ''),
       }))
       .filter(({ entry, at_ms }) => (
-        entry?.type === 'CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT'
+        (entry?.type === lifecycleCore.HANDOFF_EVENT
+          || entry?.type === lifecycleCore.REVISION_REFRESH_EVENT)
         && Number.isFinite(at_ms)
         && at_ms >= effectiveAtMs
       ));
+    const handoffs = auditFences.filter(({ entry }) => entry?.type === lifecycleCore.HANDOFF_EVENT);
 
     for (const handoff of handoffs) {
       const sourceSha = String(handoff.entry?.source_sha || '').toLowerCase();
@@ -600,7 +603,7 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
         continue;
       }
 
-      const nextHandoffPosition = handoffs
+      const nextHandoffPosition = auditFences
         .filter((candidate) => candidate.position > handoff.position)
         .map((candidate) => candidate.position)
         .sort((a, b) => a - b)[0] ?? Number.POSITIVE_INFINITY;
