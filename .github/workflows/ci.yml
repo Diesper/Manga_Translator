@@ -69,6 +69,10 @@ jobs:
         run: node scripts/validation/verify-repository-structure.js
       - name: Validar contrato da própria CI
         run: node scripts/validation/verify-ci-contract.js
+      - name: Validar governança do protocolo anti-loop da Bíblia
+        run: node scripts/validation/verify-bible-protocol-governance.js
+      - name: Provar que remoção de gates anti-loop é rejeitada
+        run: node scripts/validation/verify-bible-protocol-governance-selftest.js
       - name: Validar política anti-skip/escape-hatch
         run: npm run validate:test-policy
       - name: Provar que a política anti-skip rejeita violações
