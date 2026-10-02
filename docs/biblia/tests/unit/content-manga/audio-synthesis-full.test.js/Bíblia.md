@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** correções 191-007 a 191-014 aplicadas; revisão atual aguardando validação executável final e novo par PRIMARY + ADVERSARIAL independente  
+> **Estado documental:** correções 191-001 a 191-014 validadas executavelmente; revisão pronta para novo PRIMARY + ADVERSARIAL independentes  
 > **SHA auditado:** `b21edb0d42e61cf03cce9d0e4104773205c18c93`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
@@ -94,15 +94,15 @@ Evidência histórica:
 - PR draft #74, run `36955075188`: os dois regressions novos falharam como esperado.
 - PR draft #76, run `36955506902`: ambos passaram.
 
-## 10. 191-007 — AUDIO_UNLOCK_BRANCH_GAP — CORREÇÃO APLICADA
+## 10. 191-007 — AUDIO_UNLOCK_BRANCH_GAP — RESOLVED COM VALIDAÇÃO EXECUTÁVEL
 
 Foram adicionadas regressões pelo clique real para contexto já `running`, resume incompleto, estado `interrupted`, API ausente e falha síncrona do construtor. O caso `suspended → running` também passou a exigir `START_BATCH`.
 
-## 11. 191-008 — AUDIO_UNLOCK_SECOND_CALLSITE_GAP — CORREÇÃO APLICADA
+## 11. 191-008 — AUDIO_UNLOCK_SECOND_CALLSITE_GAP — RESOLVED COM VALIDAÇÃO EXECUTÁVEL
 
 A tradução individual via `TRANSLATE_CONTEXT_IMAGE → startSingleImageTranslation()` agora possui regressão própria que exige `resume()`, `AUDIO_UNLOCKED` e `START_BATCH`. Remover esse segundo call site de `unlockNotificationAudio()` passa a quebrar a suíte focal.
 
-## 12. 191-009 — AUDIO_STATE_BRANCH_GAP — CORREÇÃO APLICADA
+## 12. 191-009 — AUDIO_STATE_BRANCH_GAP — RESOLVED COM VALIDAÇÃO EXECUTÁVEL
 
 A passagem adversarial identificou três branches restantes:
 - `playSuccessSound()` com contexto em estado `interrupted`;
@@ -114,7 +114,7 @@ A revisão atual adiciona regressões que exigem:
 - `AUDIO_ERROR_SKIPPED` sem `resume()`/notas no error interrupted, preservando a UI;
 - `AUDIO_SUCCESS_FAILED` com nome/mensagem/origem quando o construtor falha, sem exceção escapar do handler.
 
-## 13. 191-010 — AUDIO_SUCCESS_RESUME_REJECTION_GAP — CORREÇÃO APLICADA
+## 13. 191-010 — AUDIO_SUCCESS_RESUME_REJECTION_GAP — RESOLVED COM VALIDAÇÃO EXECUTÁVEL
 
 A matriz ainda não protegia o branch próprio de `playSuccessSound()` em que o contexto está `suspended` e `resume()` rejeita.
 
@@ -128,7 +128,7 @@ A revisão atual adiciona `BATCH_COMPLETE com resume rejeitado registra AUDIO_SU
 
 Isso fecha a assimetria entre rejeição de resume no unlock, erro e sucesso.
 
-## 14. 191-011 — AUDIO_CONTEXT_CROSS_PATH_REUSE_GAP — CORREÇÃO APLICADA
+## 14. 191-011 — AUDIO_CONTEXT_CROSS_PATH_REUSE_GAP — RESOLVED COM VALIDAÇÃO EXECUTÁVEL
 
 O contrato de produção afirma um único `notificationAudioContext` por página, mas as provas anteriores verificavam reuso apenas dentro de um mesmo tipo de fluxo.
 
@@ -150,7 +150,7 @@ A regressão exige:
 
 Assim, separar silenciosamente contextos de unlock/erro/sucesso passa a quebrar a suíte.
 
-## 15. 191-012 — STALE_AUDIO_MESSAGE_GUARD_GAP — CORREÇÃO APLICADA
+## 15. 191-012 — STALE_AUDIO_MESSAGE_GUARD_GAP — RESOLVED COM VALIDAÇÃO EXECUTÁVEL
 
 A produção já rejeita mensagens stale antes de executar os caminhos de áudio, mas não havia prova executável de que lotes antigos não interferem no lote atual.
 
@@ -170,7 +170,7 @@ Foram adicionadas duas regressões:
 
 Isso protege diretamente respostas fora de ordem e interferência A/B/C/... no gatilho de áudio.
 
-## 16. 191-013 — POST_COMPLETION_DUPLICATE_MESSAGE_GAP — CORREÇÃO APLICADA COM RED→GREEN PENDENTE
+## 16. 191-013 — POST_COMPLETION_DUPLICATE_MESSAGE_GAP — RESOLVED COM RED→GREEN
 
 A passagem de duplicidade revelou uma assimetria no guard de mensagens:
 
@@ -201,7 +201,7 @@ Os guards agora consideram stale qualquer mensagem que traz `batchId` quando:
 
 O `BATCH_COMPLETE` duplicado passa a emitir `STALE_COMPLETE`; o erro tardio retorna antes de `batchHasErrors`, UI e áudio.
 
-## 17. 191-014 — POST_COMPLETION_STALE_UPDATE_GAP — CORREÇÃO APLICADA
+## 17. 191-014 — POST_COMPLETION_STALE_UPDATE_GAP — RESOLVED COM RED→GREEN
 
 O mesmo padrão temporal existia em `UPDATE_IMAGE`: o guard antigo só rejeitava mismatch enquanto `_currentBatchId` estava preenchido. Depois da conclusão, `_currentBatchId=null`, então um resultado tardio com `batchId` do lote encerrado podia voltar a substituir/persistir a imagem.
 
@@ -241,9 +241,20 @@ Workflow **Audio Synthesis Selftest**, run `36955506902`, commit `942281386ae695
 - Full content-scripts job `110677469527`: 40/40 suítes, 445/445 testes PASS.
 - A versão correspondente de #191 tinha 17/17 PASS.
 
-### Revisão atual
+### Revisão atual — VALIDADA
 
-A revisão `b21edb0d42e61cf03cce9d0e4104773205c18c93` contém 33 testes e depende de `content_manga.js` SHA `e55d6e4785683ab21026e84196497f68a6722b5e`. O fechamento exige CI verde deste par exato.
+Workflow **Audio Synthesis Selftest**, run `36958628790`, commit `975d6cd172d065714e0e66c61f352b3d17a43cea`:
+
+- Node 20 job `110687118088`: **2/2 suítes, 42/42 testes PASS** com `--runInBand --detectOpenHandles`;
+- Node 22 job `110687118010`: **2/2 suítes, 42/42 testes PASS** com `--runInBand --detectOpenHandles`;
+- dentro da suíte #191: **33/33 casos PASS**;
+- suíte relacionada `replacement-and-completion-real.test.js`: **9/9 PASS**;
+- Full content-scripts job `110687117793`: **40/40 suítes, 461/461 testes PASS** com `--runInBand --detectOpenHandles`;
+- source SHA: `b21edb0d42e61cf03cce9d0e4104773205c18c93`;
+- Bible SHA será o SHA deste documento após esta atualização;
+- production dependency SHA: `e55d6e4785683ab21026e84196497f68a6722b5e`.
+
+O run está vinculado ao mesmo source+production atuais; commits posteriores ao run alteraram apenas Bíblia/state, não código executado.
 
 ## 19. Reauditoria adversarial pós-correção
 
@@ -1785,16 +1796,16 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 
 **Cobertura documental:** **1464/1464 posições**, contíguas e sem overlap.
 
-## 22. Pontuação provisória pós-correção
+## 22. Pontuação pós-correção / pré-auditoria distribuída
 
 - Correção funcional: **25/25**
-- Robustez adversarial: **18/20**
-- Cobertura/testes: **18/20**
+- Robustez adversarial: **19/20**
+- Cobertura/testes: **19/20**
 - Regressões/compatibilidade: **15/15**
 - Tratamento de erros: **10/10**
 - Qualidade estrutural: **5/5**
 - Documentação/coerência: **5/5**
 
-**TOTAL PROVISÓRIO: 96/100.**
+**TOTAL PROVISÓRIO: 98/100.**
 
-Os 4 pontos restantes correspondem à validação executável da revisão atual e ao gate distribuído independente. Não declarar 100/100 antes dessas evidências.
+A camada de correção e validação executável está concluída. Os 2 pontos restantes não representam falha técnica conhecida: correspondem exclusivamente ao gate distribuído obrigatório — PRIMARY + ADVERSARIAL independentes para o `SOURCE_SHA` e `BIBLE_SHA` atuais. Não declarar 100/100 nem `COMPLETED` antes desse par.
