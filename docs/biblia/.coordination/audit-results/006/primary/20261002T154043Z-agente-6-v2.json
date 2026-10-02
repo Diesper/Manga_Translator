@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "index": 6,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 6",
+  "file": "extension/background/actions/commit-result.js",
+  "bible": "docs/biblia/extension/background/actions/commit-result.js/Bíblia.md",
+  "source_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
+  "bible_sha": "f5ba18b73f602a55d484bf3d1cc5c558cf834a68",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "006-PRI-CUR-001",
+      "severity": "MATERIAL",
+      "category": "EVIDENCE_OVERCLASSIFICATION_ID_PRECEDENCE",
+      "bible_location": "Seção 8 — Fallbacks de IDs; Seção 10 — 006-002 RESOLVED",
+      "finding": "A Bíblia afirma que o self-test prova a ordem completa de geminiTabId `ownership → sender → job`, mas as assertions atuais só discriminam sender quando ownershipTabId é null e job quando ownershipTabId é null e sender não possui tab.",
+      "evidence": [
+        "O source real usa `ownership.tabId ?? senderTabId ?? job.geminiTabId`, portanto a semântica documentada é a semântica atual do código.",
+        "No self-test, os únicos casos focais de geminiTabId configuram `ownershipTabId: null`: um espera sender=222 e outro espera job.geminiTabId=333 quando sender não possui tab.",
+        "Não existe caso em que ownership.tabId, senderTabId e job.geminiTabId sejam valores distintos e ownership.tabId seja não-null.",
+        "O teste Jest `tests/unit/background/commit-result-action.test.js` também não contém um caso discriminante de precedência de geminiTabId.",
+        "Mutação adversarial: trocar a expressão para `senderTabId ?? ownership.tabId ?? job.geminiTabId` preservaria os dois casos focais atuais e os casos existentes com ownership/sender ambos 321, mas violaria a precedência que a Bíblia diz estar provada."
+      ],
+      "required_change": "Ou adicionar assertion focal com IDs distintos (por exemplo ownership=111, sender=222, job=333) que exija 111, ou rebaixar a frase para semântica confirmada pelo source e dizer que o self-test prova apenas os fallbacks sender/job."
+    },
+    {
+      "id": "006-PRI-CUR-002",
+      "severity": "MATERIAL",
+      "category": "AUDIT_REQUEST_RESOLUTION_INCOMPLETE",
+      "bible_location": "Seção 10 — 006-002 RESOLVED; `.state/006.json` audit_request 006-002",
+      "finding": "A request 006-002 está marcada RESOLVED embora a evidência esperada registrada exija `Resposta INTERNAL_ERROR e efeitos anteriores claramente assertados`; a correção atual prova rejeições diretas de `action.execute`, mas não a resposta `INTERNAL_ERROR` no caminho do router para essas falhas.",
+      "evidence": [
+        "O self-test corretivo chama `action.execute(...)` diretamente e usa `expectReject(...)` para ensureInitialized/updateJobState/finalizeJob; o arquivo não contém a string/assertion `INTERNAL_ERROR`.",
+        "`tests/unit/background/commit-result-action.test.js`, alvo declarado da request, também não contém `INTERNAL_ERROR` nem casos de rejeição dessas três dependências.",
+        "`extension/background/router.js` possui um catch assíncrono genérico que transforma exceções em `{ ok:false, error:{ code:'INTERNAL_ERROR', ... } }`, mas isso é evidência estática do router, não a assertion focal solicitada para commit-result.",
+        "Os efeitos anteriores das rejeições são parcialmente provados no self-test (ownership não chamado após init failure; finalize não chamado após update failure; update ocorre antes de finalize failure), mas a metade 'Resposta INTERNAL_ERROR' do expected_evidence permanece sem prova específica."
+      ],
+      "required_change": "Adicionar casos roteados de commit-result para as rejeições e assertar `INTERNAL_ERROR` junto aos efeitos anteriores, ou devolver 006-002 a um estado não-resolvido/qualificar explicitamente que a evidência esperada de resposta do router ainda falta."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T15:40:43Z"
+}
