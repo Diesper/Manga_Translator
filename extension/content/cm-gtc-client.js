@@ -168,7 +168,7 @@
             fingerprintVersion: metadata.fingerprintVersion || 'visual-v3',
             mimeType: metadata.mimeType || null,
         });
-        return Boolean(response && response.ok);
+        return Boolean(response && response.ok && response.saved !== false);
     }
     function confirmWithRegionalHashes(queryRegional, entryRegional) {
         const api = fingerprintApi();
