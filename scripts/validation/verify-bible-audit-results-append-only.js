@@ -4,6 +4,7 @@ const childProcess = require('child_process');
 const path = require('path');
 
 const DEFAULT_RESULTS_ROOT = 'docs/biblia/.coordination/audit-results';
+const DEFAULT_ENFORCEMENT_BASELINE = '0a27c07802c3266ccf71d550599f8769c845d747';
 const ZERO_SHA = '0'.repeat(40);
 
 function git(root, args) {
@@ -31,6 +32,19 @@ function isAuditResultPath(file, relativeRoot = DEFAULT_RESULTS_ROOT) {
   return normalized.startsWith(target + '/') && /\.json$/i.test(normalized);
 }
 
+function isAncestor(root, ref) {
+  if (!ref) return false;
+  try {
+    childProcess.execFileSync('git', ['merge-base', '--is-ancestor', ref, 'HEAD'], {
+      cwd: root,
+      stdio: ['ignore', 'ignore', 'ignore'],
+    });
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 function parseRawHistory(output) {
   return String(output || '')
     .split(/\r?\n/)
@@ -50,23 +64,31 @@ function parseRawHistory(output) {
     });
 }
 
-function verifyAppendOnly(root, relativeRoot = DEFAULT_RESULTS_ROOT) {
+function verifyAppendOnly(root, relativeRoot = DEFAULT_RESULTS_ROOT, options = {}) {
   const problems = [];
   const target = relativeRoot.replace(/\\/g, '/');
+  const requestedBaseline = Object.prototype.hasOwnProperty.call(options, 'baselineRef')
+    ? options.baselineRef
+    : DEFAULT_ENFORCEMENT_BASELINE;
+  const baselineRef = isAncestor(root, requestedBaseline) ? requestedBaseline : null;
 
+  // Regra histórica desde a ativação do controle. Evidência anterior ao
+  // baseline é legado imutável: não deve bloquear para sempre uma política
+  // criada depois, mas qualquer mutação posterior continua proibida.
   // Regra histórica: um resultado publicado pode aparecer em vários commits
   // (por exemplo, recuperação de árvore), mas o conteúdo versionado daquele
   // path deve ser sempre o MESMO blob. Qualquer segundo blob é mutação.
-  const history = git(root, [
+  const historyArgs = [
     'log',
     '--format=',
     '--raw',
     '--no-abbrev',
     '--full-index',
     '--no-renames',
-    '--',
-    target,
-  ]);
+  ];
+  if (baselineRef) historyArgs.push(baselineRef + '..HEAD');
+  historyArgs.push('--', target);
+  const history = git(root, historyArgs);
 
   const blobsByPath = new Map();
   for (const change of parseRawHistory(history)) {
@@ -150,7 +172,9 @@ if (require.main === module) {
 
 module.exports = {
   DEFAULT_RESULTS_ROOT,
+  DEFAULT_ENFORCEMENT_BASELINE,
   ZERO_SHA,
+  isAncestor,
   isAuditResultPath,
   parseNameStatus,
   parseRawHistory,
