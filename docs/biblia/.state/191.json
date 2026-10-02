@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "6f4154c1cb2f61e8bfcc4cd6d15103859e31315a",
+  "source_sha": "668714d95b63e04ccc219e7170c8222609ce816c",
   "started_at_utc": "2026-10-02T02:41:14.228Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -296,6 +296,28 @@
       "audit_finding": "Encontrado na segunda passagem adversarial pós-191-008.",
       "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
       "resolution": "Adicionadas regressões reais para success interrupted, constructor failure no BATCH_COMPLETE e error interrupted; todos exigem telemetria específica e ausência de resume/escape indevido."
+    },
+    {
+      "id": "191-010",
+      "status": "ACCEPTED",
+      "type": "AUDIO_SUCCESS_RESUME_REJECTION_GAP",
+      "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "playSuccessSound possui branch próprio para rejeição assíncrona de resume(), mas a suíte só cobria rejeição de resume no erro e no unlock.",
+      "current_evidence": "Sucesso cobre suspended→running e resume resolvido sem running, além de constructor/scheduling failure, mas não Promise rejeitada por resume().",
+      "missing_evidence": "BATCH_COMPLETE com contexto suspended e resume rejeitado deve emitir AUDIO_SUCCESS_FAILED, não agendar notas e não escapar do handler.",
+      "why_needed": "A política/autoplay pode rejeitar resume também no caminho de conclusão; branches equivalentes de outros fluxos não provam este contrato.",
+      "requested_action": "Adicionar regressão real para resume rejeitado no sucesso.",
+      "expected_evidence": "Mudança/removal do catch de resume em playSuccessSound quebra a suíte focal.",
+      "expected_auditor_action": "Refazer matriz final de estados e falhas de unlock/success/error.",
+      "possible_regression": "Conclusão do lote pode perder telemetria ou escapar erro em política de autoplay.",
+      "impact": "Robustez e observabilidade do som de conclusão.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T02:51:30Z",
+      "audit_finding": "Encontrado na terceira passagem adversarial pós-191-009.",
+      "repair_progress": "CORRECTION_APPLIED_AWAITING_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionada regressão BATCH_COMPLETE com resume rejeitado exigindo AUDIO_SUCCESS_FAILED, zero notas, errorName/errorMessage e handler seguro."
     }
   ],
   "document_quality": {
@@ -516,6 +538,22 @@
       "bible_sha": "514cc02ad308a267f306419666800ba9086b7d25",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-007/008/009 reconciliados; matriz de áudio ampliada para 26 casos reais e Bíblia sincronizada 1119/1119."
+    },
+    {
+      "at_utc": "2026-10-02T02:51:30Z",
+      "type": "POST_CORRECTION_ADDITIONAL_FINDING",
+      "source_sha": "6f4154c1cb2f61e8bfcc4cd6d15103859e31315a",
+      "bible_sha": "514cc02ad308a267f306419666800ba9086b7d25",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-010 HIGH: playSuccessSound resume rejection ainda não tinha regressão dedicada."
+    },
+    {
+      "at_utc": "2026-10-02T02:51:31Z",
+      "type": "SOURCE_AND_BIBLE_UPDATED_AWAITING_CI",
+      "source_sha": "668714d95b63e04ccc219e7170c8222609ce816c",
+      "bible_sha": "e57cf7b2e265553c53fb4c139f3dcbfd477147da",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-010 corrigido; matriz ampliada para 27 casos reais e Bíblia sincronizada 1158/1158."
     }
   ],
   "evidence": [
@@ -591,5 +629,5 @@
       "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "514cc02ad308a267f306419666800ba9086b7d25"
+  "bible_sha": "e57cf7b2e265553c53fb4c139f3dcbfd477147da"
 }
