@@ -76,27 +76,30 @@ async function resetExtensionState(backgroundWorker, { forceIndexedDbFailure = f
             throw new Error(`Stores IndexedDB ausentes no reset E2E: ${missingStores.join(', ')}`);
         }
 
-        if (shouldForceFailure) {
-            throw new Error('E2E_INJECTED_IDB_RESET_FAILURE');
-        }
-
         await new Promise((resolve, reject) => {
             const tx = db.transaction(storeNames, 'readwrite');
             let settled = false;
+            const failure = fallback => (
+                shouldForceFailure
+                    ? new Error('E2E_INJECTED_IDB_RESET_FAILURE')
+                    : (tx.error || new Error(fallback))
+            );
             const fail = reason => {
                 if (settled) return;
                 settled = true;
                 reject(reason instanceof Error ? reason : new Error(String(reason || 'IndexedDB reset falhou')));
             };
 
-            storeNames.forEach(name => tx.objectStore(name).clear());
             tx.oncomplete = () => {
                 if (settled) return;
                 settled = true;
                 resolve();
             };
-            tx.onerror = () => fail(tx.error || new Error('IndexedDB reset transaction error'));
-            tx.onabort = () => fail(tx.error || new Error('IndexedDB reset transaction aborted'));
+            tx.onerror = () => fail(failure('IndexedDB reset transaction error'));
+            tx.onabort = () => fail(failure('IndexedDB reset transaction aborted'));
+
+            storeNames.forEach(name => tx.objectStore(name).clear());
+            if (shouldForceFailure) tx.abort();
         });
 
         const counts = {};
