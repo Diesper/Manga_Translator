@@ -22,6 +22,8 @@ const REQUIRED = {
     '- docs/project-bible',
     'node docs/biblia/.coordination/anti-loop-integration-selftest.js',
     'node docs/biblia/.coordination/anti-loop-adversarial-selftest.js',
+    'node scripts/validation/bible-lifecycle-metrics-selftest.js',
+    'node scripts/validation/bible-anti-loop-adversarial-selftest.js',
     'verify-human-protected-diff.js --base',
     'verify-bible-state-history-append-only.js --base',
     'verify-unverified-findings-append-only.js --base',
