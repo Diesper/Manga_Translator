@@ -405,7 +405,7 @@ function lifecycleProblems(state, options = {}) {
   const latestStatusEvent = [...history].reverse().find((entry) => {
     const atMs = Date.parse(entry?.at_utc || '');
     return Number.isFinite(atMs)
-      && atMs >= effectiveMsForTransitions
+      && atMs >= effectiveMs
       && typeof entry?.to_status === 'string'
       && entry.to_status.trim();
   });
@@ -415,10 +415,9 @@ function lifecycleProblems(state, options = {}) {
       + latestStatusEvent.to_status + ' actual=' + state?.status
     );
   }
-  const history = historyOf(state);
   for (const entry of history) {
     const atMs = Date.parse(entry?.at_utc || '');
-    if (!Number.isFinite(atMs) || atMs < effectiveMsForTransitions) continue;
+    if (!Number.isFinite(atMs) || atMs < effectiveMs) continue;
     if (entry?.to_status === 'IN_PROGRESS' && entry?.type !== SAFE_ABORT_EVENT) {
       if (typeof entry?.correction_token_id !== 'string' || !entry.correction_token_id.trim()) {
         problems.push(label + ': correção pós-policy sem correction_token_id em ' + entry.at_utc);
@@ -431,7 +430,7 @@ function lifecycleProblems(state, options = {}) {
     const hasCanonicalStart = history.some((entry) => {
       const atMs = Date.parse(entry?.at_utc || '');
       return Number.isFinite(atMs)
-        && atMs >= effectiveMsForTransitions
+        && atMs >= effectiveMs
         && entry?.to_status === 'IN_PROGRESS'
         && typeof entry?.correction_token_id === 'string'
         && entry.correction_token_id.trim();
