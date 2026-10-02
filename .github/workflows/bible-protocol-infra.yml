@@ -14,6 +14,7 @@ on:
       - 'docs/biblia/.coordination/reconcile-audit-results-selftest.js'
       - 'docs/biblia/.coordination/audit-lease-gc.js'
       - 'docs/biblia/.coordination/audit-summary.js'
+      - 'docs/biblia/.coordination/handoff-guard.js'
       - 'docs/biblia/.coordination/bible-correction-work-plan.js'
       - 'docs/biblia/.coordination/bible-correction-work-plan-selftest.js'
       - 'scripts/validation/verify-bible-audit-results-append-only.js'
@@ -27,6 +28,7 @@ on:
       - 'scripts/validation/verify-bible-merge-readiness.js'
       - 'package.json'
       - '.github/workflows/bible-protocol-infra.yml'
+      - '.github/workflows/bible-handoff-guard.yml'
 
 concurrency:
   group: bible-protocol-infra-${{ github.ref }}
@@ -59,6 +61,7 @@ jobs:
           node --check docs/biblia/.coordination/reconcile-audit-results.js
           node --check docs/biblia/.coordination/audit-lease-gc.js
           node --check docs/biblia/.coordination/audit-summary.js
+          node --check docs/biblia/.coordination/handoff-guard.js
           node --check docs/biblia/.coordination/bible-correction-work-plan.js
           node --check scripts/validation/verify-bible-audit-results-append-only.js
           node --check scripts/validation/verify-bible-audit-results-append-only-selftest.js
