@@ -1,9 +1,9 @@
 # Bíblia técnica — `extension/content/cm-gtc-client.js`
 
 > **Estado:** ✅ CRIADO E AUDITADO  
-> **SHA auditado:** `95d062f41b9f1bd789a576c3a5c5d903b705fa55`  
-> **Linhas textuais:** **161**  
-> **Posições documentais:** **162** contando newline final
+> **SHA auditado:** `b7bb841499a9e677f9709f0c634c648ac6a0f65b`  
+> **Linhas textuais:** **209**  
+> **Posições documentais:** **210**, contando o newline final
 
 ## 1. Papel arquitetural
 
@@ -256,12 +256,60 @@ Há uma diferença relevante em relação à simulação visual antiga: `tests/v
         const response = await sendRuntimeMessageAsync({ action: 'GTC_QUERY_BY_PERCEPTUAL_RELAXED', wHashes: w, pHashes: p });
         return response && response.ok && response.entriesByPerceptualRelaxed ? response.entriesByPerceptualRelaxed : {};
     }
+    const gtcSaveChains = new Map();
+
     async function saveGlobalTranslationCacheEntry(hash, translatedDataUrl, metadata = {}) {
         if (!hash || !translatedDataUrl) return false;
-        const response = await sendRuntimeMessageAsync({ action: 'GTC_SAVE', hash, translatedDataUrl, dHash: metadata.dHash || null, wHash: metadata.wHash || null, pHash: metadata.pHash || null, wHashCrop: metadata.wHashCrop || null, pHashCrop: metadata.pHashCrop || null, regionalHashes: metadata.regionalHashes || null, cleanUrl: metadata.cleanUrl || null, width: metadata.width || 0, height: metadata.height || 0, fingerprintVersion: metadata.fingerprintVersion || 'visual-v3', mimeType: metadata.mimeType || null });
-        if (response && response.ok) return true;
-        if (rootScope.chrome && chrome.storage && chrome.storage.local) await chrome.storage.local.set({ [`gtc_${hash}`]: translatedDataUrl });
-        return false;
+
+        const chainKey = String(hash).trim().toLowerCase();
+        const previous = gtcSaveChains.get(chainKey) || Promise.resolve();
+        const task = previous.catch(() => {}).then(async () => {
+            const response = await sendRuntimeMessageAsync({
+                action: 'GTC_SAVE',
+                hash,
+                translatedDataUrl,
+                dHash: metadata.dHash || null,
+                wHash: metadata.wHash || null,
+                pHash: metadata.pHash || null,
+                wHashCrop: metadata.wHashCrop || null,
+                pHashCrop: metadata.pHashCrop || null,
+                regionalHashes: metadata.regionalHashes || null,
+                cleanUrl: metadata.cleanUrl || null,
+                width: metadata.width || 0,
+                height: metadata.height || 0,
+                fingerprintVersion: metadata.fingerprintVersion || 'visual-v3',
+                mimeType: metadata.mimeType || null,
+            });
+
+            const legacyKey = `gtc_${hash}`;
+            const hasLegacyStorage = Boolean(
+                rootScope.chrome
+                && chrome.storage
+                && chrome.storage.local
+            );
+
+            if (response && response.ok) {
+                // IndexedDB venceu para este hash. Qualquer fallback legado criado
+                // por uma tentativa anterior deve desaparecer para nunca ressurgir
+                // como tradução stale se uma consulta futura cair no fallback.
+                if (hasLegacyStorage && typeof chrome.storage.local.remove === 'function') {
+                    await new Promise(resolve => chrome.storage.local.remove(legacyKey, resolve));
+                }
+                return true;
+            }
+
+            if (hasLegacyStorage) {
+                await chrome.storage.local.set({ [legacyKey]: translatedDataUrl });
+            }
+            return false;
+        });
+
+        gtcSaveChains.set(chainKey, task);
+        try {
+            return await task;
+        } finally {
+            if (gtcSaveChains.get(chainKey) === task) gtcSaveChains.delete(chainKey);
+        }
     }
     function confirmWithRegionalHashes(queryRegional, entryRegional) {
         const api = fingerprintApi();
@@ -604,3 +652,13 @@ Há uma diferença relevante em relação à simulação visual antiga: `tests/v
 - [x] nenhum código funcional alterado.
 
 **Veredito:** ✅ APROVADO para `95d062f41b9f1bd789a576c3a5c5d903b705fa55`.
+
+## Cobertura documental de linhas/posições — revisão atual
+
+Cobertura canônica da revisão atual. Os mapas históricos anteriores são preservados como contexto, mas esta seção é a referência estrutural para o blob vigente.
+
+| Linhas/posição | Escopo | Evidência |
+|---:|---|---|
+| 1–210 | Blob integral atual `b7bb841499a9e677f9709f0c634c648ac6a0f65b` (209 linhas textuais + terminador final quando aplicável). | fonte integral embutida + SHA Git do source |
+
+Esta sincronização documental **não concede aprovação**: a revisão atual deve passar novamente por PRIMARY + ADVERSARIAL independentes.
