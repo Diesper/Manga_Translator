@@ -1343,14 +1343,15 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 
         await storageMock.set({ autoDownload: true });
         await loadOnePage();
-        const retryImage = document.querySelector('[data-testid="img-0"]');
-        retryImage.dataset.origHash = 'hash-retry-final';
 
         await startBatch();
         const liveBatch = [...sentMessages].reverse().find(message =>
             message.action === 'START_BATCH'
         );
         expect(liveBatch?.batchId).toBeTruthy();
+
+        const retryImage = document.querySelector('[data-testid="img-0"]');
+        retryImage.dataset.origHash = 'hash-retry-final';
 
         const failed = await dispatchToContent(runtimeMock, {
             action: 'UPDATE_IMAGE',
