@@ -127,7 +127,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
     let storageMock;
     let sentMessages;
     let audioContextDescriptor;
-    let webkitAudioContextDescriptor;
+    let webkitAudioContextDescriptor, originalSendMessage;
 
     beforeEach(async () => {
         jest.resetModules();
@@ -138,7 +138,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         runtimeMock.lastError = null;
         sentMessages = [];
         await storageMock.clear();
-
+        originalSendMessage = runtimeMock.sendMessage;
         audioContextDescriptor = Object.getOwnPropertyDescriptor(window, 'AudioContext');
         webkitAudioContextDescriptor = Object.getOwnPropertyDescriptor(window, 'webkitAudioContext');
 
@@ -152,7 +152,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         jest.restoreAllMocks();
         await storageMock.clear();
         runtimeMock._messageListeners = [];
-        runtimeMock._connectListeners = [];
+        runtimeMock._connectListeners = []; runtimeMock.sendMessage = originalSendMessage; runtimeMock.lastError = null;
         delete window.__manga_translator_content_injected;
         delete window.__manga_translator_active_instance;
         delete window.MangaTranslatorGtcFingerprint;
@@ -274,10 +274,10 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         });
 
         expect(AudioContextMock).toHaveBeenCalledTimes(1);
-        expect(first.oscillators).toHaveLength(4);
-        expect(first.gains).toHaveLength(4);
-        expect(second.oscillators).toHaveLength(0);
-        expect(second.gains).toHaveLength(0);
+        expect(first.oscillators).toHaveLength(4); expect(first.gains).toHaveLength(4);
+        assertNote({ osc: first.oscillators[2], gain: first.gains[2], destination: first.ctx.destination, type: 'sawtooth', frequency: 300, start: 3, stop: 3.3 });
+        assertNote({ osc: first.oscillators[3], gain: first.gains[3], destination: first.ctx.destination, type: 'sawtooth', frequency: 150, start: 3.2, stop: 3.5 });
+        expect(second.oscillators).toHaveLength(0); expect(second.gains).toHaveLength(0);
         expect(sentMessages.filter(message =>
             message.source === 'audio'
             && message.action_name === 'AUDIO_CONTEXT_CREATED'
