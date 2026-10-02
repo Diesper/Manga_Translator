@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function showPopupToast(msg, type = 'success') {
         const t = document.createElement('div');
-        t.innerText = msg;
+        t.textContent = msg;
         t.style.cssText = `
             position: fixed;
             bottom: 20px;
