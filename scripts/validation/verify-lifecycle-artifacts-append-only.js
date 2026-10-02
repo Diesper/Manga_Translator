@@ -5,6 +5,7 @@ const path = require('path');
 
 const root = path.resolve(__dirname, '../..');
 const TRUSTED_COMMITTER_EMAIL = '41898282+github-actions[bot]@users.noreply.github.com';
+const LIFECYCLE_AUTHORITY_EFFECTIVE_AT_UTC = '2026-10-02T06:20:00Z';
 
 function git(args) {
   return childProcess.execFileSync('git', args, {
@@ -17,6 +18,18 @@ function git(args) {
 function parseBase(argv) {
   const i = argv.indexOf('--base');
   return i >= 0 ? argv[i + 1] : null;
+}
+
+function parseRawHistory(output) {
+  return String(output || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith(':'))
+    .map((line) => {
+      const match = /^:(\d{6})\s+(\d{6})\s+([0-9a-f]{40})\s+([0-9a-f]{40})\s+([A-Z])\t(.+)$/i.exec(line);
+      if (!match) return { status:'?', file:line };
+      return { status:match[5].toUpperCase(), file:match[6].replace(/\\/g,'/') };
+    });
 }
 
 function protectedArtifact(file) {
@@ -60,20 +73,72 @@ function verify(base) {
   return { skipped: false, problems };
 }
 
-function main(argv = process.argv.slice(2)) {
-  const result = verify(parseBase(argv));
-  if (result.skipped) {
-    console.log('Lifecycle artifacts append-only: SKIP — base SHA indisponível');
-    return;
+function verifyHistoricalAuthority() {
+  const problems = [];
+  const roots = [
+    'docs/biblia/.coordination/correction-authorizations',
+    'docs/biblia/.coordination/human-approvals',
+  ];
+  const raw = git([
+    'log',
+    '--since=' + LIFECYCLE_AUTHORITY_EFFECTIVE_AT_UTC,
+    '--format=',
+    '--raw',
+    '--no-abbrev',
+    '--full-index',
+    '--no-renames',
+    '--',
+    ...roots,
+  ]);
+
+  for (const change of parseRawHistory(raw)) {
+    if (!protectedArtifact(change.file)) continue;
+    if (change.status !== 'A') {
+      problems.push(
+        'artefato lifecycle histórico não é append-only: status=' + change.status + ' file=' + change.file
+      );
+    }
   }
-  if (result.problems.length) {
+
+  const current = git(['ls-tree','-r','--name-only','HEAD','--',...roots])
+    .split(/\r?\n/)
+    .map((line)=>line.trim())
+    .filter((file)=>protectedArtifact(file));
+  for (const file of current) {
+    const committer = introducingCommitter(file);
+    if (!trustedAuthorityCommitter(committer)) {
+      problems.push(
+        'artefato de autoridade no HEAD não foi introduzido pelo workflow canônico: '
+        + file + ' committer=' + (committer ? committer.name + '<' + committer.email + '>' : '-')
+      );
+    }
+  }
+  return { problems };
+}
+
+function main(argv = process.argv.slice(2)) {
+  const incremental = verify(parseBase(argv));
+  const historical = verifyHistoricalAuthority();
+  const problems = [...new Set([...(incremental.problems || []), ...(historical.problems || [])])];
+  if (problems.length) {
     console.error('Lifecycle artifacts append-only: BLOCKED');
-    for (const problem of result.problems) console.error('- ' + problem);
+    for (const problem of problems) console.error('- ' + problem);
     process.exit(1);
   }
-  console.log('Lifecycle artifacts append-only: PASS');
+  console.log(
+    'Lifecycle artifacts append-only: PASS'
+    + (incremental.skipped ? ' — incremental base unavailable; full Git history verified' : '')
+  );
 }
 
 if (require.main === module) main();
 
-module.exports = { TRUSTED_COMMITTER_EMAIL, protectedArtifact, trustedAuthorityCommitter, verify };
+module.exports = {
+  TRUSTED_COMMITTER_EMAIL,
+  LIFECYCLE_AUTHORITY_EFFECTIVE_AT_UTC,
+  parseRawHistory,
+  protectedArtifact,
+  trustedAuthorityCommitter,
+  verify,
+  verifyHistoricalAuthority,
+};
