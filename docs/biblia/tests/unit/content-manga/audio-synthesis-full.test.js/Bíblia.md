@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** correções 191-001 a 191-026 aplicadas e validadas; revisão técnica pronta para novo par independente PRIMARY + ADVERSARIAL  
-> **SHA auditado:** `a887718724aa3fa65da433269cc12fb82af7bb18`  
+> **Estado documental:** correções 191-001 a 191-027 aplicadas e validadas; revisão técnica pronta para novo par independente PRIMARY + ADVERSARIAL  
+> **SHA auditado:** `52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
-> **Linhas textuais:** **2357**  
-> **Posições documentais:** **2358**, contando o LF final  
+> **Linhas textuais:** **2447**  
+> **Posições documentais:** **2448**, contando o LF final  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -18,13 +18,14 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 ## 2. Dependências revalidadas
 
 - `extension/content/content_manga.js`: `893a03442cddb9e32487d7c7599be13ba8dc349c`.
+- `extension/content/cm-gtc-client.js`: `b7bb841499a9e677f9709f0c634c648ac6a0f65b`.
 - `tests/unit/content-manga/replacement-and-completion-real.test.js`: `9dcd26cf4a963ab22c11f8535421603d83260572`.
 - `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
 - `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
 - `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
 - `.github/workflows/audio-synthesis-selftest.yml`: `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`.
 
-## 3. Cobertura funcional atual — 41 casos
+## 3. Cobertura funcional atual — 42 casos
 
 1. `SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes`
 2. `erros consecutivos reutilizam um único AudioContext de notificação`
@@ -52,21 +53,22 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 24. `UPDATE_IMAGE duplicado durante lote ativo não é confundido com retry de persistência`
 25. `UPDATE_IMAGE conflitante após persistência do índice é rejeitado`
 26. `falha de persistência não conclui o lote e retry bem-sucedido conclui`
-27. `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`
-28. `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`
-29. `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`
-30. `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`
-31. `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`
-32. `erro em estado interrupted registra skip sem tentar resume`
-33. `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`
-34. `resume resolvido sem estado running não agenda som e registra skip`
-35. `falha ao criar oscillator no sucesso é observável e não escapa do handler`
-36. `contexto suspended só agenda sucesso depois de resume real completar`
-37. `erro com resume resolvido sem running registra skip e não cria notas`
-38. `erro sem AudioContext registra indisponibilidade e preserva a UI`
-39. `falha síncrona ao agendar som de erro é observável sem escapar do handler`
-40. `playErrorSound real usa webkitAudioContext quando AudioContext não existe`
-41. `falha ao criar AudioContext no erro é observável e não interrompe a UI`
+27. `falha GTC tardia não deixa fallback legado stale após retry final`
+28. `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`
+29. `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`
+30. `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`
+31. `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`
+32. `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`
+33. `erro em estado interrupted registra skip sem tentar resume`
+34. `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`
+35. `resume resolvido sem estado running não agenda som e registra skip`
+36. `falha ao criar oscillator no sucesso é observável e não escapa do handler`
+37. `contexto suspended só agenda sucesso depois de resume real completar`
+38. `erro com resume resolvido sem running registra skip e não cria notas`
+39. `erro sem AudioContext registra indisponibilidade e preserva a UI`
+40. `falha síncrona ao agendar som de erro é observável sem escapar do handler`
+41. `playErrorSound real usa webkitAudioContext quando AudioContext não existe`
+42. `falha ao criar AudioContext no erro é observável e não interrompe a UI`
 
 A matriz cobre lifecycle Web Audio, unlock pelos dois call sites reais, estados de `AudioContext`, falhas síncronas/assíncronas, mensagens stale/duplicadas/tardias, reuso de contexto e o handshake exatamente-once de `UPDATE_IMAGE`.
 
@@ -472,17 +474,60 @@ A correção reaplica `assertNote()` aos nós 3 e 4, exigindo no segundo erro:
 
 **Validação:** PR #79, run `36966562157`: Node 20/22 50/50 e full content-scripts 469/469.
 
-## 30. Evidência executável
+## 30. 191-027 — GTC_LEGACY_FALLBACK_REORDER_RACE — RESOLVED COM RED→GREEN
+
+O cliente GTC moderno mantinha cada `GTC_SAVE` isolado. Em retry de persistência, dois saves do mesmo hash podiam ficar simultaneamente em voo:
+
+1. a tentativa original envia `FAIL_FIRST` ao IndexedDB;
+2. `SM_SAVE_PAGE` falha e o conteúdo faz retry com `RETRY_OK`;
+3. o segundo `GTC_SAVE` pode concluir com sucesso;
+4. o primeiro `GTC_SAVE` pode falhar tardiamente e então gravar `FAIL_FIRST` em `chrome.storage.local["gtc_<hash>"]`.
+
+Quando uma consulta futura precisa cair no fallback legado, esse valor antigo poderia ressurgir apesar de o capítulo/DOM já terem convergido para `RETRY_OK`.
+
+### Prova RED
+
+Workflow **Audio Synthesis Selftest**, run `36968467020`:
+
+- Node 20 job `110717239486`: **1 falha, 50 passes**;
+- Node 22 job `110717239621`: **1 falha, 50 passes**;
+- a única falha focal foi `falha GTC tardia não deixa fallback legado stale após retry final`;
+- o valor recebido no fallback foi exatamente `data:image/png;base64,RkFJTF9GSVJTVC==` (`FAIL_FIRST`), embora o DOM final já estivesse em `RETRY_OK`.
+
+### Correção
+
+`cm-gtc-client.js` agora mantém uma fila `gtcSaveChains` por hash normalizado:
+
+- hashes diferentes continuam independentes;
+- saves do mesmo hash são executados na ordem lógica de chamada;
+- falha moderna ainda grava o fallback legado;
+- sucesso moderno posterior remove o fallback legado daquele hash, impedindo que um valor antigo reapareça se IndexedDB/runtime ficar indisponível depois;
+- a fila é liberada ao finalizar o último save daquele hash.
+
+### Prova GREEN
+
+Workflow **Audio Synthesis Selftest**, run `36968592875`:
+
+- Node 20 job `110717620792`: **2/2 suítes, 51/51 testes PASS**;
+- Node 22 job `110717620578`: **2/2 suítes, 51/51 testes PASS**;
+- full content-scripts job `110717620714`: **40/40 suítes, 470/470 testes PASS**;
+- o caso 191-027 passou nominalmente nos três jobs;
+- execução com `--detectOpenHandles`.
+
+Validação suplementar: no workflow **GTC Cache Flow Selftest** run `36968592957`, job `110717620563`, o teste focal `gtc-cache-flow.test.js` passou **4/4**. O job global terminou vermelho somente depois, ao rodar toda a integração, por falhas externas em `popup.ui.test.js` (`storageGet` antes da inicialização), sem relação com o cliente GTC ou com #191.
+
+## 31. Evidência executável
 
 ### Revisão final atual
 
-Workflow **Audio Synthesis Selftest**, PR de validação #79, run `36966562157`, head `18f4bf6f097aa698ec8259dec040d0b1711fe591`:
+Workflow **Audio Synthesis Selftest**, run `36968592875`, head `5faef0e2bc3f26c83831ed52c1bd154280d6adaa`:
 
-- fonte #191: `a887718724aa3fa65da433269cc12fb82af7bb18`, **41/41 casos**;
-- production dependency: `893a03442cddb9e32487d7c7599be13ba8dc349c`;
-- Node 20 job `110711482525`: **2/2 suítes, 50/50 testes PASS**;
-- Node 22 job `110711482366`: **2/2 suítes, 50/50 testes PASS**;
-- full content-scripts job `110711482467`: **40/40 suítes, 469/469 testes PASS**;
+- fonte #191: `52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38`, **42/42 casos reais**;
+- production dependency `content_manga.js`: `893a03442cddb9e32487d7c7599be13ba8dc349c`;
+- dependency `cm-gtc-client.js`: `b7bb841499a9e677f9709f0c634c648ac6a0f65b`;
+- Node 20 job `110717620792`: **2/2 suítes, 51/51 testes PASS**;
+- Node 22 job `110717620578`: **2/2 suítes, 51/51 testes PASS**;
+- full content-scripts job `110717620714`: **40/40 suítes, 470/470 testes PASS**;
 - execução focal e full com `--detectOpenHandles`;
 - conclusão do workflow: **success**.
 
@@ -490,11 +535,12 @@ Workflow **Audio Synthesis Selftest**, PR de validação #79, run `36966562157`,
 
 - 191-023: red run `36965341539`.
 - 191-024: red run `36965638722`; green anterior `36965852017`.
-- 191-025/026: mudanças de harness/assertion não enfraqueceram testes; a revisão nova permaneceu verde em Node 20/22 e no projeto content-scripts completo.
+- 191-025/026: mudanças de harness/assertion não enfraqueceram testes; a revisão permaneceu verde.
+- 191-027: red `36968467020` → green `36968592875`; fallback legado stale reproduzido e eliminado.
 
 A revisão atual não contém `.skip`, `.only`, `xit`, `xdescribe`, TODO ou FIXME na suíte focal.
 
-## 31. Reauditoria adversarial pós-correção
+## 32. Reauditoria adversarial pós-correção
 
 Matriz atualmente protegida:
 
@@ -513,11 +559,12 @@ Matriz atualmente protegida:
 - replay conflitante continua `payload_conflict`;
 - `runtimeMock.sendMessage` é restaurado após cada teste, evitando contaminação do singleton;
 - o segundo erro consecutivo valida frequência/envelope/wiring por instância;
+- saves GTC do mesmo hash preservam ordem lógica e sucesso moderno invalida fallback legado stale;
 - full content-scripts sem open handles detectados.
 
 A camada corretiva fica pronta para **auditoria independente**. A identidade `AGENTE HÍBRIDO`, que realizou correções, não pode assinar o par PRIMARY/ADVERSARIAL desta revisão.
 
-## 32. Fonte integral exata
+## 33. Fonte integral exata
 
 ```javascript
 /**
@@ -2381,6 +2428,96 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
     });
 
+    test('falha GTC tardia não deixa fallback legado stale após retry final', async () => {
+        installRuntimeResponder({ tabId: 96 });
+        const baseSendMessage = runtimeMock.sendMessage;
+        let pageSaveAttempts = 0;
+        let gtcSaveAttempts = 0;
+        let releaseFirstGtcFailure = null;
+
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            if (message.action === 'GTC_SAVE' && message.hash === 'hash-retry-fallback-race') {
+                sentMessages.push(message);
+                gtcSaveAttempts++;
+                if (gtcSaveAttempts === 1) {
+                    releaseFirstGtcFailure = () => {
+                        if (callback) setTimeout(() => callback({
+                            ok: false,
+                            error: 'simulated-late-gtc-failure',
+                        }), 0);
+                    };
+                } else if (callback) {
+                    setTimeout(() => callback({ ok: true }), 0);
+                }
+                return;
+            }
+            if (message.action === 'SM_SAVE_PAGE') {
+                sentMessages.push(message);
+                pageSaveAttempts++;
+                if (callback) {
+                    setTimeout(() => callback(
+                        pageSaveAttempts === 1
+                            ? { ok: false, error: 'simulated-page-save-failure' }
+                            : { ok: true }
+                    ), 0);
+                }
+                return;
+            }
+            return baseSendMessage(message, callback);
+        });
+
+        const { ctx } = createAudioContext({ state: 'running' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        const retryImage = document.querySelector('[data-testid="img-0"]');
+        retryImage.dataset.origHash = 'hash-retry-fallback-race';
+
+        const failed = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,RkFJTF9GSVJTVC==',
+            expectAck: true,
+        });
+        expect(failed.response).toEqual(expect.objectContaining({
+            ok: false,
+            reason: 'persist_failed',
+        }));
+
+        const retried = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,UkVUUllfT0s=',
+            expectAck: true,
+        });
+        expect(retried.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+        }));
+        expect(typeof releaseFirstGtcFailure).toBe('function');
+
+        releaseFirstGtcFailure();
+        await waitFor(() => gtcSaveAttempts === 2);
+        await delay(30);
+
+        const legacy = await storageMock.get('gtc_hash-retry-fallback-race');
+        expect(legacy['gtc_hash-retry-fallback-race'])
+            .not.toBe('data:image/png;base64,RkFJTF9GSVJTVC==');
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
+            .toBe('data:image/png;base64,UkVUUllfT0s=');
+    });
+
     test('unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes', async () => {
         installRuntimeResponder({ tabId: 85 });
         const first = createAudioContext({
@@ -2879,7 +3016,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 });
 ```
 
-## 33. Cobertura integral por posições
+## 34. Cobertura integral por posições
 
 - **1–25:** cabeçalho/imports/globals.
 - **26–39:** delay/wait.
@@ -2914,26 +3051,27 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - **1509–1621:** caso 24 — `UPDATE_IMAGE duplicado durante lote ativo não é confundido com retry de persistência`.
 - **1622–1722:** caso 25 — `UPDATE_IMAGE conflitante após persistência do índice é rejeitado`.
 - **1723–1861:** caso 26 — `falha de persistência não conclui o lote e retry bem-sucedido conclui`.
-- **1862–1924:** caso 27 — `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`.
-- **1925–1963:** caso 28 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
-- **1964–1989:** caso 29 — `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`.
-- **1990–2020:** caso 30 — `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`.
-- **2021–2059:** caso 31 — `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`.
-- **2060–2090:** caso 32 — `erro em estado interrupted registra skip sem tentar resume`.
-- **2091–2119:** caso 33 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
-- **2120–2146:** caso 34 — `resume resolvido sem estado running não agenda som e registra skip`.
-- **2147–2175:** caso 35 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
-- **2176–2209:** caso 36 — `contexto suspended só agenda sucesso depois de resume real completar`.
-- **2210–2242:** caso 37 — `erro com resume resolvido sem running registra skip e não cria notas`.
-- **2243–2273:** caso 38 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
-- **2274–2304:** caso 39 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
-- **2305–2328:** caso 40 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
-- **2329–2357:** caso 41 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
-- **2358:** LF terminal.
+- **1862–1951:** caso 27 — `falha GTC tardia não deixa fallback legado stale após retry final`.
+- **1952–2014:** caso 28 — `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`.
+- **2015–2053:** caso 29 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
+- **2054–2079:** caso 30 — `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`.
+- **2080–2110:** caso 31 — `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`.
+- **2111–2149:** caso 32 — `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`.
+- **2150–2180:** caso 33 — `erro em estado interrupted registra skip sem tentar resume`.
+- **2181–2209:** caso 34 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
+- **2210–2236:** caso 35 — `resume resolvido sem estado running não agenda som e registra skip`.
+- **2237–2265:** caso 36 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
+- **2266–2299:** caso 37 — `contexto suspended só agenda sucesso depois de resume real completar`.
+- **2300–2332:** caso 38 — `erro com resume resolvido sem running registra skip e não cria notas`.
+- **2333–2363:** caso 39 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
+- **2364–2394:** caso 40 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
+- **2395–2418:** caso 41 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
+- **2419–2447:** caso 42 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
+- **2448:** LF terminal.
 
-**Cobertura documental:** **2358/2358 posições**, contíguas e sem overlap.
+**Cobertura documental:** **2448/2448 posições**, contíguas e sem overlap.
 
-## 34. Pontuação pós-correção / pré-auditoria distribuída
+## 35. Pontuação pós-correção / pré-auditoria distribuída
 
 - Correção funcional: **25/25**
 - Robustez adversarial: **20/20**
