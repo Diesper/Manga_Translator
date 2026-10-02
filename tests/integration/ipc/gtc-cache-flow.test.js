@@ -27,6 +27,9 @@ Object.defineProperty(global, 'crypto', {
     configurable: true,
 });
 global.TextEncoder = TextEncoder;
+if (typeof globalThis.structuredClone !== 'function') {
+    globalThis.structuredClone = value => JSON.parse(JSON.stringify(value));
+}
 
 describe('Global Translation Cache (GTC) — integração moderna real', () => {
     const TRANSLATED_0 = 'data:image/png;base64,Q0FDSEVfMA==';
