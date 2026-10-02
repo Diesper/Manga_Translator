@@ -428,13 +428,19 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
         entry?.type === 'CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT'
         && Number.isFinite(at_ms)
         && at_ms >= effectiveAtMs
-        && /^[0-9a-f]{40}$/i.test(entry?.source_sha || '')
-        && /^[0-9a-f]{40}$/i.test(entry?.bible_sha || '')
       ));
 
     for (const handoff of handoffs) {
-      const sourceSha = String(handoff.entry.source_sha).toLowerCase();
-      const bibleSha = String(handoff.entry.bible_sha).toLowerCase();
+      const sourceSha = String(handoff.entry?.source_sha || '').toLowerCase();
+      const bibleSha = String(handoff.entry?.bible_sha || '').toLowerCase();
+      if (!/^[0-9a-f]{40}$/i.test(sourceSha) || !/^[0-9a-f]{40}$/i.test(bibleSha)) {
+        problems.push(
+          'handoff protegido sem SOURCE_SHA+BIBLE_SHA válidos: #'
+          + String(state.index).padStart(3, '0')
+          + ' handoff=' + handoff.entry.at_utc
+        );
+        continue;
+      }
       const nextHandoffPosition = handoffs
         .filter((candidate) => candidate.position > handoff.position)
         .map((candidate) => candidate.position)
