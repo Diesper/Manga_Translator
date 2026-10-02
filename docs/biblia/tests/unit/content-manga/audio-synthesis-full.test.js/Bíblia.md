@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** 🟡 CORRIGIDO — REAUDITORIA FINAL EM ANDAMENTO  
+> **Estado documental:** ✅ CORRIGIDO E REVALIDADO — 191-001..005 RESOLVIDOS  
 > **SHA auditado:** `b6226367282983e6900ebbfa0be2d056bf7de72e`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real do áudio de `content_manga.js`  
@@ -65,7 +65,7 @@ Evidência anterior:
 - focal 20/20 em ambos os nós;
 - suíte completa 40/40, 439/439 com `--detectOpenHandles`.
 
-## 8. 191-005 — AUDIO_CONTEXT_LEAK — CORRIGIDO, FULL SUITE PENDENTE
+## 8. 191-005 — AUDIO_CONTEXT_LEAK — RESOLVED
 
 ### Finding
 
@@ -97,9 +97,9 @@ PR draft #73, run `36954798257`:
 
 - Node 20 job `110675268570`: **SUCCESS**;
 - Node 22 job `110675268644`: **SUCCESS**;
-- full content-scripts job `110675268412`: **EM EXECUÇÃO** nesta materialização.
+- full content-scripts job `110675268412`: **SUCCESS — 40/40 suites, 442/442 testes** com `--detectOpenHandles`.
 
-191-005 só pode mudar para RESOLVED após o full content-scripts também concluir verde.
+191-005 está RESOLVED com prova red→green: pre-fix falhou exatamente em cardinalidade de AudioContext nos dois nós; pós-fix passou focal e suíte completa.
 
 ## 9. Invariantes provadas
 
@@ -117,7 +117,7 @@ PR draft #73, run `36954798257`:
 - JSDOM/mocks validam chamadas e lifecycle da Web Audio API, não saída física do hardware.
 - Política real de autoplay do Chromium é aproximada por estado/resume mockado, porém o clique é o clique DOM real do content script.
 - A suíte relacionada continua necessária para completion, `hasErrors` e telemetria adjacente.
-- A suíte completa ainda é o gate final de leaks/regressões transversais.
+- A suíte completa foi executada pós-fix com `--detectOpenHandles` e passou 40/40 suites, 442/442 testes.
 
 ## 11. Fonte integral exata
 
@@ -869,4 +869,4 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - Constructor/scheduling failure: confirmado.
 - Fallback webkit: confirmado.
 - Skips/only/TODO/FIXME: nenhum.
-- Full content-scripts pós-fix: **ainda pendente nesta versão da Bíblia**.
+- Full content-scripts pós-fix: **PASS — 40/40 suites, 442/442 testes com `--detectOpenHandles`**.
