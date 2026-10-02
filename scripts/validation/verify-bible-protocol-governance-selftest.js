@@ -12,7 +12,10 @@ console.log('PASS canonical workflow governance is intact');
 
 for (const [key, fragments] of Object.entries(governance.REQUIRED)) {
   for (const fragment of fragments) {
-    const tampered = { ...sources, [key]: sources[key].replace(fragment, 'REMOVED-CONTROL') };
+    const tampered = {
+      ...sources,
+      [key]: sources[key].split(fragment).join('REMOVED-CONTROL'),
+    };
     assert.ok(
       governance.validateSources(tampered).some((problem) => (
         problem.startsWith(key + ':') && problem.includes(fragment)
