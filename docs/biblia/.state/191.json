@@ -2,8 +2,8 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "207a1ba48085ee9090ab55974db84ae8cf00c4a3",
   "started_at_utc": null,
   "completed_at_utc": null,
@@ -112,6 +112,26 @@
         "related": "replacement-and-completion-real.test.js PASS in Node 20 and Node 22",
         "external_failure": "Unit+Integration jobs red only because tests/integration/performance.test.js PERF-09 failed in storage-manager.js (blob.arrayBuffer is not a function)."
       }
+    },
+    {
+      "id": "191-004",
+      "status": "ACCEPTED",
+      "type": "AUDIO_LIFECYCLE_BRANCH_GAP",
+      "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "A integração real ainda não prova unlockNotificationAudio no clique do usuário nem recriação de notificationAudioContext quando o contexto anterior está closed.",
+      "current_evidence": "#191 cobre running, suspended->running, webkit fallback e falha de construtor; related suite cobre resume rejection e reuse, mas nenhum teste usa state:'closed' e nenhum afirma AUDIO_UNLOCKED no clique real.",
+      "missing_evidence": "Clique real com contexto suspended/resume e segundo ciclo após state='closed' exigindo novo AudioContext; fallbacks adjacentes devem permanecer bounded/observáveis.",
+      "why_needed": "Autoplay depende do gesto real e o runtime possui branch explícito para substituir contexto fechado.",
+      "requested_action": "Adicionar regressões reais via content_manga para user-gesture unlock e contexto closed, além de reforçar fallbacks adjacentes de lifecycle.",
+      "expected_evidence": "Mudança em unlockNotificationAudio ou no branch closed deve quebrar a suíte sem atualizar mirrors.",
+      "expected_auditor_action": "Reauditar lifecycle de áudio após correção.",
+      "possible_regression": "Som pode falhar por política de autoplay ou após contexto fechado enquanto os testes permanecem verdes.",
+      "impact": "Notificações sonoras de erro/sucesso e confiabilidade do lifecycle Web Audio.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T01:22:00Z",
+      "audit_finding": "ACCEPTED pela PRIMARY 20261002T012200Z."
     }
   ],
   "document_quality": {
@@ -126,7 +146,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:03:30Z",
+  "updated_at_utc": "2026-10-02T01:23:15Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -154,6 +174,15 @@
       "bible_sha": "1c49f79ad10800973f252f7ee2617b3031346a18",
       "agent": "AGENTE 30",
       "reason": "Real audio integration passed 5/5 on Node 20 and 22; related replacement/completion real suite also passed. 191-001/002/003 resolved. Overall Jest jobs remain red only for unrelated PERF-09 in storage-manager."
+    },
+    {
+      "at_utc": "2026-10-02T01:23:15Z",
+      "type": "HYBRID_LIFECYCLE_HARDENING_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "207a1ba48085ee9090ab55974db84ae8cf00c4a3",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "PRIMARY atual encontrou 191-004 HIGH: user-gesture unlock e contexto closed ainda sem prova executável."
     }
   ],
   "evidence": [
