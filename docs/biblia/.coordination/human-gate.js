@@ -108,18 +108,23 @@ function humanAuditResultProblems(states, lifecycleByIndex, approvals, records) 
     if (record.bible_sha && snapshot.bible_sha && record.bible_sha !== snapshot.bible_sha) continue;
     const handoffMs = Date.parse(snapshot.latest_handoff_at_utc || '');
     if (Number.isFinite(handoffMs) && Number(record.completed_at_ms) <= handoffMs) continue;
-    const approval = activeHumanApproval(state, snapshot, approvals, 'ALLOW_AUDIT_ONLY');
+    if (record.schema_version === 3
+      && (record.revision_id !== snapshot.revision_id
+        || record.handoff_id !== snapshot.handoff_id
+        || Number(record.audit_epoch) !== Number(snapshot.audit_epoch))) {
+      continue;
+    }
+    const approval = (approvals || []).find((candidate) => (
+      String(candidate?.approval_id || '') === String(record.human_approval_id || '')
+    ));
     const approvalMs = Date.parse(approval?.approved_at_utc || '');
-    if (!approval || !Number.isFinite(approvalMs) || approvalMs > Number(record.completed_at_ms)) {
+    if (!approval
+      || !approvalMatches(state, snapshot, approval, 'ALLOW_AUDIT_ONLY')
+      || !Number.isFinite(approvalMs)
+      || approvalMs > Number(record.completed_at_ms)) {
       problems.push(
         '#' + String(record.index).padStart(3, '0')
-        + ': audit-result HUMAN sem ALLOW_AUDIT_ONLY anterior ao resultado: '
-        + (record.path || record.phase)
-      );
-    } else if (String(record.human_approval_id || '') !== String(approval.approval_id)) {
-      problems.push(
-        '#' + String(record.index).padStart(3, '0')
-        + ': audit-result HUMAN não referencia a ALLOW_AUDIT_ONLY vigente: '
+        + ': audit-result HUMAN sem ALLOW_AUDIT_ONLY exata, válida e anterior ao resultado: '
         + (record.path || record.phase)
       );
     }
