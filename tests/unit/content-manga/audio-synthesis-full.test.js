@@ -656,6 +656,101 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
     });
 
+    test('erro com resume resolvido sem running registra skip e não cria notas', async () => {
+        installRuntimeResponder({ tabId: 77 });
+        const { ctx, oscillators } = createAudioContext({
+            state: 'suspended',
+            onResume: async () => {},
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'erro ainda suspenso',
+            imgIndex: 0,
+            isDebug: false,
+        });
+        await delay(0);
+
+        expect(ctx.resume).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(0);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'warn',
+            action_name: 'AUDIO_ERROR_SKIPPED',
+            extra: expect.objectContaining({
+                originTabId: 77,
+                contextState: 'suspended',
+            }),
+        }));
+    });
+
+    test('erro sem AudioContext registra indisponibilidade e preserva a UI', async () => {
+        installRuntimeResponder({ tabId: 78 });
+        Object.defineProperty(window, 'AudioContext', {
+            value: undefined,
+            configurable: true,
+        });
+        Object.defineProperty(window, 'webkitAudioContext', {
+            value: undefined,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'erro sem API',
+            imgIndex: 0,
+            isDebug: false,
+        });
+
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'error',
+            action_name: 'AUDIO_UNAVAILABLE',
+            extra: expect.objectContaining({
+                originTabId: 78,
+                trigger: 'integrated_error',
+            }),
+        }));
+        expect(document.getElementById('manga-error-line').style.display).toBe('flex');
+    });
+
+    test('falha síncrona ao agendar som de erro é observável sem escapar do handler', async () => {
+        installRuntimeResponder({ tabId: 79 });
+        const { ctx } = createAudioContext({ state: 'running' });
+        ctx.createOscillator = jest.fn(() => {
+            throw new Error('error-oscillator-boom');
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await expect(dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'erro de oscillator',
+            imgIndex: 0,
+            isDebug: false,
+        })).resolves.toEqual({ keepAlive: undefined, response: undefined });
+
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'warn',
+            action_name: 'AUDIO_ERROR_FAILED',
+            extra: expect.objectContaining({
+                originTabId: 79,
+                errorName: 'Error',
+                errorMessage: 'error-oscillator-boom',
+            }),
+        }));
+    });
+
     test('playErrorSound real usa webkitAudioContext quando AudioContext não existe', async () => {
         installRuntimeResponder();
         const { ctx, oscillators } = createAudioContext();
@@ -680,8 +775,8 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         expect(oscillators).toHaveLength(2);
     });
 
-    test('falha ao criar AudioContext no erro é silenciosa e não interrompe a UI', async () => {
-        installRuntimeResponder();
+    test('falha ao criar AudioContext no erro é observável e não interrompe a UI', async () => {
+        installRuntimeResponder({ tabId: 80 });
         Object.defineProperty(window, 'AudioContext', {
             value: jest.fn(() => { throw new Error('Policy violation'); }),
             configurable: true,
@@ -697,5 +792,15 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         expect(document.getElementById('manga-error-line').style.display).toBe('flex');
         expect(document.getElementById('manga-error-collapsible-content').textContent)
             .toContain('sem áudio');
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'warn',
+            action_name: 'AUDIO_ERROR_FAILED',
+            extra: expect.objectContaining({
+                originTabId: 80,
+                errorName: 'Error',
+                errorMessage: 'Policy violation',
+            }),
+        }));
     });
 });
