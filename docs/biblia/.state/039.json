@@ -2,10 +2,10 @@
   "index": 39,
   "file": "extension/content/content_manga.js",
   "bible": "docs/biblia/extension/content/content_manga.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
-  "source_sha": "a8b3698019f6f22027f09f544f15c0563a9f6515",
-  "started_at_utc": "2026-10-02T02:14:30Z",
+  "status": "CHANGES_REQUIRED",
+  "agent": null,
+  "source_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -94,19 +94,17 @@
     }
   ],
   "document_quality": {
-    "self_audit": "APPROVED",
+    "self_audit": "APPROVED_FOR_191_DEPENDENCY_CHANGE_ONLY",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
     "documented_positions": "2863/2863",
     "source_text_lines": 2862,
     "external_audit_requests_open": 4,
-    "existing_bible_preserved": true,
-    "tests_reexecuted_during_reconciliation": false,
-    "note": "Reconciliação do state legado ausente. Bíblia e AUDITORIA preexistentes já aprovavam exatamente o SHA atual; foram persistidas como audit_requests as lacunas explícitas de stale state, cancelamento, listeners e payloads malformados sem alterar código/testes/Bíblia."
+    "note": "Audio error lifecycle/observability changes required by #191 are synchronized and validated. 039-001..004 remain ACCEPTED and keep this unit CHANGES_REQUIRED."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T02:14:30Z",
+  "updated_at_utc": "2026-10-02T02:28:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T02:14:30Z",
@@ -117,7 +115,33 @@
       "agent": "AGENTE 30",
       "exposed_by_unit": 191,
       "reason": "191-005 pre-fix regression proves repeated SHOW_ERROR_INTEGRATED creates 2 AudioContexts; playErrorSound must reuse notificationAudioContext."
+    },
+    {
+      "at_utc": "2026-10-02T02:28:00Z",
+      "type": "DEPENDENCY_FIX_VALIDATED_FOR_BIBLE_191",
+      "from_status": "IN_PROGRESS",
+      "to_status": "CHANGES_REQUIRED",
+      "previous_source_sha": "a8b3698019f6f22027f09f544f15c0563a9f6515",
+      "current_source_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
+      "bible_sha": "7ad4228b3a92d4d29deb855d65c21b561e2778af",
+      "agent": "AGENTE 30",
+      "related_unit": 191,
+      "reason": "playErrorSound now reuses notificationAudioContext and reports synchronous AUDIO_ERROR_FAILED; validated by #191 red→green. Unrelated 039-001..004 remain open."
     }
   ],
-  "evidence": []
+  "evidence": [
+    {
+      "type": "DEPENDENCY_VALIDATION",
+      "at_utc": "2026-10-02T02:28:00Z",
+      "related_unit": 191,
+      "source_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
+      "bible_sha": "7ad4228b3a92d4d29deb855d65c21b561e2778af",
+      "final_audio_run_id": 36955311711,
+      "node20_job_id": 110676865237,
+      "node22_job_id": 110676865246,
+      "full_content_job_id": 110676864994,
+      "result": "AUDIO_SCOPE_PASS; 039 unrelated requests remain open"
+    }
+  ],
+  "bible_sha": "7ad4228b3a92d4d29deb855d65c21b561e2778af"
 }
