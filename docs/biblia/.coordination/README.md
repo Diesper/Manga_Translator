@@ -383,6 +383,26 @@ EMERGENCY > CRITICAL > HIGH > ELEVATED > NORMAL
 
 Prioridade não concede ownership. Leases/reservas continuam garantindo um writer por unidade.
 
+### Revisão periódica de estratégia
+
+A cada três ciclos de correção ativos (`cycle 3`, `cycle 6`, ... antes de HUMAN), uma nova correção exige `strategy_review` no `START_CORRECTION`.
+
+Schema operacional mínimo:
+
+```json
+{
+  "strategy_review": {
+    "related_cycles": [1, 2, 3],
+    "observed_pattern": "padrão de falha recorrente observado",
+    "evidence": "evidência concreta do padrão",
+    "why_previous_strategy_insufficient": "por que a abordagem anterior não fechou o problema",
+    "new_strategy": "estratégia materialmente diferente para a próxima tentativa"
+  }
+}
+```
+
+A revisão precisa cobrir os três ciclos imediatamente anteriores e não pode reutilizar uma estratégia periódica já registrada. Em `cycle 6`, essa revisão é cumulativa com a `ROOT_CAUSE_REVIEW` obrigatória.
+
 ### Diversidade e EMERGENCY
 
 - cycle 5: o corretor do ciclo anterior é inelegível;
@@ -552,6 +572,25 @@ human-review/NNN.md
 ```
 
 com ciclos, corretores, revisão, padrões recorrentes e findings, para evitar que o humano precise reconstruir manualmente dezenas de eventos.
+
+### Métricas anti-loop
+
+O protocolo expõe métricas determinísticas e auditáveis:
+
+```bash
+npm run bible:lifecycle:metrics
+```
+
+São calculados:
+
+- média e p90 de ciclos de correção por unidade;
+- percentual de unidades reabertas;
+- quantidade/percentual em HUMAN;
+- tempo médio e p90 entre handoff e decisão distribuída;
+- média de agentes distintos por unidade;
+- proxy de custo de IA em unidades operacionais (`correction starts + handoffs + distributed audit decisions`).
+
+O proxy não representa moeda nem custo faturado. Ele existe para comparar o volume operacional antes/depois sem inventar preços externos. As metas do plano (`média < 1.5`, `p90 <= 4`, HUMAN raro) são reportadas, mas não mascaram o estado real nem fecham a unidade automaticamente.
 
 ### Limite técnico do enforcement
 
