@@ -32,19 +32,19 @@ on:
         type: string
       expected_status:
         description: 'CAS expected status'
-        required: false
+        required: true
         type: string
       expected_state_sha:
         description: 'CAS expected .state Git blob SHA'
-        required: false
+        required: true
         type: string
       expected_revision_id:
         description: 'CAS expected revision id'
-        required: false
+        required: true
         type: string
       expected_cycle:
         description: 'CAS expected correction cycle'
-        required: false
+        required: true
         type: string
       root_cause_categories:
         description: 'Comma-separated root-cause categories for cycle 6'
@@ -105,7 +105,15 @@ jobs:
           if [ "$OPERATION" = "ISSUE_TOKEN" ]; then
             EXTRA=()
             if [ -n "$APPROVAL_ID" ]; then EXTRA+=(--approval-id "$APPROVAL_ID"); fi
-            node docs/biblia/.coordination/unit-transition.js issue-token --index "$INDEX" --actor "$ACTOR" --at "$AT" "${EXTRA[@]}"
+            node docs/biblia/.coordination/unit-transition.js issue-token \
+              --index "$INDEX" \
+              --actor "$ACTOR" \
+              --at "$AT" \
+              --expected-status "$EXPECTED_STATUS" \
+              --expected-state-sha "$EXPECTED_STATE_SHA" \
+              --expected-revision-id "$EXPECTED_REVISION_ID" \
+              --expected-cycle "$EXPECTED_CYCLE" \
+              "${EXTRA[@]}"
           else
             node - <<'NODE'
           const fs = require('fs');
@@ -148,4 +156,5 @@ jobs:
           git diff --cached --exit-code && { echo "No transition changes"; exit 1; } || true
           git commit -m "coord: canonical unit ${{ inputs.index }} transition ${{ inputs.operation }}"
           git pull --rebase origin docs/project-bible
+          node scripts/validation/verify-bible-lifecycle.js
           git push origin HEAD:docs/project-bible
