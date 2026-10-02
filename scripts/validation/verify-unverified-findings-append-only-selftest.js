@@ -51,4 +51,12 @@ problems = guard.addedArtifactProblems(
 assert.ok(problems.some((x)=>x.includes('finding_id diverge')));
 console.log('PASS event path identity is enforced');
 
+const rawLine=':100644 100644 ' + 'a'.repeat(40) + ' ' + 'b'.repeat(40)
+  + ' M\tdocs/biblia/.coordination/unverified-findings/191/191-UF-001.json';
+const parsed=guard.parseRawHistory(rawLine);
+assert.strictEqual(parsed.length,1);
+assert.strictEqual(parsed[0].status,'M');
+assert.strictEqual(parsed[0].file,'docs/biblia/.coordination/unverified-findings/191/191-UF-001.json');
+console.log('PASS historical raw finding change parser');
+
 console.log('Unverified findings append-only self-test: SUCCESS');
