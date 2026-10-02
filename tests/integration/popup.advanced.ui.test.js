@@ -18,7 +18,7 @@ function buildImages(host, total = 21) {
 
 function hasPopupToast(text) {
     return Array.from(document.body.children).some((element) =>
-        typeof element.innerText === 'string' && element.innerText.includes(text)
+        typeof element.textContent === 'string' && element.textContent.includes(text)
     );
 }
 
