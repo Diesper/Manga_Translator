@@ -3,6 +3,9 @@
 const fs = require('fs');
 const path = require('path');
 const core = require('./audit-core');
+const lifecycleCore = require('./lifecycle-core');
+const unverifiedFindings = require('./unverified-findings');
+const humanGate = require('./human-gate');
 
 const repoRoot = path.resolve(__dirname, '../../..');
 const bibleRoot = path.join(repoRoot, 'docs', 'biblia');
@@ -336,6 +339,10 @@ function loadModel() {
     baseline,
   });
   const handoffProblems = core.postHandoffCorrectionProblems(states, loaded.records, { root: repoRoot });
+  const lifecycle = lifecycleCore.evaluateLifecycleStates(states);
+  const findings = unverifiedFindings.loadUnverifiedFindings(repoRoot);
+  const approvals = humanGate.loadHumanApprovals(repoRoot);
+  const humanProblems = humanGate.humanGateProblems(states, lifecycle.byIndex, approvals.approvals);
   const pipelines = states.map((state) => evaluation.byIndex.get(state.index));
 
   return {
@@ -344,6 +351,10 @@ function loadModel() {
     legacyAudits,
     results: loaded.records,
     pipelines,
+    lifecycle_by_index: lifecycle.byIndex,
+    human_locked: lifecycle.humanLocked,
+    unverified_findings: findings.findings,
+    human_approvals: approvals.approvals,
     active_claims_and_leases: claims.active,
     expired_leases: claims.expired,
     reservations: claims.reservations,
@@ -352,6 +363,10 @@ function loadModel() {
       ...claims.problems,
       ...evaluation.problems,
       ...handoffProblems,
+      ...lifecycle.problems,
+      ...findings.problems,
+      ...approvals.problems,
+      ...humanProblems,
     ],
     merge_problems: claims.strictProblems,
   };
@@ -379,6 +394,12 @@ function verify(model) {
   }
   if (model.expired_leases.length) {
     blockers.push('leases expirados residuais=' + model.expired_leases.length + ': ' + model.expired_leases.join(', '));
+  }
+  if ((model.human_locked || []).length) {
+    blockers.push(
+      'unidades HUMAN_LOCKED=' + model.human_locked.length + ': '
+      + model.human_locked.map((item) => String(item.index).padStart(3, '0') + '/cycle-' + item.cycle).join(', ')
+    );
   }
 
   for (const pipeline of model.pipelines) {
