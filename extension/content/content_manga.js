@@ -2602,9 +2602,38 @@ if (!window.__manga_translator_content_injected) {
                     try { sendResponse(payload); } catch (_e) {}
                 };
 
-                // Rejeitar resultados de batches antigos, cancelados ou já concluídos.
-                // Depois da conclusão _currentBatchId é limpo; um UPDATE_IMAGE tardio
-                // com batchId conhecido não pode voltar a substituir/persistir a imagem.
+                // Recuperação idempotente de ACK perdido: o commit pode ter
+                // terminado e zerado _currentBatchId antes de o background receber
+                // sendResponse(). Se conhecemos exatamente o payload já persistido,
+                // confirme o replay sem tocar DOM/storage/completion.
+                const replayPersistenceKey = request.batchId
+                    ? `${request.batchId}:${request.index}`
+                    : null;
+                const replayPersistedPayload = replayPersistenceKey
+                    ? _persistedUpdatePayloads.get(replayPersistenceKey)
+                    : undefined;
+                if (replayPersistedPayload !== undefined) {
+                    if (replayPersistedPayload !== request.newSrc) {
+                        sendLog('warn', 'DUPLICATE_UPDATE_CONFLICT',
+                            'Replay pós-commit rejeitado porque o payload difere do resultado persistido.', {
+                                batchId: String(request.batchId || '').slice(0, 8),
+                                index: request.index,
+                            });
+                        ack({ ok: false, reason: 'payload_conflict' });
+                        return wantsAck;
+                    }
+
+                    sendLog('info', 'DUPLICATE_UPDATE_REPLAY_CONFIRMED',
+                        'Replay pós-commit confirmado sem nova persistência.', {
+                            batchId: String(request.batchId || '').slice(0, 8),
+                            index: request.index,
+                        });
+                    ack({ ok: true, persisted: true, domApplied: false });
+                    return wantsAck;
+                }
+
+                // Rejeitar resultados de batches antigos, cancelados ou já concluídos
+                // quando não existe commit conhecido que justifique um replay.
                 if (request.batchId && (!_currentBatchId || request.batchId !== _currentBatchId)) {
                     sendLog('warn', 'STALE_UPDATE', `UPDATE_IMAGE ignorado de batch antigo`, {
                         received: (request.batchId || '').slice(0, 8),
