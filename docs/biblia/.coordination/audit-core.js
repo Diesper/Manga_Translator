@@ -452,12 +452,25 @@ function postHandoffCorrectionProblems(states, records = [], options = {}) {
           && Number.isFinite(at_ms)
           && entry?.from_status === 'READY_FOR_AUDIT'
           && entry?.to_status === 'IN_PROGRESS'
-          && String(entry?.source_sha || '').toLowerCase() === sourceSha
-          && String(entry?.bible_sha || '').toLowerCase() === bibleSha
         ))
         .sort((a, b) => a.position - b.position)[0];
 
       if (!reopen) continue;
+
+      const reopenSourceSha = String(reopen.entry?.source_sha || '').toLowerCase();
+      const reopenBibleSha = String(reopen.entry?.bible_sha || '').toLowerCase();
+      if (reopenSourceSha !== sourceSha || reopenBibleSha !== bibleSha) {
+        problems.push(
+          'handoff protegido reaberto com binding ausente/divergente: #'
+          + String(state.index).padStart(3, '0')
+          + ' handoff_source=' + sourceSha.slice(0, 12)
+          + ' handoff_bible=' + bibleSha.slice(0, 12)
+          + ' reopen_source=' + (reopenSourceSha.slice(0, 12) || '-')
+          + ' reopen_bible=' + (reopenBibleSha.slice(0, 12) || '-')
+          + ' reopen=' + reopen.entry.at_utc
+        );
+        continue;
+      }
 
       const eligibleRecords = (records || []).filter((record) => (
         record?.index === state.index
