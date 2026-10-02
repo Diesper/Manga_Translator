@@ -280,7 +280,7 @@ Matriz de ataques coberta estruturalmente:
 - erro tardio pós-completion não toca áudio nem reabre a UI;
 - ausência de skips/only/TODO/FIXME.
 
-A correção está aplicada, mas a reauditoria final permanece **não concluída** até a CI do SHA atual.
+A CI do SHA atual está concluída e verde. A unidade permanece **READY_FOR_AUDIT** exclusivamente porque o protocolo exige um novo par independente **PRIMARY + ADVERSARIAL** vinculado aos SHAs atuais antes de `COMPLETED`/100.
 
 ## 20. Fonte integral exata
 
