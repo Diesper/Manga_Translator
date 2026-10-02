@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/background/jobs-dom-ack-staging.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "5db47daff53026aa778944c999d7dc922f35ecad",
+  "source_sha": "e2b86f0b991c86d2ce7bdb6ce2c4191a44bed45c",
   "started_at_utc": "2026-09-30T06:40:30Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -109,7 +109,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:40:15Z",
+  "updated_at_utc": "2026-10-02T00:43:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:40:15Z",
@@ -119,6 +119,13 @@
       "source_sha": "5db47daff53026aa778944c999d7dc922f35ecad",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Background suite expôs expected stale rejected_by_page vs contrato canônico ack_missing; requests 150-001 HIGH e 150-003 NORMAL permanecem corrigíveis."
+    },
+    {
+      "at_utc": "2026-10-02T00:43:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_HYBRID_CORRECTION",
+      "previous_source_sha": "5db47daff53026aa778944c999d7dc922f35ecad",
+      "current_source_sha": "e2b86f0b991c86d2ce7bdb6ce2c4191a44bed45c",
+      "reason": "150-001: payload/destino UPDATE_IMAGE agora asserted; 150-003: throw síncrono de sendMessage coberto; expected negativo alinhado ao contrato canônico ack_missing."
     }
   ],
   "evidence": []
