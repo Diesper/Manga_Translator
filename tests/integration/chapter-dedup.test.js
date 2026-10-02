@@ -140,17 +140,24 @@ describe('Deduplicação de capítulos — cm-chapter real', () => {
         expect(await chapterList()).toHaveLength(2);
     });
 
-    test('mesmo título não deduplica quando o hostname contratado é diferente', async () => {
-        setPage('/site-a/chapter/1', 'Mesmo Título');
-        const idA = await createManager({ hostname: window.location.hostname })
-            .getOrCreateChapterId();
+    test('mesmo título armazenado em outro domínio não é reutilizado', async () => {
+        await storageMock.set({
+            chapterList: [{
+                id: 'chap_other_domain',
+                url: 'https://other.example/chapter/1',
+                title: chapterApi.canonicalTitle('Mesmo Título'),
+                timestamp: 1,
+            }],
+        });
 
         setPage('/site-b/chapter/1', 'Mesmo Título');
-        const idB = await createManager({ hostname: 'different.example' })
-            .getOrCreateChapterId();
+        const currentId = await createManager().getOrCreateChapterId();
 
-        expect(idB).not.toBe(idA);
-        expect(await chapterList()).toHaveLength(2);
+        expect(currentId).not.toBe('chap_other_domain');
+        expect(await chapterList()).toEqual(expect.arrayContaining([
+            expect.objectContaining({ id: 'chap_other_domain' }),
+            expect.objectContaining({ id: currentId, url: window.location.href }),
+        ]));
     });
 
     test('persistTranslatedPage de duas sessões envia páginas ao SM_SAVE_PAGE sob o mesmo chapterId', async () => {
