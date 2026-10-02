@@ -56,11 +56,37 @@ assert.deepStrictEqual(transition.validateCorrectionToken(s, token), []);
 console.log('PASS final CHANGES_REQUIRED issues revision-bound token');
 assert.throws(()=>transition.planTransition({
   state:s,
+  pipeline:pipeline(s),
   token,
   request:{action:'START_CORRECTION',actor:'TOKEN-THIEF',at_utc:'2026-10-02T06:30:30Z'},
 }), /TOKEN_ACTOR_MISMATCH/);
 console.log('PASS token cannot be transferred to another actor');
 
+const supersededPipeline = pipeline(s);
+supersededPipeline.adversarial = {
+  ...supersededPipeline.adversarial,
+  auditor:'A3',
+  path:'a-new.json',
+  completed_at_utc:'2026-10-02T06:05:00Z',
+};
+assert.ok(
+  transition.validateCorrectionToken(s, token, { pipeline:supersededPipeline })
+    .includes('TOKEN_DECISION_STALE')
+);
+assert.throws(()=>transition.planTransition({
+  state:s,
+  pipeline:supersededPipeline,
+  token,
+  request:{action:'START_CORRECTION',actor:'AGENT-X',at_utc:'2026-10-02T06:30:45Z'},
+}),/TOKEN_DECISION_STALE/);
+console.log('PASS newer final decision record invalidates previously issued token');
+
+assert.throws(()=>transition.planTransition({
+  state:s,
+  token,
+  request:{action:'START_CORRECTION',actor:'AGENT-X',at_utc:'2026-10-02T06:30:50Z'},
+}),/START_CORRECTION_PIPELINE_REQUIRED/);
+console.log('PASS correction start cannot bypass current decision by omitting pipeline');
 
 let planned = transition.planTransition({
   state:s,
@@ -180,11 +206,13 @@ snap = life.lifecycleSnapshot(s);
 const emergencyToken = transition.issueCorrectionToken(s, pipeline(s), { issued_at_utc:'2026-10-02T06:40:00Z', actor:'NEW-AGENT' });
 assert.throws(()=>transition.planTransition({
   state:s,
+  pipeline:pipeline(s),
   token:emergencyToken,
   request:{action:'START_CORRECTION',actor:'NEW-AGENT',at_utc:'2026-10-02T06:41:00Z'},
 }), /EMERGENCY_ROOT_CAUSE_REVIEW_REQUIRED/);
 planned = transition.planTransition({
   state:s,
+  pipeline:pipeline(s),
   token:emergencyToken,
   request:{
     action:'START_CORRECTION',
@@ -226,6 +254,7 @@ const humanToken = transition.issueCorrectionToken(hs, pipeline(hs), {
 });
 planned = transition.planTransition({
   state:hs,
+  pipeline:pipeline(hs),
   token:humanToken,
   humanApproval:approval,
   request:{action:'START_CORRECTION',actor:'HUMAN-AUTHORIZED-AGENT',at_utc:'2026-10-02T07:02:00Z'},
