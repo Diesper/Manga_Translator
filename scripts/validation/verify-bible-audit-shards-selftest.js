@@ -1,5 +1,7 @@
 'use strict';
 
+const lifecycleCore = require('../../docs/biblia/.coordination/lifecycle-core');
+
 const {
   shardForIndex,
   shardOrderForAuditor,
@@ -62,5 +64,53 @@ assert('ADVERSARIAL obrigatória após PRIMARY CHANGES_REQUIRED', plan.candidate
 assert('REAUDIT somente na divergência', plan.candidates.some((item) => item.index === 4 && item.phase === 'REAUDIT'));
 assert('pipeline final não gera trabalho', !plan.candidates.some((item) => item.index === 5));
 assert('trabalho do shard local vem antes de steal', plan.candidates[0].shard === 2);
+
+const humanState = state(6, 'HUMAN_LOCKED');
+humanState.bible_sha = 'b'.repeat(40);
+humanState.history = [];
+for (let i=1;i<=7;i+=1) {
+  humanState.history.push({
+    at_utc: '2026-10-01T0' + i + ':10:00Z',
+    type: lifecycleCore.HANDOFF_EVENT,
+    source_sha: humanState.source_sha,
+    bible_sha: humanState.bible_sha,
+  });
+}
+const humanSnapshot = lifecycleCore.lifecycleSnapshot(humanState);
+const humanPipelines = new Map([[6, { primary:null, adversarial:null, reaudit:null, divergent:false }]]);
+let humanPlan = planAuditWork({
+  states:[humanState],
+  pipelines:humanPipelines,
+  auditorOrdinal:1,
+  shardCount:4,
+  humanApprovals:[],
+});
+assert('HUMAN sem aprovação fica fora', humanPlan.candidates.length === 0);
+
+const auditApproval = {
+  schema_version:1,
+  approval_id:'006-human-audit',
+  index:6,
+  locked_cycle:7,
+  decision:'ALLOW_AUDIT_ONLY',
+  permission:null,
+  approved_by:'human',
+  approved_at_utc:'2026-10-02T07:00:00Z',
+  approval_source:'workflow_dispatch',
+  approval_environment:'human-approval',
+  production_sha:humanSnapshot.production_sha,
+  test_sha:humanSnapshot.test_sha,
+  bible_sha:humanSnapshot.bible_sha,
+  revision_id:humanSnapshot.revision_id,
+};
+humanPlan = planAuditWork({
+  states:[humanState],
+  pipelines:humanPipelines,
+  auditorOrdinal:1,
+  shardCount:4,
+  humanApprovals:[auditApproval],
+});
+assert('ALLOW_AUDIT_ONLY libera PRIMARY sem liberar correção', humanPlan.candidates.length === 1 && humanPlan.candidates[0].phase === 'PRIMARY');
+assert('candidato HUMAN carrega approval id', humanPlan.candidates[0].human_audit_approval_id === auditApproval.approval_id);
 
 console.log('Bible audit shards self-test: SUCCESS');
