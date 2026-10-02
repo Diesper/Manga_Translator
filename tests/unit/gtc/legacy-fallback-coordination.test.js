@@ -268,6 +268,38 @@ describe('GTC legacy fallback coordination', () => {
         });
     });
 
+    test('does not replace a newer legacy fallback when the modern save succeeds but its timestamp read fails', async () => {
+        await storage.set({
+            gtc_hash: 'newer-fallback',
+            gtc_meta_hash: { schemaVersion: 1, updatedAt: 200 },
+        });
+        const repository = createInMemoryRepository();
+        const originalGet = storage.get.bind(storage);
+        storage.get = (_keys, callback) => {
+            runtime.lastError = { message: 'storage read failed' };
+            callback({});
+            runtime.lastError = null;
+        };
+        const handler = createGtcRuntimeHandler({ repository, logger });
+
+        const response = await invoke(handler, {
+            action: 'GTC_SAVE',
+            hash: 'hash',
+            translatedDataUrl: 'older-payload',
+            operationAt: 100,
+        });
+        storage.get = originalGet;
+        const queried = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['hash'] });
+
+        expect(response).toEqual(expect.objectContaining({ ok: false }));
+        expect(await storage.get(['gtc_hash', 'gtc_meta_hash'])).toEqual({
+            gtc_hash: 'newer-fallback',
+            gtc_meta_hash: { schemaVersion: 1, updatedAt: 200 },
+        });
+        expect(queried.entriesByHash).toEqual({ hash: 'newer-fallback' });
+        expect(await repository.getManyEntries(['hash'])).toEqual({});
+    });
+
     test('clears legacy fallback payloads and metadata together with the modern cache', async () => {
         await storage.set({
             gtc_legacy: 'legacy-value',

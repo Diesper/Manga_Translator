@@ -1272,7 +1272,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T06:20:30Z",
+  "updated_at_utc": "2026-10-02T21:32:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1981,6 +1981,72 @@
       "audit_request_id": "191-033",
       "agent": "AGENTE 30",
       "reason": "GTC auxiliary save rejection is swallowed by an empty catch; page persistence should remain non-blocking but failure must be observable."
+    },
+    {
+      "at_utc": "2026-10-02T21:16:39Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE 3",
+      "previous_source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "previous_bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "previous_production_sha": "893a03442cddb9e32487d7c7599be13ba8dc349c",
+      "previous_revision_id": "e5c5e25d4eb48e037da0d0fd3c8e4876761bea86f3259e2c70b47844e5d2a20a",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "d7363dd391e9128523cca191037877763fa963c3",
+      "production_sha": "165979d7dd0af135c0d7add2ac438f4c8b9ffc41",
+      "revision_id": "cb43335400f8b58402d889ad6864ba1dd04d724bd6ff789f256f1870577f44ac",
+      "correction_cycle": 5,
+      "audit_epoch": 6,
+      "handoff_id": "191-e6-c0a8d113f7d5",
+      "reason": "PR draft #81 updated the Bible and production dependencies after the protected handoff; bind the exact current working revision and return it to independent audit.",
+      "previous_event_hash": "6650c5fd640d3366328d1f298949264e022f801a7f6679029a693b2f5514077f",
+      "event_hash": "35bcadfd08c9a39a3c14b8c7013c4213887b6ddca289a8b35668e17a792532ce"
+    },
+    {
+      "at_utc": "2026-10-02T21:29:30Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE 3",
+      "previous_source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "previous_bible_sha": "d7363dd391e9128523cca191037877763fa963c3",
+      "previous_production_sha": "165979d7dd0af135c0d7add2ac438f4c8b9ffc41",
+      "previous_revision_id": "cb43335400f8b58402d889ad6864ba1dd04d724bd6ff789f256f1870577f44ac",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "4d2291823021e959630a2421ad07dafd714e3be3",
+      "production_sha": "165979d7dd0af135c0d7add2ac438f4c8b9ffc41",
+      "revision_id": "785e4759ad7b4546629ca6cad3ac83a34b58940a2bd758a46edba0f05b8fe4f4",
+      "correction_cycle": 5,
+      "audit_epoch": 7,
+      "handoff_id": "191-e7-1e6d6cd6684e",
+      "reason": "Revisão externa legítima vinculada ao working tree e devolvida para auditoria independente.",
+      "previous_event_hash": "35bcadfd08c9a39a3c14b8c7013c4213887b6ddca289a8b35668e17a792532ce",
+      "event_hash": "6931fbab4db307fcd889b3de24b7c9adfda704c97ef5f6b842ab31a0f4661e55"
+    },
+    {
+      "at_utc": "2026-10-02T21:32:00Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE 3",
+      "previous_source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "previous_bible_sha": "4d2291823021e959630a2421ad07dafd714e3be3",
+      "previous_production_sha": "165979d7dd0af135c0d7add2ac438f4c8b9ffc41",
+      "previous_revision_id": "785e4759ad7b4546629ca6cad3ac83a34b58940a2bd758a46edba0f05b8fe4f4",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "9bc08fcb5e56f4e17a79a940f69461d67584770b",
+      "production_sha": "165979d7dd0af135c0d7add2ac438f4c8b9ffc41",
+      "revision_id": "529c50ddbbfdb5833a8930a4859acc398027139fb9c4fceb4e6672f8dda33a92",
+      "correction_cycle": 5,
+      "audit_epoch": 8,
+      "handoff_id": "191-e8-9c74a665af12",
+      "reason": "Revisão externa legítima vinculada ao working tree e devolvida para auditoria independente.",
+      "previous_event_hash": "6931fbab4db307fcd889b3de24b7c9adfda704c97ef5f6b842ab31a0f4661e55",
+      "event_hash": "c8f579b1d211ab18edc0e52d83d36d869f66b41965f3e0751ed2e16049f15ea0"
     }
   ],
   "evidence": [
@@ -2164,5 +2230,15 @@
       "gtc_cache_flow_focal_result": "PASS_4_OF_4"
     }
   ],
-  "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509"
+  "bible_sha": "9bc08fcb5e56f4e17a79a940f69461d67584770b",
+  "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "production_sha": "165979d7dd0af135c0d7add2ac438f4c8b9ffc41",
+  "correction_cycle": 5,
+  "lifetime_correction_cycles": 5,
+  "current_escalation_cycle": 5,
+  "escalation_level": "CRITICAL",
+  "human_approval_required": false,
+  "audit_epoch": 8,
+  "handoff_id": "191-e8-9c74a665af12",
+  "revision_id": "529c50ddbbfdb5833a8930a4859acc398027139fb9c4fceb4e6672f8dda33a92"
 }

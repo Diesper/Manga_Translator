@@ -19,12 +19,12 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 
 - `extension/content/content_manga.js`: `4aaf2ba49807ed8ad780437039aa374d6ff9d4ad`.
 - `extension/content/cm-gtc-client.js`: `04227ee27470532e688949a1874948689639c4eb`.
-- `extension/shared/gtc-indexeddb.js`: `431f37eb5173c815e9db5408fcb655375ec12212`.
+- `extension/shared/gtc-indexeddb.js`: `a2a6a0c3a6650dde0bb71708e896577c99dcf946` (inclui a correção da leitura insegura do fallback legado).
 - `tests/unit/content-manga/replacement-and-completion-real.test.js`: `34d467fe19e65f8ef654d26c5d1371b94d3a89ae`.
-- `tests/unit/gtc/legacy-fallback-coordination.test.js`: `cd86e649b38ae528bba90772e9c3c53ff7e995eb`.
+- `tests/unit/gtc/legacy-fallback-coordination.test.js`: `eced25809ad08984f268fc0b8cbea37fd7865d2a`.
 - `tests/integration/ipc/gtc-cache-flow.test.js`: `da033713d6d647a08287bb35a24c5a09d701e455`.
 - `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
-- `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
+- `tests/mocks/chrome-api.mock.js`: `af6580a887f1eba1c2798bfff82849e1b34cb260`.
 - `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
 - `.github/workflows/audio-synthesis-selftest.yml`: `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`.
 
@@ -3115,3 +3115,17 @@ Depois da evidência acima, a reauditoria encontrou e corrigiu operações GTC q
 - Lint: 243 arquivos; `git diff --check`: aprovado.
 
 Os resultados acima são validações locais anteriores ao CI do novo SHA do PR #81. As falhas globais anteriores continuam sendo evidência histórica; o head novo precisa de checks próprios. O novo par independente PRIMARY + ADVERSARIAL e a transição canônica ainda são necessários para qualquer conclusão de 100/100.
+
+### 36.2 Reauditoria adversarial do fallback GTC sob falha de leitura
+
+Uma passagem adversarial independente da implementação tentou a combinação não coberta anteriormente: há um fallback legado marcado como mais novo (`updatedAt: 200`), chega um `GTC_SAVE` antigo (`operationAt: 100`) e `chrome.storage.local.get` retorna `runtime.lastError`, enquanto o IndexedDB está disponível. Antes da correção, o handler respondia `ok: true`, gravava o payload antigo no IndexedDB e removia o fallback que não conseguiu ler.
+
+A regressão foi adicionada em `tests/unit/gtc/legacy-fallback-coordination.test.js`. O teste falhou antes da mudança, mostrando a resposta `ok: true`; depois da mudança passou e confirmou que a operação falha fechada, preserva o payload e o marcador mais novos e não cria uma entrada IndexedDB obsoleta. `GTC_SAVE` agora interrompe a mutação e o cleanup quando não consegue validar a versão do fallback. O fluxo da página continua não fatal porque o cache global é auxiliar e a falha é reportada pelo chamador.
+
+Validação atual desta revisão local (Node.js 24):
+- `npx jest --config jest.config.js --runInBand tests/unit/gtc tests/integration/ipc/gtc-cache-flow.test.js tests/integration/ipc/gtc-indexeddb-deep.test.js tests/unit/content-manga/audio-synthesis-full.test.js tests/unit/content-manga/replacement-and-completion-real.test.js`: 7 suítes, 133/133 testes.
+- `npm run lint`: sintaxe JavaScript validada em 243 arquivos.
+- `git diff --check`: aprovado.
+- `npm run test:ci`: 109/110 suítes, 892/893 testes; sem skips/todos. A única falha é `tests/unit/popup/log-exporter.test.js`, caso `beforeunload ... limpa o estado global`, que espera `window.logPoller === null` e recebe `undefined` (#218), fora das alterações da unidade #191.
+
+O teste #191 continua com 42 casos; a regressão nova pertence à suíte GTC relacionada. A correção local passou pela reauditoria funcional e pelo cenário adversarial que a originou, mas ainda não recebeu o par distribuído independente no binding atualizado. Portanto, a unidade permanece sem declaração de 100/100.

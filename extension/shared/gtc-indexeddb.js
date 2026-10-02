@@ -1228,6 +1228,11 @@
                         } catch (error) {
                             legacyReadError = error;
                         }
+                        // A successful IndexedDB write would remove the legacy
+                        // entry. If that entry could not be read, its timestamp
+                        // might be newer than this operation, so fail closed
+                        // before either replacing modern data or cleaning it up.
+                        if (legacyReadError) throw legacyReadError;
                         const fallback = legacyPayload(legacy[`gtc_${hash}`], legacy[`gtc_meta_${hash}`]);
                         if (fallback && fallback.marked && fallback.updatedAt > operationAt) {
                             finalize({ saved: true, superseded: true });

@@ -1,0 +1,21 @@
+{
+  "schema_version": 3,
+  "index": 191,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 3",
+  "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+  "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "bible_sha": "9bc08fcb5e56f4e17a79a940f69461d67584770b",
+  "verdict": "APPROVED",
+  "findings": [
+    "191-034 resolvido antes do parecer: READ lastError combinado com IndexedDB disponível reproduziu substituição/remoção de fallback marcado mais novo; regressão falhou antes e passou depois do fail-closed, preservando o fallback e sem gravar dado obsoleto."
+  ],
+  "completed_at_utc": "2026-10-02T21:34:00Z",
+  "production_sha": "165979d7dd0af135c0d7add2ac438f4c8b9ffc41",
+  "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "audit_epoch": 8,
+  "handoff_id": "191-e8-9c74a665af12",
+  "revision_id": "529c50ddbbfdb5833a8930a4859acc398027139fb9c4fceb4e6672f8dda33a92",
+  "human_approval_id": null
+}
