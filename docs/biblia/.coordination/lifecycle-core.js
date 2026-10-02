@@ -278,6 +278,28 @@ function lifecycleSnapshot(state, options = {}) {
   };
 }
 
+function activeHumanAuthorizedCorrection(state) {
+  if (state?.status !== 'IN_PROGRESS') return false;
+  const history = historyOf(state);
+  for (let i = history.length - 1; i >= 0; i -= 1) {
+    const entry = history[i];
+    if (entry?.type === HANDOFF_EVENT || entry?.type === SAFE_ABORT_EVENT) return false;
+    if (entry?.type !== 'HUMAN_AUTHORIZED_CORRECTION_STARTED') continue;
+    const tokenId = String(entry?.correction_token_id || '').trim();
+    const approvalId = String(entry?.approval_id || '').trim();
+    if (!tokenId || !approvalId) return false;
+    return history.slice(0, i).some((candidate) => (
+      candidate?.type === 'HUMAN_APPROVAL_CONSUMED'
+      && candidate?.approval_id === approvalId
+      && candidate?.correction_token_id === tokenId
+    )) && history.slice(i + 1).some((candidate) => (
+      candidate?.type === 'CORRECTION_TOKEN_CONSUMED'
+      && candidate?.correction_token_id === tokenId
+    ));
+  }
+  return false;
+}
+
 function lifecycleProblems(state, options = {}) {
   const snapshot = lifecycleSnapshot(state, options);
   const problems = [];
@@ -298,8 +320,8 @@ function lifecycleProblems(state, options = {}) {
     }
   }
 
-  if (snapshot.human_locked && state?.status !== 'HUMAN_LOCKED') {
-    problems.push(label + ': correction_cycle >= 7 exige status HUMAN_LOCKED');
+  if (snapshot.human_locked && state?.status !== 'HUMAN_LOCKED' && !activeHumanAuthorizedCorrection(state)) {
+    problems.push(label + ': correction_cycle >= 7 exige status HUMAN_LOCKED ou correção humana one-shot ativa');
   }
   if (!snapshot.human_locked && state?.status === 'HUMAN_LOCKED') {
     problems.push(label + ': HUMAN_LOCKED sem correction_cycle >= 7');
@@ -378,6 +400,7 @@ module.exports = {
   rootCauseReviewValid,
   priorityForState,
   lifecycleSnapshot,
+  activeHumanAuthorizedCorrection,
   lifecycleProblems,
   evaluateLifecycleStates,
 };
