@@ -141,6 +141,18 @@ assert.throws(()=>transition.planTransition({
 }),/START_CORRECTION_PIPELINE_REQUIRED/);
 console.log('PASS correction start cannot bypass current decision by omitting pipeline');
 
+assert.throws(()=>transition.planTransition({
+  state:s,
+  pipeline:pipeline(s),
+  token,
+  request:{
+    action:'START_CORRECTION',
+    actor:'AGENT-X',
+    at_utc:'2026-10-02T06:30:55Z',
+  },
+}),/STRATEGY_REVIEW_REQUIRED/);
+console.log('PASS every third cycle requires explicit strategy reassessment');
+
 let planned = transition.planTransition({
   state:s,
   pipeline:pipeline(s),
@@ -154,6 +166,13 @@ let planned = transition.planTransition({
     expected_cycle:3,
     expected_revision_id:snap.revision_id,
     expected_state_sha:'state-sha',
+    strategy_review:{
+      related_cycles:[1,2,3],
+      observed_pattern:'three correction handoffs without stable closure',
+      evidence:'cycles 1..3 required repeated correction',
+      why_previous_strategy_insufficient:'local fixes did not close the audit loop',
+      new_strategy:'switch to cross-file contract validation',
+    },
   },
 });
 assert.strictEqual(planned.state.status, 'IN_PROGRESS');
@@ -310,7 +329,18 @@ assert.throws(()=>transition.planTransition({
   state:s,
   pipeline:pipeline(s),
   token:emergencyToken,
-  request:{action:'START_CORRECTION',actor:'NEW-AGENT',at_utc:'2026-10-02T06:41:00Z'},
+  request:{
+    action:'START_CORRECTION',
+    actor:'NEW-AGENT',
+    at_utc:'2026-10-02T06:41:00Z',
+    strategy_review:{
+      related_cycles:[4,5,6],
+      observed_pattern:'same concurrency symptom survives three more cycles',
+      evidence:'cycles 4..6 repeatedly expose ordering races',
+      why_previous_strategy_insufficient:'cross-file validation still left runtime ordering unresolved',
+      new_strategy:'serialize the shared runtime writer',
+    },
+  },
 }), /EMERGENCY_ROOT_CAUSE_REVIEW_REQUIRED/);
 planned = transition.planTransition({
   state:s,
@@ -320,6 +350,13 @@ planned = transition.planTransition({
     action:'START_CORRECTION',
     actor:'NEW-AGENT',
     at_utc:'2026-10-02T06:41:00Z',
+    strategy_review:{
+      related_cycles:[4,5,6],
+      observed_pattern:'same concurrency symptom survives three more cycles',
+      evidence:'cycles 4..6 repeatedly expose ordering races',
+      why_previous_strategy_insufficient:'cross-file validation still left runtime ordering unresolved',
+      new_strategy:'serialize the shared runtime writer',
+    },
     root_cause_review:{
       categories:['CONCURRENCY'],
       related_cycles:[4,5,6],
