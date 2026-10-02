@@ -1,9 +1,9 @@
 /**
  * regex-escape.test.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Testa a regex de escape no fallbackSearch do background.js real (BUG #14 Fix).
- * Garante que caminhos de mangá com '.', '(', ')', '+', '*', '?' sejam
- * escapados corretamente ao realizar chrome.downloads.search({ filenameRegex }).
+ * Carrega o background real e executa fallbackSearch da ação modular
+ * extension/background/actions/open-existing-folder.js (BUG #14 Fix).
+ * Verifica escape literal de metacaracteres em downloads.search({ filenameRegex }).
  */
 
 const path = require('path');
@@ -122,6 +122,7 @@ describe('SHOW_EXISTING_FOLDER - Escape de Metacaracteres para Regex no backgrou
 
         const regex = new RegExp(query.filenameRegex);
         expect(regex.test('MangaTranslator/Title*Name?')).toBe(true);
+        expect(regex.test('MangaTranslator/TitleName')).toBe(false);
     });
 
     test('path complexo do mundo real não lança SyntaxError e faz match exato', async () => {
@@ -139,5 +140,40 @@ describe('SHOW_EXISTING_FOLDER - Escape de Metacaracteres para Regex no backgrou
 
         const regex = new RegExp(query.filenameRegex);
         expect(regex.test(complexPath)).toBe(true);
+    });
+
+    test.each(['^', '$', '{', '}', '[', ']', '|', '\\'])(
+        'escapa o metacaractere restante %s como literal', async (symbol) => {
+            const searchSpy = jest.spyOn(downloadsMock, 'search');
+            const folderPath = `MangaTranslator/Before${symbol}After`;
+            await dispatchToBackground(runtimeMock, {
+                action: 'SHOW_EXISTING_FOLDER', folderPath, safeTitle: 'Literal',
+            });
+
+            expect(searchSpy).toHaveBeenCalled();
+            const query = searchSpy.mock.calls[0][0];
+            expect(query.filenameRegex).toBe(`MangaTranslator/Before\\${symbol}After`);
+            expect(() => new RegExp(query.filenameRegex)).not.toThrow();
+            const regex = new RegExp(query.filenameRegex);
+            expect(regex.test(folderPath)).toBe(true);
+            expect(regex.test('MangaTranslator/BeforeXAfter')).toBe(false);
+            expect(regex.test('MangaTranslator/BeforeAfter')).toBe(false);
+        }
+    );
+
+    test('escapa separadores e metacaracteres de um caminho Windows', async () => {
+        const searchSpy = jest.spyOn(downloadsMock, 'search');
+        const folderPath = 'C:\\Users\\Reader\\MangaTranslator\\Arc[2]\\One.Piece';
+        await dispatchToBackground(runtimeMock, {
+            action: 'SHOW_EXISTING_FOLDER', folderPath, safeTitle: 'One.Piece',
+        });
+
+        const query = searchSpy.mock.calls[0][0];
+        expect(query.filenameRegex).toBe('C:\\\\Users\\\\Reader\\\\MangaTranslator\\\\Arc\\[2\\]\\\\One\\.Piece');
+        const regex = new RegExp(query.filenameRegex);
+        expect(regex.test(folderPath)).toBe(true);
+        expect(regex.test(folderPath.replace('Arc[2]', 'Arc2'))).toBe(false);
+        expect(regex.test(folderPath.replace('One.Piece', 'OneXPiece'))).toBe(false);
+        expect(regex.test(folderPath.replace(/\\/g, '/'))).toBe(false);
     });
 });
