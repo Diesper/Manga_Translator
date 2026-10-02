@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "a887718724aa3fa65da433269cc12fb82af7bb18",
-  "started_at_utc": null,
+  "started_at_utc": "2026-10-02T05:08:00Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -1029,6 +1029,26 @@
         "focal_result": "PASS_2_OF_2_SUITES_50_OF_50_TESTS_NODE20_AND_NODE22",
         "content_suite_result": "PASS_40_OF_40_SUITES_469_OF_469_TESTS_DETECT_OPEN_HANDLES"
       }
+    },
+    {
+      "id": "191-027",
+      "status": "ACCEPTED",
+      "type": "GTC_LEGACY_FALLBACK_REORDER_RACE",
+      "target_file": "extension/content/cm-gtc-client.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "Dois GTC_SAVE do mesmo hash podem concluir fora de ordem. Se a primeira tentativa falhar tarde após o retry final ter salvo com sucesso, saveGlobalTranslationCacheEntry grava o payload antigo no fallback chrome.storage.local, deixando cache legado stale.",
+      "current_evidence": "saveGlobalTranslationCacheEntry aguarda cada runtime message isoladamente e grava fallback apenas no failure; não existe fila por hash nem limpeza ordenada do fallback após success.",
+      "missing_evidence": "Uma falha tardia do GTC_SAVE antigo não pode deixar gtc_<hash> apontando para FAIL_FIRST depois que RETRY_OK foi aceito.",
+      "why_needed": "queryGlobalTranslationCache usa chrome.storage.local quando o IndexedDB/runtime falha; fallback stale pode restaurar tradução rejeitada.",
+      "requested_action": "Serializar saves por hash e garantir que success mais novo invalide/remova fallback legado anterior; adicionar regressão de callbacks fora de ordem.",
+      "expected_evidence": "Pré-fix deixa legacy FAIL_FIRST; pós-fix processa writes na ordem lógica e legacy não contém payload antigo após RETRY_OK.",
+      "expected_auditor_action": "Revalidar consistência do GTC entre IndexedDB e fallback legado sob falha/retry.",
+      "possible_regression": "Falha transitória do IndexedDB pode fazer navegação futura restaurar payload antigo apesar do capítulo persistido conter o retry final.",
+      "impact": "Integridade de cache/restauração e convergência após retry.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T05:08:00Z",
+      "audit_finding": "Encontrado em revisão corretiva; não substitui auditoria independente."
     }
   ],
   "document_quality": {
@@ -1046,7 +1066,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T05:02:30Z",
+  "updated_at_utc": "2026-10-02T05:08:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1584,6 +1604,16 @@
       "bible_sha": "de30f4ede49c0777ebe125f0eb27c4944422110e",
       "agent": "AGENTE 30",
       "reason": "R1/R4 rechecked: 191-001..003 kept historical 207a1ba4/5-of-5 validation fields. Added append-only current revalidation bound to a887718/de30f4e, PR79 50/50 Node20/22 + full 469/469, plus current-head focal run 36967030676 50/50 on both nodes. Historical PERF-09 wording explicitly marked non-current."
+    },
+    {
+      "at_utc": "2026-10-02T05:08:00Z",
+      "type": "PRIORITY_191_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "a887718724aa3fa65da433269cc12fb82af7bb18",
+      "bible_sha": "de30f4ede49c0777ebe125f0eb27c4944422110e",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-027 HIGH: late failed GTC_SAVE can overwrite legacy fallback with stale pre-retry payload."
     }
   ],
   "evidence": [
