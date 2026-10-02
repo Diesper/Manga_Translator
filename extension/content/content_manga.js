@@ -2678,7 +2678,9 @@ if (!window.__manga_translator_content_injected) {
                     .catch((err) => {
                         sendLog('error', 'PERSIST_FAIL', `Falha ao persistir a página ${request.index}: ${err && err.message}`, { index: request.index });
                         ack({ ok: false, reason: 'persist_failed' });
-                        accountPersistedUpdate();
+                        // Persistência falhou: não contabilizar o índice como concluído.
+                        // O lote permanece ativo para que o background possa reenviar
+                        // o resultado; só um commit persistido com sucesso avança o lote.
                     });
 
                 return wantsAck;
