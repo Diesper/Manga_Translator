@@ -177,6 +177,71 @@ function humanApprovalAuditorProblems(approvals, pipelines) {
   return problems;
 }
 
+function humanApprovalConsumptionProblems(states, approvals) {
+  const problems = [];
+  const approvalById = new Map((approvals || []).map((approval) => [approval.approval_id, approval]));
+  const consumed = new Map();
+
+  for (const state of states || []) {
+    const history = Array.isArray(state?.history) ? state.history : [];
+    for (let position = 0; position < history.length; position += 1) {
+      const entry = history[position];
+      if (entry?.type !== 'HUMAN_APPROVAL_CONSUMED') continue;
+      const approvalId = String(entry?.approval_id || '').trim();
+      const label = '#' + String(state.index).padStart(3, '0') + '/history[' + position + ']';
+      if (!approvalId) {
+        problems.push(label + ': HUMAN_APPROVAL_CONSUMED sem approval_id');
+        continue;
+      }
+      const approval = approvalById.get(approvalId);
+      if (!approval) {
+        problems.push(label + ': consumo de approval inexistente: ' + approvalId);
+        continue;
+      }
+      const seen = consumed.get(approvalId) || [];
+      seen.push(label);
+      consumed.set(approvalId, seen);
+
+      if (Number(approval.index) !== Number(state.index)) {
+        problems.push(label + ': approval consumida por outro índice: ' + approvalId);
+      }
+      if (entry?.source_sha && approval.test_sha && entry.source_sha !== approval.test_sha) {
+        problems.push(label + ': approval consumida em test/source revision divergente');
+      }
+      if (entry?.bible_sha && approval.bible_sha && entry.bible_sha !== approval.bible_sha) {
+        problems.push(label + ': approval consumida em Bible revision divergente');
+      }
+      const approvedMs = Date.parse(approval.approved_at_utc || '');
+      const consumedMs = Date.parse(entry.at_utc || '');
+      if (!Number.isFinite(consumedMs) || (Number.isFinite(approvedMs) && consumedMs < approvedMs)) {
+        problems.push(label + ': approval consumida antes de existir');
+      }
+
+      const next = history[position + 1];
+      const expectedType = approval.decision === 'ALLOW_ONE_CORRECTION'
+        ? 'HUMAN_AUTHORIZED_CORRECTION_STARTED'
+        : approval.decision === 'PERMANENTLY_CLOSE'
+          ? 'HUMAN_PERMANENTLY_CLOSED'
+          : approval.decision === 'RESET_ESCALATION'
+            ? lifecycle.HUMAN_RESET_EVENT
+            : null;
+      if (expectedType && (next?.type !== expectedType || next?.approval_id !== approvalId)) {
+        problems.push(label + ': consumo não é seguido pela ação humana esperada ' + expectedType);
+      }
+      if (approval.decision === 'ALLOW_AUDIT_ONLY') {
+        problems.push(label + ': ALLOW_AUDIT_ONLY não deve ser consumida como mutação de state');
+      }
+    }
+  }
+
+  for (const [approvalId, labels] of consumed) {
+    if (labels.length > 1) {
+      problems.push('approval single-use consumida mais de uma vez: ' + approvalId + ' -> ' + labels.join(', '));
+    }
+  }
+  return problems;
+}
+
 function humanGateProblems(states, lifecycleByIndex, approvals) {
   const problems = [];
   for (const state of states || []) {
@@ -187,6 +252,7 @@ function humanGateProblems(states, lifecycleByIndex, approvals) {
       for (const problem of validateApproval(approval, approval.path || '<approval>')) problems.push(problem);
     }
   }
+  problems.push(...humanApprovalConsumptionProblems(states, approvals));
   return [...new Set(problems)];
 }
 
@@ -200,5 +266,6 @@ module.exports = {
   activeHumanApproval,
   humanAuditResultProblems,
   humanApprovalAuditorProblems,
+  humanApprovalConsumptionProblems,
   humanGateProblems,
 };
