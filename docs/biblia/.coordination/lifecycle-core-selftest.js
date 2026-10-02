@@ -246,6 +246,36 @@ future.history.push({
 assert.ok(life.lifecycleProblems(future).some((x) => x.includes('sem correction_token_id')));
 console.log('PASS future direct correction without token is rejected');
 
+const fakeType = baseState();
+fakeType.status='IN_PROGRESS';
+fakeType.history.push({
+  at_utc:'2026-10-02T06:35:00Z',
+  type:'MANUAL_HACK',
+  from_status:'CHANGES_REQUIRED',
+  to_status:'IN_PROGRESS',
+  correction_token_id:'corr-fake',
+});
+fakeType.history.push({
+  at_utc:'2026-10-02T06:35:01Z',
+  type:'CORRECTION_TOKEN_CONSUMED',
+  correction_token_id:'corr-fake',
+});
+assert.ok(life.lifecycleProblems(fakeType).some((x)=>x.includes('evento pós-policy não canônico')));
+console.log('PASS arbitrary event type cannot open IN_PROGRESS even with token-shaped data');
+
+const missingConsumption = baseState();
+missingConsumption.status='IN_PROGRESS';
+missingConsumption.history.push({
+  at_utc:'2026-10-02T06:36:00Z',
+  type:'EDITOR_CORRECTION_STARTED',
+  from_status:'CHANGES_REQUIRED',
+  to_status:'IN_PROGRESS',
+  correction_token_id:'corr-unconsumed',
+});
+assert.ok(life.lifecycleProblems(missingConsumption)
+  .some((x)=>x.includes('sem CORRECTION_TOKEN_CONSUMED imediatamente posterior')));
+console.log('PASS canonical correction start must consume its token immediately');
+
 const forgedInProgress = baseState();
 forgedInProgress.status='IN_PROGRESS';
 forgedInProgress.updated_at_utc='2026-10-01T00:00:00Z';
