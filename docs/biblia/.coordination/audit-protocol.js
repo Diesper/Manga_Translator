@@ -369,8 +369,9 @@ function loadModel() {
     approvals.approvals,
     loaded.records
   );
-  const tokens = unitTransition.loadCorrectionTokens(repoRoot, states);
   const pipelines = states.map((state) => evaluation.byIndex.get(state.index));
+  const pipelineByIndex = new Map(pipelines.map((pipeline) => [pipeline.index, pipeline]));
+  const tokens = unitTransition.loadCorrectionTokens(repoRoot, states, { pipelines: pipelineByIndex });
 
   return {
     states,
