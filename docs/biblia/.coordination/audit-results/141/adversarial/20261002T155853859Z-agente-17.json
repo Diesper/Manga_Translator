@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "index": 141,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 17",
+  "file": "tests/unit/background/download-image-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/download-image-action.test.js/Bíblia.md",
+  "source_sha": "9305ba72e1d62406128ce7a5cd77b945a0b44c83",
+  "bible_sha": "eca5b07aba2da8922d42207569256495eccb9f41",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "141-A17-001",
+      "type": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "severity": "BLOCKING",
+      "summary": "A cobertura 53/53 é estruturalmente completa, mas várias descrições `Papel` estão deslocadas e contradizem a própria linha de source, portanto a cobertura semântica por posição não é fiel.",
+      "evidence": [
+        "Bíblia linha 153 documenta corretamente o conteúdo da posição 003 como ROUTER_PATH, mas linha 154 diz que essa posição 'obtém mocks reais de storage/tabs'.",
+        "Posição 004 contém ACTION_PATH, mas a linha 159 a chama de 'Separador visual'; posição 005 é vazia, mas linha 164 diz 'Resolve o router real'; posição 006 abre `dispatch`, mas linha 169 diz 'Resolve a action real'.",
+        "O deslocamento persiste no fim: posição 043 inicia a assertion de downloads.download mas seu papel descreve o fechamento do request; posição 046 é a assertion de waitForDownload mas o papel descreve URL/filename/saveAs; posição 050 fecha a assertion final mas o papel descreve o conteúdo do payload.",
+        "A fonte integral embutida é byte-a-byte exata e os headings 001–053 estão todos presentes; o defeito é semântico, não de contagem."
+      ],
+      "required_change": "Reauditar o campo `Papel` posição por posição contra as 52 linhas reais e o newline terminal; 53/53 só pode ser declarado semanticamente completo depois de corrigir os deslocamentos."
+    },
+    {
+      "id": "141-A17-002",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "severity": "BLOCKING",
+      "summary": "A Bíblia apresenta 141-001..004 como `OPEN` e repete na autoauditoria que permanecem OPEN, enquanto o array canônico `.state/141.json` registra as quatro como `ACCEPTED`.",
+      "evidence": [
+        "Bíblia linhas 56, 60, 64 e 68 rotulam cada request como OPEN; linha 413 afirma novamente que 141-001..004 permanecem OPEN.",
+        ".state/141.json registra status ACCEPTED para 141-001, 141-002, 141-003 e 141-004, cada uma com `audited_by`, `audit_finding` e recomendação já preenchidos.",
+        "O próprio `document_quality.external_audit_requests_open=4` do state é um resumo stale frente ao array canônico; não deve ser usado para reverter o lifecycle explícito das requests."
+      ],
+      "required_change": "Sincronizar a Bíblia com o lifecycle canônico ACCEPTED e evitar tratar o contador/resumo stale como autoridade sobre os objetos audit_request."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T15:58:53.859Z"
+}
