@@ -965,6 +965,82 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         )).toHaveLength(1);
     });
 
+    test('replay idêntico após conclusão recupera ACK perdido sem novo save', async () => {
+        installRuntimeResponder({ tabId: 97 });
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        const first = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,RklSU1Q=',
+            expectAck: true,
+        });
+        expect(first.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+            domApplied: true,
+        }));
+        await waitFor(() => oscillators.length === 3);
+
+        const completed = await dispatchToContent(runtimeMock, {
+            action: 'GET_FLOATING_BUTTON_STATUS',
+        });
+        expect(completed.response).toEqual(expect.objectContaining({
+            translating: false,
+            batchId: null,
+            batchStatus: 'complete',
+        }));
+
+        const replay = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,RklSU1Q=',
+            expectAck: true,
+        });
+        expect(replay.response).toEqual({
+            ok: true,
+            persisted: true,
+            domApplied: false,
+        });
+
+        const conflict = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,U0VDT05E',
+            expectAck: true,
+        });
+        expect(conflict.response).toEqual({
+            ok: false,
+            reason: 'payload_conflict',
+        });
+
+        expect(sentMessages.filter(message =>
+            message.action === 'SM_SAVE_PAGE'
+            && message.pageIndex === 0
+        )).toHaveLength(1);
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
+            .toBe('data:image/png;base64,RklSU1Q=');
+        expect(oscillators).toHaveLength(3);
+        expect(sentMessages.filter(message =>
+            message.action === 'LOG_ENTRY'
+            && message.action_name === 'BATCH_COMPLETE'
+        )).toHaveLength(1);
+    });
+
     test('persistência tardia de UPDATE_IMAGE do lote cancelado não conclui o lote seguinte', async () => {
         installRuntimeResponder({ tabId: 91 });
         const baseSendMessage = runtimeMock.sendMessage;
