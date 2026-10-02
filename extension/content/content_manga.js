@@ -2552,9 +2552,14 @@ if (!window.__manga_translator_content_injected) {
                     try { sendResponse(payload); } catch (_e) {}
                 };
 
-                // Rejeitar resultados de batches antigos/cancelados
-                if (request.batchId && _currentBatchId && request.batchId !== _currentBatchId) {
-                    sendLog('warn', 'STALE_UPDATE', `UPDATE_IMAGE ignorado de batch antigo`, { received: (request.batchId||'').slice(0,8), current: (_currentBatchId||'').slice(0,8) });
+                // Rejeitar resultados de batches antigos, cancelados ou já concluídos.
+                // Depois da conclusão _currentBatchId é limpo; um UPDATE_IMAGE tardio
+                // com batchId conhecido não pode voltar a substituir/persistir a imagem.
+                if (request.batchId && (!_currentBatchId || request.batchId !== _currentBatchId)) {
+                    sendLog('warn', 'STALE_UPDATE', `UPDATE_IMAGE ignorado de batch antigo`, {
+                        received: (request.batchId || '').slice(0, 8),
+                        current: (_currentBatchId || '').slice(0, 8),
+                    });
                     ack({ ok: false, reason: 'stale_batch' });
                     return wantsAck;
                 }
