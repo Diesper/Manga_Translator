@@ -265,11 +265,26 @@ function validateClaims(states, options = {}) {
         rel,
       }));
 
-      if (pathPhase === 'PRIMARY' && state.status !== 'READY_FOR_AUDIT') {
+      const lifecycle = options.lifecycleByIndex instanceof Map
+        ? options.lifecycleByIndex.get(index)
+        : lifecycleCore.lifecycleSnapshot(state);
+      const humanAuditApproval = lifecycle?.human_locked
+        ? humanGate.activeHumanApproval(
+          state,
+          lifecycle,
+          options.humanApprovals || [],
+          'ALLOW_AUDIT_ONLY'
+        )
+        : null;
+      const humanAuditAllowed = Boolean(lifecycle?.human_locked && humanAuditApproval);
+      if (pathPhase === 'PRIMARY'
+        && state.status !== 'READY_FOR_AUDIT'
+        && !(state.status === 'HUMAN_LOCKED' && humanAuditAllowed)) {
         problems.push('lease PRIMARY incompatível com status: #' + index + '/' + state.status);
       }
       if ((pathPhase === 'ADVERSARIAL' || pathPhase === 'REAUDIT')
-        && !['READY_FOR_AUDIT', 'COMPLETED', 'CHANGES_REQUIRED'].includes(state.status)) {
+        && !['READY_FOR_AUDIT', 'COMPLETED', 'CHANGES_REQUIRED'].includes(state.status)
+        && !(state.status === 'HUMAN_LOCKED' && humanAuditAllowed)) {
         problems.push('lease ' + pathPhase + ' incompatível com status: #' + index + '/' + state.status);
       }
     }
@@ -334,15 +349,19 @@ function loadModel() {
     ? parseLegacyAuditRegistry(fs.readFileSync(auditRegistryPath, 'utf8'))
     : new Map();
   const loaded = core.loadAuditResults(repoRoot, states);
-  const claims = validateClaims(states, { baseline });
+  const lifecycle = lifecycleCore.evaluateLifecycleStates(states);
+  const findings = unverifiedFindings.loadUnverifiedFindings(repoRoot);
+  const approvals = humanGate.loadHumanApprovals(repoRoot);
+  const claims = validateClaims(states, {
+    baseline,
+    lifecycleByIndex: lifecycle.byIndex,
+    humanApprovals: approvals.approvals,
+  });
   const evaluation = core.evaluateAuditPipelines(states, loaded.records, legacyAudits, {
     root: repoRoot,
     baseline,
   });
   const handoffProblems = core.postHandoffCorrectionProblems(states, loaded.records, { root: repoRoot });
-  const lifecycle = lifecycleCore.evaluateLifecycleStates(states);
-  const findings = unverifiedFindings.loadUnverifiedFindings(repoRoot);
-  const approvals = humanGate.loadHumanApprovals(repoRoot);
   const humanProblems = humanGate.humanGateProblems(states, lifecycle.byIndex, approvals.approvals);
   const tokens = unitTransition.loadCorrectionTokens(repoRoot, states);
   const pipelines = states.map((state) => evaluation.byIndex.get(state.index));
