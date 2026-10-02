@@ -5,6 +5,7 @@ const path = require('path');
 const {
   loadModel,
 } = require('../../docs/biblia/.coordination/audit-protocol');
+const lifecycleCore = require('../../docs/biblia/.coordination/lifecycle-core');
 
 const DEFAULT_AUDITOR_COUNT = 80;
 const AUDIT_PHASES = new Set(['AUTO', 'PRIMARY', 'ADVERSARIAL', 'REAUDIT']);
@@ -103,6 +104,8 @@ function planAuditWork({
   const candidates = [];
   for (const state of states || []) {
     if (claimed.has(state.index)) continue;
+    const lifecycle = lifecycleCore.lifecycleSnapshot(state);
+    if (lifecycle.human_locked) continue;
     const pipeline = pipelines instanceof Map ? pipelines.get(state.index) : null;
     const nextPhase = nextPhaseForPipeline(pipeline);
     if (!nextPhase) continue;
@@ -123,11 +126,18 @@ function planAuditWork({
       source_sha: state.source_sha,
       bible_sha: pipeline?.bible_sha || null,
       lease_recovery_required: recoverable.has(state.index),
+      correction_cycle: lifecycle.correction_cycle,
+      escalation_level: lifecycle.escalation_level,
+      priority_score: lifecycle.priority_score,
+      revision_id: lifecycle.revision_id,
+      audit_epoch: lifecycle.audit_epoch,
+      handoff_id: lifecycle.handoff_id,
     });
   }
 
   candidates.sort((a, b) => (
-    a.steal_distance - b.steal_distance
+    b.priority_score - a.priority_score
+    || a.steal_distance - b.steal_distance
     || a.index - b.index
   ));
 
