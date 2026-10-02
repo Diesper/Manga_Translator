@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 30",
   "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
-  "started_at_utc": null,
+  "started_at_utc": "2026-10-02T01:55:15Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -190,7 +190,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:54:30Z",
+  "updated_at_utc": "2026-10-02T01:55:15Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -289,6 +289,16 @@
       "bible_sha": "d95135f438c9e9b47cc638208265d6787a039c00",
       "agent": "AGENTE 30",
       "reason": "191-005 HIGH: playErrorSound creates one AudioContext per error, contradicting single-context lifecycle and risking Chromium AudioContext exhaustion."
+    },
+    {
+      "at_utc": "2026-10-02T01:55:15Z",
+      "type": "HYBRID_CORRECTION_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
+      "bible_sha": "d95135f438c9e9b47cc638208265d6787a039c00",
+      "agent": "AGENTE 30",
+      "reason": "Implement regression for 191-005 then fix content_manga shared error AudioContext lifecycle."
     }
   ],
   "evidence": [
