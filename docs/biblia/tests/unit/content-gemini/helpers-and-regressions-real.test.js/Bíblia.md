@@ -5611,3 +5611,11 @@ Foram revalidados 683 blocos `### Linha N`; 683 campos de contexto foram realinh
 > **Lifecycle:** 179-001 está SUPERSEDED por `050-001`; 179-002 e 179-003 estão ACCEPTED.
 
 > **Resolução 179-004:** `RUN-01B` em `tests/unit/content-gemini/job-runner.test.js` agora instancia o runner com `DataUrlAtob:null` e exige `APIs de arquivo indisponíveis`; implementação registrada no source blob `b0daca4ce839d8a5114c8c94e116fa155c721f7b`.
+
+## Cobertura documental de linhas/posições — revisão atual
+
+Esta seção é a cobertura canônica da revisão atual e prevalece sobre mapas históricos preservados acima.
+
+| Linhas/posição | Escopo | Evidência |
+|---:|---|---|
+| 1–684 | Blob integral atual `65c66f1a756d127909ed6661386e72c19e3a3a2c` (683 linhas textuais + newline final quando aplicável). | fonte integral embutida + SHA Git do source |
