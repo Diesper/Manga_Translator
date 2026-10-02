@@ -1,0 +1,61 @@
+name: PR66 Isolated Structure Review
+
+on:
+  pull_request:
+    branches: [docs/project-bible]
+    paths:
+      - '.github/workflows/pr66-structure-review.yml'
+      - '.github/workflows/bible-reconcile-checkpoint.yml'
+      - 'scripts/validation/verify-bible-protocol-governance*.js'
+      - 'scripts/validation/verify-reconcile-refresh-selftest.js'
+      - 'docs/biblia/.coordination/PR66_STRUCTURE_REVIEW.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr66-structure-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  governance:
+    name: Isolated Governance (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Prove refresh ordering and governance mutation guards
+        run: |
+          node scripts/validation/verify-bible-protocol-governance.js
+          node scripts/validation/verify-bible-protocol-governance-selftest.js
+
+  workflow-lint:
+    name: Isolated Workflow Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Install verified actionlint 1.7.12
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pr66-actionlint"
+          cd "$RUNNER_TEMP/pr66-actionlint"
+          curl -fsSLO https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          echo '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  actionlint_1.7.12_linux_amd64.tar.gz' | sha256sum --check --strict
+          tar -xzf actionlint_1.7.12_linux_amd64.tar.gz actionlint
+      - name: Validate repaired checkpoint and isolated review workflow
+        shell: bash
+        run: |
+          "$RUNNER_TEMP/pr66-actionlint/actionlint" -shellcheck= -pyflakes= \
+            .github/workflows/bible-reconcile-checkpoint.yml \
+            .github/workflows/pr66-structure-review.yml

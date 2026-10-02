@@ -78,7 +78,7 @@ const PROTOCOL_POST_LIFECYCLE_CONTROLS = [
 
 function loadSources(root) {
   function read(rel) {
-    return fs.readFileSync(path.join(root, rel), 'utf8');
+    return fs.readFileSync(path.join(root, rel), 'utf8').replace(/\r\n/g, '\n');
   }
   return {
     protocol: read('.github/workflows/bible-protocol-infra.yml'),
@@ -151,18 +151,38 @@ function protocolContinuationProblems(source) {
 }
 
 function reconcileRefreshProblems(source) {
+  const normalized = String(source || '').replace(/\r\n/g, '\n');
+  const observedIds = [...normalized.matchAll(/^\s*id:\s*observed\s*$/gm)];
+  if (observedIds.length !== 1) {
+    return ['reconcile: exige exatamente um step id: observed'];
+  }
+  const observed = stepBlockForFragment(normalized, 'id: observed');
+  const observedStart = normalized.indexOf(observed);
+  const validation = 'npm run test:bible-protocol:infra';
+  const mutation = 'npm run bible:reconcile:write';
+  const problems = [];
+  const validationPosition = normalized.indexOf(validation);
+  const mutationPosition = normalized.indexOf(mutation);
+  if (validationPosition < 0 || validationPosition >= observedStart) {
+    problems.push('reconcile: validação do protocolo deve preceder o step observed');
+  }
+  if (mutationPosition < 0 || mutationPosition <= observedStart + observed.length) {
+    problems.push('reconcile: mutação deve suceder o step observed completo');
+  }
+  // The earlier validated capture belongs to another step. Only this step
+  // establishes the exact branch revision on which reconciliation may write.
   const ordered = [
-    'npm run test:bible-protocol:infra',
     'git fetch origin docs/project-bible',
     'git reset --hard "$REMOTE_SHA"',
     'echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"',
-    'npm run bible:reconcile:write',
   ];
   let previous = -1;
-  const problems = [];
   for (const fragment of ordered) {
-    const position = source.indexOf(fragment);
-    if (position < 0) continue;
+    const position = observed.indexOf(fragment);
+    if (position < 0) {
+      problems.push('reconcile: controle obrigatório ausente no step observed: ' + fragment);
+      continue;
+    }
     if (position <= previous) problems.push('reconcile: refresh/observed-head ordering inválido antes da mutação: ' + fragment);
     previous = position;
   }
