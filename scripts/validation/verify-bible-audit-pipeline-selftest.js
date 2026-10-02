@@ -168,6 +168,18 @@ if (!handoffProblems.some((item) => item.includes('binding ausente/divergente'))
 }
 process.stdout.write('PASS handoff exige binding exato na reabertura\n');
 
+const missingHandoffBinding = {
+  ...protectedRevision,
+  history: protectedRevision.history.map((entry, index) => (
+    index === 0 ? { ...entry, bible_sha: null } : entry
+  )),
+};
+handoffProblems = postHandoffCorrectionProblems([missingHandoffBinding], []);
+if (!handoffProblems.some((item) => item.includes('handoff protegido sem SOURCE_SHA+BIBLE_SHA válidos'))) {
+  throw new Error('handoff protegido sem binding completo deveria falhar: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS handoff protegido exige SOURCE_SHA+BIBLE_SHA\n');
+
 const onlyPrimary = [
   result(protectedRevision, 'PRIMARY', 'CHANGES_REQUIRED', 'AUDITOR-1', '2026-10-02T06:02:00Z'),
 ];
