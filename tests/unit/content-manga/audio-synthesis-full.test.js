@@ -1103,6 +1103,95 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
     });
 
+    test('falha de persistência não conclui o lote e retry bem-sucedido conclui', async () => {
+        installRuntimeResponder({ tabId: 92 });
+        const baseSendMessage = runtimeMock.sendMessage;
+        let saveAttempts = 0;
+
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            if (message.action === 'SM_SAVE_PAGE') {
+                sentMessages.push(message);
+                saveAttempts++;
+                if (callback) {
+                    setTimeout(() => callback(
+                        saveAttempts === 1
+                            ? { ok: false, error: 'simulated-storage-failure' }
+                            : { ok: true }
+                    ), 0);
+                }
+                return;
+            }
+            return baseSendMessage(message, callback);
+        });
+
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        const failed = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,RkFJTF9GSVJTVC==',
+            expectAck: true,
+        });
+        expect(failed.response).toEqual(expect.objectContaining({
+            ok: false,
+            reason: 'persist_failed',
+        }));
+        expect(saveAttempts).toBe(1);
+
+        const afterFailure = await dispatchToContent(runtimeMock, {
+            action: 'GET_FLOATING_BUTTON_STATUS',
+        });
+        expect(afterFailure.response).toEqual(expect.objectContaining({
+            translating: true,
+            batchId: liveBatch.batchId,
+        }));
+        expect(oscillators).toHaveLength(0);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            level: 'error',
+            action_name: 'PERSIST_FAIL',
+        }));
+        expect(sentMessages.filter(message =>
+            message.source === 'audio'
+            && message.action_name === 'AUDIO_SUCCESS_SCHEDULED'
+        )).toHaveLength(0);
+
+        const retried = await dispatchToContent(runtimeMock, {
+            action: 'UPDATE_IMAGE',
+            batchId: liveBatch.batchId,
+            index: 0,
+            newSrc: 'data:image/png;base64,UkVUUllfT0s=',
+            expectAck: true,
+        });
+        expect(retried.response).toEqual(expect.objectContaining({
+            ok: true,
+            persisted: true,
+        }));
+        expect(saveAttempts).toBe(2);
+        await waitFor(() => oscillators.length === 3);
+
+        const finalStatus = await dispatchToContent(runtimeMock, {
+            action: 'GET_FLOATING_BUTTON_STATUS',
+        });
+        expect(finalStatus.response).toEqual(expect.objectContaining({
+            translating: false,
+            batchId: null,
+            batchStatus: 'complete',
+        }));
+    });
+
     test('unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes', async () => {
         installRuntimeResponder({ tabId: 85 });
         const first = createAudioContext({
