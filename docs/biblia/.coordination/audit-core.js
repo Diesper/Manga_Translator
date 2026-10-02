@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const lifecycleCore = require('./lifecycle-core');
 
 const AUDIT_PHASES = new Set(['PRIMARY', 'ADVERSARIAL', 'REAUDIT']);
 const AUDIT_VERDICTS = new Set(['APPROVED', 'CHANGES_REQUIRED']);
@@ -149,6 +150,39 @@ function recordMatchesCurrentBible(record, state, options = {}) {
   );
 }
 
+function currentLifecycleSnapshot(state, options = {}) {
+  const bibleSha = currentBibleSha(options.root, state);
+  return lifecycleCore.lifecycleSnapshot(state, {
+    bible_sha: bibleSha || state?.bible_sha || null,
+  });
+}
+
+function handoffRequiresAuditSchemaV3(state, options = {}) {
+  const snapshot = currentLifecycleSnapshot(state, options);
+  const handoffMs = Date.parse(snapshot.latest_handoff_at_utc || '');
+  const effectiveMs = Date.parse(
+    options.lifecycleEffectiveAtUtc || lifecycleCore.LIFECYCLE_POLICY_EFFECTIVE_AT_UTC
+  );
+  return Number.isFinite(handoffMs)
+    && Number.isFinite(effectiveMs)
+    && handoffMs >= effectiveMs;
+}
+
+function recordMatchesLifecycle(record, state, options = {}) {
+  const snapshot = currentLifecycleSnapshot(state, options);
+  const requiresV3 = handoffRequiresAuditSchemaV3(state, options);
+
+  if (requiresV3 && Number(record?.schema_version) !== 3) return false;
+  if (Number(record?.schema_version) !== 3) return true;
+
+  return Number(record.audit_epoch) === Number(snapshot.audit_epoch)
+    && String(record.handoff_id || '') === String(snapshot.handoff_id || '')
+    && (record.production_sha || null) === (snapshot.production_sha || null)
+    && String(record.test_sha || '').toLowerCase() === String(snapshot.test_sha || '').toLowerCase()
+    && String(record.bible_sha || '').toLowerCase() === String(snapshot.bible_sha || '').toLowerCase()
+    && String(record.revision_id || '').toLowerCase() === String(snapshot.revision_id || '').toLowerCase();
+}
+
 function phaseFromPath(value) {
   const phase = String(value || '').toLowerCase();
   if (phase === 'primary') return 'PRIMARY';
@@ -220,7 +254,7 @@ function loadAuditResults(root, states = []) {
     const completedAt = raw.completed_at_utc;
     const completedAtMs = typeof completedAt === 'string' ? Date.parse(completedAt) : NaN;
 
-    if (![1, 2].includes(schemaVersion)) problems.push('audit-result schema_version deve ser 1 ou 2: ' + rel);
+    if (![1, 2, 3].includes(schemaVersion)) problems.push('audit-result schema_version deve ser 1, 2 ou 3: ' + rel);
     if (!Number.isInteger(index) || index < 1 || index > 233) problems.push('audit-result INDEX inválido: ' + rel);
     if (index !== pathIndex) problems.push('audit-result path/index divergente: ' + rel);
     if (!AUDIT_PHASES.has(phase) || phase !== pathPhase) problems.push('audit-result PHASE divergente/inválida: ' + rel);
@@ -231,6 +265,28 @@ function loadAuditResults(root, states = []) {
     if (!/^[0-9a-f]{40}$/i.test(raw.source_sha || '')) problems.push('audit-result SOURCE_SHA inválido: ' + rel);
     if (schemaVersion === 2 && !/^[0-9a-f]{40}$/i.test(raw.bible_sha || '')) {
       problems.push('audit-result schema v2 exige BIBLE_SHA válido: ' + rel);
+    }
+    if (schemaVersion === 3) {
+      if (!/^[0-9a-f]{40}$/i.test(raw.bible_sha || '')) problems.push('audit-result schema v3 exige BIBLE_SHA válido: ' + rel);
+      if (!/^[0-9a-f]{40}$/i.test(raw.test_sha || '')) problems.push('audit-result schema v3 exige TEST_SHA válido: ' + rel);
+      if (!Object.prototype.hasOwnProperty.call(raw, 'production_sha')
+        || (raw.production_sha !== null && !/^[0-9a-f]{40}$/i.test(raw.production_sha || ''))) {
+        problems.push('audit-result schema v3 exige PRODUCTION_SHA null ou SHA válido: ' + rel);
+      }
+      if (!Number.isInteger(Number(raw.audit_epoch)) || Number(raw.audit_epoch) < 1) {
+        problems.push('audit-result schema v3 exige AUDIT_EPOCH inteiro >= 1: ' + rel);
+      }
+      if (typeof raw.handoff_id !== 'string' || !raw.handoff_id.trim()) {
+        problems.push('audit-result schema v3 exige HANDOFF_ID: ' + rel);
+      }
+      if (!/^[0-9a-f]{64}$/i.test(raw.revision_id || '')) {
+        problems.push('audit-result schema v3 exige REVISION_ID SHA-256: ' + rel);
+      }
+      if (/^[0-9a-f]{40}$/i.test(raw.test_sha || '')
+        && /^[0-9a-f]{40}$/i.test(raw.source_sha || '')
+        && String(raw.test_sha).toLowerCase() !== String(raw.source_sha).toLowerCase()) {
+        problems.push('audit-result schema v3 TEST_SHA deve corresponder ao SOURCE_SHA auditado: ' + rel);
+      }
     }
     if (raw.bible_sha !== undefined && raw.bible_sha !== null && !/^[0-9a-f]{40}$/i.test(raw.bible_sha || '')) {
       problems.push('audit-result BIBLE_SHA inválido: ' + rel);
@@ -243,6 +299,15 @@ function loadAuditResults(root, states = []) {
       if (raw.file !== state.file) problems.push('audit-result FILE diverge do state: ' + rel);
       if (raw.bible !== state.bible) problems.push('audit-result BIBLE diverge do state: ' + rel);
     }
+    if (state && handoffRequiresAuditSchemaV3(state, { root })
+      && schemaVersion !== 3
+      && Number.isFinite(completedAtMs)) {
+      const snapshot = currentLifecycleSnapshot(state, { root });
+      const handoffMs = Date.parse(snapshot.latest_handoff_at_utc || '');
+      if (Number.isFinite(handoffMs) && completedAtMs > handoffMs) {
+        problems.push('audit-result pós-handoff lifecycle exige schema v3: ' + rel);
+      }
+    }
 
     records.push({
       schema_version: schemaVersion,
@@ -252,7 +317,12 @@ function loadAuditResults(root, states = []) {
       file: raw.file,
       bible: raw.bible,
       source_sha: raw.source_sha,
+      production_sha: raw.production_sha === undefined ? null : raw.production_sha,
+      test_sha: raw.test_sha || null,
       bible_sha: raw.bible_sha || null,
+      audit_epoch: raw.audit_epoch === undefined ? null : Number(raw.audit_epoch),
+      handoff_id: raw.handoff_id || null,
+      revision_id: raw.revision_id || null,
       verdict,
       findings: Array.isArray(raw.findings) ? raw.findings : [],
       completed_at_utc: completedAt,
@@ -305,6 +375,7 @@ function latestFor(records, state, phase, options = {}) {
     && record.phase === phase
     && record.source_sha === state.source_sha
     && recordMatchesCurrentBible(record, state, options)
+    && recordMatchesLifecycle(record, state, options)
   )).sort((a, b) => (
     (a.completed_at_ms || -1) - (b.completed_at_ms || -1)
     || String(a.path || '').localeCompare(String(b.path || ''))
@@ -361,6 +432,7 @@ function resolveAuditPipeline(state, records = [], legacyAudits = new Map(), opt
     record.index === state.index
     && record.source_sha === state.source_sha
     && recordMatchesCurrentBible(record, state, versionOptions)
+    && recordMatchesLifecycle(record, state, versionOptions)
   ));
 
   return {
@@ -377,6 +449,10 @@ function resolveAuditPipeline(state, records = [], legacyAudits = new Map(), opt
     next_phase: nextPhase,
     problems,
     handoff_after_utc: handoff?.entry?.at_utc || null,
+    audit_epoch: currentLifecycleSnapshot(state, versionOptions).audit_epoch,
+    handoff_id: currentLifecycleSnapshot(state, versionOptions).handoff_id,
+    revision_id: currentLifecycleSnapshot(state, versionOptions).revision_id,
+    audit_schema_v3_required: handoffRequiresAuditSchemaV3(state, versionOptions),
     hasDistributed: currentDistributed.length > 0,
   };
 }
@@ -623,6 +699,9 @@ module.exports = {
   currentBibleSha,
   baselineEntryFor,
   recordMatchesCurrentBible,
+  currentLifecycleSnapshot,
+  handoffRequiresAuditSchemaV3,
+  recordMatchesLifecycle,
   legacyAuditForState,
   loadAuditResults,
   latestProtectedHandoff,
