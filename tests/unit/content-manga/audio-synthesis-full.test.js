@@ -310,6 +310,167 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         expect(gains).toHaveLength(6);
     });
 
+    test('clique real desbloqueia AudioContext suspended antes do lote', async () => {
+        installRuntimeResponder({ tabId: 44 });
+        const { ctx } = createAudioContext({
+            state: 'suspended',
+            onResume: async (audioCtx) => {
+                audioCtx.state = 'running';
+            },
+        });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+
+        document.getElementById('manga-main-content').click();
+
+        await waitFor(() => ctx.resume.mock.calls.length === 1);
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_UNLOCKED'
+            && message.extra?.originTabId === 44
+        ));
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(ctx.state).toBe('running');
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'success',
+            action_name: 'AUDIO_UNLOCKED',
+            extra: expect.objectContaining({
+                originTabId: 44,
+                contextState: 'running',
+            }),
+        }));
+    });
+
+    test('contexto closed é descartado e substituído no próximo BATCH_COMPLETE', async () => {
+        installRuntimeResponder({ tabId: 55 });
+        const first = createAudioContext({ currentTime: 1 });
+        const second = createAudioContext({ currentTime: 5 });
+        const AudioContextMock = jest.fn()
+            .mockImplementationOnce(() => first.ctx)
+            .mockImplementationOnce(() => second.ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+        expect(first.oscillators).toHaveLength(3);
+
+        first.ctx.state = 'closed';
+
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(2);
+        expect(second.oscillators).toHaveLength(3);
+        expect(second.gains).toHaveLength(3);
+
+        const creationLogs = sentMessages.filter(message =>
+            message.source === 'audio'
+            && message.action_name === 'AUDIO_CONTEXT_CREATED'
+        );
+        expect(creationLogs).toHaveLength(2);
+        expect(creationLogs).toEqual(expect.arrayContaining([
+            expect.objectContaining({
+                extra: expect.objectContaining({ originTabId: 55 }),
+            }),
+        ]));
+    });
+
+    test('AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som', async () => {
+        installRuntimeResponder({ tabId: 66 });
+        Object.defineProperty(window, 'AudioContext', {
+            value: undefined,
+            configurable: true,
+        });
+        Object.defineProperty(window, 'webkitAudioContext', {
+            value: undefined,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'error',
+            action_name: 'AUDIO_UNAVAILABLE',
+            extra: expect.objectContaining({
+                originTabId: 66,
+                trigger: 'batch_complete',
+            }),
+        }));
+        expect(sentMessages.some(message =>
+            message.action_name === 'AUDIO_SUCCESS_SCHEDULED'
+        )).toBe(false);
+    });
+
+    test('resume resolvido sem estado running não agenda som e registra skip', async () => {
+        installRuntimeResponder();
+        const { ctx, oscillators } = createAudioContext({
+            state: 'suspended',
+            onResume: async () => {},
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+        await delay(0);
+
+        expect(ctx.resume).toHaveBeenCalledTimes(1);
+        expect(ctx.state).toBe('suspended');
+        expect(oscillators).toHaveLength(0);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'warn',
+            action_name: 'AUDIO_SUCCESS_SKIPPED',
+            extra: expect.objectContaining({ contextState: 'suspended' }),
+        }));
+    });
+
+    test('falha ao criar oscillator no sucesso é observável e não escapa do handler', async () => {
+        installRuntimeResponder();
+        const { ctx } = createAudioContext({ state: 'running' });
+        ctx.createOscillator = jest.fn(() => {
+            throw new Error('oscillator-boom');
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+
+        await expect(dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+        })).resolves.toEqual({ keepAlive: undefined, response: undefined });
+
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'error',
+            action_name: 'AUDIO_SUCCESS_FAILED',
+            extra: expect.objectContaining({
+                errorName: 'Error',
+                errorMessage: 'oscillator-boom',
+            }),
+        }));
+    });
+
     test('contexto suspended só agenda sucesso depois de resume real completar', async () => {
         installRuntimeResponder();
         let releaseResume;
