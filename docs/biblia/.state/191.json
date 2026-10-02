@@ -2,8 +2,8 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af",
   "started_at_utc": null,
   "completed_at_utc": null,
@@ -800,6 +800,27 @@
         "focal_result": "PASS_2_OF_2_SUITES_46_OF_46_BOTH_NODES",
         "content_suite_result": "PASS_40_OF_40_SUITES_465_OF_465_TESTS_DETECT_OPEN_HANDLES"
       }
+    },
+    {
+      "id": "191-022",
+      "status": "ACCEPTED",
+      "type": "INFLIGHT_DUPLICATE_PAYLOAD_CONFLICT",
+      "target_file": "extension/content/content_manga.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "A coalescência de UPDATE_IMAGE em voo usa apenas batchId:index. Se uma segunda mensagem chega com newSrc diferente enquanto a primeira persistência está pendente, ela aguarda o Promise da primeira e recebe persisted:true, embora seu próprio payload nunca tenha sido persistido.",
+      "current_evidence": "_pendingPersistenceUpdates guarda apenas o Promise; o branch pendingPersistence não compara request.newSrc/jobId com o payload original e sempre ACKa sucesso quando o primeiro Promise resolve.",
+      "missing_evidence": "Retry idêntico em voo deve compartilhar a primeira persistência; payload diferente deve ser rejeitado explicitamente e nunca receber persisted:true.",
+      "why_needed": "jobs-dom-ack interpreta persisted:true como commit confirmado e atualiza/finaliza o job. Confirmar um payload descartado viola o handshake durável.",
+      "requested_action": "Guardar a identidade/payload da persistência pendente; coalescer apenas payload idêntico e rejeitar conflito com ACK não-ok.",
+      "expected_evidence": "Pré-fix: SECOND recebe sucesso após FIRST persistir. Pós-fix: retry FIRST coalesce; SECOND recebe payload_conflict, sem segundo SM_SAVE_PAGE e sem alterar DOM.",
+      "expected_auditor_action": "Reauditar semântica do ACK persisted para duplicatas em voo.",
+      "possible_regression": "Background pode marcar como dom_applied/resultPersisted um job cujo dataUrl nunca chegou ao storage.",
+      "impact": "Integridade do protocolo ACK, estado durável do job, DOM/storage e idempotência.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T04:28:16Z",
+      "audit_finding": "Encontrado na revisão corretiva pós-191-021; não usado como auditor independente.",
+      "repair_progress": "REGRESSION_PENDING_RED_PROOF"
     }
   ],
   "document_quality": {
@@ -1257,6 +1278,16 @@
       "production_sha": "3484cf324525b0514cce161595b605819c6cc004",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Correction role ended after 191-021. Editorial reservation will be released; same correction identity must not self-approve the current revision."
+    },
+    {
+      "at_utc": "2026-10-02T04:28:16Z",
+      "type": "PRIORITY_191_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af",
+      "bible_sha": "a66dbb92022d59cae0b6137b9db20bc3c1408371",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-022 HIGH: in-flight coalescing ACKs persisted=true for a different payload that was never persisted."
     }
   ],
   "evidence": [
