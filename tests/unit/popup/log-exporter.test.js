@@ -218,5 +218,39 @@ describe('Log Buffer e Exportador — popup.js', () => {
         expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('BATCH_DONE'));
         expect(document.getElementById('btn-log-copy').textContent).toBe('Copiado!');
     });
+    test('beforeunload remove o listener de storage dos logs e limpa o estado global', async () => {
+        await storageMock.set({
+            translatorLog: [{ ts: Date.now(), level: 'info', source: 'bg', action: 'CLEANUP', detail: 'cleanup' }],
+            enabledDomains: ['manga.test'],
+        });
+        const activeTab = await tabsMock.create({
+            url: 'https://manga.test/ch1',
+            active: true,
+            title: 'Manga Test',
+        });
+        tabsMock._activeTabId = activeTab.id;
+
+        const removeListenerSpy = jest.spyOn(chrome.storage.onChanged, 'removeListener');
+
+        await loadExtensionPage({
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
+            fireDOMContentLoaded: true,
+        });
+        await flushAsyncTasks(8);
+        await openLogsSection();
+
+        const installedListener = window.logStorageListener;
+        expect(typeof installedListener).toBe('function');
+        expect(window.logListenerAdded).toBe(true);
+
+        window.dispatchEvent(new Event('beforeunload'));
+
+        expect(removeListenerSpy).toHaveBeenCalledWith(installedListener);
+        expect(window.logStorageListener).toBeNull();
+        expect(window.logListenerAdded).toBe(false);
+        expect(window.logPoller).toBeNull();
+    });
+
 });
 
