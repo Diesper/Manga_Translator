@@ -108,16 +108,37 @@ function finalDecisionRecord(pipeline) {
   return pipeline.primary || null;
 }
 
+function auditRecordIdentity(record) {
+  if (!record) return null;
+  return {
+    path: record.path || null,
+    phase: record.phase || null,
+    auditor: record.auditor || null,
+    completed_at_utc: record.completed_at_utc || null,
+    verdict: record.verdict || null,
+    source_sha: record.source_sha || null,
+    bible_sha: record.bible_sha || null,
+    revision_id: record.revision_id || null,
+    audit_epoch: record.audit_epoch ?? null,
+    handoff_id: record.handoff_id || null,
+  };
+}
+
 function decisionIdForPipeline(pipeline) {
-  const record = finalDecisionRecord(pipeline);
-  return life.sha256(JSON.stringify({
+  return life.sha256(life.stableJson({
     index: pipeline?.index ?? null,
-    path: record?.path || null,
-    phase: record?.phase || null,
-    auditor: record?.auditor || null,
-    completed_at_utc: record?.completed_at_utc || null,
-    verdict: record?.verdict || pipeline?.decision || null,
+    decision: pipeline?.decision || null,
+    primary: auditRecordIdentity(pipeline?.primary),
+    adversarial: auditRecordIdentity(pipeline?.adversarial),
+    reaudit: auditRecordIdentity(pipeline?.reaudit),
   }));
+}
+
+function latestAuditEvidenceMs(pipeline) {
+  const values = [pipeline?.primary, pipeline?.adversarial, pipeline?.reaudit]
+    .map((record) => Date.parse(record?.completed_at_utc || ''))
+    .filter(Number.isFinite);
+  return values.length ? Math.max(...values) : null;
 }
 
 function tokenConsumed(state, tokenId) {
@@ -142,17 +163,25 @@ function issueCorrectionToken(state, pipeline, options = {}) {
   if (state?.status !== requiredStatus) throw new Error('TOKEN_STATE_INVALID:' + state?.status);
 
   let humanApprovalId = null;
+  let humanApproval = null;
   if (snapshot.human_locked) {
-    const approval = options.humanApproval;
-    if (!human.approvalMatches(state, snapshot, approval, 'ALLOW_ONE_CORRECTION')) {
+    humanApproval = options.humanApproval;
+    if (!human.approvalMatches(state, snapshot, humanApproval, 'ALLOW_ONE_CORRECTION')) {
       throw new Error('HUMAN_APPROVAL_REQUIRED');
     }
-    humanApprovalId = approval.approval_id;
+    humanApprovalId = humanApproval.approval_id;
   }
 
-  const record = finalDecisionRecord(pipeline);
   const issuedAt = options.issued_at_utc;
-  if (!Number.isFinite(Date.parse(issuedAt || ''))) throw new Error('TOKEN_ISSUED_AT_REQUIRED');
+  const issuedMs = Date.parse(issuedAt || '');
+  if (!Number.isFinite(issuedMs)) throw new Error('TOKEN_ISSUED_AT_REQUIRED');
+  const auditEvidenceMs = latestAuditEvidenceMs(pipeline);
+  if (Number.isFinite(auditEvidenceMs) && issuedMs < auditEvidenceMs) {
+    throw new Error('TOKEN_ISSUED_BEFORE_FINAL_DECISION');
+  }
+  if (humanApproval && issuedMs < Date.parse(humanApproval.approved_at_utc || '')) {
+    throw new Error('TOKEN_ISSUED_BEFORE_HUMAN_APPROVAL');
+  }
   const decisionId = decisionIdForPipeline({ ...pipeline, index: state.index });
   const seed = JSON.stringify({
     index: state.index,
@@ -200,6 +229,8 @@ function validateCorrectionToken(state, token, options = {}) {
   if (token?.bible_sha !== snapshot.bible_sha) problems.push('TOKEN_BIBLE_STALE');
   if (token?.revision_id !== snapshot.revision_id) problems.push('TOKEN_REVISION_STALE');
   if (typeof token?.token_id !== 'string' || !token.token_id.trim()) problems.push('TOKEN_ID_MISSING');
+  const issuedMs = Date.parse(token?.issued_at_utc || '');
+  if (!Number.isFinite(issuedMs)) problems.push('TOKEN_ISSUED_AT_INVALID');
   if (typeof token?.actor !== 'string' || !token.actor.trim()) problems.push('TOKEN_ACTOR_MISSING');
   if (options.actor && String(token?.actor || '').trim() !== String(options.actor).trim()) problems.push('TOKEN_ACTOR_MISMATCH');
   if (options.pipeline) {
@@ -208,6 +239,16 @@ function validateCorrectionToken(state, token, options = {}) {
     if (Array.isArray(pipeline?.problems) && pipeline.problems.length) problems.push('TOKEN_PIPELINE_NOW_INVALID');
     const currentDecisionId = decisionIdForPipeline({ ...pipeline, index: state.index });
     if (token?.decision_id !== currentDecisionId) problems.push('TOKEN_DECISION_STALE');
+    const auditEvidenceMs = latestAuditEvidenceMs(pipeline);
+    if (Number.isFinite(issuedMs) && Number.isFinite(auditEvidenceMs) && issuedMs < auditEvidenceMs) {
+      problems.push('TOKEN_ISSUED_BEFORE_FINAL_DECISION');
+    }
+  }
+  if (options.humanApproval && Number.isFinite(issuedMs)) {
+    const approvalMs = Date.parse(options.humanApproval.approved_at_utc || '');
+    if (Number.isFinite(approvalMs) && issuedMs < approvalMs) {
+      problems.push('TOKEN_ISSUED_BEFORE_HUMAN_APPROVAL');
+    }
   }
   if (tokenConsumed(state, token?.token_id)) problems.push('TOKEN_ALREADY_CONSUMED');
   return problems;
@@ -387,7 +428,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
     const expectedStatus = snapshot.human_locked ? 'HUMAN_LOCKED' : 'CHANGES_REQUIRED';
     if (state.status !== expectedStatus) throw new Error('START_CORRECTION_STATUS_INVALID:' + state.status);
     if (!pipeline) throw new Error('START_CORRECTION_PIPELINE_REQUIRED');
-    const tokenProblems = validateCorrectionToken(state, token, { actor, pipeline });
+    const tokenProblems = validateCorrectionToken(state, token, { actor, pipeline, humanApproval });
     if (tokenProblems.length) throw new Error(tokenProblems.join(';'));
 
     const eligibility = life.correctorEligibility(state, actor);
