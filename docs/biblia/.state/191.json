@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af",
+  "source_sha": "6fe0e873369e558bc3f2b53c94023064487f0b1b",
   "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
@@ -803,7 +803,7 @@
     },
     {
       "id": "191-022",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "INFLIGHT_DUPLICATE_PAYLOAD_CONFLICT",
       "target_file": "extension/content/content_manga.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -820,21 +820,39 @@
       "audited_by": "AGENTE HÍBRIDO",
       "audited_at_utc": "2026-10-02T04:28:16Z",
       "audit_finding": "Encontrado na revisão corretiva pós-191-021; não usado como auditor independente.",
-      "repair_progress": "REGRESSION_PENDING_RED_PROOF"
+      "repair_progress": "RESOLVED_WITH_RED_GREEN_EXECUTABLE_VALIDATION",
+      "resolution": "Pending/persisted identities now include the exact dataUrl. Identical duplicates coalesce/idempotently ACK; different payloads receive payload_conflict and never persisted:true.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T04:35:04Z",
+      "validation": {
+        "pre_fix_run_id": 36964859147,
+        "pre_fix_node20_job_id": 110706275387,
+        "pre_fix_node22_job_id": 110706275514,
+        "pre_fix_result": "FAIL_EXACTLY_2_PAYLOAD_CONFLICT_CASES_BOTH_NODES_RECEIVED_FALSE_PERSISTED_TRUE_ACKS",
+        "final_source_sha": "6fe0e873369e558bc3f2b53c94023064487f0b1b",
+        "final_bible_sha": "a93568673dd41e25e3c1f7e00ea9fddf143b4695",
+        "production_sha": "b6c52b8c6310bba971e6aee5a00f07eabf0fec89",
+        "workflow_run_id": 36964902082,
+        "node20_job_id": 110706407979,
+        "node22_job_id": 110706407986,
+        "full_content_job_id": 110706407818,
+        "focal_result": "PASS_2_OF_2_SUITES_48_OF_48_BOTH_NODES",
+        "content_suite_result": "PASS_40_OF_40_SUITES_467_OF_467_TESTS_DETECT_OPEN_HANDLES"
+      }
     }
   ],
   "document_quality": {
     "self_audit": "CORRECTION_COMPLETE_AWAITING_INDEPENDENT_DISTRIBUTED_AUDIT",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "1952/1952",
-    "source_text_lines": 1951,
-    "test_count": 37,
+    "documented_positions": "2148/2148",
+    "source_text_lines": 2147,
+    "test_count": 39,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 0,
-    "production_dependency_sha": "3484cf324525b0514cce161595b605819c6cc004",
-    "evidence_quality": "Red→green through 191-021; final run 36963959811 Node20/22 focal+related 46/46; full content-scripts 40/40 suites, 465/465 tests with --detectOpenHandles.",
-    "note": "Technical correction layer revalidated. READY_FOR_AUDIT; a distinct PRIMARY+ADVERSARIAL pair bound to current source+bible remains mandatory before COMPLETED."
+    "production_dependency_sha": "b6c52b8c6310bba971e6aee5a00f07eabf0fec89",
+    "evidence_quality": "Red→green through 191-022; run 36964902082 Node20/22 48/48; full 40/40 suites 467/467 with --detectOpenHandles.",
+    "note": "Correction layer current at 191-022. Further corrective adversarial review in progress; independent audit still required before COMPLETED."
   },
   "schema_version": 2,
   "coordination_status": "OK",
@@ -1288,6 +1306,15 @@
       "bible_sha": "a66dbb92022d59cae0b6137b9db20bc3c1408371",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-022 HIGH: in-flight coalescing ACKs persisted=true for a different payload that was never persisted."
+    },
+    {
+      "at_utc": "2026-10-02T04:35:04Z",
+      "type": "PAYLOAD_IDENTITY_HARDENING_VALIDATED",
+      "source_sha": "6fe0e873369e558bc3f2b53c94023064487f0b1b",
+      "bible_sha": "a93568673dd41e25e3c1f7e00ea9fddf143b4695",
+      "production_sha": "b6c52b8c6310bba971e6aee5a00f07eabf0fec89",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-022 red→green complete: conflicting payloads no longer receive persisted=true; exact run 36964902082 passed Node20/22 48/48 and full 40/40 suites 467/467 tests."
     }
   ],
   "evidence": [
@@ -1405,5 +1432,5 @@
       "red_191_020_021_run_id": 36963842506
     }
   ],
-  "bible_sha": "a66dbb92022d59cae0b6137b9db20bc3c1408371"
+  "bible_sha": "a93568673dd41e25e3c1f7e00ea9fddf143b4695"
 }
