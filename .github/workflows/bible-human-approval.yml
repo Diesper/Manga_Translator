@@ -51,8 +51,24 @@ jobs:
           DECISION: ${{ inputs.decision }}
           APPROVED_BY: ${{ github.actor }}
           REASON: ${{ inputs.reason }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+          WORKFLOW_RUN_ATTEMPT: ${{ github.run_attempt }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          REPOSITORY: ${{ github.repository }}
+          TARGET_BRANCH: docs/project-bible
         run: |
-          node docs/biblia/.coordination/human-approval.js             --index "$INDEX"             --decision "$DECISION"             --approved-by "$APPROVED_BY"             --at "$(date -u +%Y-%m-%dT%H:%M:%SZ)"             --reason "$REASON"
+          node docs/biblia/.coordination/human-approval.js \
+            --index "$INDEX" \
+            --decision "$DECISION" \
+            --approved-by "$APPROVED_BY" \
+            --at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --reason "$REASON" \
+            --workflow-run-id "$WORKFLOW_RUN_ID" \
+            --workflow-run-attempt "$WORKFLOW_RUN_ATTEMPT" \
+            --workflow-name "$WORKFLOW_NAME" \
+            --repository "$REPOSITORY" \
+            --target-branch "$TARGET_BRANCH" \
+            --branch-head-sha "$(git rev-parse HEAD)"
 
       - name: Commit approval only
         run: |
