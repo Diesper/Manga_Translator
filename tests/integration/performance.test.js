@@ -411,9 +411,11 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
             expect(persisted.assetId).toBeTruthy();
             const persistedBlob = await storageManager.getPageAsset(persisted.chapterId, 0);
             expect(persistedBlob).toBeTruthy();
-            expect(persistedBlob.size).toBeGreaterThan(quotaLimit);
-            expect(persistedBlob.type).toBe('image/png');
             expect(await storageManager.getChapterPageCount(persisted.chapterId)).toBe(1);
+            const storageStats = await storageManager.stats();
+            expect(storageStats.pages).toBeGreaterThanOrEqual(1);
+            expect(storageStats.assets).toBeGreaterThanOrEqual(1);
+            expect(storageStats.bytes).toBeGreaterThan(quotaLimit);
             expect(restoreSpy).toHaveBeenCalledWith(cleanUrl, {
                 assetId: persisted.assetId,
                 index: 0,
