@@ -1,99 +1,107 @@
-# Bíblia técnica — image-translation-routing.test.js
+# Bíblia técnica — tests/integration/ipc/image-translation-routing.test.js
 
-> **Estado:** ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA  
-> **SHA auditado:** `4f1674c12311a48215b97faabb0415011a6cba87`  
-> **Agente responsável pela auditoria:** AGENTE 12  
-> **Tipo:** teste Jest de integração do roteamento GTC/IPC do content script de mangá  
-> **Linhas textuais:** **137**  
-> **Posições documentais:** **138**, contando o newline final  
+> **Estado documental:** correção materializada; nova auditoria independente ainda necessária  
+> **SHA auditado:** `6c47003aae5207d711c667bc805fb71373ae788f`  
+> **Índice do corpus:** 112  
+> **Tipo:** integração Jest do roteamento GTC/IPC do content script real  
+> **Linhas textuais:** **172**  
+> **Posições documentais:** **173**, contando exclusivamente o LF terminal como posição editorial  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
 ## 1. Papel arquitetural
 
-`tests/integration/ipc/image-translation-routing.test.js` verifica, em JSDOM, decisões de roteamento executadas pelo **`extension/content/content_manga.js` real**. O helper `loadContentScript` carrega os módulos injetados na ordem do manifest e configura DOM, storage, `window.location`, WebCrypto e APIs Chrome simuladas.
+Esta suíte carrega o bundle real de mangá por `loadContentScript()` e verifica como `content_manga.js` decide entre cache global (GTC) e envio para o background/Gemini.
 
-A suíte não executa o background real: ela substitui `chrome.runtime.sendMessage` por um responder controlado. Portanto, suas assertions provam o comportamento do content script ao **enviar** e **interpretar** mensagens IPC, mas não provam processamento interno de `START_BATCH` no service worker.
+O background não é executado aqui: `chrome.runtime.sendMessage` é substituído por um responder controlado. Portanto, as provas pertencem ao lado emissor/consumidor do content script, não à execução interna de `START_BATCH` no service worker.
 
-## 2. Dependências e ambiente
+## 2. Dependências revalidadas
 
-- Node `path`, `crypto` e `util.TextEncoder`;
-- `fs` é importado, mas não é utilizado no arquivo auditado;
-- `tests/helpers/repo-root.js` para localizar a raiz sem depender de cwd;
-- `tests/helpers/load-content-script.js` para montar JSDOM e carregar o content script real;
-- `tests/mocks/chrome-api.mock.js` para runtime/storage;
-- `jest.config.js` inclui `tests/integration/**/*.test.js` no projeto `integration`.
+- `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
+- `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
+- `extension/content/content_manga.js`: `a8b3698019f6f22027f09f544f15c0563a9f6515`.
+- `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
+- `jest.config.js`: `f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc`.
 
-## 3. Cenários e provas diretas
+O import morto de `fs` foi removido nesta revisão.
 
-### 3.1 GTC miss → START_BATCH
+## 3. Cenários diretos
 
-O responder padrão devolve `{ ok: true, entriesByHash: {} }` para `GTC_QUERY_MANY`. Após o clique no main content, o teste aguarda `START_BATCH` e prova:
+### 3.1 Miss completo
+
+Com `entriesByHash: {}`, o clique no botão real deve produzir `START_BATCH` com:
 
 - `images === [{ index: 0 }]`;
 - `prompt === 'Teste prompt'`.
 
-Isso conecta o miss de cache ao envio para Gemini e também prova que o prompt configurado pelo helper atravessa o pipeline.
+### 3.2 Hit completo
 
-### 3.2 GTC hit → substituição local, sem START_BATCH
+O responder devolve tradução apenas para o hash consultado. A suíte exige:
 
-O responder devolve um `entriesByHash` indexado pelo hash realmente consultado. A suíte espera `data-translated="true"`, verifica o `src` traduzido e prova que **nenhuma** mensagem `START_BATCH` foi enviada.
+- `data-translated="true"`;
+- `src === data:image/png;base64,TRANSLATED_HIT`;
+- nenhuma mensagem `START_BATCH`.
 
-### 3.3 Filtro de imagem pequena
+### 3.3 Hit parcial + miss no mesmo lote
 
-A fixture contém duas páginas 800×1200 e um avatar 50×50. Depois do clique, a assertion exige `START_BATCH.images === [{ index: 0 }, { index: 1 }]`, provando que o candidato pequeno não entra no payload.
+Esta revisão fecha a request 112-001 em implementação:
 
-## 4. Relação com a implementação real
+- cria duas imagens elegíveis;
+- registra os dois hashes consultados;
+- devolve cache apenas para `message.hashes[0]`;
+- exige que a primeira imagem seja substituída e marcada traduzida;
+- exige que a segunda permaneça não traduzida;
+- exige `START_BATCH.images === [{ index: 1 }]`;
+- exige explicitamente que `{ index: 0 }` não apareça no lote.
 
-No `content_manga.js`, `queryGlobalTranslationCache` envia `GTC_QUERY_MANY` ao runtime e usa `entriesByHash` quando a resposta é `ok`. Em misses, o pipeline monta `payloadToGemini`; se esse payload não estiver vazio, o content script lê `customPrompt/defaultPrompt` e envia `START_BATCH` com `images`, `prompt` e `batchId`.
+Assim, o branch real `GTC_PARTIAL_HIT` passa a ser coberto pela própria suíte de roteamento real.
 
-O helper `loadContentScript` define `customPrompt: 'Teste prompt'`, injeta dimensões naturais e carrega os módulos reais em `jest.isolateModules`, então as assertions desta suíte não são simples cópias de funções simuladas.
+### 3.4 Filtro por dimensão
 
-## 5. Evidência automatizada examinada
+Duas páginas 800×1200 e um avatar 50×50 são carregados; o lote enviado deve conter somente índices 0 e 1.
 
-| Propriedade | Evidência | Classificação |
-|---|---|---|
-| arquivo participa do projeto Jest de integração | `jest.config.js` usa `tests/integration/**/*.test.js` | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| miss de GTC envia apenas índice 0 | `expect(startBatch.images).toEqual([{ index: 0 }])` | ✅ PROVADO DIRETAMENTE |
-| prompt chega em START_BATCH | `expect(startBatch.prompt).toBe('Teste prompt')` | ✅ PROVADO DIRETAMENTE |
-| hit de GTC substitui src | assertion sobre `document.querySelector('img').getAttribute('src')` | ✅ PROVADO DIRETAMENTE |
-| hit de GTC não envia START_BATCH | assertion `some(...START_BATCH)` igual a false | ✅ PROVADO DIRETAMENTE |
-| imagem 50×50 é excluída do lote | payload esperado contém somente índices 0 e 1 | ✅ PROVADO DIRETAMENTE |
-| background processa START_BATCH corretamente | background é substituído por responder local | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO NESTE ARQUIVO |
-| lote misto de cache hit + miss usando content script real | não há cenário misto nesta suíte | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO NESTE ARQUIVO |
-| falha/timeout de GTC e fallback legado | não exercitado nesta suíte | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO NESTE ARQUIVO |
+## 4. Audit request
 
-## 6. Limitações e riscos de interpretação
+### 112-001 — TEST_REQUIRED — IMPLEMENTED_AWAITING_EXECUTABLE_VALIDATION
 
-1. `runtimeMock.sendMessage` é substituído diretamente; a suíte prova o lado emissor/consumidor do content script, não o handler do background.
-2. O cenário de cache hit é 100% hit e o cenário miss é 100% miss. O branch real de **hit parcial**, que precisa substituir alguns elementos e enviar somente os misses ao Gemini, não é exercitado aqui.
-3. `gtc-cache-flow.test.js` possui cenários parciais, mas usa uma função de simulação própria; não substitui uma prova com o `content_manga.js` real.
-4. Não há cenário de `GTC_QUERY_MANY` com resposta inválida, erro de runtime ou fallback para `storage.local`.
-5. O filtro de dimensão é provado com um único avatar 50×50; bordas exatas de minWidth/minHeight pertencem a testes mais específicos.
-6. O import `fs` não é usado e pode ser removido em alteração separada, mas não afeta a prova atual.
+**Finding original:** a suíte separava 100% hit e 100% miss, sem provar composição parcial no mesmo lote.
 
-## 7. Invariantes
+**Correção:** cenário 3.3 usa duas imagens no `content_manga.js` real, uma hit e uma miss, e valida simultaneamente DOM + payload IPC.
 
-1. Um miss de cache elegível deve produzir `START_BATCH`.
-2. Um hit completo deve aplicar a tradução localmente e não iniciar Gemini para aquela imagem.
-3. O payload para Gemini deve conter apenas índices de candidatos elegíveis que continuam sem tradução.
-4. O prompt configurado em storage deve ser propagado ao `START_BATCH`.
-5. Testes devem limpar listeners, storage, flags de injeção e DOM entre cenários.
-6. Respostas do runtime mock devem ser assíncronas para não transformar a integração em fluxo artificialmente síncrono.
-7. As assertions desta suíte só podem ser tratadas como prova do content script real enquanto `loadContentScript` continuar carregando `extension/content/content_manga.js`.
-8. O SHA desta Bíblia só permanece válido enquanto o fonte for `4f1674c12311a48215b97faabb0415011a6cba87`.
+**Gate restante:** executar o arquivo revisado e a suíte relacionada antes de marcar a request como RESOLVED.
 
-## 8. Lacunas e solicitação ao auditor
+## 5. Findings distribuídos da revisão anterior
 
-- **112-001 — TEST_REQUIRED — ACCEPTED:** adicionar cenário integrado de **cache parcial real**: pelo menos duas imagens, uma retornada em `entriesByHash` e outra ausente; verificar que a hit é substituída, que `START_BATCH.images` contém somente o índice miss e que o lote não reenvia a hit. O state canônico mantém esta lacuna como dívida de teste aceita e não bloqueante para fidelidade documental.
+### A32-112-01 / A12-112-A01 — lifecycle stale — CORRIGIDO
 
-A lacuna não impede concluir a documentação porque os três comportamentos atualmente afirmados pela suíte possuem assertions diretas.
+O cabeçalho antigo declarava “CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA” apesar de o state estar `READY_FOR_AUDIT`. Esta revisão **não** declara aprovação final; registra apenas correção materializada e necessidade de nova auditoria independente.
 
-## 9. Fonte integral auditada
+### A32-112-02 / A12-112-A02 — newline final — CORRIGIDO
+
+A posição 173 representa **somente o LF terminal** após a linha textual 172. Ela é posição editorial, não linha de runtime, não separa bloco seguinte e não recebe classificação de execução.
+
+## 6. Evidência atual
+
+Até esta atualização:
+
+- parse JavaScript estático: **PASS**;
+- source/Bíblia: **sincronizados para o SHA acima**;
+- fonte integral: **embutida abaixo**;
+- execução Jest da revisão nova: **PENDENTE**.
+
+Nenhuma request é marcada RESOLVED apenas por inspeção estática.
+
+## 7. Limites honestos
+
+- O responder de runtime é controlado; esta suíte não prova o handler real do background.
+- Falha/timeout de `GTC_QUERY_MANY` e fallback legado pertencem a suítes específicas.
+- O filtro de dimensão aqui cobre um exemplo 50×50, não todas as bordas configuráveis.
+- A prova de cache parcial é do content script real carregado pelo manifest/helper, não de uma função simulada local.
+
+## 8. Fonte integral exata
 
 ```javascript
 const path = require('path');
-const fs = require('fs');
 const crypto = require('crypto');
 const { TextEncoder } = require('util');
 
@@ -212,6 +220,42 @@ describe('IPC-01/IPC-02/IPC-03: Image translation routing - GTC e IPC', () => {
         expect(sentMessages.some(message => message.action === 'START_BATCH')).toBe(false);
     });
 
+    test('cache parcial substitui hit e envia somente miss no START_BATCH real', async () => {
+        let queriedHashes = null;
+        installRuntimeResponder({
+            onQueryMany(message) {
+                queriedHashes = message.hashes.slice();
+                return {
+                    ok: true,
+                    entriesByHash: {
+                        [message.hashes[0]]: 'data:image/png;base64,PARTIAL_HIT',
+                    },
+                };
+            },
+        });
+
+        await loadContentScript({
+            hostname: 'localhost',
+            domImages: [
+                { src: 'http://localhost/hybrid/page-1.png', width: 800, height: 1200 },
+                { src: 'http://localhost/hybrid/page-2.png', width: 800, height: 1200 },
+            ],
+        });
+
+        document.getElementById('manga-main-content').click();
+
+        const startBatch = await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'));
+        await waitFor(() => document.querySelectorAll('img')[0].dataset.translated === 'true');
+
+        const images = document.querySelectorAll('img');
+        expect(queriedHashes).toHaveLength(2);
+        expect(images[0].getAttribute('src')).toBe('data:image/png;base64,PARTIAL_HIT');
+        expect(images[0].dataset.translated).toBe('true');
+        expect(images[1].dataset.translated).not.toBe('true');
+        expect(startBatch.images).toEqual([{ index: 1 }]);
+        expect(startBatch.images).not.toContainEqual({ index: 0 });
+    });
+
     test('processamento em lote ignora imagem pequena e envia somente paginas validas', async () => {
         installRuntimeResponder();
         await loadContentScript({
@@ -231,1115 +275,28 @@ describe('IPC-01/IPC-02/IPC-03: Image translation routing - GTC e IPC', () => {
 });
 ```
 
-## 10. Cobertura linha a linha
-
-### Linha 1
-
-**Fonte:** `const path = require('path');`
-
-**Função:** Carrega `'path'` e associa a `path`; essa dependência participa do ambiente JSDOM/teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 2
-
-**Fonte:** `const fs = require('fs');`
-
-**Função:** Carrega `'fs'` e associa a `fs`; essa dependência participa do ambiente JSDOM/teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 3
-
-**Fonte:** `const crypto = require('crypto');`
-
-**Função:** Carrega `'crypto'` e associa a `crypto`; essa dependência participa do ambiente JSDOM/teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 4
-
-**Fonte:** `const { TextEncoder } = require('util');`
-
-**Função:** Importa helpers necessários ao cenário de integração por meio de `const { TextEncoder } = require('util');`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 5
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `const { TextEncoder } = require('util');` do próximo bloco iniciado por `const { findRepoRoot } = require('../../helpers/repo-root');`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 6
-
-**Fonte:** `const { findRepoRoot } = require('../../helpers/repo-root');`
-
-**Função:** Importa helpers necessários ao cenário de integração por meio de `const { findRepoRoot } = require('../../helpers/repo-root');`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 7
-
-**Fonte:** `const ROOT = findRepoRoot(__dirname);`
-
-**Função:** Define `ROOT` com `findRepoRoot(__dirname)`, preparando dado usado pelo cenário atual.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 8
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `const ROOT = findRepoRoot(__dirname);` do próximo bloco iniciado por `Object.defineProperty(global, 'crypto', {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 9
-
-**Fonte:** `Object.defineProperty(global, 'crypto', {`
-
-**Função:** Configura uma API global necessária ao código real carregado no JSDOM.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 10
-
-**Fonte:** `    value: crypto.webcrypto,`
-
-**Função:** Injeta a implementação WebCrypto do Node para que fingerprints usados pelo content script funcionem no teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 11
-
-**Fonte:** `    configurable: true,`
-
-**Função:** Compõe o cenário de integração com `configurable: true,`, no contexto do bloco em que a linha está inserida.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 12
-
-**Fonte:** `});`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `global.TextEncoder = TextEncoder;`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 13
-
-**Fonte:** `global.TextEncoder = TextEncoder;`
-
-**Função:** Disponibiliza `TextEncoder` globalmente, requisito do cálculo de hash no content script.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 14
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `global.TextEncoder = TextEncoder;` do próximo bloco iniciado por `const { loadContentScript } = require(path.join(ROOT, 'tests/helpers/load-content-script.js'));`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 15
-
-**Fonte:** `const { loadContentScript } = require(path.join(ROOT, 'tests/helpers/load-content-script.js'));`
-
-**Função:** Importa helpers necessários ao cenário de integração por meio de `const { loadContentScript } = require(path.join(ROOT, 'tests/helpers/load-content-script.js'));`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 16
-
-**Fonte:** `const { getRuntimeMock, getStorageMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));`
-
-**Função:** Importa helpers necessários ao cenário de integração por meio de `const { getRuntimeMock, getStorageMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 17
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `const { getRuntimeMock, getStorageMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));` do próximo bloco iniciado por `function delay(ms = 0) {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 18
-
-**Fonte:** `function delay(ms = 0) {`
-
-**Função:** Declara o helper assíncrono `delay`: ele retorna uma `Promise` resolvida por `setTimeout(resolve, ms)` e é aguardado por `waitFor` entre tentativas de polling.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 19
-
-**Fonte:** `    return new Promise(resolve => setTimeout(resolve, ms));`
-
-**Função:** Cria Promise para representar espera assíncrona usada pelo polling ou pelo mock de runtime.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 20
-
-**Fonte:** `}`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `async function waitFor(assertion, { timeout = 2500, interval = 10 } = {}) {`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 21
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `}` do próximo bloco iniciado por `async function waitFor(assertion, { timeout = 2500, interval = 10 } = {}) {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 22
-
-**Fonte:** `async function waitFor(assertion, { timeout = 2500, interval = 10 } = {}) {`
-
-**Função:** Inicia o helper assíncrono `waitFor` com parâmetros `assertion, { timeout = 2500, interval = 10 } = {}`, usado para aguardar efeitos assíncronos do content script.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 23
-
-**Fonte:** `    const startedAt = performance.now();`
-
-**Função:** Define `startedAt` com `performance.now()`, preparando dado usado pelo cenário atual.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 24
-
-**Fonte:** `    while (performance.now() - startedAt < timeout) {`
-
-**Função:** Lê relógio monotônico do ambiente de teste para controlar o timeout do polling.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 25
-
-**Fonte:** `        const result = await assertion();`
-
-**Função:** Define `result` com `await assertion()`, preparando dado usado pelo cenário atual.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 26
-
-**Fonte:** `        if (result) return result;`
-
-**Função:** Encerra o polling assim que a condição observada se torna verdadeira.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 27
-
-**Fonte:** `        await delay(interval);`
-
-**Função:** Cede o event loop pelo intervalo configurado antes da próxima tentativa do polling.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 28
-
-**Fonte:** `    }`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `throw new Error('Timeout aguardando condicao');`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 29
-
-**Fonte:** `    throw new Error('Timeout aguardando condicao');`
-
-**Função:** Falha explicitamente o teste quando a condição assíncrona não aparece dentro do timeout.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 30
-
-**Fonte:** `}`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `describe('IPC-01/IPC-02/IPC-03: Image translation routing - GTC e IPC', () => {`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 31
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `}` do próximo bloco iniciado por `describe('IPC-01/IPC-02/IPC-03: Image translation routing - GTC e IPC', () => {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 32
-
-**Fonte:** `describe('IPC-01/IPC-02/IPC-03: Image translation routing - GTC e IPC', () => {`
-
-**Função:** Abre a suíte Jest identificada por `IPC-01/IPC-02/IPC-03: Image translation routing - GTC e IPC`, agrupando os cenários de roteamento GTC/IPC.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 33
-
-**Fonte:** `    let runtimeMock;`
-
-**Função:** Declara `runtimeMock` no escopo da suíte para ser reinicializado em `beforeEach`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 34
-
-**Fonte:** `    let storageMock;`
-
-**Função:** Declara `storageMock` no escopo da suíte para ser reinicializado em `beforeEach`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 35
-
-**Fonte:** `    let sentMessages;`
-
-**Função:** Declara `sentMessages` no escopo da suíte para ser reinicializado em `beforeEach`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 36
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `let sentMessages;` do próximo bloco iniciado por `beforeEach(async () => {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 37
-
-**Fonte:** `    beforeEach(async () => {`
-
-**Função:** Inicia o setup executado antes de cada teste, restabelecendo mocks, storage, listeners e DOM para isolamento entre cenários.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 38
-
-**Fonte:** `        jest.resetModules();`
-
-**Função:** Limpa o cache de módulos Jest para que o content script possa ser reinjetado com estado independente no próximo cenário.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 39
-
-**Fonte:** `        runtimeMock = getRuntimeMock();`
-
-**Função:** Obtém o runtime Chrome simulado compartilhado pelo ambiente de teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 40
-
-**Fonte:** `        storageMock = getStorageMock();`
-
-**Função:** Obtém o mock de storage usado para configurar o estado persistente observado pelo content script.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 41
-
-**Fonte:** `        runtimeMock._messageListeners = [];`
-
-**Função:** Zera `runtimeMock._messageListeners` para impedir que listeners de um cenário anterior contaminem o atual.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 42
-
-**Fonte:** `        runtimeMock._connectListeners = [];`
-
-**Função:** Zera `runtimeMock._connectListeners` para impedir que listeners de um cenário anterior contaminem o atual.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 43
-
-**Fonte:** `        runtimeMock.lastError = null;`
-
-**Função:** Limpa `chrome.runtime.lastError`, garantindo que o cenário não herde erro de uma chamada anterior.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 44
-
-**Fonte:** `        sentMessages = [];`
-
-**Função:** Reinicia a lista de mensagens capturadas; ela será a fonte das assertions sobre `GTC_QUERY_MANY`/`START_BATCH`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 45
-
-**Fonte:** `        await storageMock.clear();`
-
-**Função:** Esvazia o storage mock antes/depois do cenário para preservar independência entre testes.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 46
-
-**Fonte:** `        delete window.__manga_translator_content_injected;`
-
-**Função:** Remove a flag global `__manga_translator_content_injected` para permitir reinjeção real do script.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 47
-
-**Fonte:** `        delete window.MangaTranslatorGtcFingerprint;`
-
-**Função:** Compõe o cenário de integração com `delete window.MangaTranslatorGtcFingerprint;`, no contexto do bloco em que a linha está inserida.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 48
-
-**Fonte:** `        document.documentElement.innerHTML = '<head></head><body></body>';`
-
-**Função:** Restaura o documento JSDOM a uma estrutura mínima, eliminando elementos criados pelo teste anterior.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 49
-
-**Fonte:** `    });`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `afterEach(async () => {`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 50
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `});` do próximo bloco iniciado por `afterEach(async () => {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 51
-
-**Fonte:** `    afterEach(async () => {`
-
-**Função:** Inicia o teardown executado após cada teste, restaurando mocks e limpando estado global/DOM.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 52
-
-**Fonte:** `        jest.restoreAllMocks();`
-
-**Função:** Restaura spies/mocks gerenciados pelo Jest ao fim do cenário.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 53
-
-**Fonte:** `        await storageMock.clear();`
-
-**Função:** Esvazia o storage mock antes/depois do cenário para preservar independência entre testes.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 54
-
-**Fonte:** `        delete window.__manga_translator_content_injected;`
-
-**Função:** Remove a flag global `__manga_translator_content_injected` para permitir reinjeção real do script.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 55
-
-**Fonte:** `        delete window.MangaTranslatorGtcFingerprint;`
-
-**Função:** Compõe o cenário de integração com `delete window.MangaTranslatorGtcFingerprint;`, no contexto do bloco em que a linha está inserida.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 56
-
-**Fonte:** `        document.documentElement.innerHTML = '<head></head><body></body>';`
-
-**Função:** Restaura o documento JSDOM a uma estrutura mínima, eliminando elementos criados pelo teste anterior.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 57
-
-**Fonte:** `    });`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `function installRuntimeResponder({ onQueryMany, onStartBatch } = {}) {`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 58
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `});` do próximo bloco iniciado por `function installRuntimeResponder({ onQueryMany, onStartBatch } = {}) {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 59
-
-**Fonte:** `    function installRuntimeResponder({ onQueryMany, onStartBatch } = {}) {`
-
-**Função:** Inicia o helper síncrono `installRuntimeResponder` com parâmetros `{ onQueryMany, onStartBatch } = {}`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 60
-
-**Fonte:** `        runtimeMock.sendMessage = jest.fn((message, callback) => {`
-
-**Função:** Substitui `chrome.runtime.sendMessage` por um responder controlado que registra mensagens e devolve respostas assíncronas de background simuladas.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 61
-
-**Fonte:** `            sentMessages.push(message);`
-
-**Função:** Captura cada mensagem enviada pelo content script para permitir assertions posteriores sobre ação e payload.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 62
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `sentMessages.push(message);` do próximo bloco iniciado por `if (message.action === 'GTC_QUERY_MANY') {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 63
-
-**Fonte:** `            if (message.action === 'GTC_QUERY_MANY') {`
-
-**Função:** Detecta a consulta em lote ao Global Translation Cache e prepara a resposta configurável do cenário.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 64
-
-**Fonte:** `                const response = onQueryMany ? onQueryMany(message) : { ok: true, entriesByHash: {} };`
-
-**Função:** Define `response` com `onQueryMany ? onQueryMany(message) : { ok: true, entriesByHash: {} }`, preparando dado usado pelo cenário atual.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 65
-
-**Fonte:** `                if (callback) setTimeout(() => callback(response), 0);`
-
-**Função:** Entrega a resposta do mock no próximo turno do event loop, aproximando a natureza assíncrona do runtime Chrome.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 66
-
-**Fonte:** `                return;`
-
-**Função:** Interrompe este ramo do responder depois de agendar a callback apropriada.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 67
-
-**Fonte:** `            }`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `if (message.action === 'START_BATCH') {`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 68
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `}` do próximo bloco iniciado por `if (message.action === 'START_BATCH') {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 69
-
-**Fonte:** `            if (message.action === 'START_BATCH') {`
-
-**Função:** Detecta o pedido real do content script para iniciar lote no background e permite ao teste observar o payload enviado.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 70
-
-**Fonte:** `                if (typeof onStartBatch === 'function') onStartBatch(message);`
-
-**Função:** Avalia a condição `if (typeof onStartBatch === 'function') onStartBatch(message);` e executa o ramo somente quando ela é satisfeita.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 71
-
-**Fonte:** `                if (callback) setTimeout(() => callback({ ok: true }), 0);`
-
-**Função:** Entrega a resposta do mock no próximo turno do event loop, aproximando a natureza assíncrona do runtime Chrome.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 72
-
-**Fonte:** `                return;`
-
-**Função:** Interrompe este ramo do responder depois de agendar a callback apropriada.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 73
-
-**Fonte:** `            }`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `if (callback) setTimeout(() => callback({ ok: true }), 0);`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 74
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `}` do próximo bloco iniciado por `if (callback) setTimeout(() => callback({ ok: true }), 0);`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 75
-
-**Fonte:** `            if (callback) setTimeout(() => callback({ ok: true }), 0);`
-
-**Função:** Entrega a resposta do mock no próximo turno do event loop, aproximando a natureza assíncrona do runtime Chrome.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 76
-
-**Fonte:** `        });`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `}`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 77
-
-**Fonte:** `    }`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `test('GTC miss envia START_BATCH para o background', async () => {`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 78
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `}` do próximo bloco iniciado por `test('GTC miss envia START_BATCH para o background', async () => {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 79
-
-**Fonte:** `    test('GTC miss envia START_BATCH para o background', async () => {`
-
-**Função:** Registra o caso de teste `GTC miss envia START_BATCH para o background`; as assertions dentro deste bloco definem a prova automatizada correspondente.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 80
-
-**Fonte:** `        installRuntimeResponder();`
-
-**Função:** Instala responder padrão: cache vazio e confirmação genérica para as demais mensagens, configurando um cenário de miss.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 81
-
-**Fonte:** `        await loadContentScript({`
-
-**Função:** Carrega os módulos reais do content script via helper de integração e prepara DOM/storage para o cenário.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 82
-
-**Fonte:** `            hostname: 'localhost',`
-
-**Função:** Usa `localhost` como domínio habilitado do cenário, que o helper replica em `window.location` e storage.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 83
-
-**Fonte:** `            domImages: [`
-
-**Função:** Inicia a fixture de imagens DOM que o helper materializa com dimensões naturais controladas.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 84
-
-**Fonte:** `                { src: 'http://localhost/higeki/page-1.png', width: 800, height: 1200 },`
-
-**Função:** Declara uma imagem de teste com URL/dimensões concretas: `{ src: 'http://localhost/higeki/page-1.png', width: 800, height: 1200 },`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 85
-
-**Fonte:** `            ],`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `});`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 86
-
-**Fonte:** `        });`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `document.getElementById('manga-main-content').click();`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 87
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `});` do próximo bloco iniciado por `document.getElementById('manga-main-content').click();`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 88
-
-**Fonte:** `        document.getElementById('manga-main-content').click();`
-
-**Função:** Clica no conteúdo principal do botão flutuante criado pelo content script real, iniciando o pipeline de seleção/cache/roteamento.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 89
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `document.getElementById('manga-main-content').click();` do próximo bloco iniciado por `const startBatch = await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'));`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 90
-
-**Fonte:** `        const startBatch = await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'));`
-
-**Função:** Define `startBatch` com `await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'))`, preparando dado usado pelo cenário atual.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 91
-
-**Fonte:** `        expect(startBatch.images).toEqual([{ index: 0 }]);`
-
-**Função:** Assertion direta `expect(startBatch.images).toEqual([{ index: 0 }]);`; se esta propriedade do comportamento real carregado pelo helper mudar, o teste falha.
-
-**Evidência automatizada:** ✅ PROVADO DIRETAMENTE — assertion Jest ligada ao comportamento produzido pela implementação real de `content_manga.js` carregada por `loadContentScript`.
-
-### Linha 92
-
-**Fonte:** `        expect(startBatch.prompt).toBe('Teste prompt');`
-
-**Função:** Assertion direta `expect(startBatch.prompt).toBe('Teste prompt');`; se esta propriedade do comportamento real carregado pelo helper mudar, o teste falha.
-
-**Evidência automatizada:** ✅ PROVADO DIRETAMENTE — assertion Jest ligada ao comportamento produzido pela implementação real de `content_manga.js` carregada por `loadContentScript`.
-
-### Linha 93
-
-**Fonte:** `    });`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `test('GTC hit substitui a imagem e nao chama START_BATCH', async () => {`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 94
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `});` do próximo bloco iniciado por `test('GTC hit substitui a imagem e nao chama START_BATCH', async () => {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 95
-
-**Fonte:** `    test('GTC hit substitui a imagem e nao chama START_BATCH', async () => {`
-
-**Função:** Registra o caso de teste `GTC hit substitui a imagem e nao chama START_BATCH`; as assertions dentro deste bloco definem a prova automatizada correspondente.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 96
-
-**Fonte:** `        installRuntimeResponder({`
-
-**Função:** Instala responder customizado para este teste, permitindo simular um cache hit sem executar o background real.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 97
-
-**Fonte:** `            onQueryMany(message) {`
-
-**Função:** Define o callback específico acionado quando o content script consulta `GTC_QUERY_MANY`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 98
-
-**Fonte:** `                return {`
-
-**Função:** Retorna `{` ao chamador.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 99
-
-**Fonte:** `                    ok: true,`
-
-**Função:** Compõe o cenário de integração com `ok: true,`, no contexto do bloco em que a linha está inserida.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 100
-
-**Fonte:** `                    entriesByHash: {`
-
-**Função:** Compõe o cenário de integração com `entriesByHash: {`, no contexto do bloco em que a linha está inserida.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 101
-
-**Fonte:** `                        [message.hashes[0]]: 'data:image/png;base64,TRANSLATED_HIT',`
-
-**Função:** Compõe o cenário de integração com `[message.hashes[0]]: 'data:image/png;base64,TRANSLATED_HIT',`, no contexto do bloco em que a linha está inserida.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 102
-
-**Fonte:** `                    },`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `};`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 103
-
-**Fonte:** `                };`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `},`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 104
-
-**Fonte:** `            },`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `});`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 105
-
-**Fonte:** `        });`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `await loadContentScript({`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 106
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `});` do próximo bloco iniciado por `await loadContentScript({`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 107
-
-**Fonte:** `        await loadContentScript({`
-
-**Função:** Carrega os módulos reais do content script via helper de integração e prepara DOM/storage para o cenário.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 108
-
-**Fonte:** `            hostname: 'localhost',`
-
-**Função:** Usa `localhost` como domínio habilitado do cenário, que o helper replica em `window.location` e storage.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 109
-
-**Fonte:** `            domImages: [`
-
-**Função:** Inicia a fixture de imagens DOM que o helper materializa com dimensões naturais controladas.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 110
-
-**Fonte:** `                { src: 'http://localhost/higeki/page-1.png', width: 800, height: 1200 },`
-
-**Função:** Declara uma imagem de teste com URL/dimensões concretas: `{ src: 'http://localhost/higeki/page-1.png', width: 800, height: 1200 },`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 111
-
-**Fonte:** `            ],`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `});`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 112
-
-**Fonte:** `        });`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `document.getElementById('manga-main-content').click();`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 113
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `});` do próximo bloco iniciado por `document.getElementById('manga-main-content').click();`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 114
-
-**Fonte:** `        document.getElementById('manga-main-content').click();`
-
-**Função:** Clica no conteúdo principal do botão flutuante criado pelo content script real, iniciando o pipeline de seleção/cache/roteamento.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 115
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `document.getElementById('manga-main-content').click();` do próximo bloco iniciado por `await waitFor(() => document.querySelector('img').dataset.translated === 'true');`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 116
-
-**Fonte:** `        await waitFor(() => document.querySelector('img').dataset.translated === 'true');`
-
-**Função:** Aguarda a substituição de imagem pelo cache até `data-translated` indicar conclusão.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 117
-
-**Fonte:** `        expect(document.querySelector('img').getAttribute('src')).toBe('data:image/png;base64,TRANSLATED_HIT');`
-
-**Função:** Assertion direta `expect(document.querySelector('img').getAttribute('src')).toBe('data:image/png;base64,TRANSLATED_HIT');`; se esta propriedade do comportamento real carregado pelo helper mudar, o teste falha.
-
-**Evidência automatizada:** ✅ PROVADO DIRETAMENTE — assertion Jest ligada ao comportamento produzido pela implementação real de `content_manga.js` carregada por `loadContentScript`.
-
-### Linha 118
-
-**Fonte:** `        expect(sentMessages.some(message => message.action === 'START_BATCH')).toBe(false);`
-
-**Função:** Afirma diretamente a **ausência** de qualquer mensagem `START_BATCH` no cenário de cache hit completo. A expressão procura por esse action em `sentMessages` e exige `false`; portanto prova que a tradução foi resolvida localmente sem iniciar lote no background.
-
-**Evidência automatizada:** ✅ PROVADO DIRETAMENTE — assertion Jest de ausência de `START_BATCH` ligada ao comportamento produzido pela implementação real de `content_manga.js` carregada por `loadContentScript`.
-
-### Linha 119
-
-**Fonte:** `    });`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `test('processamento em lote ignora imagem pequena e envia somente paginas validas', async () => {`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 120
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `});` do próximo bloco iniciado por `test('processamento em lote ignora imagem pequena e envia somente paginas validas', async () => {`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 121
-
-**Fonte:** `    test('processamento em lote ignora imagem pequena e envia somente paginas validas', async () => {`
-
-**Função:** Registra o caso de teste `processamento em lote ignora imagem pequena e envia somente paginas validas`; as assertions dentro deste bloco definem a prova automatizada correspondente.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 122
-
-**Fonte:** `        installRuntimeResponder();`
-
-**Função:** Instala responder padrão: cache vazio e confirmação genérica para as demais mensagens, configurando um cenário de miss.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 123
-
-**Fonte:** `        await loadContentScript({`
-
-**Função:** Carrega os módulos reais do content script via helper de integração e prepara DOM/storage para o cenário.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 124
-
-**Fonte:** `            hostname: 'localhost',`
-
-**Função:** Usa `localhost` como domínio habilitado do cenário, que o helper replica em `window.location` e storage.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 125
-
-**Fonte:** `            domImages: [`
-
-**Função:** Inicia a fixture de imagens DOM que o helper materializa com dimensões naturais controladas.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 126
-
-**Fonte:** `                { src: 'http://localhost/witch/page-1.jpg', width: 800, height: 1200 },`
-
-**Função:** Declara uma imagem de teste com URL/dimensões concretas: `{ src: 'http://localhost/witch/page-1.jpg', width: 800, height: 1200 },`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 127
-
-**Fonte:** `                { src: 'http://localhost/witch/page-2.jpg', width: 800, height: 1200 },`
-
-**Função:** Declara uma imagem de teste com URL/dimensões concretas: `{ src: 'http://localhost/witch/page-2.jpg', width: 800, height: 1200 },`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 128
-
-**Fonte:** `                { src: 'http://localhost/witch/avatar.jpg', width: 50, height: 50 },`
-
-**Função:** Declara uma imagem de teste com URL/dimensões concretas: `{ src: 'http://localhost/witch/avatar.jpg', width: 50, height: 50 },`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 129
-
-**Fonte:** `            ],`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `});`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 130
-
-**Fonte:** `        });`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `document.getElementById('manga-main-content').click();`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 131
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `});` do próximo bloco iniciado por `document.getElementById('manga-main-content').click();`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 132
-
-**Fonte:** `        document.getElementById('manga-main-content').click();`
-
-**Função:** Clica no conteúdo principal do botão flutuante criado pelo content script real, iniciando o pipeline de seleção/cache/roteamento.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 133
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `document.getElementById('manga-main-content').click();` do próximo bloco iniciado por `const startBatch = await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'));`; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 134
-
-**Fonte:** `        const startBatch = await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'));`
-
-**Função:** Define `startBatch` com `await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'))`, preparando dado usado pelo cenário atual.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 135
-
-**Fonte:** `        expect(startBatch.images).toEqual([{ index: 0 }, { index: 1 }]);`
-
-**Função:** Assertion direta `expect(startBatch.images).toEqual([{ index: 0 }, { index: 1 }]);`; se esta propriedade do comportamento real carregado pelo helper mudar, o teste falha.
-
-**Evidência automatizada:** ✅ PROVADO DIRETAMENTE — assertion Jest ligada ao comportamento produzido pela implementação real de `content_manga.js` carregada por `loadContentScript`.
-
-### Linha 136
-
-**Fonte:** `    });`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por `});`.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 137
-
-**Fonte:** `});`
-
-**Função:** Fecha a estrutura sintática corrente; o próximo trecho relevante começa por ``.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-
-### Linha 138
-
-**Fonte:** `␠ [linha vazia]`
-
-**Função:** Separa o bloco que termina em `});` do próximo bloco iniciado por ``; não altera o comportamento do teste.
-
-**Evidência automatizada:** 🟨 EXECUTADO INDIRETAMENTE — linha de setup/ação que participa do caso integrado; a propriedade final é verificada pelas assertions do mesmo teste.
-## 10. Reparo pós-auditoria independente
-
-- a linha 18 foi corrigida para descrever `delay` como helper assíncrono baseado em `Promise`/`setTimeout`;
-- a linha 118 agora descreve corretamente que a assertion prova **ausência** de `START_BATCH` no cenário de hit completo;
-- 112-001 foi alinhada ao lifecycle canônico `ACCEPTED` sem resolver artificialmente a lacuna de cache parcial real;
-- o source auditado não foi alterado; o item retorna a `READY_FOR_AUDIT` e exige nova auditoria independente antes de `COMPLETED`.
-
+## 9. Cobertura integral por posições
+
+- **1–16:** imports, raiz portátil, WebCrypto/TextEncoder e helpers externos.
+- **17–30:** `delay` e `waitFor`.
+- **31–35:** abertura da suíte e estado compartilhado.
+- **36–49:** setup por teste.
+- **50–57:** cleanup por teste.
+- **58–77:** responder controlado de runtime.
+- **78–93:** cenário de miss completo.
+- **94–119:** cenário de hit completo.
+- **120–155:** cenário de cache parcial real.
+- **156–172:** filtro de imagem pequena.
+- **173:** LF terminal — posição editorial não executável.
+
+**Cobertura:** 173/173 posições, contíguas e sem overlap.
+
+## 10. Reauditoria pós-correção
+
+- status stale “APROVADA/CONCLUÍDA”: removido;
+- LF terminal: documentado como posição editorial;
+- import morto `fs`: removido;
+- cache parcial real: adicionado;
+- assertion negativa: hit não reaparece em `START_BATCH`;
+- source integral e SHA: sincronizados;
+- CI/Jest do SHA atual: ainda necessário antes de fechar 112-001.
