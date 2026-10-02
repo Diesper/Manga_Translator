@@ -1014,6 +1014,14 @@
       "production_sha": "0c0a9f3420a17933db2d275a8fe5503473e8bb7c",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Correction role ended. Editorial reservation released; no audit lease held. state.agent cleared so a distinct auditor can acquire PRIMARY. Correction agent must not self-audit this revision."
+    },
+    {
+      "at_utc": "2026-10-02T03:41:30Z",
+      "type": "INVALID_SELF_AUDIT_LEASE_ABORTED",
+      "source_sha": "f5c3d85e8d7774879be877cfb0d4ecabd8280f31",
+      "bible_sha": "d3ee3cae8bb931b49e60af07fe61bb20f1d2703e",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "A PRIMARY lease was created under the same AGENTE HÍBRIDO identity that corrected this revision. No result was published. Lease was removed because the correction agent cannot serve as an independent auditor of its own correction."
     }
   ],
   "evidence": [
