@@ -28,6 +28,9 @@ function main(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   if (!args.id) throw new Error('--id obrigatório');
   if (!args.action) throw new Error('--action obrigatório');
+  if (['PRIMARY_CONFIRM','ADVERSARIAL_CONFIRM','REAUDIT_CONFIRM','REJECT'].includes(args.action)) {
+    throw new Error('AUDIT_BOUND_FINDING_TRANSITION_REQUIRES_AUDIT_RESULT_PUBLISHER');
+  }
   if (!args.actor && !args.auditor) throw new Error('--actor ou --auditor obrigatório');
   if (!Number.isFinite(Date.parse(args.at_utc || ''))) throw new Error('--at inválido');
 
