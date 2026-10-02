@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/background/message-handlers-real.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "1c2815cd1f2fecba58a07c568f24d69af0367af3",
+  "source_sha": "1495cd64a92afb7139407eaf7e6055adcbfc1ef3",
   "started_at_utc": "2026-09-30T06:45:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -44,7 +44,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:46:15Z",
+  "updated_at_utc": "2026-10-02T00:49:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:46:15Z",
@@ -54,6 +54,13 @@
       "source_sha": "1c2815cd1f2fecba58a07c568f24d69af0367af3",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Background suite revelou mock UPDATE_IMAGE stale sem persisted:true; request 156-001 também exige prova literal blob: para CALCULATE_VISUAL_FINGERPRINT."
+    },
+    {
+      "at_utc": "2026-10-02T00:49:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_HYBRID_CORRECTION",
+      "previous_source_sha": "1c2815cd1f2fecba58a07c568f24d69af0367af3",
+      "current_source_sha": "1495cd64a92afb7139407eaf7e6055adcbfc1ef3",
+      "reason": "Mock UPDATE_IMAGE passa a confirmar persisted/domApplied conforme contrato atual; 156-001 cobre data: e blob: literais com zero fetch."
     }
   ],
   "evidence": []
