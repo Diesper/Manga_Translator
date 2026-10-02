@@ -108,6 +108,18 @@ function finalDecisionRecord(pipeline) {
   return pipeline.primary || null;
 }
 
+function decisionIdForPipeline(pipeline) {
+  const record = finalDecisionRecord(pipeline);
+  return life.sha256(JSON.stringify({
+    index: pipeline?.index ?? null,
+    path: record?.path || null,
+    phase: record?.phase || null,
+    auditor: record?.auditor || null,
+    completed_at_utc: record?.completed_at_utc || null,
+    verdict: record?.verdict || pipeline?.decision || null,
+  }));
+}
+
 function tokenConsumed(state, tokenId) {
   return (Array.isArray(state?.history) ? state.history : []).some((entry) => (
     entry?.type === 'CORRECTION_TOKEN_CONSUMED'
@@ -141,14 +153,7 @@ function issueCorrectionToken(state, pipeline, options = {}) {
   const record = finalDecisionRecord(pipeline);
   const issuedAt = options.issued_at_utc;
   if (!Number.isFinite(Date.parse(issuedAt || ''))) throw new Error('TOKEN_ISSUED_AT_REQUIRED');
-  const decisionId = life.sha256(JSON.stringify({
-    index: state.index,
-    path: record?.path || null,
-    phase: record?.phase || null,
-    auditor: record?.auditor || null,
-    completed_at_utc: record?.completed_at_utc || null,
-    verdict: record?.verdict || pipeline.decision,
-  }));
+  const decisionId = decisionIdForPipeline({ ...pipeline, index: state.index });
   const seed = JSON.stringify({
     index: state.index,
     cycle: snapshot.current_escalation_cycle,
@@ -197,6 +202,13 @@ function validateCorrectionToken(state, token, options = {}) {
   if (typeof token?.token_id !== 'string' || !token.token_id.trim()) problems.push('TOKEN_ID_MISSING');
   if (typeof token?.actor !== 'string' || !token.actor.trim()) problems.push('TOKEN_ACTOR_MISSING');
   if (options.actor && String(token?.actor || '').trim() !== String(options.actor).trim()) problems.push('TOKEN_ACTOR_MISMATCH');
+  if (options.pipeline) {
+    const pipeline = options.pipeline;
+    if (pipeline?.decision !== 'CHANGES_REQUIRED') problems.push('TOKEN_DECISION_NO_LONGER_CHANGES_REQUIRED');
+    if (Array.isArray(pipeline?.problems) && pipeline.problems.length) problems.push('TOKEN_PIPELINE_NOW_INVALID');
+    const currentDecisionId = decisionIdForPipeline({ ...pipeline, index: state.index });
+    if (token?.decision_id !== currentDecisionId) problems.push('TOKEN_DECISION_STALE');
+  }
   if (tokenConsumed(state, token?.token_id)) problems.push('TOKEN_ALREADY_CONSUMED');
   return problems;
 }
@@ -374,7 +386,7 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
   if (action === 'START_CORRECTION') {
     const expectedStatus = snapshot.human_locked ? 'HUMAN_LOCKED' : 'CHANGES_REQUIRED';
     if (state.status !== expectedStatus) throw new Error('START_CORRECTION_STATUS_INVALID:' + state.status);
-    const tokenProblems = validateCorrectionToken(state, token, { actor });
+    const tokenProblems = validateCorrectionToken(state, token, { actor, pipeline });
     if (tokenProblems.length) throw new Error(tokenProblems.join(';'));
 
     const eligibility = life.correctorEligibility(state, actor);
@@ -644,7 +656,7 @@ function walk(dir) {
   });
 }
 
-function loadCorrectionTokens(root, states = []) {
+function loadCorrectionTokens(root, states = [], options = {}) {
   const base = path.join(root, 'docs', 'biblia', '.coordination', 'correction-authorizations');
   const stateByIndex = new Map((states || []).map((state) => [state.index, state]));
   const tokens = [];
@@ -677,7 +689,8 @@ function loadCorrectionTokens(root, states = []) {
     const consumptionCount = tokenConsumptionCount(state, token?.token_id);
     if (consumptionCount > 1) problems.push(rel + ': token consumido mais de uma vez');
     if (consumptionCount === 0) {
-      for (const problem of validateCorrectionToken(state, token)) problems.push(rel + ': ' + problem);
+      const pipeline = options.pipelines instanceof Map ? options.pipelines.get(state.index) : null;
+      for (const problem of validateCorrectionToken(state, token, { pipeline })) problems.push(rel + ': ' + problem);
       if (activeByIndex.has(state.index)) {
         problems.push(rel + ': mais de um correction token ativo para o mesmo índice');
       } else {
@@ -855,6 +868,7 @@ if (require.main===module) {
 
 module.exports = {
   finalDecisionRecord,
+  decisionIdForPipeline,
   tokenConsumed,
   tokenConsumptionCount,
   tokenHistoryProblems,
