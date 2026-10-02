@@ -263,11 +263,19 @@ expect('19 reuse HUMAN approval',()=>{
   assert.ok(humanGate.humanApprovalConsumptionProblems([state],[approval]).some((x)=>x.includes('mais de uma vez')));
 });
 
-// 20) forçar COMPLETED sem transição válida.
-expect('20 fake COMPLETED without human close',()=>{
+// 20) forçar COMPLETED / HUMAN_PERMANENTLY_CLOSED sem approval real.
+expect('20 fake COMPLETED with forged human close',()=>{
   const state=humanLockedState();
   state.status='COMPLETED';
-  assert.ok(life.lifecycleProblems(state).some((x)=>x.includes('HUMAN_LOCKED') || x.includes('status diverge')));
+  state.history.push({
+    at_utc:'2026-10-02T08:20:00Z',
+    type:'HUMAN_PERMANENTLY_CLOSED',
+    approval_id:'forged-close',
+  });
+  assert.ok(
+    humanGate.humanApprovalConsumptionProblems([state],[])
+      .some((x)=>x.includes('ação HUMAN sem consumo de approval')),
+  );
 });
 
 console.log('Bible anti-loop adversarial matrix: SUCCESS — 20/20 bypasses rejected');
