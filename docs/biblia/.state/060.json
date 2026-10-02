@@ -2,8 +2,8 @@
   "index": 60,
   "file": "extension/shared/storage-manager.js",
   "bible": "docs/biblia/extension/shared/storage-manager.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "f4e1e231fa62d22dd50fb20cf0cffbb09da98bee",
   "completed_at_utc": null,
   "audit_requests": [
@@ -53,12 +53,12 @@
     "embedded_source_exact": true,
     "documented_positions": "517/517",
     "bible_lines": 5328,
-    "note": "Source/Bíblia sincronizados após CI revelar cache de Promise rejeitada. openStorageDb agora evita cache em ausência de IDB, fecha conexão em versionchange e limpa qualquer rejeição cacheada por identidade. Smoke #126 ampliado existe; confirmação executável do SHA atual ainda pendente."
+    "note": "Source/Bíblia restaurados ao revisionamento f4e1/e425 após diagnóstico mostrar que PERF-09 corrompe Blob via structuredClone JSON no harness #114. Nenhuma adaptação de produção foi mantida para mascarar fixture inválida."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:06:00Z",
-  "started_at_utc": "2026-10-02T01:06:00Z",
+  "updated_at_utc": "2026-10-02T01:10:00Z",
+  "started_at_utc": null,
   "history": [
     {
       "at_utc": "2026-10-01T22:22:30Z",
@@ -110,6 +110,16 @@
       "bible_sha": "e425b19f67745d957e8835fd518a82e31b915ec4",
       "agent": "AGENTE 30",
       "reason": "Node 20/22 full Jest exposed blobToDataUrl incompatibility with valid Blob lacking arrayBuffer() in jsdom/fake-indexeddb canonical persistence path."
+    },
+    {
+      "at_utc": "2026-10-02T01:10:00Z",
+      "type": "PERF09_HARNESS_DIAGNOSIS_REVERT",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "f4e1e231fa62d22dd50fb20cf0cffbb09da98bee",
+      "bible_sha": "e425b19f67745d957e8835fd518a82e31b915ec4",
+      "agent": "AGENTE 30",
+      "reason": "FileReader experiment also failed because fake-indexeddb received a value whose Blob identity/data had already been destroyed by performance.test.js JSON structuredClone polyfill. Product change reverted; correction belongs to owned unit #114."
     }
   ],
   "evidence": [
@@ -136,6 +146,18 @@
         "517/517 sequential headings",
         "stale cache/onversionchange claims absent"
       ]
+    },
+    {
+      "type": "NEGATIVE_EXPERIMENT",
+      "at_utc": "2026-10-02T01:10:00Z",
+      "workflow": "Performance Integration Selftest",
+      "run_id": 36949413825,
+      "job_id": 110658774200,
+      "experimental_source_sha": "b81b122a098038a9164f05fc0a4b9fb6d3140d79",
+      "result": "FAIL_EXPECTED_DIAGNOSTIC",
+      "failure": "FileReader rejected fake-indexeddb value because it was not a JSDOM Blob",
+      "root_cause_evidence": "tests/integration/performance.test.js lines 18-19 install structuredClone = JSON.parse(JSON.stringify(value)), which cannot preserve Blob payload/prototype",
+      "disposition": "Experimental storage-manager fallback reverted; #114 remains owned by AGENTE HÍBRIDO."
     }
   ]
 }
