@@ -96,6 +96,28 @@ assert.strictEqual(life.rootCauseReviewValid({
 assert.strictEqual(life.rootCauseReviewValid({ categories: ['CONCURRENCY'] }), false);
 console.log('PASS emergency root-cause review validation');
 
+const emergencyHistory = baseState();
+emergencyHistory.history.push({
+  at_utc:'2026-10-01T05:00:00Z',
+  type:'EMERGENCY_ROOT_CAUSE_REVIEW',
+  root_cause_review:{
+    categories:['CONCURRENCY'],
+    evidence:'race anterior',
+    strategy:'serializar writer',
+  },
+});
+assert.ok(life.rootCauseReviewProblems(emergencyHistory,{
+  categories:['CONCURRENCY'],
+  evidence:'race reaparece',
+  strategy:'serializar writer',
+}).includes('ROOT_CAUSE_STRATEGY_MUST_DIFFER_FROM_PREVIOUS_EMERGENCY'));
+assert.deepStrictEqual(life.rootCauseReviewProblems(emergencyHistory,{
+  categories:['STATE_MACHINE_FAILURE'],
+  evidence:'nova evidência',
+  strategy:'mover transição para writer canônico',
+}),[]);
+console.log('PASS repeated EMERGENCY must use a different strategy');
+
 addCycle(s, 7, 'TERCEIRO');
 s.status = 'HUMAN_LOCKED';
 snap = life.lifecycleSnapshot(s);
