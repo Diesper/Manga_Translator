@@ -133,6 +133,78 @@ function persistSnapshot(next, snapshot) {
   next.revision_id = snapshot.revision_id;
 }
 
+function projectAuditDecision(state, pipeline, options = {}) {
+  if (!pipeline || !['APPROVED', 'CHANGES_REQUIRED'].includes(pipeline.decision)) {
+    throw new Error('RECONCILE_DECISION_INVALID');
+  }
+  if (Array.isArray(pipeline.problems) && pipeline.problems.length) {
+    throw new Error('RECONCILE_PIPELINE_INVALID:' + pipeline.problems.join(';'));
+  }
+  const snapshot = life.lifecycleSnapshot(state);
+  if (snapshot.human_locked) throw new Error('RECONCILE_HUMAN_LOCKED');
+  if (state.status === 'IN_PROGRESS') throw new Error('RECONCILE_IN_PROGRESS');
+  if (state.status === 'BLOCKED') throw new Error('RECONCILE_BLOCKED');
+  if (state.coordination_status === 'REPAIR_REQUIRED') throw new Error('RECONCILE_REPAIR_REQUIRED');
+  if (pipeline.source_sha && pipeline.source_sha !== state.source_sha) throw new Error('RECONCILE_SOURCE_STALE');
+  if (pipeline.bible_sha && snapshot.bible_sha && pipeline.bible_sha !== snapshot.bible_sha) {
+    throw new Error('RECONCILE_BIBLE_STALE');
+  }
+  const openRequests = (state.audit_requests || []).filter((request) => request?.status === 'OPEN');
+  if (pipeline.decision === 'APPROVED' && openRequests.length) {
+    throw new Error('RECONCILE_OPEN_REQUESTS:' + openRequests.length);
+  }
+
+  const targetStatus = pipeline.decision === 'APPROVED' ? 'COMPLETED' : 'CHANGES_REQUIRED';
+  const at = options.at_utc || state.updated_at_utc || state.completed_at_utc || null;
+  const next = JSON.parse(JSON.stringify(state));
+  const previous = next.status;
+  next.status = targetStatus;
+  next.agent = null;
+  next.coordination_status = 'OK';
+  next.updated_at_utc = at || next.updated_at_utc || null;
+  next.completed_at_utc = targetStatus === 'COMPLETED' ? (at || next.completed_at_utc || null) : null;
+  next.history = Array.isArray(next.history) ? next.history : [];
+
+  const signature = {
+    type: 'DISTRIBUTED_AUDIT_DECISION',
+    source_sha: state.source_sha,
+    bible_sha: pipeline.bible_sha || null,
+    decision: pipeline.decision,
+  };
+  const alreadyRecorded = next.history.some((entry) => (
+    entry?.type === signature.type
+    && entry?.source_sha === signature.source_sha
+    && (entry?.bible_sha || null) === signature.bible_sha
+    && entry?.decision === signature.decision
+  ));
+  if (!alreadyRecorded) {
+    life.appendLifecycleEvent(next.history, {
+      at_utc: at,
+      type: signature.type,
+      from_status: previous,
+      to_status: targetStatus,
+      source_sha: signature.source_sha,
+      bible_sha: signature.bible_sha,
+      decision: signature.decision,
+      primary: pipeline.primary?.verdict || null,
+      adversarial: pipeline.adversarial?.verdict || null,
+      reaudit: pipeline.reaudit?.verdict || null,
+      revision_id: snapshot.revision_id,
+      audit_epoch: snapshot.audit_epoch,
+      handoff_id: snapshot.handoff_id,
+      reason: targetStatus === 'COMPLETED'
+        ? 'PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.'
+        : 'Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.',
+    });
+  }
+
+  persistSnapshot(next, snapshot);
+  next.progress_note = targetStatus === 'COMPLETED'
+    ? 'Decisão distribuída final APPROVED vinculada à revisão atual.'
+    : 'Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.';
+  return { state: next, changed: JSON.stringify(next) !== JSON.stringify(state) };
+}
+
 function planTransition({ state, pipeline = null, request, token = null, humanApproval = null, currentStateSha = null }) {
   if (!state || !request) throw new Error('STATE_AND_REQUEST_REQUIRED');
   const action = String(request.action || '').toUpperCase();
@@ -149,6 +221,10 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
   }
   const next = JSON.parse(JSON.stringify(state));
   next.history = Array.isArray(next.history) ? next.history : [];
+
+  if (action === 'RECONCILE_DECISION') {
+    return projectAuditDecision(state, pipeline, { at_utc: at });
+  }
 
   if (action === 'START_CORRECTION') {
     const expectedStatus = snapshot.human_locked ? 'HUMAN_LOCKED' : 'CHANGES_REQUIRED';
@@ -458,6 +534,7 @@ module.exports = {
   validateCorrectionToken,
   assertCas,
   persistSnapshot,
+  projectAuditDecision,
   planTransition,
   loadCorrectionTokens,
   tokenPath,
