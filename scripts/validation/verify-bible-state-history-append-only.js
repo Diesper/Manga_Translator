@@ -3,8 +3,10 @@
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { LIFECYCLE_POLICY_EFFECTIVE_AT_UTC } = require('../../docs/biblia/.coordination/lifecycle-core');
 
 const root = path.resolve(__dirname, '../..');
+const ZERO_SHA = '0'.repeat(40);
 
 function git(args) {
   return childProcess.execFileSync('git', args, {
@@ -12,6 +14,27 @@ function git(args) {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'ignore'],
   });
+}
+
+function parseRawHistory(output) {
+  return String(output || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith(':'))
+    .map((line) => {
+      const match = /^:(\d{6})\s+(\d{6})\s+([0-9a-f]{40})\s+([0-9a-f]{40})\s+([A-Z])\t(.+)$/i.exec(line);
+      if (!match) return { status:'?', file:line, oldSha:null, newSha:null };
+      return {
+        oldSha:match[3].toLowerCase(),
+        newSha:match[4].toLowerCase(),
+        status:match[5].toUpperCase(),
+        file:match[6].replace(/\\/g,'/'),
+      };
+    });
+}
+
+function stateFromBlob(sha) {
+  return JSON.parse(git(['cat-file','blob',sha]));
 }
 
 function parseBase(argv) {
@@ -98,25 +121,67 @@ function verify(base) {
   return { skipped: false, problems };
 }
 
-function main(argv = process.argv.slice(2)) {
-  const result = verify(parseBase(argv));
-  if (result.skipped) {
-    console.log('State history append-only: SKIP — base SHA indisponível');
-    return;
+function verifyRepositoryHistory() {
+  const problems = [];
+  const raw = git([
+    'log',
+    '--since=' + LIFECYCLE_POLICY_EFFECTIVE_AT_UTC,
+    '--format=',
+    '--raw',
+    '--no-abbrev',
+    '--full-index',
+    '--no-renames',
+    '--',
+    'docs/biblia/.state',
+  ]);
+
+  for (const change of parseRawHistory(raw)) {
+    if (!/^docs\/biblia\/\.state\/\d{3}\.json$/.test(change.file || '')) continue;
+    if (change.status === 'A') continue;
+    if (change.status !== 'M') {
+      problems.push('state history histórico não é append-only: status=' + change.status + ' file=' + change.file);
+      continue;
+    }
+    if (!change.oldSha || !change.newSha || change.oldSha === ZERO_SHA || change.newSha === ZERO_SHA) {
+      problems.push('state history histórico possui blobs inválidos: ' + change.file);
+      continue;
+    }
+    try {
+      const before = stateFromBlob(change.oldSha);
+      const current = stateFromBlob(change.newSha);
+      for (const problem of historyAppendOnlyProblems(before, current)) {
+        problems.push(change.file + ': ' + problem);
+      }
+    } catch (error) {
+      problems.push(change.file + ': não foi possível validar blobs históricos: ' + error.message);
+    }
   }
-  if (result.problems.length) {
+  return { problems };
+}
+
+function main(argv = process.argv.slice(2)) {
+  const incremental = verify(parseBase(argv));
+  const historical = verifyRepositoryHistory();
+  const problems = [...new Set([...(incremental.problems || []), ...(historical.problems || [])])];
+  if (problems.length) {
     console.error('State history append-only: BLOCKED');
-    for (const problem of result.problems) console.error('- ' + problem);
+    for (const problem of problems) console.error('- ' + problem);
     process.exit(1);
   }
-  console.log('State history append-only: PASS');
+  console.log(
+    'State history append-only: PASS'
+    + (incremental.skipped ? ' — incremental base unavailable; full Git history verified' : '')
+  );
 }
 
 if (require.main === module) main();
 
 module.exports = {
+  ZERO_SHA,
+  parseRawHistory,
   parseBase,
   stableJson,
   historyAppendOnlyProblems,
   verify,
+  verifyRepositoryHistory,
 };
