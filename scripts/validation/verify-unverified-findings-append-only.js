@@ -27,6 +27,29 @@ function parseRawHistory(output) {
     });
 }
 
+function firstAddedCommit(file) {
+  return git(['log','--diff-filter=A','-1','--format=%H','HEAD','--',file]).trim() || null;
+}
+
+function auditBoundEventAuthorityProblems(file, event, resolver = firstAddedCommit) {
+  const problems = [];
+  const auditPath = String(event?.audit_result_path || '').replace(/\\/g, '/');
+  if (!auditPath) return problems;
+  const eventCommit = resolver(file);
+  const auditCommit = resolver(auditPath);
+  if (!eventCommit || !auditCommit) {
+    problems.push(file + ': não foi possível provar commit de introdução do evento/audit-result');
+    return problems;
+  }
+  if (eventCommit !== auditCommit) {
+    problems.push(
+      file + ': evento audit-bound deve nascer no mesmo commit do audit-result; event_commit='
+      + eventCommit + ' audit_commit=' + auditCommit
+    );
+  }
+  return problems;
+}
+
 function parseBase(argv) {
   const i = argv.indexOf('--base');
   return i >= 0 ? argv[i + 1] : null;
@@ -146,10 +169,33 @@ function verifyHistoricalAppendOnly() {
   return { problems };
 }
 
+function verifyCurrentEventAuthority() {
+  const problems = [];
+  const rootPath = 'docs/biblia/.coordination/unverified-finding-events';
+  const files = git(['ls-tree','-r','--name-only','HEAD','--',rootPath])
+    .split(/\r?\n/)
+    .map((line)=>line.trim())
+    .filter((file)=>artifactKind(file)==='EVENT');
+  for (const file of files) {
+    try {
+      const event = JSON.parse(fs.readFileSync(path.join(root,file),'utf8'));
+      problems.push(...auditBoundEventAuthorityProblems(file,event));
+    } catch (error) {
+      problems.push(file + ': evento inválido no HEAD: ' + error.message);
+    }
+  }
+  return { problems };
+}
+
 function main(argv = process.argv.slice(2)) {
   const incremental = verify(parseBase(argv));
   const historical = verifyHistoricalAppendOnly();
-  const problems = [...new Set([...(incremental.problems || []), ...(historical.problems || [])])];
+  const authority = verifyCurrentEventAuthority();
+  const problems = [...new Set([
+    ...(incremental.problems || []),
+    ...(historical.problems || []),
+    ...(authority.problems || []),
+  ])];
   if (problems.length) {
     console.error('Unverified findings append-only: BLOCKED');
     for (const problem of problems) console.error('- ' + problem);
@@ -166,9 +212,12 @@ if (require.main === module) main();
 module.exports = {
   FINDING_APPEND_ONLY_EFFECTIVE_AT_UTC,
   parseRawHistory,
+  firstAddedCommit,
+  auditBoundEventAuthorityProblems,
   parseBase,
   artifactKind,
   addedArtifactProblems,
   verify,
   verifyHistoricalAppendOnly,
+  verifyCurrentEventAuthority,
 };
