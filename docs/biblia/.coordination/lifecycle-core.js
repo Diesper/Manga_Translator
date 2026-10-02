@@ -281,6 +281,41 @@ function rootCauseReviewProblems(state, review) {
   return problems;
 }
 
+function strategyReviewDue(state) {
+  const cycle = correctionCycles(state).current_escalation_cycle;
+  return cycle > 0 && cycle < 7 && cycle % 3 === 0;
+}
+
+function strategyReviewProblems(state, review) {
+  if (!strategyReviewDue(state)) return [];
+  const problems = [];
+  if (!review || typeof review !== 'object') return ['STRATEGY_REVIEW_REQUIRED'];
+
+  const cycle = correctionCycles(state).current_escalation_cycle;
+  const expected = [cycle - 2, cycle - 1, cycle].filter((item) => item >= 1);
+  const related = Array.isArray(review.related_cycles)
+    ? [...new Set(review.related_cycles.map((item) => Number(item)).filter(Number.isInteger))]
+    : [];
+  if (!expected.every((item) => related.includes(item))) {
+    problems.push('STRATEGY_REVIEW_MUST_COVER_LAST_THREE_CYCLES');
+  }
+
+  for (const key of ['observed_pattern', 'evidence', 'why_previous_strategy_insufficient', 'new_strategy']) {
+    if (typeof review[key] !== 'string' || !review[key].trim()) {
+      problems.push('STRATEGY_REVIEW_' + key.toUpperCase() + '_REQUIRED');
+    }
+  }
+
+  const newStrategy = String(review.new_strategy || '').trim().toLowerCase();
+  const priorStrategies = historyOf(state)
+    .map((entry) => String(entry?.strategy_review?.new_strategy || '').trim().toLowerCase())
+    .filter(Boolean);
+  if (newStrategy && priorStrategies.includes(newStrategy)) {
+    problems.push('STRATEGY_REVIEW_MUST_CHANGE_STRATEGY');
+  }
+  return problems;
+}
+
 function classifyRevisionChange(previous, current, options = {}) {
   const changes = [];
   const before = previous || {};
@@ -508,6 +543,8 @@ module.exports = {
   correctorEligibility,
   rootCauseReviewValid,
   rootCauseReviewProblems,
+  strategyReviewDue,
+  strategyReviewProblems,
   classifyRevisionChange,
   humanPermanentlyClosed,
   priorityForState,
