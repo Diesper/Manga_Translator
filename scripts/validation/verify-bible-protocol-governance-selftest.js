@@ -5,7 +5,10 @@ const path = require('path');
 const governance = require('./verify-bible-protocol-governance');
 
 const root = path.resolve(__dirname, '../..');
-const sources = governance.loadSources(root);
+// stepBlockForFragment returns LF-separated blocks. Normalize fixtures so the
+// replacement attacks also modify CRLF checkouts on Windows.
+const sources = Object.fromEntries(Object.entries(governance.loadSources(root))
+  .map(([key, source]) => [key, source.replace(/\r\n/g, '\n')]));
 
 assert.deepStrictEqual(governance.validateSources(sources), []);
 console.log('PASS canonical workflow governance is intact');
@@ -37,6 +40,8 @@ for (const control of governance.PROTOCOL_POST_LIFECYCLE_CONTROLS) {
     ...sources,
     protocol: sources.protocol.replace(block, weakenedBlock),
   };
+  assert.notStrictEqual(tampered.protocol, sources.protocol,
+    'continuation attack must change the fixture for ' + control.command);
   assert.ok(
     governance.validateSources(tampered).some((problem) => (
       problem.includes('não continua após bloqueio anterior') && problem.includes(control.command)
