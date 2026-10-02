@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/integration/ipc/gtc-cache-flow.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
+  "source_sha": "d89506672d148f3bdfab68e08ffd0575aadf5265",
   "started_at_utc": "2026-09-30T06:27:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -111,7 +111,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:22:15Z",
+  "updated_at_utc": "2026-10-02T00:25:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:59:10Z",
@@ -148,6 +148,13 @@
       "source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Reauditoria confirmou 110-001/002 HIGH e 110-003/004/005 corrigíveis: suíte reimplementa GTC legado, não executa pipeline moderno e contém alegação de eficiência não provada/import morto."
+    },
+    {
+      "at_utc": "2026-10-02T00:25:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_HYBRID_CORRECTION",
+      "previous_source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
+      "current_source_sha": "d89506672d148f3bdfab68e08ffd0575aadf5265",
+      "reason": "Suíte sintética GTC removida; content_manga real agora atravessa createGtcRuntimeHandler + createIndexedDbRepository reais para hit/miss/save, com fallback legado real."
     }
   ],
   "evidence": [
