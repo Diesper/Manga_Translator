@@ -116,6 +116,12 @@ function humanAuditResultProblems(states, lifecycleByIndex, approvals, records) 
         + ': audit-result HUMAN sem ALLOW_AUDIT_ONLY anterior ao resultado: '
         + (record.path || record.phase)
       );
+    } else if (String(record.human_approval_id || '') !== String(approval.approval_id)) {
+      problems.push(
+        '#' + String(record.index).padStart(3, '0')
+        + ': audit-result HUMAN não referencia a ALLOW_AUDIT_ONLY vigente: '
+        + (record.path || record.phase)
+      );
     }
   }
   return problems;
