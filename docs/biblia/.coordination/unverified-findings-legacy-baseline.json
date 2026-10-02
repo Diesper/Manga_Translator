@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "effective_at_utc": "2026-10-02T07:28:18Z",
+  "legacy_findings": {
+    "docs/biblia/.coordination/unverified-findings/191/191-UF-001.json": {
+      "blob_sha": "616466c26664aac4b1da1418450116f4efd9915f",
+      "status": "CONFIRMED_BY_PRIMARY"
+    }
+  },
+  "migration_note": "Findings materializados antes do modelo de transições append-only são aceitos somente enquanto o blob permanecer idêntico a esta baseline."
+}
