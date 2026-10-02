@@ -2,15 +2,15 @@
   "index": 135,
   "file": "tests/unit/background/claim-gemini-job-action.test.js",
   "bible": "docs/biblia/tests/unit/background/claim-gemini-job-action.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "eb90e19aabe77ff8f24355ac56033ab6f3933607",
   "started_at_utc": "2026-09-30T06:36:00Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "135-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/claim-gemini-job-action.test.js",
       "found_while_auditing": "tests/unit/background/claim-gemini-job-action.test.js",
@@ -27,7 +27,18 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T19:05:00Z",
       "audit_finding": "ACCEPTED — branch de mismatch canônico continua sem assertion focal. A action compara `canonicalIndexedTabId !== canonicalSenderTabId` e retorna job nulo, mas a suíte cobre jobId divergente na mesma aba e replacement válido, não índice canonicalizado apontando a outra aba.",
-      "auditor_recommended_action": "Adicionar caso com jobIndex do mesmo jobId cujo canonicalIndexedTabId difere do sender canonical, verificando rejeição e ausência de migração indevida."
+      "auditor_recommended_action": "Adicionar caso com jobIndex do mesmo jobId cujo canonicalIndexedTabId difere do sender canonical, verificando rejeição e ausência de migração indevida.",
+      "resolution": "Adicionado caso focal pelo router/action reais com mesmo jobId e identidades canônicas distintas (job tab 100, sender Gemini tab 200). Exige job:null, log TAB_CLAIM_REJECTED com tabId/indexedTabId corretos, migrate não chamado, jobIndex e gemini_job_100 preservados e ausência de gemini_job_200. Run 36947199617/job 110651904268: claim selftest success e background 45/45 suites, 228/228 testes com --detectOpenHandles.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T01:00:00Z",
+      "validation": {
+        "source_sha": "eb90e19aabe77ff8f24355ac56033ab6f3933607",
+        "bible_sha": "c72d4a8d4ec35264b3c1cf528a9dc1268792f6f8",
+        "run_id": 36947199617,
+        "job_id": 110651904268,
+        "focal": "claim-gemini-job selftest success",
+        "related": "45/45 suites; 228/228 tests; --detectOpenHandles"
+      }
     },
     {
       "id": "135-002",
@@ -54,7 +65,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:30:00Z",
+  "updated_at_utc": "2026-10-02T01:00:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:05:00Z",
@@ -105,6 +116,16 @@
       "previous_source_sha": "c89c7c91eeea616c5366bb7d98361c56b90d3f81",
       "current_source_sha": "eb90e19aabe77ff8f24355ac56033ab6f3933607",
       "reason": "Caso 135-001 agora exige explicitamente o log TAB_CLAIM_REJECTED com tabId 200/indexedTabId 100, além de job:null, ausência de migração e ownership/storage preservados."
+    },
+    {
+      "at_utc": "2026-10-02T01:00:00Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "eb90e19aabe77ff8f24355ac56033ab6f3933607",
+      "bible_sha": "c72d4a8d4ec35264b3c1cf528a9dc1268792f6f8",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "135-001 resolvida com caso causal de ownership mismatch. Run 36947199617/job 110651904268: claim focal success e background 45/45 suites, 228/228 testes com detectOpenHandles."
     }
   ],
   "evidence": [
@@ -122,14 +143,29 @@
       "editor": "AGENTE 23",
       "at_utc": "2026-10-01T12:11:14Z",
       "note": "Fonte 202/202 permaneceu inalterada; wiring CI rebaixado a gate estático e requests 135-001/002 alinhadas ao state. Reauditoria independente necessária."
+    },
+    {
+      "type": "HYBRID_CORRECTION_VALIDATION",
+      "at_utc": "2026-10-02T01:00:00Z",
+      "source_sha": "eb90e19aabe77ff8f24355ac56033ab6f3933607",
+      "bible_sha": "c72d4a8d4ec35264b3c1cf528a9dc1268792f6f8",
+      "run_id": 36947199617,
+      "job_id": 110651904268,
+      "result": "PASS",
+      "focal": "claim-gemini-job selftest success",
+      "related_suites": "45/45",
+      "related_tests": "228/228",
+      "open_handles": "executado com --detectOpenHandles"
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "202/202",
-    "source_text_lines": 201,
-    "repair_note": "Corrigidos findings do AGENTE 16: CI classificada como wiring/gate estático e lifecycle 135-001=ACCEPTED / 135-002=SUPERSEDED por 005-002. Source inalterado; reauditoria independente necessária."
+    "documented_positions": "252/252",
+    "source_text_lines": 251,
+    "repair_note": "135-001 resolvida com prova causal do branch de ownership canônico; 135-002 permanece SUPERSEDED por 005-002; claim selftest + background 45/45 suites, 228/228 testes verdes.",
+    "bible_lines": 354,
+    "external_audit_requests_open": 0
   }
 }
