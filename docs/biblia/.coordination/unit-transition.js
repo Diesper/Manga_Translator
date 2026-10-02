@@ -119,6 +119,15 @@ function assertCas(state, snapshot, request, currentStateSha) {
   }
 }
 
+function requireCasPreconditions(value) {
+  const missing = [];
+  if (!value || typeof value.expected_status !== 'string' || !value.expected_status.trim()) missing.push('expected_status');
+  if (!value || value.expected_cycle === undefined || value.expected_cycle === null || value.expected_cycle === '') missing.push('expected_cycle');
+  if (!value || typeof value.expected_revision_id !== 'string' || !value.expected_revision_id.trim()) missing.push('expected_revision_id');
+  if (!value || typeof value.expected_state_sha !== 'string' || !value.expected_state_sha.trim()) missing.push('expected_state_sha');
+  if (missing.length) throw new Error('CAS_PRECONDITIONS_REQUIRED:' + missing.join(','));
+}
+
 function persistSnapshot(next, snapshot) {
   next.correction_cycle = snapshot.correction_cycle;
   next.lifetime_correction_cycles = snapshot.lifetime_correction_cycles;
@@ -576,6 +585,10 @@ function parseCli(argv) {
     else if (arg === '--at') args.at_utc=String(argv[++i] || '');
     else if (arg === '--approval-id') args.approval_id=String(argv[++i] || '');
     else if (arg === '--actor') args.actor=String(argv[++i] || '');
+    else if (arg === '--expected-status') args.expected_status=String(argv[++i] || '');
+    else if (arg === '--expected-state-sha') args.expected_state_sha=String(argv[++i] || '');
+    else if (arg === '--expected-revision-id') args.expected_revision_id=String(argv[++i] || '');
+    else if (arg === '--expected-cycle') args.expected_cycle=Number(argv[++i]);
     else if (arg === '--request') args.request=String(argv[++i] || '');
     else throw new Error('argumento desconhecido: ' + arg);
   }
@@ -601,9 +614,13 @@ function main(argv=process.argv.slice(2)) {
   const model=protocol.loadModel();
 
   if (args.command === 'issue-token') {
+    requireCasPreconditions(args);
     const state=model.states.find((item)=>item.index===args.index);
     const pipeline=model.pipelines.find((item)=>item.index===args.index);
     if (!state || !pipeline) throw new Error('INDEX_NOT_FOUND');
+    const stateRaw=fs.readFileSync(statePathFor(root,args.index),'utf8');
+    const snapshot=life.lifecycleSnapshot(state);
+    assertCas(state,snapshot,args,auditCore.gitBlobShaBuffer(Buffer.from(stateRaw)));
     const approval=args.approval_id
       ? (model.human_approvals || []).find((item)=>item.approval_id===args.approval_id)
       : null;
@@ -620,6 +637,7 @@ function main(argv=process.argv.slice(2)) {
     if (!args.request) throw new Error('--request obrigatório');
     const request=JSON.parse(fs.readFileSync(path.resolve(args.request),'utf8'));
     if (!Number.isInteger(Number(request.index))) throw new Error('request.index inválido');
+    requireCasPreconditions(request);
     const sp=statePathFor(root,Number(request.index));
     const raw=fs.readFileSync(sp,'utf8');
     const state=JSON.parse(raw);
@@ -683,6 +701,7 @@ module.exports = {
   issueCorrectionToken,
   validateCorrectionToken,
   assertCas,
+  requireCasPreconditions,
   persistSnapshot,
   deterministicProductionSha,
   workingRevision,
