@@ -27,4 +27,12 @@ assert.strictEqual(guard.trustedAuthorityCommitter({
 }),false);
 console.log('PASS direct agent committer cannot mint authority artifacts');
 
+const rawLine=':100644 100644 ' + 'a'.repeat(40) + ' ' + 'b'.repeat(40)
+  + ' M\tdocs/biblia/.coordination/human-approvals/191/a.json';
+const parsed=guard.parseRawHistory(rawLine);
+assert.strictEqual(parsed.length,1);
+assert.strictEqual(parsed[0].status,'M');
+assert.strictEqual(parsed[0].file,'docs/biblia/.coordination/human-approvals/191/a.json');
+console.log('PASS historical raw authority change parser');
+
 console.log('Lifecycle authority append-only self-test: SUCCESS');
