@@ -6,6 +6,7 @@ const core = require('./audit-core');
 const lifecycleCore = require('./lifecycle-core');
 const unverifiedFindings = require('./unverified-findings');
 const humanGate = require('./human-gate');
+const unitTransition = require('./unit-transition');
 
 const repoRoot = path.resolve(__dirname, '../../..');
 const bibleRoot = path.join(repoRoot, 'docs', 'biblia');
@@ -343,6 +344,7 @@ function loadModel() {
   const findings = unverifiedFindings.loadUnverifiedFindings(repoRoot);
   const approvals = humanGate.loadHumanApprovals(repoRoot);
   const humanProblems = humanGate.humanGateProblems(states, lifecycle.byIndex, approvals.approvals);
+  const tokens = unitTransition.loadCorrectionTokens(repoRoot, states);
   const pipelines = states.map((state) => evaluation.byIndex.get(state.index));
 
   return {
@@ -355,6 +357,8 @@ function loadModel() {
     human_locked: lifecycle.humanLocked,
     unverified_findings: findings.findings,
     human_approvals: approvals.approvals,
+    correction_tokens: tokens.tokens,
+    active_correction_tokens: [...tokens.activeByIndex.values()],
     active_claims_and_leases: claims.active,
     expired_leases: claims.expired,
     reservations: claims.reservations,
@@ -367,6 +371,7 @@ function loadModel() {
       ...findings.problems,
       ...approvals.problems,
       ...humanProblems,
+      ...tokens.problems,
     ],
     merge_problems: claims.strictProblems,
   };
