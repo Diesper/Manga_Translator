@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "bc65259161310dd4a9f5d5ff17c9bbb136b97266",
-  "started_at_utc": null,
+  "started_at_utc": "2026-10-02T04:01:00Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -724,6 +724,40 @@
         "focal_result": "PASS_37_OF_37_AUDIO; PASS_46_OF_46_WITH_RELATED_BOTH_NODES",
         "content_suite_result": "PASS_40_OF_40_SUITES_465_OF_465_TESTS_DETECT_OPEN_HANDLES"
       }
+    },
+    {
+      "id": "191-020",
+      "status": "ACCEPTED",
+      "type": "RETRY_GTC_FINAL_PAYLOAD_DIVERGENCE",
+      "target_file": "extension/content/content_manga.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "Após PERSIST_FAIL, um retry com newSrc diferente atualiza DOM/storage de página, mas não reexecuta saveGlobalTranslationCacheEntry; o GTC pode permanecer apontando para o payload da tentativa que falhou.",
+      "current_evidence": "191-016 já usa FAIL_FIRST -> RETRY_OK. O primeiro UPDATE_IMAGE grava GTC antes de SM_SAVE_PAGE; o ramo de retry chama persistTranslatedPage diretamente e não regrava GTC.",
+      "missing_evidence": "O retry divergente deve produzir GTC_SAVE para o payload final aceito.",
+      "why_needed": "Cache global inconsistente pode restaurar uma tradução antiga que nunca foi persistida como resultado final.",
+      "requested_action": "Adicionar regressão no retry divergente e sincronizar GTC com o payload final bem-sucedido.",
+      "expected_evidence": "Pre-fix: apenas GTC_SAVE do primeiro payload; pós-fix: último GTC_SAVE contém RETRY_OK.",
+      "expected_auditor_action": "Revalidar coerência DOM/storage/GTC após retry.",
+      "possible_regression": "Nova navegação/cache hit pode recuperar FAIL_FIRST enquanto capítulo contém RETRY_OK.",
+      "impact": "Integridade do cache global e restauração.",
+      "severity": "HIGH"
+    },
+    {
+      "id": "191-021",
+      "status": "ACCEPTED",
+      "type": "RETRY_AUTODOWNLOAD_SIDE_EFFECT_GAP",
+      "target_file": "extension/content/content_manga.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "O fluxo normal agenda DOWNLOAD_IMAGE após persistTranslatedPage, mas o ramo de retry após PERSIST_FAIL não executa esse efeito lateral.",
+      "current_evidence": "replacement-and-completion-real.test.js cobre autoDownload apenas no fluxo normal; 191-016 cobre retry, mas não autoDownload.",
+      "missing_evidence": "Com autoDownload=true, retry bem-sucedido deve enviar DOWNLOAD_IMAGE usando o payload final.",
+      "why_needed": "Usuário pode receber lote concluído/persistido sem o download configurado.",
+      "requested_action": "Compartilhar o pós-persist de autoDownload entre fluxo normal e retry e adicionar regressão.",
+      "expected_evidence": "Pre-fix: zero DOWNLOAD_IMAGE no retry; pós-fix: DOWNLOAD_IMAGE usa RETRY_OK.",
+      "expected_auditor_action": "Revalidar efeitos laterais pós-persist.",
+      "possible_regression": "Retry recupera storage mas perde download automático.",
+      "impact": "Consistência funcional de autoDownload.",
+      "severity": "HIGH"
     }
   ],
   "document_quality": {
@@ -741,7 +775,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T02:49:21.473Z",
+  "updated_at_utc": "2026-10-02T04:01:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1142,6 +1176,16 @@
       "production_sha": "c77eb91d226c40500b4f09ed1cecb2e478b12773",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Correction role ended after 191-019. No self-audit result is valid; a new distinct PRIMARY+ADVERSARIAL pair must acquire the current binding before COMPLETED/100."
+    },
+    {
+      "at_utc": "2026-10-02T04:01:00Z",
+      "type": "PRIORITY_191_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "bc65259161310dd4a9f5d5ff17c9bbb136b97266",
+      "bible_sha": "2a0957e13f12c965acc9022640c7cb981b92b3fc",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "User prioritized #191. 191-020/021 accepted: retry divergence leaves GTC stale and skips autoDownload."
     }
   ],
   "evidence": [
