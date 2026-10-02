@@ -88,6 +88,21 @@ try {
 
   {
     const root = makeRepo(); roots.push(root);
+    const readme = path.join(root, 'docs/biblia/.coordination/audit-results/README.md');
+    fs.mkdirSync(path.dirname(readme), { recursive: true });
+    fs.writeFileSync(readme, '# Audit results\n');
+    commit(root, 'add readme');
+    fs.writeFileSync(readme, '# Audit results\n\nDocumentation may evolve.\n');
+    commit(root, 'update readme');
+    assert(
+      'README mutável não é autoridade append-only',
+      verifyAppendOnly(root).length === 0,
+      JSON.stringify(verifyAppendOnly(root))
+    );
+  }
+
+  {
+    const root = makeRepo(); roots.push(root);
     const file = resultFile(root);
     const original = '{"verdict":"APPROVED"}\n';
     fs.mkdirSync(path.dirname(file), { recursive: true });
