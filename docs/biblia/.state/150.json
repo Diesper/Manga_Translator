@@ -2,8 +2,8 @@
   "index": 150,
   "file": "tests/unit/background/jobs-dom-ack-staging.test.js",
   "bible": "docs/biblia/tests/unit/background/jobs-dom-ack-staging.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "5db47daff53026aa778944c999d7dc922f35ecad",
   "started_at_utc": "2026-09-30T06:40:30Z",
   "completed_at_utc": null,
@@ -109,7 +109,17 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-02T00:40:15Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T00:40:15Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "5db47daff53026aa778944c999d7dc922f35ecad",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Background suite expôs expected stale rejected_by_page vs contrato canônico ack_missing; requests 150-001 HIGH e 150-003 NORMAL permanecem corrigíveis."
+    }
+  ],
   "evidence": []
 }
