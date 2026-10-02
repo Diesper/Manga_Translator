@@ -2,11 +2,11 @@
   "index": 26,
   "file": "extension/background/jobs-dom-ack.js",
   "bible": "docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO",
   "source_sha": "07b4197a206f85559f2e843d74c71d4858734be7",
-  "started_at_utc": "2026-09-30T13:43:00Z",
-  "completed_at_utc": "2026-09-30T13:50:00Z",
+  "started_at_utc": "2026-10-02T00:07:05Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "026-001",
@@ -83,7 +83,18 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-02T00:07:05Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T00:07:05Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "07b4197a206f85559f2e843d74c71d4858734be7",
+      "bible_sha": "e28013b70cafe7d6e326236fe1be3681b0ab21fd",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "State COMPLETED continha requests 026-001/002/003 ACCEPTED; #007 também expôs ACK permissivo como dependência material. Reaberto para correção funcional e regressão."
+    }
+  ],
   "evidence": []
 }
