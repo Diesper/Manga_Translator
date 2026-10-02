@@ -15,7 +15,7 @@ function humanLockedState() {
     agent: null,
     file: 'tests/unit/example.test.js',
     bible: 'docs/biblia/tests/unit/example.test.js/Bíblia.md',
-    production_files: ['extension/content_manga.js'],
+    production_files: ['extension/content/content_manga.js'],
     source_sha: 'a'.repeat(40),
     bible_sha: 'b'.repeat(40),
     history: [],
@@ -46,7 +46,7 @@ assert.ok(
 console.log('PASS HUMAN Bible edit without approval is blocked');
 
 assert.ok(
-  guard.problemsForHumanDiff(locked, locked, ['extension/content_manga.js']).some((item) => item.includes('sem correction approval')),
+  guard.problemsForHumanDiff(locked, locked, ['extension/content/content_manga.js']).some((item) => item.includes('sem correction approval')),
 );
 console.log('PASS HUMAN production edit without approval is blocked');
 
