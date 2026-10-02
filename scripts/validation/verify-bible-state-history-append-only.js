@@ -3,7 +3,7 @@
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { LIFECYCLE_POLICY_EFFECTIVE_AT_UTC } = require('../../docs/biblia/.coordination/lifecycle-core');
+const { LIFECYCLE_POLICY_EFFECTIVE_AT_UTC, sha256 } = require('../../docs/biblia/.coordination/lifecycle-core');
 
 const root = path.resolve(__dirname, '../..');
 const ZERO_SHA = '0'.repeat(40);
@@ -56,6 +56,30 @@ function stableJson(value) {
   return JSON.stringify(stableValue(value));
 }
 
+function eventPayload(entry) {
+  const copy = { ...(entry || {}) };
+  delete copy.previous_event_hash;
+  delete copy.event_hash;
+  return copy;
+}
+
+function canonicalEventHash(entry) {
+  const previous = String(entry?.previous_event_hash || '');
+  if (!/^[0-9a-f]{64}$/i.test(previous)) return null;
+  return sha256(previous + '|' + stableJson(eventPayload(entry)));
+}
+
+function hashOnlyRepairAllowed(beforeEvent, currentEvent) {
+  const beforeWithoutHash = { ...(beforeEvent || {}) };
+  const currentWithoutHash = { ...(currentEvent || {}) };
+  delete beforeWithoutHash.event_hash;
+  delete currentWithoutHash.event_hash;
+  if (stableJson(beforeWithoutHash) !== stableJson(currentWithoutHash)) return false;
+  const expected = canonicalEventHash(currentEvent);
+  if (!expected) return false;
+  return beforeEvent?.event_hash !== expected && currentEvent?.event_hash === expected;
+}
+
 function historyAppendOnlyProblems(before, current) {
   const problems = [];
   const index = Number(current?.index ?? before?.index ?? 0);
@@ -72,6 +96,7 @@ function historyAppendOnlyProblems(before, current) {
 
   for (let i = 0; i < oldHistory.length; i += 1) {
     if (stableJson(oldHistory[i]) !== stableJson(newHistory[i])) {
+      if (hashOnlyRepairAllowed(oldHistory[i], newHistory[i])) continue;
       problems.push(
         label + ': history deixou de ser append-only na posição ' + i
         + ' (evento antigo removido, alterado ou deslocado)'
@@ -181,6 +206,8 @@ module.exports = {
   parseRawHistory,
   parseBase,
   stableJson,
+  canonicalEventHash,
+  hashOnlyRepairAllowed,
   historyAppendOnlyProblems,
   verify,
   verifyRepositoryHistory,
