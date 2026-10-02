@@ -2,15 +2,15 @@
   "index": 156,
   "file": "tests/unit/background/message-handlers-real.test.js",
   "bible": "docs/biblia/tests/unit/background/message-handlers-real.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "1495cd64a92afb7139407eaf7e6055adcbfc1ef3",
   "started_at_utc": "2026-09-30T06:45:00Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "156-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/message-handlers-real.test.js",
       "found_while_auditing": "tests/unit/background/message-handlers-real.test.js",
@@ -27,24 +27,35 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T22:23:00Z",
       "audit_finding": "ACCEPTED. O nome do teste afirma `data/blob URL`, mas o estímulo enviado é apenas `data:image...`; não há chamada com `blob:`. A cobertura declarada é maior que a executada.",
-      "auditor_recommended_action": "Adicionar caso blob separado ou corrigir o título/comentário para mencionar somente data URL."
+      "auditor_recommended_action": "Adicionar caso blob separado ou corrigir o título/comentário para mencionar somente data URL.",
+      "resolution": "A suíte agora executa explicitamente data: e blob: literais via test.each, exige erro de URL inválida e zero fetch em ambos. O mock UPDATE_IMAGE também foi alinhado ao contrato persistente atual. Run 36947199617/job 110651904268: background 45/45 suites, 228/228 testes, --detectOpenHandles.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:53:00Z",
+      "validation": {
+        "source_sha": "1495cd64a92afb7139407eaf7e6055adcbfc1ef3",
+        "bible_sha": "8e4633cd30f32363c98f4a6048a7de73e154b1c2",
+        "run_id": 36947199617,
+        "job_id": 110651904268,
+        "related": "45/45 suites; 228/228 tests; --detectOpenHandles"
+      }
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "487/487",
-    "source_text_lines": 486,
-    "bible_lines": 6521,
+    "documented_positions": "494/494",
+    "source_text_lines": 493,
+    "bible_lines": 586,
     "bible_blob_sha": "ad25f076a92aca717b9471a482f3dac169efe908",
     "evidence_quality": "Strong integrated evidence through the real background.js listener/router for covered handlers; focal action suites were cross-checked and the blob-specific naming gap remains explicit.",
-    "external_audit_requests_open": 1,
-    "note": "Nenhum código, teste, fixture, workflow ou configuração externo foi alterado para fabricar evidência."
+    "external_audit_requests_open": 0,
+    "note": "Nenhum código, teste, fixture, workflow ou configuração externo foi alterado para fabricar evidência.",
+    "repair_note": "156-001 resolvida; mock UPDATE_IMAGE atualizado para ACK persistente; Bíblia rebindada ao source atual; background 45/45 suites e 228/228 testes verde."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:49:00Z",
+  "updated_at_utc": "2026-10-02T00:53:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:46:15Z",
@@ -61,7 +72,30 @@
       "previous_source_sha": "1c2815cd1f2fecba58a07c568f24d69af0367af3",
       "current_source_sha": "1495cd64a92afb7139407eaf7e6055adcbfc1ef3",
       "reason": "Mock UPDATE_IMAGE passa a confirmar persisted/domApplied conforme contrato atual; 156-001 cobre data: e blob: literais com zero fetch."
+    },
+    {
+      "at_utc": "2026-10-02T00:53:00Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "1495cd64a92afb7139407eaf7e6055adcbfc1ef3",
+      "bible_sha": "8e4633cd30f32363c98f4a6048a7de73e154b1c2",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "156-001 resolvida e mock de ACK alinhado. Run 36947199617/job 110651904268: 45/45 suites, 228/228 testes background com detectOpenHandles."
     }
   ],
-  "evidence": []
+  "evidence": [
+    {
+      "type": "HYBRID_CORRECTION_VALIDATION",
+      "at_utc": "2026-10-02T00:53:00Z",
+      "source_sha": "1495cd64a92afb7139407eaf7e6055adcbfc1ef3",
+      "bible_sha": "8e4633cd30f32363c98f4a6048a7de73e154b1c2",
+      "run_id": 36947199617,
+      "job_id": 110651904268,
+      "result": "PASS",
+      "related_suites": "45/45",
+      "related_tests": "228/228",
+      "open_handles": "executado com --detectOpenHandles"
+    }
+  ]
 }
