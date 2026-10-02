@@ -1284,6 +1284,20 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             persisted: true,
         }));
         expect(saveAttempts).toBe(2);
+        const saveMessages = sentMessages.filter(message =>
+            message.action === 'SM_SAVE_PAGE'
+        );
+        expect(saveMessages).toHaveLength(2);
+        expect(saveMessages[1]).toEqual(expect.objectContaining({
+            pageIndex: 0,
+            originalUrl: 'http://localhost/page-0.png',
+            cleanUrl: 'http://localhost/page-0.png',
+            meta: expect.objectContaining({
+                width: 800,
+                height: 1200,
+                sourceUrl: 'http://localhost/page-0.png',
+            }),
+        }));
         expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
             .toBe('data:image/png;base64,UkVUUllfT0s=');
         await waitFor(() => oscillators.length === 3);
