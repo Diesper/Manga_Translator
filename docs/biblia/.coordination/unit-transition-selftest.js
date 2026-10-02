@@ -1,6 +1,9 @@
 'use strict';
 
 const assert = require('assert');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const life = require('./lifecycle-core');
 const transition = require('./unit-transition');
 
@@ -135,6 +138,42 @@ assert.throws(()=>transition.planTransition({
   },
 }), /REJECTED_STATE_CHANGED:state_sha/);
 console.log('PASS stale CAS writer is rejected');
+
+assert.deepStrictEqual(
+  transition.revisionBindingProblems(
+    {production_sha:'a'.repeat(40),test_sha:'b'.repeat(40),bible_sha:'c'.repeat(40),revision_id:'d'.repeat(64)},
+    {production_sha:'a'.repeat(40),test_sha:'b'.repeat(40),bible_sha:'c'.repeat(40),revision_id:'d'.repeat(64)}
+  ),
+  []
+);
+assert.ok(
+  transition.revisionBindingProblems(
+    {production_sha:null,test_sha:'b'.repeat(40),bible_sha:'c'.repeat(40),revision_id:'d'.repeat(64)},
+    {production_sha:null,test_sha:'e'.repeat(40),bible_sha:'c'.repeat(40),revision_id:'f'.repeat(64)}
+  ).includes('TEST')
+);
+console.log('PASS live working revision drift invalidates token binding');
+
+const reservationRoot=fs.mkdtempSync(path.join(os.tmpdir(),'corr-reservation-'));
+const reservationState=state(3);
+reservationState.file='fixture/a.js';
+reservationState.bible='docs/biblia/fixture/a.js/Bíblia.md';
+const reservationToken={token_id:'corr-fixture',revision_id:'r'.repeat(64),correction_cycle:3};
+const reservationRel=transition.createCorrectionReservation(
+  reservationRoot,reservationState,'WRITER-A','2026-10-02T06:35:00Z',reservationToken
+);
+assert.strictEqual(transition.assertCorrectionReservation(reservationRoot,reservationState,'WRITER-A'),reservationRel);
+assert.throws(()=>transition.createCorrectionReservation(
+  reservationRoot,reservationState,'WRITER-B','2026-10-02T06:35:01Z',reservationToken
+),/UNIT_HIGH_PRIORITY_BUT_ALREADY_RESERVED/);
+const secondReservationState={...reservationState,file:'fixture/b.js',bible:'docs/biblia/fixture/b.js/Bíblia.md'};
+assert.throws(()=>transition.createCorrectionReservation(
+  reservationRoot,secondReservationState,'WRITER-A','2026-10-02T06:35:02Z',reservationToken
+),/CORRECTOR_ALREADY_RESERVED/);
+transition.releaseCorrectionReservation(reservationRoot,reservationState,'WRITER-A');
+assert.throws(()=>transition.assertCorrectionReservation(reservationRoot,reservationState,'WRITER-A'),/CORRECTION_RESERVATION_REQUIRED/);
+fs.rmSync(reservationRoot,{recursive:true,force:true});
+console.log('PASS correction reservation grants one writer and rejects concurrent second writer');
 
 s = state(6);
 snap = life.lifecycleSnapshot(s);
