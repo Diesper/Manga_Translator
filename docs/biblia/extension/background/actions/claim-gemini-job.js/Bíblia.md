@@ -255,3 +255,25 @@ Esta revisão remove os rótulos stale, substitui a antiga tabela remapeada por 
 - Canonicalização do sender e read-after-write possuem agora testes causais, não apenas observação de efeito final.
 - Requests 005-001/002 foram corrigidas e validadas pela run `36943278337`.
 - A aprovação distribuída permanece pendente até nova PRIMARY + ADVERSARIAL independentes desta revisão.
+
+## 14. Wiring de produção, produtores e consumidores
+
+O consumidor é `extension/content/content_gemini.js`. Ele extrai e faz trim do `jobId` da URL em `getExpectedGeminiJobId` e envia `{ action: 'CLAIM_GEMINI_JOB', jobId }` em `claimGeminiJob`. Um claim nulo mantém a aba manual inerte; um claim válido abastece o contexto do worker e permite abrir a porta de keep-alive. A tentativa de claim tem retry limitado, sem tornar a action responsável pelo retry do consumidor.
+
+`extension/background.js` carrega esta action por `importScripts('background/actions/claim-gemini-job.js')` no service worker e por `require('./background/actions/claim-gemini-job.js')` no caminho Node/Jest. `routeRegisteredAction` usa `resolveActionName` e a action registrada. Seu `contextFactory` injeta `state`, `log`, `ensureInitialized` e `tabIdentity: initializeTabIdentity()`.
+
+`extension/background/router.js` mapeia `CLAIM_GEMINI_JOB` para `claim-gemini-job`, classifica a origem do sender e exige `allowedSources` antes de executar a action. O contexto-base do router fornece `sender` e o adaptador `storage`, que delega à API de storage do Chrome. Os campos do `contextFactory` complementam esse contexto. Falhas assíncronas da action são traduzidas pelo router para uma resposta `INTERNAL_ERROR`; a action não engole a rejeição das dependências.
+
+O produtor durável é `extension/background/jobs-lifecycle.js`. `buildGeminiJobUrl` associa o `jobId` à URL da aba. No lançamento, `processNextJob` cria o registro com ownership canônico, grava `gemini_job_<canonicalTabId>`, chama `indexAddJob` e aguarda `syncState`. A confirmação física da janela minimizada vem depois da persistência, para não atrasar o claim do content script. Os rechecks de identidade e a limpeza de lançamentos invalidados são responsabilidades desse produtor, não desta action.
+
+`extension/background/tab-identity.js` fornece `resolveCanonicalTabId` e `migrateTabIdentity` por `createTabIdentity`. O bootstrap `initializeTabIdentity` conecta essas operações ao estado durável. Nesta action, canonicalização protege a comparação de ownership, e a migração é seguida da releitura da chave canônica e da validação do `jobId`.
+
+### Separação da força de evidência
+
+Os caminhos acima foram confirmados por leitura dos consumers e produtores concretos. O self-test causal carrega a action real em VM, mas usa dependências controladas: suas assertions provam as chamadas e os resultados da action sob esses contratos, sem constituir uma execução integral do service worker e do consumidor juntos.
+
+`tests/unit/background/claim-gemini-job-action.test.js` exercita o router real, a action real, o estado e a identidade de abas com storage mockado. `tests/unit/content-gemini/claim-bootstrap-keepalive.test.js` cobre o consumidor real e a abertura/fechamento da porta com runtime mockado. A suíte de background completa complementa a regressão dos produtores. Esses testes não devem ser apresentados como prova de APIs físicas do Chrome em produção.
+
+### Revalidação desta correção
+
+O self-test da action passou. A suíte focal `claim-gemini-job-action.test.js` passou em 6/6 casos. A suíte do consumidor claim-bootstrap-keepalive.test.js passou em 5/5 casos com --detectOpenHandles. Um mutante que removia `await` de `migrateTabIdentity` foi rejeitado pelo self-test no cenário de migração falha; portanto a assertion relevante não aceita essa regressão. A fonte da action foi comparada ao merge-base de `main` e não recebeu alteração nesta correção documental. A nova Bíblia exige PRIMARY + ADVERSARIAL independentes do novo blob para aprovação final.

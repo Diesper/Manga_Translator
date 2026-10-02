@@ -94,7 +94,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:56:00Z",
+  "updated_at_utc": "2026-10-02T21:39:30.538Z",
   "history": [
     {
       "at_utc": "2026-10-01T19:47:11.147Z",
@@ -136,6 +136,71 @@
       "job_id": 110639489841,
       "agent": "AGENTE HÍBRIDO",
       "reason": "Findings distribuídos corrigidos; 005-001/002 resolvidos com prova causal. Background 45/45 suites, 225/225 testes."
+    },
+    {
+      "at_utc": "2026-10-02T21:38:01.866Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+      "bible_sha": "0fb29a7138b7b3a0edee1e948bc337129b2d3b10",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "6130943fb6e4eeaa390d6a2345035ac039a5e00a86b2869288578ac1eee80f19",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "78db0955fdfa1b73c5ad3c97e2da65bb8c0c12c98603f1ae2b8757b00f2b1ad1",
+      "event_hash": "d29f186263cf936ea9527232421f299e0f745bf5c8723ce4585928075e38ab8a"
+    },
+    {
+      "at_utc": "2026-10-02T21:38:04.000Z",
+      "type": "EDITOR_CORRECTION_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "agent": "AGENTE 2",
+      "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+      "bible_sha": "0fb29a7138b7b3a0edee1e948bc337129b2d3b10",
+      "correction_cycle": 0,
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "revision_id": "6130943fb6e4eeaa390d6a2345035ac039a5e00a86b2869288578ac1eee80f19",
+      "correction_token_id": "corr-005-efe8a0cccadde81f267e",
+      "approval_id": null,
+      "root_cause_review": null,
+      "strategy_review": null,
+      "reservation_path": "docs/biblia/.reservas/extension/background/actions/claim-gemini-job.js.lock.md",
+      "previous_event_hash": "d29f186263cf936ea9527232421f299e0f745bf5c8723ce4585928075e38ab8a",
+      "event_hash": "d5d114fdfed660a541347e37bf2375ad0032fcfbc38d061a9ace06db7a9cd343"
+    },
+    {
+      "at_utc": "2026-10-02T21:38:04.000Z",
+      "type": "CORRECTION_TOKEN_CONSUMED",
+      "correction_token_id": "corr-005-efe8a0cccadde81f267e",
+      "actor": "AGENTE 2",
+      "revision_id": "6130943fb6e4eeaa390d6a2345035ac039a5e00a86b2869288578ac1eee80f19",
+      "previous_event_hash": "d5d114fdfed660a541347e37bf2375ad0032fcfbc38d061a9ace06db7a9cd343",
+      "event_hash": "8db175444aeb01fdc0ab30c01167379549399ee00f4e1524aecdc4cac8ce4570"
+    },
+    {
+      "at_utc": "2026-10-02T21:39:30.538Z",
+      "type": "CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+      "test_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+      "bible_sha": "ec868c9bbfddd1b11316215ce5507b8ea3728b79",
+      "production_sha": null,
+      "agent": "AGENTE 2",
+      "correction_cycle": 1,
+      "audit_epoch": 1,
+      "handoff_id": "005-e1-f588242ebff1",
+      "reservation_path": "docs/biblia/.reservas/extension/background/actions/claim-gemini-job.js.lock.md",
+      "reason": "Wiring runtime documentado e confrontado com fontes reais; self-test PASS, action 6/6, consumer 5/5 e background 237/237.",
+      "previous_event_hash": "8db175444aeb01fdc0ab30c01167379549399ee00f4e1524aecdc4cac8ce4570",
+      "event_hash": "0ea119fe0be5c4cff05e30f6c0c9db0a1e2bebb5ff7e3ffdc5dd66b99c5c2cda"
     }
   ],
   "evidence": [
@@ -155,5 +220,16 @@
       "open_handles": "--detectOpenHandles enabled"
     }
   ],
-  "progress_note": "Correção híbrida validada; requests 005-001/002 RESOLVED. Nova revisão aguarda PRIMARY + ADVERSARIAL independentes."
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.",
+  "correction_cycle": 1,
+  "lifetime_correction_cycles": 1,
+  "current_escalation_cycle": 1,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 1,
+  "handoff_id": "005-e1-f588242ebff1",
+  "production_sha": null,
+  "test_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+  "bible_sha": "ec868c9bbfddd1b11316215ce5507b8ea3728b79",
+  "revision_id": "23e21ac36426bc7f62dd0186926cfeb454920f11d06b39ee80af4ed8b83fdb06"
 }

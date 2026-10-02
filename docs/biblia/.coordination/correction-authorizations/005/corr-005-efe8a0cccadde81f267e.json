@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "token_id": "corr-005-efe8a0cccadde81f267e",
+  "index": 5,
+  "authorization_type": "CORRECTION",
+  "decision": "CHANGES_REQUIRED",
+  "correction_cycle": 0,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+  "bible_sha": "0fb29a7138b7b3a0edee1e948bc337129b2d3b10",
+  "revision_id": "6130943fb6e4eeaa390d6a2345035ac039a5e00a86b2869288578ac1eee80f19",
+  "decision_id": "6621e7fa8c9b4ca837c4743bdfe698c798825dd3984bea1d85c5fa2e1069c406",
+  "actor": "AGENTE 2",
+  "issued_at_utc": "2026-10-02T21:38:04.000Z",
+  "human_approval_id": null
+}
