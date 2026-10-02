@@ -1,0 +1,58 @@
+{
+  "schema_version": 2,
+  "index": 89,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 5",
+  "file": "scripts/validation/verify-repository-structure.js",
+  "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
+  "source_sha": "1b7b48a8e2c088b02616741c91e9998b624df5ab",
+  "bible_sha": "f1ce3aacb4a59e95aed4fc967ef7fcf6b603126a",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "089-A5-ADV-001",
+      "severity": "MATERIAL",
+      "category": "ARCHITECTURE_BOUNDARY_OVERCLAIM_DERIVED_PROJECTIONS",
+      "finding": "A Bíblia coloca inconsistências das projeções derivadas STATUS.md/CHECKLIST.md dentro do escopo delegado pelo structure gate, mas a implementação auditada chama validateBibleCoordination com checkDerived:false. Nessa configuração o verifier valida presença desses arquivos e o restante do contrato de coordenação, porém não compara o conteúdo atual das projeções com o conteúdo derivado esperado.",
+      "evidence": [
+        "verify-repository-structure.js posições 125–130 chama validateBibleCoordination(root,{checkDerived:false,headLabel:'states-v2'}).",
+        "bible-coordination.js só executa buildDerived e compara STATUS.md/CHECKLIST.md sob `if (options.checkDerived && states.length === 233)`; com false esse bloco não roda.",
+        "Bíblia §4 afirma: `Dentro deste structure gate, inconsistências de ... projeções derivadas ... são delegadas a bible-coordination.js/checker de projeções`, e §2 diz que bible-coordination valida, `no escopo deste structure gate`, `as projeções/resultados que carrega`.",
+        "package.json separa explicitamente `validate:structure` (`node scripts/validation/verify-repository-structure.js`) de `validate:bible-projections` (`node scripts/validation/generate-bible-projections.js`) e o comando `validate` executa os dois sequencialmente.",
+        "verify-bible-merge-readiness.js usa validateBibleCoordination(...,{checkDerived:true}), confirmando que a checagem de freshness das projeções existe em outro gate/configuração, não nesta execução do structure gate."
+      ],
+      "adversarial_refutation_attempt": "Foi considerada a leitura de que `bible-coordination.js/checker de projeções` descreve a arquitetura global, não esta chamada. Essa interpretação não elimina a contradição porque a frase começa por `Dentro deste structure gate` e a seção de dependências repete `no escopo deste structure gate`; a implementação corrente desativa exatamente a checagem derivada.",
+      "required_change": "Separar explicitamente os contratos: este verifier/validate:structure valida presença de STATUS/CHECKLIST e chama bible-coordination com checkDerived=false; freshness/congruência das projeções é validada por validate:bible-projections e por gates que chamam validateBibleCoordination com checkDerived=true. Não atribuir a este structure gate a validação do conteúdo derivado das projeções."
+    }
+  ],
+  "passed_points": [
+    "SOURCE_SHA do state, blob do source e SHA declarado na Bíblia coincidem.",
+    "Fonte integral embutida é byte-a-byte idêntica ao source atual.",
+    "Cobertura documental é contígua e exata em 414/414 posições.",
+    "Semântica das faixas 1–414 corresponde ao source refeito, inclusive root fixo por __dirname, requirePresent tipado, scans e epílogo.",
+    "Wiring package.json/CI/Windows/verify-ci-contract foi reconfirmado.",
+    "Self-test focal executa a cópia real do verifier em sandbox; run 36937874961 possui job structure-selftest concluído com success.",
+    "089-001, 089-003 e 089-005 têm evidência compatível com RESOLVED; 089-004 permanece SUPERSEDED coerentemente.",
+    "Fronteira audit-leases v2 versus audit-protocol.js está documentada corretamente."
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics_main": "CONFIRMADO_3X",
+    "dependencies_consumers": "CONFIRMADO_3X",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO_EM_PROJECOES_DERIVADAS",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_5_VS_AGENTE_HIBRIDO",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "final_checks": {
+    "integrity": "SIM",
+    "truthfulness": "NAO",
+    "honesty": "NAO_ENQUANTO_ESCOPO_DAS_PROJECOES_PERMANECER_OVERSTATED"
+  },
+  "completed_at_utc": "2026-10-02T15:33:09Z"
+}
