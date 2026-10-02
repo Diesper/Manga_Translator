@@ -306,7 +306,13 @@ planned = transition.planTransition({
     action:'START_CORRECTION',
     actor:'NEW-AGENT',
     at_utc:'2026-10-02T06:41:00Z',
-    root_cause_review:{categories:['CONCURRENCY'],evidence:'reproduzido',strategy:'mudar arquitetura'},
+    root_cause_review:{
+      categories:['CONCURRENCY'],
+      related_cycles:[4,5,6],
+      evidence:'reproduzido',
+      why_previous_failed:'os ciclos anteriores trataram sintomas locais',
+      strategy:'mudar arquitetura',
+    },
   },
 });
 planned = transition.planTransition({
