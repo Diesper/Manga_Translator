@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** correções 191-001 a 191-019 aplicadas e validadas; revisão técnica em READY_FOR_AUDIT aguardando novo par PRIMARY + ADVERSARIAL independente  
-> **SHA auditado:** `bc65259161310dd4a9f5d5ff17c9bbb136b97266`  
+> **Estado documental:** correções 191-001 a 191-021 aplicadas e validadas; revisão técnica em READY_FOR_AUDIT aguardando novo par PRIMARY + ADVERSARIAL independente  
+> **SHA auditado:** `d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
-> **Linhas textuais:** **1917**  
-> **Posições documentais:** **1918**, contando o LF final  
+> **Linhas textuais:** **1951**  
+> **Posições documentais:** **1952**, contando o LF final  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -17,7 +17,7 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 
 ## 2. Dependências revalidadas
 
-- `extension/content/content_manga.js`: `c77eb91d226c40500b4f09ed1cecb2e478b12773`.
+- `extension/content/content_manga.js`: `3484cf324525b0514cce161595b605819c6cc004`.
 - `tests/unit/content-manga/replacement-and-completion-real.test.js`: `9dcd26cf4a963ab22c11f8535421603d83260572`.
 - `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
 - `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
@@ -66,7 +66,7 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 
 A matriz cobre lifecycle Web Audio, dois call sites de unlock, estados `running/suspended/interrupted/closed`, indisponibilidade/fallback, falhas síncronas e assíncronas, mensagens stale/duplicadas/tardias, reuso de contexto e isolamento temporal de persistência.
 
-Os casos 19–22 endurecem o pipeline de `UPDATE_IMAGE`: callback tardio A→B, duplicata enquanto a primeira persistência ainda está pendente, duplicata após o índice já estar persistido/contabilizado e falha de persistência com retry legítimo. O runtime final coalesce persistências em voo por `batchId:index`, nunca regrava storage para duplicata já concluída e só habilita retry especial depois de `PERSIST_FAIL` do mesmo índice.
+Os casos 19–22 endurecem o pipeline de `UPDATE_IMAGE`: callback tardio A→B, duplicata enquanto a primeira persistência ainda está pendente, duplicata após o índice já estar persistido/contabilizado e falha de persistência com retry legítimo. O runtime final coalesce persistências em voo por `batchId:index`, nunca regrava storage para duplicata já concluída e só habilita retry especial depois de `PERSIST_FAIL` do mesmo índice. O caso 22 também prova que um retry com payload final divergente sincroniza GTC e preserva `autoDownload`.
 
 ## 4. 191-001 — TEST_AUTHENTICITY — RESOLVED
 
@@ -340,7 +340,38 @@ A correção mantém `_pendingPersistenceUpdates` por `batchId:index`. Duplicata
 
 **Green final:** run `36961793989`.
 
-## 23. Evidência executável
+## 23. 191-020 — RETRY_GTC_FINAL_PAYLOAD_DIVERGENCE — RESOLVED COM RED→GREEN
+
+O retry pós-`PERSIST_FAIL` já conseguia trocar o DOM/storage para um `newSrc` final diferente, mas o GTC era salvo apenas na primeira tentativa, antes de `SM_SAVE_PAGE`. Se a primeira persistência falhasse, o cache global podia continuar apontando para o payload rejeitado enquanto o capítulo terminava com outro payload.
+
+A regressão 191-016 foi fortalecida com fingerprint real no DOM e payloads divergentes `FAIL_FIRST → RETRY_OK`. Ela exige:
+
+- primeiro `GTC_SAVE` com `FAIL_FIRST`;
+- segundo `GTC_SAVE` para o mesmo hash com `RETRY_OK`;
+- DOM final em `RETRY_OK`;
+- persistência final usando o payload do retry.
+
+**Red proof canônico:** workflow `36963842506`.
+
+- Node 20 job `110703156815`: **1 falha, 45 passes**; esperava 2 GTC saves e recebeu 1.
+- Node 22 job `110703156879`: **1 falha, 45 passes**; mesma divergência.
+- Full content-scripts também falhou pela mesma regressão focal.
+
+A produção agora usa `persistTranslatedUpdateWithSideEffects()` tanto no caminho normal quanto no retry. O GTC continua independente do commit de página — é salvo antes de `SM_SAVE_PAGE` — mas um retry com novo payload grava uma nova entrada coerente antes da persistência final.
+
+## 24. 191-021 — RETRY_AUTODOWNLOAD_SIDE_EFFECT_GAP — RESOLVED COM RED→GREEN
+
+O caminho normal executava `DOWNLOAD_IMAGE` somente no `.then()` ligado diretamente ao `persistTranslatedPage()`. O branch especial de retry chamava `persistTranslatedPage()` sem esse pós-persist, portanto um retry podia concluir o lote e atualizar o capítulo sem respeitar `autoDownload=true`.
+
+A mesma regressão exige agora que, após o retry persistir com sucesso:
+
+- `DOWNLOAD_IMAGE` seja emitido;
+- o `url` do download seja exatamente `RETRY_OK`, nunca o payload da tentativa falha;
+- o efeito só aconteça depois do commit de página bem-sucedido.
+
+A correção centraliza esse pós-persist em `persistTranslatedUpdateWithSideEffects()`, compartilhado pelos dois caminhos. Assim, GTC, persistência de página e autoDownload convergem para o payload final aceito.
+
+## 25. Evidência executável
 
 ### Baseline histórica
 
@@ -350,24 +381,25 @@ Workflow **Audio Synthesis Selftest**, run `36955506902`:
 
 ### Revisão final atual
 
-Workflow **Audio Synthesis Selftest**, run `36961793989`, commit executável `f83be37c0c51ce178db3d216bc46b29b141ee23c`:
+Workflow **Audio Synthesis Selftest**, run `36963959811`:
 
-- fonte #191: `bc65259161310dd4a9f5d5ff17c9bbb136b97266`, **37/37 casos reais**;
-- production dependency: `c77eb91d226c40500b4f09ed1cecb2e478b12773`;
-- Node 20 job `110696872672`: **2/2 suítes, 46/46 testes PASS**;
-- Node 22 job `110696872677`: **2/2 suítes, 46/46 testes PASS**;
-- full content-scripts job `110696872533`: **40/40 suítes, 465/465 testes PASS**;
+- fonte #191: `d04dce0b667e0a0f02b9d97bf530b6fbdc5cd6af`, **37/37 casos reais**;
+- production dependency: `3484cf324525b0514cce161595b605819c6cc004`;
+- Node 20 job `110703521016`: **2/2 suítes, 46/46 testes PASS**;
+- Node 22 job `110703520817`: **2/2 suítes, 46/46 testes PASS**;
+- full content-scripts job `110703521099`: **40/40 suítes, 465/465 testes PASS**;
 - full executado com `--runInBand --detectOpenHandles`;
 - sem `skip/only/xit/xdescribe/TODO/FIXME` na suíte focal;
 - conclusão do workflow: **success**.
 
 Red→green adicional desta etapa:
 - 191-018: red `36961398214` → green `36961537286`;
-- 191-019: red `36961746945` → green final `36961793989`.
+- 191-019: red `36961746945` → green `36961793989`;
+- 191-020/021: red `36963842506` (Node 20/22: 1 falha, 45 passes) → green `36963959811` (Node 20/22: 46/46; full: 465/465).
 
 Os commits documentais posteriores não alteram os blobs executáveis acima.
 
-## 24. Reauditoria adversarial pós-correção
+## 26. Reauditoria adversarial pós-correção
 
 Matriz final revalidada:
 
@@ -379,6 +411,8 @@ Matriz final revalidada:
 - callback de persistência de A não contabiliza B após cancelamento/reentrada;
 - `persist_failed` não conclui lote;
 - retry legítimo preserva metadados e sincroniza DOM apenas após persistência;
+- retry divergente atualiza o GTC para o payload final aceito;
+- `autoDownload=true` é preservado no retry e usa o payload final;
 - duplicata após índice concluído não muda DOM nem regrava storage;
 - duplicata enquanto persistência está em voo coalesce no mesmo commit;
 - duplicata ativa não é confundida com retry pós-falha;
@@ -386,7 +420,7 @@ Matriz final revalidada:
 
 A camada de correção está revalidada. Esta identidade foi corretora da revisão e **não pode assinar a auditoria independente**. A unidade deve permanecer **READY_FOR_AUDIT** até um novo par distinto **PRIMARY + ADVERSARIAL** validar os SHAs atuais.
 
-## 25. Fonte integral exata
+## 27. Fonte integral exata
 
 ```javascript
 /**
@@ -1732,12 +1766,17 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             configurable: true,
         });
 
+        await storageMock.set({ autoDownload: true });
         await loadOnePage();
+
         await startBatch();
         const liveBatch = [...sentMessages].reverse().find(message =>
             message.action === 'START_BATCH'
         );
         expect(liveBatch?.batchId).toBeTruthy();
+
+        const retryImage = document.querySelector('[data-testid="img-0"]');
+        retryImage.dataset.origHash = 'hash-retry-final';
 
         const failed = await dispatchToContent(runtimeMock, {
             action: 'UPDATE_IMAGE',
@@ -1751,6 +1790,17 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             reason: 'persist_failed',
         }));
         expect(saveAttempts).toBe(1);
+        expect(sentMessages.filter(message =>
+            message.action === 'GTC_SAVE'
+            && message.hash === 'hash-retry-final'
+        )).toEqual([
+            expect.objectContaining({
+                translatedDataUrl: 'data:image/png;base64,RkFJTF9GSVJTVC==',
+            }),
+        ]);
+        expect(sentMessages.filter(message =>
+            message.action === 'DOWNLOAD_IMAGE'
+        )).toHaveLength(0);
 
         const afterFailure = await dispatchToContent(runtimeMock, {
             action: 'GET_FLOATING_BUTTON_STATUS',
@@ -1798,6 +1848,24 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
         expect(document.querySelector('[data-testid="img-0"]').getAttribute('src'))
             .toBe('data:image/png;base64,UkVUUllfT0s=');
+
+        const retryGtcSaves = sentMessages.filter(message =>
+            message.action === 'GTC_SAVE'
+            && message.hash === 'hash-retry-final'
+        );
+        expect(retryGtcSaves).toHaveLength(2);
+        expect(retryGtcSaves[1]).toEqual(expect.objectContaining({
+            translatedDataUrl: 'data:image/png;base64,UkVUUllfT0s=',
+        }));
+        await waitFor(() => sentMessages.some(message =>
+            message.action === 'DOWNLOAD_IMAGE'
+            && message.url === 'data:image/png;base64,UkVUUllfT0s='
+        ));
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'DOWNLOAD_IMAGE',
+            url: 'data:image/png;base64,UkVUUllfT0s=',
+        }));
+
         await waitFor(() => oscillators.length === 3);
 
         const finalStatus = await dispatchToContent(runtimeMock, {
@@ -2308,7 +2376,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 });
 ```
 
-## 26. Cobertura integral por posições
+## 28. Cobertura integral por posições
 
 - **1–25:** cabeçalho/imports/globals.
 - **26–39:** delay/wait.
@@ -2338,27 +2406,27 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - **968–1105:** caso 19 — `persistência tardia de UPDATE_IMAGE do lote cancelado não conclui o lote seguinte`.
 - **1106–1203:** caso 20 — `UPDATE_IMAGE duplicado enquanto persistência está pendente compartilha o primeiro commit`.
 - **1204–1316:** caso 21 — `UPDATE_IMAGE duplicado durante lote ativo não é confundido com retry de persistência`.
-- **1317–1421:** caso 22 — `falha de persistência não conclui o lote e retry bem-sucedido conclui`.
-- **1422–1484:** caso 23 — `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`.
-- **1485–1523:** caso 24 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
-- **1524–1549:** caso 25 — `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`.
-- **1550–1580:** caso 26 — `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`.
-- **1581–1619:** caso 27 — `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`.
-- **1620–1650:** caso 28 — `erro em estado interrupted registra skip sem tentar resume`.
-- **1651–1679:** caso 29 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
-- **1680–1706:** caso 30 — `resume resolvido sem estado running não agenda som e registra skip`.
-- **1707–1735:** caso 31 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
-- **1736–1769:** caso 32 — `contexto suspended só agenda sucesso depois de resume real completar`.
-- **1770–1802:** caso 33 — `erro com resume resolvido sem running registra skip e não cria notas`.
-- **1803–1833:** caso 34 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
-- **1834–1864:** caso 35 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
-- **1865–1888:** caso 36 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
-- **1889–1917:** caso 37 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
-- **1918:** LF terminal.
+- **1317–1455:** caso 22 — `falha de persistência não conclui o lote e retry bem-sucedido conclui`.
+- **1456–1518:** caso 23 — `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`.
+- **1519–1557:** caso 24 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
+- **1558–1583:** caso 25 — `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`.
+- **1584–1614:** caso 26 — `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`.
+- **1615–1653:** caso 27 — `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`.
+- **1654–1684:** caso 28 — `erro em estado interrupted registra skip sem tentar resume`.
+- **1685–1713:** caso 29 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
+- **1714–1740:** caso 30 — `resume resolvido sem estado running não agenda som e registra skip`.
+- **1741–1769:** caso 31 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
+- **1770–1803:** caso 32 — `contexto suspended só agenda sucesso depois de resume real completar`.
+- **1804–1836:** caso 33 — `erro com resume resolvido sem running registra skip e não cria notas`.
+- **1837–1867:** caso 34 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
+- **1868–1898:** caso 35 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
+- **1899–1922:** caso 36 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
+- **1923–1951:** caso 37 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
+- **1952:** LF terminal.
 
-**Cobertura documental:** **1918/1918 posições**, contíguas e sem overlap.
+**Cobertura documental:** **1952/1952 posições**, contíguas e sem overlap.
 
-## 27. Pontuação pós-correção / pré-auditoria distribuída
+## 29. Pontuação pós-correção / pré-auditoria distribuída
 
 - Correção funcional: **25/25**
 - Robustez adversarial: **20/20**
