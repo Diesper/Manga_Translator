@@ -2,15 +2,15 @@
   "index": 110,
   "file": "tests/integration/ipc/gtc-cache-flow.test.js",
   "bible": "docs/biblia/tests/integration/ipc/gtc-cache-flow.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
-  "started_at_utc": "2026-09-30T06:27:00Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "110-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_CLASSIFICATION_REVIEW",
       "target_file": "tests/integration/ipc/gtc-cache-flow.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-cache-flow.test.js",
@@ -26,11 +26,25 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T18:58:00Z",
       "audit_finding": "ACCEPTED — classificação de integração incorreta confirmada. O arquivo define `simulateExtractWithGTC` local e grava `gtc_*` diretamente no storage; nenhuma implementação de produção do pipeline GTC é carregada. Os resultados provam apenas a simulação.",
-      "auditor_recommended_action": "Reclassificar como teste de modelo ou migrar para GTC client/background/storage-manager reais com o chrome mock."
+      "auditor_recommended_action": "Reclassificar como teste de modelo ou migrar para GTC client/background/storage-manager reais com o chrome mock.",
+      "resolution": "Suíte deixou de ser simulação/modelo: content_manga.js/cm-gtc-client reais atravessam chrome.runtime até createGtcRuntimeHandler + createIndexedDbRepository reais. simulateExtractWithGTC removida; classificação/cabeçalho corrigidos.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:29:00Z",
+      "validation": {
+        "source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
+        "bible_sha": "3d0ca867623bb51c382008cb8376e518c23afd35",
+        "workflow_sha": "65fd11e02cb63ae290772526da30aae6365d186b",
+        "negative_run_id": 36945821282,
+        "negative_job_id": 110647594401,
+        "final_run_id": 36945960530,
+        "final_job_id": 110648032272,
+        "focal": "1/1 suite; 4/4 tests; --runTestsByPath; --detectOpenHandles",
+        "related": "13/13 integration suites; 81/81 tests"
+      }
     },
     {
       "id": "110-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/integration/ipc/gtc-cache-flow.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-cache-flow.test.js",
@@ -46,11 +60,25 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T18:58:00Z",
       "audit_finding": "ACCEPTED — contratos declarados não são exercitados. `extractAndSendImages`, cache hit sem Gemini, miss encaminhado à fila e `UPDATE_IMAGE` persistindo no GTC não passam pelos produtores/consumidores reais neste arquivo.",
-      "auditor_recommended_action": "Adicionar integração focal usando implementação real e assertions de efeitos em cache/fila/UPDATE_IMAGE; evitar reimplementação local do fluxo."
+      "auditor_recommended_action": "Adicionar integração focal usando implementação real e assertions de efeitos em cache/fila/UPDATE_IMAGE; evitar reimplementação local do fluxo.",
+      "resolution": "Fluxos declarados agora executam produção: hit completo aplica cache sem START_BATCH; hit parcial aplica cache e envia apenas miss; UPDATE_IMAGE real emite GTC_SAVE e a prova consulta o repository IndexedDB real.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:29:00Z",
+      "validation": {
+        "source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
+        "bible_sha": "3d0ca867623bb51c382008cb8376e518c23afd35",
+        "workflow_sha": "65fd11e02cb63ae290772526da30aae6365d186b",
+        "negative_run_id": 36945821282,
+        "negative_job_id": 110647594401,
+        "final_run_id": 36945960530,
+        "final_job_id": 110648032272,
+        "focal": "1/1 suite; 4/4 tests; --runTestsByPath; --detectOpenHandles",
+        "related": "13/13 integration suites; 81/81 tests"
+      }
     },
     {
       "id": "110-003",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "ARCHITECTURE_DRIFT",
       "target_file": "tests/integration/ipc/gtc-cache-flow.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-cache-flow.test.js",
@@ -66,11 +94,25 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:50:00Z",
       "audit_finding": "ACCEPTED. A suíte representa exclusivamente o fallback legado `storage.local gtc_<hash>` enquanto o caminho primário atual é runtime/IndexedDB. Sem rotulagem, parece cobrir a arquitetura corrente.",
-      "auditor_recommended_action": "Classificar explicitamente como fallback legacy e testar esse fallback no runtime real, ou migrar para o fluxo primário."
+      "auditor_recommended_action": "Classificar explicitamente como fallback legacy e testar esse fallback no runtime real, ou migrar para o fluxo primário.",
+      "resolution": "Arquitetura moderna runtime/IndexedDB é o caminho principal testado; fallback storage.local gtc_<hash> é exercitado explicitamente forçando somente falha da resposta moderna e deixando cm-gtc-client real decidir o fallback.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:29:00Z",
+      "validation": {
+        "source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
+        "bible_sha": "3d0ca867623bb51c382008cb8376e518c23afd35",
+        "workflow_sha": "65fd11e02cb63ae290772526da30aae6365d186b",
+        "negative_run_id": 36945821282,
+        "negative_job_id": 110647594401,
+        "final_run_id": 36945960530,
+        "final_job_id": 110648032272,
+        "focal": "1/1 suite; 4/4 tests; --runTestsByPath; --detectOpenHandles",
+        "related": "13/13 integration suites; 81/81 tests"
+      }
     },
     {
       "id": "110-004",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_ASSERTION_QUALITY",
       "target_file": "tests/integration/ipc/gtc-cache-flow.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-cache-flow.test.js",
@@ -86,11 +128,25 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:50:00Z",
       "audit_finding": "ACCEPTED. O teste chamado de 'eficiência' faz apenas um batch get e valida valores; não executa N gets individuais, não conta chamadas e não mede desempenho.",
-      "auditor_recommended_action": "Renomear para equivalência funcional ou adicionar call-count/benchmark controlado se eficiência for requisito."
+      "auditor_recommended_action": "Renomear para equivalência funcional ou adicionar call-count/benchmark controlado se eficiência for requisito.",
+      "resolution": "A antiga alegação de eficiência foi removida. Casos modernos exigem exatamente uma GTC_QUERY_MANY contendo todos os hashes do lote, provando batching/call-count observável.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:29:00Z",
+      "validation": {
+        "source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
+        "bible_sha": "3d0ca867623bb51c382008cb8376e518c23afd35",
+        "workflow_sha": "65fd11e02cb63ae290772526da30aae6365d186b",
+        "negative_run_id": 36945821282,
+        "negative_job_id": 110647594401,
+        "final_run_id": 36945960530,
+        "final_job_id": 110648032272,
+        "focal": "1/1 suite; 4/4 tests; --runTestsByPath; --detectOpenHandles",
+        "related": "13/13 integration suites; 81/81 tests"
+      }
     },
     {
       "id": "110-005",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "CLEANUP",
       "target_file": "tests/integration/ipc/gtc-cache-flow.test.js",
       "found_while_auditing": "tests/integration/ipc/gtc-cache-flow.test.js",
@@ -106,12 +162,26 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T21:22:00Z",
       "audit_finding": "ACCEPTED. `tests/integration/ipc/gtc-cache-flow.test.js` importa `fs` e não o utiliza posteriormente. É dívida de manutenção sem impacto funcional.",
-      "auditor_recommended_action": "Remover o import morto em alteração separada e manter a suíte verde."
+      "auditor_recommended_action": "Remover o import morto em alteração separada e manter a suíte verde.",
+      "resolution": "Import morto fs removido; suíte permanece verde.",
+      "resolved_by": "AGENTE HÍBRIDO",
+      "resolved_at_utc": "2026-10-02T00:29:00Z",
+      "validation": {
+        "source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
+        "bible_sha": "3d0ca867623bb51c382008cb8376e518c23afd35",
+        "workflow_sha": "65fd11e02cb63ae290772526da30aae6365d186b",
+        "negative_run_id": 36945821282,
+        "negative_job_id": 110647594401,
+        "final_run_id": 36945960530,
+        "final_job_id": 110648032272,
+        "focal": "1/1 suite; 4/4 tests; --runTestsByPath; --detectOpenHandles",
+        "related": "13/13 integration suites; 81/81 tests"
+      }
     }
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:27:00Z",
+  "updated_at_utc": "2026-10-02T00:29:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:59:10Z",
@@ -162,6 +232,17 @@
       "previous_source_sha": "d89506672d148f3bdfab68e08ffd0575aadf5265",
       "current_source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
       "reason": "CI real revelou ausência de structuredClone no ambiente Jest/fake-indexeddb; adicionado o mesmo polyfill de ambiente já usado em performance.test.js, sem relaxar assertions do pipeline."
+    },
+    {
+      "at_utc": "2026-10-02T00:29:00Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
+      "bible_sha": "3d0ca867623bb51c382008cb8376e518c23afd35",
+      "workflow_sha": "65fd11e02cb63ae290772526da30aae6365d186b",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Cinco requests 110-001..005 resolvidos. CI final 36945960530/job 110648032272: 4/4 focal + 13/13 suites, 81/81 integration."
     }
   ],
   "evidence": [
@@ -172,9 +253,33 @@
       "auditor": "AGENTE 14",
       "at_utc": "2026-10-01T05:59:10Z",
       "note": "Passagens 0–15 executadas. SHA, fonte integral, cobertura, semântica funcional, consumers, assertions e classificação de evidência passam; lifecycle das audit requests falha: Bíblia mostra OPEN enquanto state canônico mostra ACCEPTED. Requests permanecem válidas e não bloqueantes como lacunas de software."
+    },
+    {
+      "type": "HYBRID_CORRECTION_VALIDATION",
+      "at_utc": "2026-10-02T00:29:00Z",
+      "source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
+      "bible_sha": "3d0ca867623bb51c382008cb8376e518c23afd35",
+      "workflow_sha": "65fd11e02cb63ae290772526da30aae6365d186b",
+      "negative_run_id": 36945821282,
+      "negative_job_id": 110647594401,
+      "final_run_id": 36945960530,
+      "final_job_id": 110648032272,
+      "result": "PASS",
+      "focal": "1/1 suite; 4/4 tests; --detectOpenHandles",
+      "related_suites": "13/13",
+      "related_tests": "81/81",
+      "note": "Pipeline moderno real GTC validado; fallback legado e UPDATE_IMAGE→GTC_SAVE→IndexedDB provados."
     }
   ],
   "document_quality": {
-    "repair_note": "Lifecycle 110-001..005 alinhado ao state canônico como ACCEPTED; conteúdo dos findings preservado. Reauditoria independente ainda necessária."
+    "repair_note": "110-001..005 resolvidos: simulação removida, pipeline moderno runtime/IndexedDB real exercitado, fallback legacy explícito, batching provado por call-count e import morto removido.",
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "291/291",
+    "source_text_lines": 290,
+    "bible_lines": 441,
+    "external_audit_requests_open": 0,
+    "evidence_note": "Run 36945960530/job 110648032272: focal real 4/4 + integration 81/81. Run negativa 36945821282 reproduziu o gap de structuredClone antes do reparo."
   }
 }
