@@ -214,10 +214,14 @@ Depois de `CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT`, a revisão entregue 
 Enquanto esse binding estiver em auditoria independente, é proibido reabrir editorialmente a unidade apenas porque um corretor encontrou um novo possível problema. Em particular:
 
 - mudança do `HEAD` global do PR não autoriza reabertura;
-- finding informal, comentário ou inspeção do corretor não autoriza `READY_FOR_AUDIT → IN_PROGRESS`;
+- finding informal, comentário ou inspeção do corretor não autoriza retorno a `IN_PROGRESS`;
 - PRIMARY isolada em `CHANGES_REQUIRED` ainda não autoriza correção, porque ADVERSARIAL continua obrigatória;
 - divergência PRIMARY × ADVERSARIAL exige REAUDIT antes de qualquer correção;
-- somente uma decisão distribuída final `CHANGES_REQUIRED`, válida para o mesmo SOURCE_SHA+BIBLE_SHA e sem violações de independência, libera nova correção.
+- resultados concluídos **antes ou no instante do handoff** não contam para a nova rodada, mesmo que tenham o mesmo SOURCE_SHA+BIBLE_SHA;
+- PRIMARY legado também não atravessa um handoff protegido: a revisão começa novamente em `WAITING_PRIMARY`;
+- alteração de `state`, reserva/lock ou revisão sem uma transição de correção registrada não contorna a trava;
+- o blob real atual da Bíblia deve continuar igual ao `BIBLE_SHA` entregue enquanto a revisão aguarda auditoria;
+- somente uma decisão distribuída final `CHANGES_REQUIRED`, válida para o mesmo SOURCE_SHA+BIBLE_SHA, posterior ao handoff e sem violações de independência, libera nova correção.
 
 Fluxo protegido:
 
