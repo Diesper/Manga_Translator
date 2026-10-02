@@ -112,6 +112,39 @@ function loadBibleBaseline(root) {
   return parsed;
 }
 
+function productionFilesForState(state) {
+  const paths = new Set();
+  const add = (value) => {
+    const normalized = slash(value);
+    if (normalized && normalized !== slash(state?.file)) paths.add(normalized);
+  };
+  if (Array.isArray(state?.production_files)) {
+    for (const value of state.production_files) add(value);
+  }
+  add(state?.production_file);
+  for (const request of Array.isArray(state?.audit_requests) ? state.audit_requests : []) {
+    add(request?.related_production_file);
+    const target = slash(request?.target_file);
+    if (target && target !== slash(state?.file)
+      && !target.startsWith('docs/biblia/')
+      && !target.startsWith('tests/')) add(target);
+  }
+  return [...paths].sort();
+}
+
+function currentProductionSha(root, state) {
+  if (!root || !state) return lifecycleCore.revisionIdentity(state).production_sha;
+  const entries = [];
+  for (const relativePath of productionFilesForState(state)) {
+    const sha = gitWorkingTreeBlobSha(root, relativePath);
+    if (sha) entries.push([relativePath, sha]);
+  }
+  if (!entries.length) {
+    return lifecycleCore.revisionIdentity(state).production_sha;
+  }
+  return gitBlobShaBuffer(Buffer.from(JSON.stringify(entries)));
+}
+
 function currentBibleSha(root, state) {
   // Em validação real, o conteúdo da Bíblia é a autoridade. O hash deve ser
   // calculado como Git o versionaria, não a partir dos bytes EOL-específicos
@@ -714,6 +747,8 @@ module.exports = {
   gitWorkingTreeBlobSha,
   loadBibleBaseline,
   currentBibleSha,
+  productionFilesForState,
+  currentProductionSha,
   baselineEntryFor,
   recordMatchesCurrentBible,
   currentLifecycleSnapshot,
