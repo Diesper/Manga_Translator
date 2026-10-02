@@ -558,6 +558,9 @@ function validateBibleCoordination(root, options = {}) {
     baseline: distributed.baseline,
   });
   for (const problem of pipelineEvaluation.problems) problems.push(problem);
+  for (const problem of auditCore.postHandoffCorrectionProblems(states, distributed.records)) {
+    problems.push(problem);
+  }
 
   for (const state of states) {
     const pipeline = pipelineEvaluation.byIndex.get(state.index);
