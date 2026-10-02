@@ -1,7 +1,9 @@
 'use strict';
 
 const childProcess = require('child_process');
+const fs = require('fs');
 const path = require('path');
+const humanGate = require('../../docs/biblia/.coordination/human-gate');
 
 const root = path.resolve(__dirname, '../..');
 const TRUSTED_COMMITTER_EMAIL = '41898282+github-actions[bot]@users.noreply.github.com';
@@ -67,6 +69,17 @@ function verify(base) {
           'artefato de autoridade deve ser criado pelo workflow canônico/github-actions[bot]: '
           + file + ' committer=' + (committer ? committer.name + '<' + committer.email + '>' : '-')
         );
+      }
+      if (/\/human-approvals\//.test(file)) {
+        try {
+          const approval = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
+          if (Number(approval?.schema_version) !== 2) {
+            problems.push('approval humana nova deve usar schema_version 2 com proveniência: ' + file);
+          }
+          for (const problem of humanGate.validateApproval(approval, file)) problems.push(problem);
+        } catch (error) {
+          problems.push('approval humana nova inválida: ' + file + ' ' + error.message);
+        }
       }
     }
   }
