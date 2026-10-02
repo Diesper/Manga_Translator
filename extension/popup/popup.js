@@ -1170,10 +1170,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 return;
                             }
                             const samplePath = paths[idxs[idxs.length - 1]];
-                            const sep = samplePath.includes('\\\\') ? '\\\\' : '/';
-                            const parts = samplePath.split(sep);
-                            parts.pop();
-                            const folderPath = parts.join(sep);
+                            const slashPos = Math.max(samplePath.lastIndexOf('/'), samplePath.lastIndexOf('\\'));
+                            const folderPath = slashPos >= 0
+                                ? samplePath.slice(0, slashPos)
+                                : '';
                             pathLabel.textContent = '📂 ' + folderPath;
                             pathLabel.title = folderPath;
                         });
