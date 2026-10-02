@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
-  "source_sha": "92722a127b1068fd4d4ac20d5ccd12f7e9a1f971",
-  "started_at_utc": "2026-10-02T04:52:00Z",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "a887718724aa3fa65da433269cc12fb82af7bb18",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -920,7 +920,7 @@
     },
     {
       "id": "191-025",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_ISOLATION",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "finding": "installRuntimeResponder substitui runtimeMock.sendMessage por atribuição direta; runtimeMock é singleton preservado entre testes e jest.restoreAllMocks não restaura atribuições diretas.",
@@ -930,11 +930,26 @@
       "expected_evidence": "Teste futuro sem installRuntimeResponder não herda responder do caso anterior.",
       "severity": "NORMAL",
       "audited_by": "AGENTE 30",
-      "audited_at_utc": "2026-10-02T04:52:00Z"
+      "audited_at_utc": "2026-10-02T04:52:00Z",
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolution": "Captura/restauração explícita de runtimeMock.sendMessage + reset de lastError no afterEach; singleton do Chrome mock não contamina testes seguintes.",
+      "resolved_by": "AGENTE 30",
+      "resolved_at_utc": "2026-10-02T04:59:00Z",
+      "validation": {
+        "source_sha": "a887718724aa3fa65da433269cc12fb82af7bb18",
+        "bible_sha": "de30f4ede49c0777ebe125f0eb27c4944422110e",
+        "validation_pr": 79,
+        "workflow_run_id": 36966562157,
+        "node20_job_id": 110711482525,
+        "node22_job_id": 110711482366,
+        "full_content_job_id": 110711482467,
+        "focal_result": "PASS_2_OF_2_SUITES_50_OF_50_TESTS_NODE20_AND_NODE22",
+        "content_suite_result": "PASS_40_OF_40_SUITES_469_OF_469_TESTS_DETECT_OPEN_HANDLES"
+      }
     },
     {
       "id": "191-026",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_STRENGTH_REPEAT_ERROR",
       "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
       "finding": "O teste de erros consecutivos valida cardinalidade 4/4, mas não reaplica assertNote às notas 3 e 4.",
@@ -944,7 +959,22 @@
       "expected_evidence": "Um bug que corrompa apenas a segunda síntese passa a quebrar a suíte.",
       "severity": "LOW",
       "audited_by": "AGENTE 30",
-      "audited_at_utc": "2026-10-02T04:52:00Z"
+      "audited_at_utc": "2026-10-02T04:52:00Z",
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolution": "Segundo erro consecutivo agora reaplica assertNote aos nós 3 e 4, validando frequência, envelope, wiring e start/stop por instância.",
+      "resolved_by": "AGENTE 30",
+      "resolved_at_utc": "2026-10-02T04:59:00Z",
+      "validation": {
+        "source_sha": "a887718724aa3fa65da433269cc12fb82af7bb18",
+        "bible_sha": "de30f4ede49c0777ebe125f0eb27c4944422110e",
+        "validation_pr": 79,
+        "workflow_run_id": 36966562157,
+        "node20_job_id": 110711482525,
+        "node22_job_id": 110711482366,
+        "full_content_job_id": 110711482467,
+        "focal_result": "PASS_2_OF_2_SUITES_50_OF_50_TESTS_NODE20_AND_NODE22",
+        "content_suite_result": "PASS_40_OF_40_SUITES_469_OF_469_TESTS_DETECT_OPEN_HANDLES"
+      }
     }
   ],
   "document_quality": {
@@ -957,12 +987,12 @@
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 0,
     "production_dependency_sha": "893a03442cddb9e32487d7c7599be13ba8dc349c",
-    "evidence_quality": "191-023/024 red→green; head run 36965852017 Node20/22 50/50, full 40/40 suites 469/469 with detectOpenHandles.",
-    "note": "Technical layer 98/100; distinct PRIMARY+ADVERSARIAL pair required for final completion."
+    "evidence_quality": "191-025/026 validated in PR #79: Node20/22 50/50, full 40/40 suites 469/469 with detectOpenHandles.",
+    "note": "Technical layer remains ready; current binding requires a new distinct PRIMARY+ADVERSARIAL pair before COMPLETED/100."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T04:52:00Z",
+  "updated_at_utc": "2026-10-02T04:59:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1481,6 +1511,17 @@
       "bible_sha": "7b098af629f6ddcf9e591b1a945951a550a9f095",
       "agent": "AGENTE 30",
       "reason": "191-025/026 confirmed on current revision: singleton runtime.sendMessage not restored; repeated-error second pair not validated per instance."
+    },
+    {
+      "at_utc": "2026-10-02T04:59:00Z",
+      "type": "TEST_ISOLATION_AND_REPEAT_STRENGTH_VALIDATED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "previous_source_sha": "92722a127b1068fd4d4ac20d5ccd12f7e9a1f971",
+      "current_source_sha": "a887718724aa3fa65da433269cc12fb82af7bb18",
+      "bible_sha": "de30f4ede49c0777ebe125f0eb27c4944422110e",
+      "agent": "AGENTE 30",
+      "reason": "191-025/026 confirmed and corrected; PR #79 run 36966562157 passed Node20/22 50/50 and full content-scripts 40/40 suites 469/469 with detectOpenHandles."
     }
   ],
   "evidence": [
@@ -1609,7 +1650,20 @@
       "full_content_job_id": 110709321176,
       "focal_result": "PASS_2_OF_2_SUITES_50_OF_50_TESTS_BOTH_NODES",
       "content_suite_result": "PASS_40_OF_40_SUITES_469_OF_469_TESTS_DETECT_OPEN_HANDLES"
+    },
+    {
+      "type": "EXECUTABLE_FINAL_VALIDATION",
+      "at_utc": "2026-10-02T04:59:00Z",
+      "source_sha": "a887718724aa3fa65da433269cc12fb82af7bb18",
+      "bible_sha": "de30f4ede49c0777ebe125f0eb27c4944422110e",
+      "validation_pr": 79,
+      "workflow_run_id": 36966562157,
+      "node20_job_id": 110711482525,
+      "node22_job_id": 110711482366,
+      "full_content_job_id": 110711482467,
+      "focal_result": "PASS_2_OF_2_SUITES_50_OF_50_TESTS_BOTH_NODES",
+      "content_suite_result": "PASS_40_OF_40_SUITES_469_OF_469_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "7b098af629f6ddcf9e591b1a945951a550a9f095"
+  "bible_sha": "de30f4ede49c0777ebe125f0eb27c4944422110e"
 }
