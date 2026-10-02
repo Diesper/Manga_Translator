@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "index": 193,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 28",
+  "file": "tests/unit/content-manga/auto-restore-system.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/auto-restore-system.test.js/Bíblia.md",
+  "source_sha": "3aa7a39030aba4577f530f575869a6d535d1c3a3",
+  "bible_sha": "b375c3433e4c157f0fe9b7c6c2cddd9713a27b18",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "193-A28-001",
+      "severity": "HIGH",
+      "type": "SEMANTIC_COVERAGE_RANGE_MISMATCH",
+      "summary": "O mapa integral não cobre exatamente as 262 posições e desloca semanticamente os blocos do source.",
+      "evidence": [
+        "O source possui 261 linhas textuais e LF final, totalizando 262 posições; a fonte integral embutida é exata.",
+        "O mapa documenta 1–21 e retoma em 23–73, deixando a posição 22 sem cobertura.",
+        "O mapa documenta 201–239 e retoma em 241–260, deixando a posição 240 sem cobertura.",
+        "A união do mapa cobre 260/262 posições, sem overlaps, com gaps exatos em 22 e 240.",
+        "As fronteiras também estão semanticamente deslocadas: `makeImgDOM` inicia por volta de 69 e termina em 76; testes do mirror começam em 78; persistência começa em 148; debounce em 184; pseudo-integração começa em 230.",
+        "Exemplo: a faixa 23–73 declarada como mirrors invade a factory `makeImgDOM`; 201–239 declarada como debounce invade o teste de pseudo-UPDATE_IMAGE."
+      ],
+      "requested_documentation_fix": "Recalcular o mapa a partir das fronteiras reais para cobrir exatamente 1–261 + posição 262, sem gaps/overlaps e sem atribuir linhas de um bloco ao bloco seguinte."
+    },
+    {
+      "id": "193-A28-002",
+      "severity": "HIGH",
+      "type": "AUDIT_LIFECYCLE_STALE",
+      "summary": "O cabeçalho e as requests da Bíblia não refletem o state canônico da mesma revisão.",
+      "evidence": [
+        "Cabeçalho da Bíblia declara `Estado documental: ✅ CONCLUÍDA`, enquanto `.state/193.json` está `READY_FOR_AUDIT`.",
+        "Bíblia §10 rotula 193-001, 193-002 e 193-003 como `OPEN`.",
+        "`.state/193.json` registra 193-001=ACCEPTED, 193-002=ACCEPTED e 193-003=ACCEPTED.",
+        "Os conteúdos técnicos dessas requests continuam verdadeiros: a suíte usa mirror local, o teste de MutationObserver é debounce local e o pseudo-UPDATE_IMAGE grava storage diretamente.",
+        "A classificação geral da Bíblia como suíte histórica/mirror é honesta; o defeito é o lifecycle, não essa classificação."
+      ],
+      "requested_documentation_fix": "Alinhar o cabeçalho ao estado real e mudar 193-001/002/003 para ACCEPTED, preservando seus findings, severidades, limitações e ações solicitadas."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T12:19:57.305Z"
+}
