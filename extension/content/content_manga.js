@@ -2573,6 +2573,7 @@ if (!window.__manga_translator_content_injected) {
                 const images = document.querySelectorAll('img');
                 let foundImage = false;
                 let shouldAccountUpdate = false;
+                let retryTranslatedImage = null;
                 let persistPromise = null;
 
                 for (let img of images) {
@@ -2583,6 +2584,7 @@ if (!window.__manga_translator_content_injected) {
                         if (img.dataset.translated === 'true') {
                             foundImage = true;
                             shouldAccountUpdate = true;
+                            retryTranslatedImage = img;
                             persistPromise = persistTranslatedPage(request.index, request.newSrc);
                             break;
                         }
@@ -2684,6 +2686,9 @@ if (!window.__manga_translator_content_injected) {
 
                 persistPromise
                     .then(() => {
+                        if (retryTranslatedImage && retryTranslatedImage.getAttribute('src') !== request.newSrc) {
+                            retryTranslatedImage.src = request.newSrc;
+                        }
                         ack({ ok: true, persisted: true, domApplied: foundImage });
                         accountPersistedUpdate();
                     })
