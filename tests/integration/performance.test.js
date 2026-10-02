@@ -71,73 +71,6 @@ async function getTranslatorLog(storageMock) {
     return data.translatorLog || [];
 }
 
-async function setWithLastError(items) {
-    return new Promise(resolve => {
-        chrome.storage.local.set(items, () => {
-            const err = chrome.runtime.lastError
-                ? new Error(chrome.runtime.lastError.message)
-                : null;
-            resolve(err);
-        });
-    });
-}
-
-function installQuotaFailingStorage(byteLimit) {
-    const originalSet = chrome.storage.local.set.bind(chrome.storage.local);
-    const quotaFailures = [];
-
-    jest.spyOn(chrome.storage.local, 'set').mockImplementation((items, callback) => {
-        const serializedBytes = Buffer.byteLength(JSON.stringify(items || {}), 'utf8');
-        if (serializedBytes > byteLimit) {
-            quotaFailures.push(Object.keys(items || {}));
-            chrome.runtime.lastError = { message: 'QUOTA_BYTES quota exceeded' };
-            setTimeout(() => {
-                if (callback) callback();
-                chrome.runtime.lastError = null;
-            }, 0);
-            return Promise.resolve();
-        }
-        return originalSet(items, callback);
-    });
-
-    return quotaFailures;
-}
-
-async function saveImagesWithIndexedDbFallback({
-    storageKey,
-    imagesByIndex,
-    repository,
-}) {
-    const savedInStorage = {};
-    const fallbackEntries = [];
-
-    for (const [index, translatedDataUrl] of Object.entries(imagesByIndex)) {
-        const err = await setWithLastError({ [`${storageKey}_${index}`]: translatedDataUrl });
-        if (err) {
-            fallbackEntries.push({
-                hash: `${storageKey}-${index}`,
-                translatedDataUrl,
-                cleanUrl: `quota://${storageKey}/${index}`,
-            });
-        } else {
-            savedInStorage[index] = translatedDataUrl;
-        }
-    }
-
-    if (fallbackEntries.length) {
-        await repository.putMany(fallbackEntries);
-    }
-
-    if (Object.keys(savedInStorage).length) {
-        await setWithLastError({ [storageKey]: savedInStorage });
-    }
-
-    return {
-        storageCount: Object.keys(savedInStorage).length,
-        fallbackCount: fallbackEntries.length,
-        fallbackHashes: fallbackEntries.map(entry => entry.hash),
-    };
-}
 
 describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-09: limites de performance e storage', () => {
     let storageMock;
@@ -242,7 +175,7 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
         });
     });
 
-    test('PERF-05 popup renderiza 200 capitulos com 15 paginas cada em ate 1s', async () => {
+    test('PERF-05 pos-clique: aba traduzida renderiza 200 capitulos com 15 paginas cada em ate 1s no JSDOM', async () => {
         const tab = await tabsMock.create({ url: 'https://reader.test/chapter-live', active: true });
         tabsMock._registerMessageHandler(tab.id, (message, _sender, sendResponse) => {
             if (message.action === 'GET_PAGE_IMAGES') sendResponse({ images: [] });
@@ -373,7 +306,7 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
         expect(backgroundModule.__getState().jobQueue).toHaveLength(0);
     });
 
-    test('PERF-08 IndexedDB persiste 15 imagens de aproximadamente 500KB em ate 2s', async () => {
+    test('PERF-08 guard sintetico fake-indexeddb persiste 15 payloads de aproximadamente 500KB em ate 2s', async () => {
         const repo = createIndexedDbRepository({
             indexedDbFactory: new IDBFactory(),
             dbName: uniqueDbName('perf-large-idb'),
@@ -398,36 +331,81 @@ describe('PERF-01/PERF-02/PERF-03/PERF-04/PERF-05/PERF-06/PERF-07/PERF-08/PERF-0
         });
     });
 
-    test('PERF-09 quota em chrome.storage.local aciona lastError e envia oversized para IndexedDB', async () => {
-        const repository = createInMemoryRepository();
-        const quotaFailures = installQuotaFailingStorage(5 * MB);
-        const largeDataUrl = `data:image/png;base64,${'B'.repeat((5 * MB) + 1024)}`;
-        const smallDataUrl = `data:image/png;base64,${'C'.repeat(256 * 1024)}`;
-        const imagesByIndex = Object.fromEntries(
-            Array.from({ length: 15 }, (_, index) => [
-                index,
-                index % 3 === 0 ? smallDataUrl : largeDataUrl,
-            ])
-        );
+    test('PERF-09 persistencia canonica salva payload acima da quota local via storage-manager/IndexedDB', async () => {
+        const previousIndexedDb = globalThis.indexedDB;
+        const quotaLimit = 64 * 1024;
+        const quotaFailures = installQuotaFailingStorage(quotaLimit);
+        const localSetSpy = chrome.storage.local.set;
 
-        const result = await saveImagesWithIndexedDbFallback({
-            storageKey: 'chap_perf_images',
-            imagesByIndex,
-            repository,
-        });
+        globalThis.indexedDB = new IDBFactory();
+        document.title = 'Performance quota chapter';
 
-        const fallbackEntries = await repository.getMany(result.fallbackHashes);
-        const stored = await storageMock.get(['chap_perf_images']);
+        try {
+            const storageManager = require('../../extension/shared/storage-manager.js');
+            require('../../extension/content/cm-chapter.js');
 
-        expect(quotaFailures).toHaveLength(10);
-        expect(result).toEqual(expect.objectContaining({
-            storageCount: 5,
-            fallbackCount: 10,
-        }));
-        expect(Object.keys(fallbackEntries)).toHaveLength(10);
-        Object.values(fallbackEntries).forEach(value => {
-            expect(value.length).toBeGreaterThan(5 * MB);
-        });
-        expect(Object.keys(stored.chap_perf_images)).toHaveLength(5);
+            const chapterApi = window.MangaTranslatorChapter || globalThis.MangaTranslatorChapter;
+            expect(chapterApi).toBeTruthy();
+
+            const restoreSpy = jest.fn();
+            const chapterManager = chapterApi.createChapterManager({
+                hostname: window.location.hostname || 'reader.test',
+                generateId: prefix => `${prefix}perf_quota_real`,
+                sendRuntimeMessageAsync: async request => {
+                    expect(request.action).toBe('SM_SAVE_PAGE');
+                    const result = await storageManager.savePageResult(
+                        request.chapterId,
+                        request.pageIndex,
+                        request.dataUrl,
+                        request.originalUrl,
+                        request.cleanUrl,
+                        request.meta
+                    );
+                    return { ok: true, ...result };
+                },
+                onRestoreEntry: restoreSpy,
+            });
+
+            const payloadBytes = 512 * 1024;
+            const largeDataUrl = `data:image/png;base64,${'B'.repeat(payloadBytes)}`;
+            expect(Buffer.byteLength(largeDataUrl, 'utf8')).toBeGreaterThan(quotaLimit);
+
+            const cleanUrl = 'https://reader.test/chapter/page-0.png';
+            const persisted = await chapterManager.persistTranslatedPage(0, largeDataUrl, {
+                sourceUrl: cleanUrl + '?token=quota-test',
+                cleanUrl,
+                width: 800,
+                height: 1200,
+            });
+
+            expect(persisted.assetId).toBeTruthy();
+            expect(await storageManager.getPageDataUrl(persisted.chapterId, 0)).toBe(largeDataUrl);
+            expect(await storageManager.getPageAsset(persisted.chapterId, 0)).toBeTruthy();
+            expect(restoreSpy).toHaveBeenCalledWith(cleanUrl, {
+                assetId: persisted.assetId,
+                index: 0,
+            });
+
+            // O payload grande não passa por chrome.storage.local; somente chapterList/metadados pequenos.
+            expect(quotaFailures).toHaveLength(0);
+            const localState = await storageMock.get(null);
+            expect(localState.chapterList).toEqual(expect.arrayContaining([
+                expect.objectContaining({ id: persisted.chapterId }),
+            ]));
+            expect(Object.keys(localState).some(key => key.endsWith('_images'))).toBe(false);
+            expect(Object.keys(localState).some(key => key.endsWith('_restoreMap'))).toBe(false);
+
+            const oversizedLocalWrite = localSetSpy.mock.calls.some(([items]) =>
+                Buffer.byteLength(JSON.stringify(items || {}), 'utf8') > quotaLimit
+            );
+            expect(oversizedLocalWrite).toBe(false);
+
+            await storageManager.deleteChapter(persisted.chapterId);
+            expect(await storageManager.getChapterPageCount(persisted.chapterId)).toBe(0);
+        } finally {
+            globalThis.indexedDB = previousIndexedDb;
+            delete window.MangaTranslatorChapter;
+            delete globalThis.MangaTranslatorChapter;
+        }
     });
 });
