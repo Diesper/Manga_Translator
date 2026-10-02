@@ -818,6 +818,45 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
     });
 
+    test('BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas', async () => {
+        installRuntimeResponder({ tabId: 84 });
+        const { ctx, oscillators } = createAudioContext({
+            state: 'suspended',
+            onResume: async () => {
+                throw Object.assign(new Error('success-resume-blocked'), {
+                    name: 'NotAllowedError',
+                });
+            },
+        });
+        Object.defineProperty(window, 'AudioContext', {
+            value: jest.fn(() => ctx),
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await delay(0);
+        await startBatch();
+        await dispatchToContent(runtimeMock, { action: 'BATCH_COMPLETE' });
+
+        await waitFor(() => sentMessages.some(message =>
+            message.action_name === 'AUDIO_SUCCESS_FAILED'
+            && message.extra?.originTabId === 84
+        ));
+
+        expect(ctx.resume).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(0);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'error',
+            action_name: 'AUDIO_SUCCESS_FAILED',
+            extra: expect.objectContaining({
+                originTabId: 84,
+                errorName: 'NotAllowedError',
+                errorMessage: 'success-resume-blocked',
+            }),
+        }));
+    });
+
     test('erro em estado interrupted registra skip sem tentar resume', async () => {
         installRuntimeResponder({ tabId: 83 });
         const { ctx, oscillators } = createAudioContext({ state: 'interrupted' });
