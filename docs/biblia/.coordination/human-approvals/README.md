@@ -11,3 +11,7 @@ Decisões suportadas:
 
 `ALLOW_ONE_CORRECTION` é de uma única rodada. O consumo é registrado no state;
 o artefato de aprovação original não é reescrito.
+
+## Proteção administrativa obrigatória
+
+O workflow usa o environment GitHub `human-approval`. Configure esse environment com **required reviewer(s) humanos** e sem bypass por agentes/apps comuns. Sem essa configuração administrativa, `workflow_dispatch` prova o caminho de criação, mas não prova sozinho que um humano revisou a decisão.
