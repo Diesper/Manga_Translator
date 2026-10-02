@@ -215,6 +215,39 @@ function resultV3(s, phase, verdict, auditor, at) {
   };
 }
 
+const refreshedAuditState = {
+  ...state(8),
+  source_sha: '8'.repeat(40),
+  bible_sha: 'a'.repeat(40),
+  test_sha: '8'.repeat(40),
+  production_sha: null,
+  status: 'READY_FOR_AUDIT',
+  history: [{
+    at_utc: '2026-10-02T07:30:00Z',
+    type: lifecycleCore.REVISION_REFRESH_EVENT,
+    from_status: 'COMPLETED',
+    to_status: 'READY_FOR_AUDIT',
+    source_sha: '8'.repeat(40),
+    test_sha: '8'.repeat(40),
+    bible_sha: 'a'.repeat(40),
+    production_sha: null,
+    actor: 'MAINTAINER',
+  }],
+};
+const staleV2BeforeRefresh = result(
+  refreshedAuditState,
+  'PRIMARY',
+  'APPROVED',
+  'AUDITOR-PRE-REFRESH',
+  '2026-10-02T07:29:00Z'
+);
+p = resolveAuditPipeline(refreshedAuditState, [staleV2BeforeRefresh], new Map());
+assertEqual('revision refresh creates a new lifecycle audit fence', p.decision, 'WAITING_PRIMARY');
+if (lifecycleCore.lifecycleSnapshot(refreshedAuditState).correction_cycle !== 0) {
+  throw new Error('revision refresh must not count as correction cycle');
+}
+process.stdout.write('PASS revision refresh does not escalate correction cycle\n');
+
 const v3Primary = resultV3(
   lifecycleV3State,
   'PRIMARY',
@@ -342,6 +375,32 @@ if (!handoffProblems.some((item) => item.includes('revisão alterada sem correç
   throw new Error('mudança silenciosa de revisão deveria falhar: ' + JSON.stringify(handoffProblems));
 }
 process.stdout.write('PASS revisão não pode mudar silenciosamente após handoff\n');
+const refreshedAfterHandoff = {
+  ...missingTransition,
+  source_sha: '8'.repeat(40),
+  bible_sha: 'e'.repeat(40),
+  status: 'READY_FOR_AUDIT',
+  history: [
+    ...missingTransition.history,
+    {
+      at_utc: '2026-10-02T06:10:00Z',
+      type: lifecycleCore.REVISION_REFRESH_EVENT,
+      from_status: 'COMPLETED',
+      to_status: 'READY_FOR_AUDIT',
+      source_sha: '8'.repeat(40),
+      test_sha: '8'.repeat(40),
+      bible_sha: 'e'.repeat(40),
+      production_sha: null,
+      actor: 'MAINTAINER',
+    },
+  ],
+};
+handoffProblems = postHandoffCorrectionProblems([refreshedAfterHandoff], []);
+if (handoffProblems.length !== 0) {
+  throw new Error('revision refresh should close prior correction handoff scope: ' + JSON.stringify(handoffProblems));
+}
+process.stdout.write('PASS revision refresh closes prior correction handoff scope\n');
+
 
 const onlyPrimary = [
   result(protectedRevision, 'PRIMARY', 'CHANGES_REQUIRED', 'AUDITOR-1', '2026-10-02T06:02:00Z'),
