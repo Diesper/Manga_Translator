@@ -269,6 +269,65 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
   throw new Error('ACTION_NOT_SUPPORTED:' + action);
 }
 
+function tokenConsumptionCount(state, tokenId) {
+  return (Array.isArray(state?.history) ? state.history : []).filter((entry) => (
+    entry?.type === 'CORRECTION_TOKEN_CONSUMED'
+    && entry?.correction_token_id === tokenId
+  )).length;
+}
+
+function walk(dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = path.join(dir, entry.name);
+    return entry.isDirectory() ? walk(full) : (entry.isFile() ? [full] : []);
+  });
+}
+
+function loadCorrectionTokens(root, states = []) {
+  const base = path.join(root, 'docs', 'biblia', '.coordination', 'correction-authorizations');
+  const stateByIndex = new Map((states || []).map((state) => [state.index, state]));
+  const tokens = [];
+  const problems = [];
+  const ids = new Set();
+  const activeByIndex = new Map();
+
+  for (const absolute of walk(base)) {
+    const rel = path.relative(root, absolute).replace(/\\/g, '/');
+    if (/\/README\.md$/i.test(rel)) continue;
+    if (!/\.json$/i.test(rel)) {
+      problems.push(rel + ': correction authorization deve ser JSON');
+      continue;
+    }
+    let token;
+    try { token = JSON.parse(fs.readFileSync(absolute, 'utf8')); }
+    catch (error) {
+      problems.push(rel + ': JSON inválido: ' + error.message);
+      continue;
+    }
+    tokens.push({ ...token, path: rel });
+    if (ids.has(token?.token_id)) problems.push(rel + ': token_id duplicado');
+    if (token?.token_id) ids.add(token.token_id);
+
+    const state = stateByIndex.get(Number(token?.index));
+    if (!state) {
+      problems.push(rel + ': token fora do corpus');
+      continue;
+    }
+    const consumptionCount = tokenConsumptionCount(state, token?.token_id);
+    if (consumptionCount > 1) problems.push(rel + ': token consumido mais de uma vez');
+    if (consumptionCount === 0) {
+      for (const problem of validateCorrectionToken(state, token)) problems.push(rel + ': ' + problem);
+      if (activeByIndex.has(state.index)) {
+        problems.push(rel + ': mais de um correction token ativo para o mesmo índice');
+      } else {
+        activeByIndex.set(state.index, rel);
+      }
+    }
+  }
+  return { tokens, problems, activeByIndex };
+}
+
 function tokenPath(root, index, tokenId) {
   return path.join(root, 'docs', 'biblia', '.coordination', 'correction-authorizations',
     String(index).padStart(3, '0'), tokenId + '.json');
@@ -283,11 +342,13 @@ function loadToken(root, index, tokenId) {
 module.exports = {
   finalDecisionRecord,
   tokenConsumed,
+  tokenConsumptionCount,
   issueCorrectionToken,
   validateCorrectionToken,
   assertCas,
   persistSnapshot,
   planTransition,
+  loadCorrectionTokens,
   tokenPath,
   loadToken,
 };
