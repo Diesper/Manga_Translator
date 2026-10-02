@@ -378,11 +378,47 @@ function lifecycleProblems(state, options = {}) {
 
   problems.push(...eventChainProblems(state));
 
+  const history = historyOf(state);
+  const chainStarted = history.some((entry) => /^[0-9a-f]{64}$/i.test(String(entry?.event_hash || '')));
+  if (chainStarted) {
+    const requiredProjectionFields = [
+      'correction_cycle',
+      'lifetime_correction_cycles',
+      'current_escalation_cycle',
+      'escalation_level',
+      'human_approval_required',
+      'audit_epoch',
+      'handoff_id',
+      'production_sha',
+      'test_sha',
+      'bible_sha',
+      'revision_id',
+    ];
+    for (const field of requiredProjectionFields) {
+      if (!Object.prototype.hasOwnProperty.call(state || {}, field)) {
+        problems.push(label + ': projeção lifecycle pós-chain ausente: ' + field);
+      }
+    }
+  }
+
   const effectiveMs = Date.parse(options.effectiveAtUtc || LIFECYCLE_POLICY_EFFECTIVE_AT_UTC);
+  const latestStatusEvent = [...history].reverse().find((entry) => {
+    const atMs = Date.parse(entry?.at_utc || '');
+    return Number.isFinite(atMs)
+      && atMs >= effectiveMsForTransitions
+      && typeof entry?.to_status === 'string'
+      && entry.to_status.trim();
+  });
+  if (latestStatusEvent && state?.status !== latestStatusEvent.to_status) {
+    problems.push(
+      label + ': status diverge da projeção do último evento; expected='
+      + latestStatusEvent.to_status + ' actual=' + state?.status
+    );
+  }
   const history = historyOf(state);
   for (const entry of history) {
     const atMs = Date.parse(entry?.at_utc || '');
-    if (!Number.isFinite(atMs) || atMs < effectiveMs) continue;
+    if (!Number.isFinite(atMs) || atMs < effectiveMsForTransitions) continue;
     if (entry?.to_status === 'IN_PROGRESS' && entry?.type !== SAFE_ABORT_EVENT) {
       if (typeof entry?.correction_token_id !== 'string' || !entry.correction_token_id.trim()) {
         problems.push(label + ': correção pós-policy sem correction_token_id em ' + entry.at_utc);
@@ -395,7 +431,7 @@ function lifecycleProblems(state, options = {}) {
     const hasCanonicalStart = history.some((entry) => {
       const atMs = Date.parse(entry?.at_utc || '');
       return Number.isFinite(atMs)
-        && atMs >= effectiveMs
+        && atMs >= effectiveMsForTransitions
         && entry?.to_status === 'IN_PROGRESS'
         && typeof entry?.correction_token_id === 'string'
         && entry.correction_token_id.trim();
