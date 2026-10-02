@@ -335,6 +335,7 @@ function loadModel() {
     root: repoRoot,
     baseline,
   });
+  const handoffProblems = core.postHandoffCorrectionProblems(states, loaded.records);
   const pipelines = states.map((state) => evaluation.byIndex.get(state.index));
 
   return {
@@ -350,6 +351,7 @@ function loadModel() {
       ...loaded.problems,
       ...claims.problems,
       ...evaluation.problems,
+      ...handoffProblems,
     ],
     merge_problems: claims.strictProblems,
   };
