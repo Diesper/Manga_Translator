@@ -722,6 +722,107 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
     });
 
+    test('BATCH_COMPLETE stale não toca sucesso e o lote atual ainda conclui', async () => {
+        installRuntimeResponder({ tabId: 86 });
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        await dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+            batchId: 'stale-audio-batch',
+        });
+
+        expect(AudioContextMock).not.toHaveBeenCalled();
+        expect(oscillators).toHaveLength(0);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            level: 'warn',
+            action_name: 'STALE_COMPLETE',
+        }));
+
+        await dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+            batchId: liveBatch.batchId,
+        });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(3);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            source: 'audio',
+            level: 'success',
+            action_name: 'AUDIO_SUCCESS_SCHEDULED',
+        }));
+    });
+
+    test('SHOW_ERROR_INTEGRATED stale não toca erro nem contamina o lote atual', async () => {
+        installRuntimeResponder({ tabId: 87 });
+        const { ctx, oscillators } = createAudioContext({ state: 'running' });
+        const AudioContextMock = jest.fn(() => ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+        await startBatch();
+        const liveBatch = [...sentMessages].reverse().find(message =>
+            message.action === 'START_BATCH'
+        );
+        expect(liveBatch?.batchId).toBeTruthy();
+
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            batchId: 'stale-error-batch',
+            errorMsg: 'erro stale',
+            imgIndex: 0,
+            isDebug: false,
+        });
+
+        expect(AudioContextMock).not.toHaveBeenCalled();
+        expect(oscillators).toHaveLength(0);
+        expect(sentMessages.some(message =>
+            message.action_name === 'BATCH_ERROR'
+            && String(message.detail || '').includes('erro stale')
+        )).toBe(false);
+
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            batchId: liveBatch.batchId,
+            errorMsg: 'erro atual',
+            imgIndex: 0,
+            isDebug: false,
+        });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(oscillators).toHaveLength(2);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'LOG_ENTRY',
+            level: 'error',
+            action_name: 'BATCH_ERROR',
+        }));
+
+        await dispatchToContent(runtimeMock, {
+            action: 'BATCH_COMPLETE',
+            batchId: liveBatch.batchId,
+        });
+        expect(oscillators).toHaveLength(2);
+        expect(sentMessages.filter(message =>
+            message.source === 'audio'
+            && message.action_name === 'AUDIO_SUCCESS_SCHEDULED'
+        )).toHaveLength(0);
+    });
+
     test('unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes', async () => {
         installRuntimeResponder({ tabId: 85 });
         const first = createAudioContext({
