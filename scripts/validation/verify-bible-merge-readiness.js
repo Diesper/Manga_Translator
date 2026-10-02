@@ -59,6 +59,21 @@ if ((distributedModel.expired_leases || []).length) {
     + ': ' + distributedModel.expired_leases.join(', ')
   );
 }
+if ((distributedModel.human_locked || []).length) {
+  readiness.blockers.push(
+    'HUMAN_LOCKED=' + distributedModel.human_locked.length + ': '
+    + distributedModel.human_locked.map((item) => String(item.index).padStart(3, '0') + '/cycle-' + item.cycle).join(', ')
+  );
+}
+const unresolvedFindings = (distributedModel.unverified_findings || []).filter((finding) => (
+  finding.status === 'UNVERIFIED' || finding.status === 'CONFIRMED_BY_PRIMARY'
+));
+if (unresolvedFindings.length) {
+  readiness.blockers.push(
+    'unverified findings pendentes=' + unresolvedFindings.length + ': '
+    + unresolvedFindings.map((finding) => finding.id).join(', ')
+  );
+}
 if (!distributedModel.baseline || Object.keys(distributedModel.baseline.bibles || {}).length !== 233) {
   readiness.blockers.push('baseline de revisão das Bíblias ausente/incompleta');
 }
