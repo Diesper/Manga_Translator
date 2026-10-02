@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "207a1ba48085ee9090ab55974db84ae8cf00c4a3",
+  "source_sha": "a1862a1dd6c8d5df052b618e958603744c03e843",
   "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
@@ -146,7 +146,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:23:15Z",
+  "updated_at_utc": "2026-10-02T01:26:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -183,6 +183,13 @@
       "source_sha": "207a1ba48085ee9090ab55974db84ae8cf00c4a3",
       "agent": "AGENTE HÍBRIDO",
       "reason": "PRIMARY atual encontrou 191-004 HIGH: user-gesture unlock e contexto closed ainda sem prova executável."
+    },
+    {
+      "at_utc": "2026-10-02T01:26:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_AUDIO_LIFECYCLE_HARDENING",
+      "previous_source_sha": "207a1ba48085ee9090ab55974db84ae8cf00c4a3",
+      "current_source_sha": "a1862a1dd6c8d5df052b618e958603744c03e843",
+      "reason": "Adicionados 5 casos reais: clique/user-gesture unlock, recriação após closed, API indisponível, resume incompleto e falha de scheduling."
     }
   ],
   "evidence": [
