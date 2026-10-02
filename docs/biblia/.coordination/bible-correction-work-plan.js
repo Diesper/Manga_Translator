@@ -35,6 +35,7 @@ function planCorrections(model, editorOrdinal, editorCount = DEFAULT_EDITOR_COUN
       .map((rel) => Number(/(?:^|\/)(\d{3})\.lock\.md$/i.exec(rel)?.[1]))
       .filter(Number.isInteger)
   );
+  const reservedFiles = new Set(model.reservations || []);
 
   const candidates = [];
   for (const pipeline of model.pipelines || []) {
@@ -44,6 +45,8 @@ function planCorrections(model, editorOrdinal, editorCount = DEFAULT_EDITOR_COUN
 
     const state = (model.states || []).find((item) => item.index === pipeline.index);
     if (!state || state.status === 'IN_PROGRESS') continue;
+    const reservationPath = 'docs/biblia/.reservas/' + String(state.file || '').replace(/\\/g, '/') + '.lock.md';
+    if (reservedFiles.has(reservationPath)) continue;
     const lifecycle = lifecycleCore.lifecycleSnapshot(state);
     if (lifecycle.human_locked) continue;
     const actor = 'AGENTE ' + positiveInt(editorOrdinal, 'editorOrdinal');
@@ -72,6 +75,7 @@ function planCorrections(model, editorOrdinal, editorCount = DEFAULT_EDITOR_COUN
       audit_epoch: lifecycle.audit_epoch,
       handoff_id: lifecycle.handoff_id,
       correction_token_required: true,
+      reservation_path: reservationPath,
       root_cause_review_required: lifecycle.correction_cycle === 6,
     });
   }
