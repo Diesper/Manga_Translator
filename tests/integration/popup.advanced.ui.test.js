@@ -16,6 +16,12 @@ function buildImages(host, total = 21) {
     }));
 }
 
+function hasPopupToast(text) {
+    return Array.from(document.body.children).some((element) =>
+        typeof element.innerText === 'string' && element.innerText.includes(text)
+    );
+}
+
 describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-43/PU-44/PU-45/PU-46/PU-47/PU-48/PU-49/PU-49b/PU-50/PU-51/PU-52/PU-53: popup.js + popup.html - fluxos avancados reais', () => {
     let storageMock;
     let tabsMock;
@@ -396,7 +402,7 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
         }), expect.any(Function));
         expect(button.disabled).toBe(false);
         expect(button.textContent).toBe(originalText);
-        expect(document.body.textContent).toContain('Falha na exportação');
+        expect(hasPopupToast('Falha na exportação')).toBe(true);
     });
 
     test('falha de SM_DELETE_CHAPTER preserva chapterList e resíduos legados', async () => {
@@ -446,7 +452,7 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
         expect(stored.chap_keep_paths).toEqual({ 0: '/tmp/keep.png' });
         expect(stored.chap_keep_dlId).toBe(77);
         expect(removeSpy).not.toHaveBeenCalled();
-        expect(document.body.textContent).toContain('Falha ao excluir capítulo');
+        expect(hasPopupToast('Falha ao excluir capítulo')).toBe(true);
     });
 
     test('troca da aba ativa bloqueia comandos dirigidos à aba capturada no bootstrap', async () => {
@@ -472,7 +478,7 @@ describe('REG-08/PU-33/PU-34/PU-35/PU-36/PU-37/PU-38/PU-39/PU-40/PU-41/PU-42/PU-
         await flushAsyncTasks(8);
 
         expect(sendSpy).not.toHaveBeenCalled();
-        expect(document.body.textContent).toContain('A aba ativa mudou');
+        expect(hasPopupToast('A aba ativa mudou')).toBe(true);
     });
 
 });
