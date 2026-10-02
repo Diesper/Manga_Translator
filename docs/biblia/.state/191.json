@@ -2,11 +2,11 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "READY_FOR_AUDIT",
   "agent": null,
   "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
   "started_at_utc": null,
-  "completed_at_utc": "2026-10-02T02:27:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "191-001",
@@ -242,15 +242,13 @@
     "test_count": 17,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 0,
-    "bible_lines": 1007,
-    "bible_blob_sha": "1e2ac345bd34e8f3604c2726ddccb40ed0d8abfd",
     "production_dependency_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
-    "evidence_quality": "Real content_manga integration; red→green for context leak and synchronous observability; Node20/22 26/26 focal+related; full content-scripts 40/40 suites 445/445 tests with --detectOpenHandles.",
-    "note": "191-001..006 resolved; no known correctable issue remains inside unit scope."
+    "evidence_quality": "Red→green 191-005/006; PR #76 Node20/22 focal 26/26; full content-scripts 40/40 suites, 445/445 tests, --detectOpenHandles.",
+    "note": "Correction complete. COMPLETED/100 state was reverted because distributed protocol requires current PRIMARY + ADVERSSARIAL from different auditors; standalone REAUDIT on final revision is invalid."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T02:27:00Z",
+  "updated_at_utc": "2026-10-02T02:31:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -385,6 +383,16 @@
       "agent": "AGENTE 30",
       "score": "100/100",
       "reason": "All 17 real audio cases pass; 191-005 and 191-006 have red→green proof; full content-scripts 40/40 suites 445/445 tests pass with open-handle detection; source/Bible exact 807/807."
+    },
+    {
+      "at_utc": "2026-10-02T02:31:00Z",
+      "type": "DISTRIBUTED_PROTOCOL_RECONCILIATION",
+      "from_status": "COMPLETED",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+      "bible_sha": "2a5740694904d68da14994aa501a3bb8d8f77e37",
+      "agent": "AGENTE 30",
+      "reason": "Final source+bible have no current PRIMARY+ADVERSARIAL pair. audit-core requires distinct auditors and permits REAUDIT only after a divergent pair; prior standalone REAUDIT APPROVED cannot justify COMPLETED."
     }
   ],
   "evidence": [
@@ -445,7 +453,20 @@
       "full_content_job_id": 110676864994,
       "focal_result": "PASS_2_OF_2_SUITES_26_OF_26_TESTS_NODE20_AND_NODE22",
       "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
+    },
+    {
+      "type": "EXECUTABLE_FINAL_VALIDATION",
+      "at_utc": "2026-10-02T02:31:00Z",
+      "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+      "bible_sha": "2a5740694904d68da14994aa501a3bb8d8f77e37",
+      "validation_pr": 76,
+      "workflow_run_id": 36955506902,
+      "node20_job_id": 110677469400,
+      "node22_job_id": 110677469562,
+      "full_content_job_id": 110677469527,
+      "focal_result": "PASS_17_OF_17_AUDIO; PASS_26_OF_26_WITH_RELATED_BOTH_NODES",
+      "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "1e2ac345bd34e8f3604c2726ddccb40ed0d8abfd"
+  "bible_sha": "2a5740694904d68da14994aa501a3bb8d8f77e37"
 }
