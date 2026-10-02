@@ -380,7 +380,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             action: 'SHOW_ERROR_INTEGRATED',
             errorMsg: 'sem áudio',
             imgIndex: 0,
-        })).resolves.toEqual(expect.objectContaining({ keepAlive: false }));
+        })).resolves.toEqual({ keepAlive: undefined, response: undefined });
 
         expect(document.getElementById('manga-error-line').style.display).toBe('flex');
         expect(document.getElementById('manga-error-collapsible-content').textContent)
