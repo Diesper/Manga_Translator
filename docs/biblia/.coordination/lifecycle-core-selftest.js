@@ -315,6 +315,12 @@ life.appendLifecycleEvent(projected.history, {
   to_status:'IN_PROGRESS',
   correction_token_id:'corr-projection',
 });
+life.appendLifecycleEvent(projected.history, {
+  at_utc:'2026-10-02T06:50:01Z',
+  type:'CORRECTION_TOKEN_CONSUMED',
+  correction_token_id:'corr-projection',
+  actor:'FIXTURE',
+});
 const projectedSnapshot = life.lifecycleSnapshot(projected);
 Object.assign(projected, {
   correction_cycle:projectedSnapshot.correction_cycle,
