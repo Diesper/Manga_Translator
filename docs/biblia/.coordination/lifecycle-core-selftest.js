@@ -18,7 +18,7 @@ function baseState() {
 function addCycle(state, n, actor) {
   const who = actor || ('AGENTE-' + n);
   state.history.push({
-    at_utc: '2026-10-02T0' + n + ':00:00Z',
+    at_utc: '2026-10-01T0' + n + ':00:00Z',
     type: 'EDITOR_CORRECTION_STARTED',
     from_status: 'CHANGES_REQUIRED',
     to_status: 'IN_PROGRESS',
@@ -27,7 +27,7 @@ function addCycle(state, n, actor) {
     agent: who,
   });
   state.history.push({
-    at_utc: '2026-10-02T0' + n + ':10:00Z',
+    at_utc: '2026-10-01T0' + n + ':10:00Z',
     type: life.HANDOFF_EVENT,
     source_sha: state.source_sha,
     bible_sha: state.bible_sha,
