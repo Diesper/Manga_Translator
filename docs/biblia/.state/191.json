@@ -1272,7 +1272,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T06:20:30Z",
+  "updated_at_utc": "2026-10-02T21:43:00.301Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1981,6 +1981,28 @@
       "audit_request_id": "191-033",
       "agent": "AGENTE 30",
       "reason": "GTC auxiliary save rejection is swallowed by an empty catch; page persistence should remain non-blocking but failure must be observable."
+    },
+    {
+      "at_utc": "2026-10-02T21:43:00.301Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE 30",
+      "previous_source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "previous_bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "previous_production_sha": "893a03442cddb9e32487d7c7599be13ba8dc349c",
+      "previous_revision_id": "e5c5e25d4eb48e037da0d0fd3c8e4876761bea86f3259e2c70b47844e5d2a20a",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "production_sha": "250f0ed1b96c5b96eb46e34468e777cb1e8ebd90",
+      "revision_id": "ac3c4d0b1ec9a4a1d68d03b2a18f177ab0152055f1fc89db577457b16279f520",
+      "correction_cycle": 5,
+      "audit_epoch": 6,
+      "handoff_id": "191-e6-0f091ffea031",
+      "reason": "Production changed after the prior audio audit binding; refresh the exact live revision before accepting a correction authorization.",
+      "previous_event_hash": "6650c5fd640d3366328d1f298949264e022f801a7f6679029a693b2f5514077f",
+      "event_hash": "3d326d76c876f0ad6f7b7c3fcc2c620755afb4511d4f7b7215107138d41d58ee"
     }
   ],
   "evidence": [
@@ -2164,5 +2186,15 @@
       "gtc_cache_flow_focal_result": "PASS_4_OF_4"
     }
   ],
-  "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509"
+  "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+  "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "production_sha": "250f0ed1b96c5b96eb46e34468e777cb1e8ebd90",
+  "correction_cycle": 5,
+  "lifetime_correction_cycles": 5,
+  "current_escalation_cycle": 5,
+  "escalation_level": "CRITICAL",
+  "human_approval_required": false,
+  "audit_epoch": 6,
+  "handoff_id": "191-e6-0f091ffea031",
+  "revision_id": "ac3c4d0b1ec9a4a1d68d03b2a18f177ab0152055f1fc89db577457b16279f520"
 }
