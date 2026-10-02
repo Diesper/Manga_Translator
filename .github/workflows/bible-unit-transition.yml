@@ -152,7 +152,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/biblia/.state/ docs/biblia/.coordination/correction-authorizations/ docs/biblia/.coordination/human-review/
+          git add -A docs/biblia/.state/ docs/biblia/.reservas/ docs/biblia/.coordination/correction-authorizations/ docs/biblia/.coordination/human-review/
           git diff --cached --exit-code && { echo "No transition changes"; exit 1; } || true
           git commit -m "coord: canonical unit ${{ inputs.index }} transition ${{ inputs.operation }}"
           git pull --rebase origin docs/project-bible
