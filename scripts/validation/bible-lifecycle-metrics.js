@@ -137,6 +137,26 @@ function readStates() {
     .map((name) => JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8')));
 }
 
+function targetProblems(metrics) {
+  const targets = metrics?.targets || {};
+  const labels = {
+    mean_cycles_lt_1_5: 'mean correction cycles must stay < 1.5',
+    p90_cycles_lte_4: 'p90 correction cycles must stay <= 4',
+    human_escalation_rare: 'HUMAN escalation must stay < 5%',
+  };
+  return Object.entries(targets)
+    .filter(([, value]) => value !== true)
+    .map(([key]) => labels[key] || key);
+}
+
+function enforceTargets(metrics) {
+  const problems = targetProblems(metrics);
+  if (!problems.length) return metrics;
+  const error = new Error('BIBLE_LIFECYCLE_SLO_BLOCKED:' + problems.join('; '));
+  error.problems = problems;
+  throw error;
+}
+
 function render(metrics) {
   return [
     'Bible lifecycle metrics',
@@ -160,9 +180,19 @@ function main(argv = process.argv.slice(2)) {
   const metrics = buildMetrics(readStates());
   if (argv.includes('--json')) {
     process.stdout.write(JSON.stringify(metrics, null, 2) + '\n');
-    return;
+  } else {
+    console.log(render(metrics));
   }
-  console.log(render(metrics));
+  if (argv.includes('--check')) {
+    const problems = targetProblems(metrics);
+    if (problems.length) {
+      console.error('Bible lifecycle SLO gate: BLOCKED');
+      for (const problem of problems) console.error('- ' + problem);
+      process.exitCode = 1;
+      return;
+    }
+    console.log('Bible lifecycle SLO gate: PASS');
+  }
 }
 
 if (require.main === module) main();
@@ -174,5 +204,7 @@ module.exports = {
   handoffDecisionDurationsMinutes,
   correctionStartCount,
   buildMetrics,
+  targetProblems,
+  enforceTargets,
   render,
 };
