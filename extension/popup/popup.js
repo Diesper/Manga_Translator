@@ -2009,7 +2009,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             url: url,
             filename: 'mangatranslator_log.txt',
             saveAs: true
-        }, () => URL.revokeObjectURL(url));
+        }, () => {
+            if (typeof URL.revokeObjectURL === 'function') URL.revokeObjectURL(url);
+        });
     });
 
     window.addEventListener('beforeunload', () => {
