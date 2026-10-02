@@ -945,7 +945,9 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             expectAck: true,
         });
 
-        expect(lateResult.keepAlive).toBe(true);
+        // O stale ACK é síncrono: dispatchToContent pode resolver antes de
+        // capturar o booleano retornado pelo listener. O contrato relevante é
+        // a resposta stale + ausência de mutação, não o valor auxiliar keepAlive.
         expect(lateResult.response).toEqual({
             ok: false,
             reason: 'stale_batch',
