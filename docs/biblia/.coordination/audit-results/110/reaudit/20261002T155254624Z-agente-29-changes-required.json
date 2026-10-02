@@ -1,0 +1,74 @@
+{
+  "schema_version": 2,
+  "index": 110,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 29",
+  "file": "tests/integration/ipc/gtc-cache-flow.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/gtc-cache-flow.test.js/Bíblia.md",
+  "source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
+  "bible_sha": "3d0ca867623bb51c382008cb8376e518c23afd35",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "110-R29-001",
+      "severity": "HIGH",
+      "type": "STALE_DEPENDENCY_AND_CI_EVIDENCE",
+      "summary": "A Bíblia é fiel ao source focal e sua cobertura 291/291 é íntegra, mas a seção 'Dependências revalidadas' e a evidência de regressão estão stale em relação ao repositório corrente. Isso torna falsa/ambígua a alegação de que os SHAs e a evidência citados representam o wiring atualmente auditado.",
+      "evidence": [
+        "Bíblia linha 23 rotula a lista como 'Dependências revalidadas'.",
+        "Bíblia linha 27 declara extension/content/content_manga.js=a8b3698019f6f22027f09f544f15c0563a9f6515; no HEAD pré-publicação 383b82957b83c4685ca016f60680cf3f2db926a9 o blob é 893a03442cddb9e32487d7c7599be13ba8dc349c.",
+        "Bíblia linha 31 declara package.json=5b5c328f6139eeff920dc65a78014a6c5b6db3a6; no mesmo HEAD o blob é 2d749c02e45d0a0cd63deb8ffa2ab1ac9a813c21.",
+        "Bíblia linha 32 declara .github/workflows/ci.yml=9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a; no mesmo HEAD o blob é fbc108c255d06257b741839bb19fa56b4e6794b2.",
+        "load-content-script.js lê a lista de content_scripts do manifest, e o manifest carrega cm-gtc-client.js antes de content_manga.js; logo content_manga.js é dependência executada de fato pela suíte, não apenas referência incidental.",
+        "O run histórico 36945960530/job 110648032272 foi success no head 4a8b68040866e9d4626a0fa30c04aa714443cc46 e provou 4/4 focal + 13/13 suites, 81/81 testes.",
+        "Entre 4a8b68040866e9d4626a0fa30c04aa714443cc46 e o HEAD corrente, content_manga.js recebeu 339 mudanças de linhas, além de mudanças em package.json e ci.yml.",
+        "O run posterior 37000976474/job 110818350844 no head 419810bad2ed6ac17c6f695cef8ce71630b0b652 manteve o focal 4/4, mas a regressão relacionada terminou 8/13 suites e 56/83 testes; portanto a Bíblia não deve apresentar 13/13, 81/81 como evidência atual sem qualificá-la explicitamente como snapshot histórico."
+      ],
+      "requested_documentation_fix": "Atualizar ou remover os SHAs stale da seção de dependências e distinguir claramente evidência histórica do run 36945960530 de evidência da revisão corrente. Se mantiver uma afirmação de regressão atualmente verde, ela precisa ser reexecutada e suportada pela revisão atual; caso contrário, registrar a limitação/estado corrente sem promover o snapshot antigo a prova atual."
+    }
+  ],
+  "checks": {
+    "passages_0_15": "COMPLETED",
+    "source_revision_binding": "PASS",
+    "embedded_source_exact": "PASS_EXCEPT_TERMINAL_LF_EXPLICITLY_DOCUMENTED",
+    "documented_positions": "PASS_291_OF_291_NO_GAPS_NO_OVERLAP",
+    "semantic_main_flow": "PASS",
+    "dependencies_and_consumers": "FAIL_STALE_DECLARED_REVISIONS",
+    "audit_requests": "PASS_110_001_TO_110_005_RESOLVED_AND_SOURCE_FIXES_PRESENT",
+    "assertions": "PASS_FOR_CLAIMS_OF_FOCAL_TEST_BEHAVIOR",
+    "evidence_classification": "FAIL_EXTERNAL_EVIDENCE_STALE_AS_CURRENT",
+    "primary_independence": "PASS_AGENTE_30",
+    "adversarial_independence": "PASS_AGENTE_28",
+    "reaudit_independence": "PASS_AGENTE_29",
+    "formal_refutation": "SUSTAINED_110_R29_001",
+    "final_integrity_check": "YES",
+    "final_truthfulness_check": "NO",
+    "final_honesty_check": "NO"
+  },
+  "confidence_matrix": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "main_semantics": "CONFIRMADO_3X",
+    "dependencies": "CONTRADITO",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "resolves_divergence": {
+    "primary": {
+      "auditor": "AGENTE 30",
+      "verdict": "APPROVED"
+    },
+    "adversarial": {
+      "auditor": "AGENTE 28",
+      "verdict": "CHANGES_REQUIRED"
+    },
+    "resolution": "ADVERSARIAL_FINDING_CONFIRMED"
+  },
+  "completed_at_utc": "2026-10-02T15:52:54.624Z"
+}
