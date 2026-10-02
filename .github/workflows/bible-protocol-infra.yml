@@ -18,6 +18,7 @@ on:
       - 'docs/biblia/.coordination/human-approvals/**'
       - 'docs/biblia/.coordination/human-review/**'
       - 'docs/biblia/.coordination/unverified-findings/**'
+      - 'docs/biblia/.coordination/unverified-findings-legacy-baseline.json'
       - 'docs/biblia/.coordination/audit-core-git-selftest.js'
       - 'docs/biblia/.coordination/audit-protocol.js'
       - 'docs/biblia/.coordination/audit-protocol-selftest.js'
