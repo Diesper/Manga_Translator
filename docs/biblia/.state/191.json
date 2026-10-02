@@ -1272,7 +1272,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T06:20:30Z",
+  "updated_at_utc": "2026-10-02T21:17:46Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1981,6 +1981,46 @@
       "audit_request_id": "191-033",
       "agent": "AGENTE 30",
       "reason": "GTC auxiliary save rejection is swallowed by an empty catch; page persistence should remain non-blocking but failure must be observable."
+    },
+    {
+      "at_utc": "2026-10-02T21:16:13Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "e5c5e25d4eb48e037da0d0fd3c8e4876761bea86f3259e2c70b47844e5d2a20a",
+      "audit_epoch": 5,
+      "handoff_id": "191-e5-46403124293c",
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "6650c5fd640d3366328d1f298949264e022f801a7f6679029a693b2f5514077f",
+      "event_hash": "232d1367bde9e858c06bfb7e238a3cce00c8dd04138ccf90b9250b6db5b0809e"
+    },
+    {
+      "at_utc": "2026-10-02T21:17:46Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE 2",
+      "previous_source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "previous_bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "previous_production_sha": "893a03442cddb9e32487d7c7599be13ba8dc349c",
+      "previous_revision_id": "e5c5e25d4eb48e037da0d0fd3c8e4876761bea86f3259e2c70b47844e5d2a20a",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "production_sha": "165979d7dd0af135c0d7add2ac438f4c8b9ffc41",
+      "revision_id": "8a10045637dd09a6c863de4bd9a1424032bd9af84d3400f4c7ba851bd0037694",
+      "correction_cycle": 5,
+      "audit_epoch": 6,
+      "handoff_id": "191-e6-265d2744877c",
+      "reason": "Mudança externa de produção após merge; revisão anterior não corresponde ao código atual.",
+      "previous_event_hash": "232d1367bde9e858c06bfb7e238a3cce00c8dd04138ccf90b9250b6db5b0809e",
+      "event_hash": "211f84f7cad02ed318b107fb71ce7834bb5df7ce2d2e9bcd1843bb3a4cf4ee62"
     }
   ],
   "evidence": [
@@ -2164,5 +2204,16 @@
       "gtc_cache_flow_focal_result": "PASS_4_OF_4"
     }
   ],
-  "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509"
+  "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+  "correction_cycle": 5,
+  "lifetime_correction_cycles": 5,
+  "current_escalation_cycle": 5,
+  "escalation_level": "CRITICAL",
+  "human_approval_required": false,
+  "audit_epoch": 6,
+  "handoff_id": "191-e6-265d2744877c",
+  "production_sha": "165979d7dd0af135c0d7add2ac438f4c8b9ffc41",
+  "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "revision_id": "8a10045637dd09a6c863de4bd9a1424032bd9af84d3400f4c7ba851bd0037694",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

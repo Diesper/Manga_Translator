@@ -4,13 +4,13 @@
   "bible": "docs/biblia/tests/unit/background/regex-escape.test.js/Bíblia.md",
   "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "3707482c013734dd2fd0e6a3989eee30c5f5406e",
+  "source_sha": "8ef5c927d8666f5b4f3fc113c818f642058cf9e7",
   "started_at_utc": "2026-09-30T07:05:00Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "162-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_REQUIRED",
       "target_file": "tests/unit/background/regex-escape.test.js",
       "found_while_auditing": "tests/unit/background/regex-escape.test.js",
@@ -27,11 +27,14 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T22:30:00Z",
       "audit_finding": "ACCEPTED. A suíte de regex cobre `.`, parênteses, `+`, `*` e `?`, mas não fixa escape de `^`, `$`, `{}`, `[]`, `|`, backslash nem path Windows. A implementação aceita/escapa uma classe maior do que a prova atual.",
-      "auditor_recommended_action": "Adicionar tabela com todos os metacaracteres suportados e ao menos um path Windows com barras invertidas."
+      "auditor_recommended_action": "Adicionar tabela com todos os metacaracteres suportados e ao menos um path Windows com barras invertidas.",
+      "resolved_by": "AGENTE 2",
+      "resolved_at_utc": "2026-10-02T21:27:58.961Z",
+      "resolution": "Oito casos tabelados, caminho Windows e near-miss de * e ? adicionados com assertions no runtime real."
     },
     {
       "id": "162-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "DOCUMENTATION_CORRECTION",
       "target_file": "tests/unit/background/regex-escape.test.js",
       "found_while_auditing": "tests/unit/background/regex-escape.test.js",
@@ -48,21 +51,111 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T22:20:00Z",
       "audit_finding": "ACCEPTED. O comentário inicial ainda atribui `fallbackSearch` ao `background.js` real, mas a implementação atual vive em `extension/background/actions/open-existing-folder.js`, apenas carregada pelo background. A documentação do teste está stale.",
-      "auditor_recommended_action": "Corrigir comentário/título para apontar ao módulo de action atual sem alterar a prova funcional."
+      "auditor_recommended_action": "Corrigir comentário/título para apontar ao módulo de action atual sem alterar a prova funcional.",
+      "resolved_by": "AGENTE 2",
+      "resolved_at_utc": "2026-10-02T21:27:58.963Z",
+      "resolution": "Comentário inicial corrigido para apontar à ação modular open-existing-folder.js."
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "144/144",
-    "source_text_lines": 143,
-    "external_audit_requests_open": 2,
-    "note": "Suíte real de regressão do fluxo SHOW_EXISTING_FOLDER; provas diretas fortes para ., (), +, * e ?, com lacuna explícita para os demais metacaracteres e path Windows."
+    "documented_positions": "180/180",
+    "source_text_lines": 179,
+    "external_audit_requests_open": 0,
+    "note": "Correção testada: 14 casos focais, 16 com suíte relacionada e 237 na suíte background; nova revisão aguarda auditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-02T21:30:31Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T21:20:41Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "3707482c013734dd2fd0e6a3989eee30c5f5406e",
+      "bible_sha": "93a87d76d1a14d3417c582e4a2d646e3c0a0b575",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "fdbee58e6b4103253898ca164731ea4df61b9d8f1707dad28c854aebae02050a",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "bef3b96045dc540106dab3b8b2ee9af0346e41ae3b8f843c7ee9da96eb352fc8"
+    },
+    {
+      "at_utc": "2026-10-02T21:23:46Z",
+      "type": "EDITOR_CORRECTION_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "agent": "AGENTE 2",
+      "source_sha": "3707482c013734dd2fd0e6a3989eee30c5f5406e",
+      "bible_sha": "93a87d76d1a14d3417c582e4a2d646e3c0a0b575",
+      "correction_cycle": 0,
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "revision_id": "6a45fd7d410ef1351d9d073ab91cce6fc0c13076c261d9b7504a00baf18403ce",
+      "correction_token_id": "corr-162-dc9d9480ab16b48c1a68",
+      "approval_id": null,
+      "root_cause_review": null,
+      "strategy_review": null,
+      "reservation_path": "docs/biblia/.reservas/tests/unit/background/regex-escape.test.js.lock.md",
+      "previous_event_hash": "bef3b96045dc540106dab3b8b2ee9af0346e41ae3b8f843c7ee9da96eb352fc8",
+      "event_hash": "6f427958c2e74da3ac29a96da479886c40d6a93792cff2e3657e7501bdc90fff"
+    },
+    {
+      "at_utc": "2026-10-02T21:23:46Z",
+      "type": "CORRECTION_TOKEN_CONSUMED",
+      "correction_token_id": "corr-162-dc9d9480ab16b48c1a68",
+      "actor": "AGENTE 2",
+      "revision_id": "6a45fd7d410ef1351d9d073ab91cce6fc0c13076c261d9b7504a00baf18403ce",
+      "previous_event_hash": "6f427958c2e74da3ac29a96da479886c40d6a93792cff2e3657e7501bdc90fff",
+      "event_hash": "be15bfe2d206ffcf6ce0ac4c4ba1231921cb39536ff08569c1b251feb231e63d"
+    },
+    {
+      "at_utc": "2026-10-02T21:30:31Z",
+      "type": "CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "8ef5c927d8666f5b4f3fc113c818f642058cf9e7",
+      "test_sha": "8ef5c927d8666f5b4f3fc113c818f642058cf9e7",
+      "bible_sha": "f1d1d9198fc5f6a62c4c5ba7f72457d78157c75c",
+      "production_sha": null,
+      "agent": "AGENTE 2",
+      "correction_cycle": 1,
+      "audit_epoch": 1,
+      "handoff_id": "162-e1-7939bb110296",
+      "reservation_path": "docs/biblia/.reservas/tests/unit/background/regex-escape.test.js.lock.md",
+      "reason": "Cobertura de todos os metacaracteres e Windows, precisão documental e consumers CI corrigidos; focal 16/16 e background 237/237.",
+      "previous_event_hash": "be15bfe2d206ffcf6ce0ac4c4ba1231921cb39536ff08569c1b251feb231e63d",
+      "event_hash": "ac5dc211d2c854b530095e534bfddbe8ab2ecb132affcb539dcb2aa15075d8f9"
+    }
+  ],
+  "evidence": [
+    {
+      "type": "CORRECTION_VALIDATION",
+      "at_utc": "2026-10-02T21:27:58.963Z",
+      "agent": "AGENTE 2",
+      "focal": "16/16 tests, 2 suites, detectOpenHandles",
+      "related": "237/237 tests, 45 background suites, detectOpenHandles",
+      "protocol": "unit-transition, reconciliation and audit-protocol selftests PASS"
+    }
+  ],
+  "correction_cycle": 1,
+  "lifetime_correction_cycles": 1,
+  "current_escalation_cycle": 1,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 1,
+  "handoff_id": "162-e1-7939bb110296",
+  "production_sha": null,
+  "test_sha": "8ef5c927d8666f5b4f3fc113c818f642058cf9e7",
+  "bible_sha": "f1d1d9198fc5f6a62c4c5ba7f72457d78157c75c",
+  "revision_id": "5bb3bd1b19f7fd01419777e1ffb69ce80cc4f645a3d010cbeb4ec7e4b535f871",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

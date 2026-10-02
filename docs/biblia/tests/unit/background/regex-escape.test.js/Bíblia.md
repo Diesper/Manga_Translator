@@ -1,12 +1,12 @@
 # Bíblia técnica — tests/unit/background/regex-escape.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
-> **SHA auditado:** 3707482c013734dd2fd0e6a3989eee30c5f5406e  
-> **Agente responsável:** AGENTE 17  
-> **Tipo:** suíte Jest unitária de regressão para escape de regex no fluxo SHOW_EXISTING_FOLDER  
-> **Linhas textuais:** 143  
-> **Posições documentais:** 144, contando o newline final  
-> **PR:** #66  
+> **Estado documental:** CORRIGIDA — aguardando auditoria independente
+> **SHA auditado:** 8ef5c927d8666f5b4f3fc113c818f642058cf9e7
+> **Agente responsável:** AGENTE 17
+> **Tipo:** suíte Jest unitária de regressão para escape de regex no fluxo SHOW_EXISTING_FOLDER
+> **Linhas textuais:** 179
+> **Posições documentais:** 180, contando o newline final
+> **PR:** #66
 > **Branch:** docs/project-bible
 
 ## 1. Papel arquitetural
@@ -152,7 +152,7 @@ A rejeição de DragonBall prova que + não permaneceu como quantificador da exp
 
 Classificação: ✅ PROVADO DIRETAMENTE.
 
-## 9. Caso 4 — asterisco e interrogação — linhas 111–125
+## 9. Caso 4 — asterisco e interrogação — linhas 111–126
 
 Entrada:
 
@@ -164,11 +164,11 @@ Provas diretas:
 - o padrão resultante compila;
 - o padrão aceita a string literal Title*Name?.
 
-A suíte não inclui, neste caso, um near-miss negativo específico. Mesmo assim, a igualdade exata do filenameRegex prova que os dois caracteres foram escapados.
+Além da igualdade exata do filenameRegex, a assertion negativa rejeita TitleName: os símbolos não podem voltar a agir como quantificadores.
 
 Classificação do escape: ✅ PROVADO DIRETAMENTE.
 
-## 10. Caso 5 — caminho complexo — linhas 127–142
+## 10. Caso 5 — caminho complexo — linhas 128–143
 
 Entrada:
 
@@ -203,7 +203,7 @@ A suíte, portanto, deve ser descrita como um teste do background real por integ
 | Propriedade | Evidência atual | Classificação |
 |---|---|---|
 | extension/background.js real é carregado | path.resolve + loadBackgroundModule | ✅ PROVADO DIRETAMENTE |
-| SHOW_EXISTING_FOLDER chega à ação registrada | listener real + chamadas observadas em downloads.search | ✅ PROVADO DIRETAMENTE |
+| SHOW_EXISTING_FOLDER chega à ação registrada | listener real + efeito em downloads.search; identidade da ação confirmada no bootstrap e router | 🟨 EXECUTADO INDIRETAMENTE / PROVA DE CONSUMER |
 | ponto é escapado | igualdade de filenameRegex + match/near-miss | ✅ PROVADO DIRETAMENTE |
 | parênteses são escapados | igualdade de filenameRegex + match/near-miss | ✅ PROVADO DIRETAMENTE |
 | + é escapado | igualdade de filenameRegex + match/near-miss | ✅ PROVADO DIRETAMENTE |
@@ -211,9 +211,9 @@ A suíte, portanto, deve ser descrita como um teste do background real por integ
 | caminho complexo compila e encontra a string | not.toThrow + regex.test | ✅ PROVADO DIRETAMENTE |
 | REG-REGEX-FOLDER continua apontando para esta suíte e marcador | regression-matrix.json | 🟦 GATE ESTÁTICO ESPECÍFICO |
 | teardown chama cancelador de timers atrasados | afterEach executa helper | 🟨 EXECUTADO INDIRETAMENTE |
-| ^, $, {, }, [, ], pipe e barra invertida são cobertos individualmente | não há assertions focais localizadas | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| caminho Windows com separadores por barra invertida é provado por esta suíte | não há caso focal | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| near-miss negativo para o caso * / ? | não há assertion negativa nesse teste | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
+| ^, $, {, }, [, ], pipe e barra invertida são cobertos individualmente | test.each nas linhas 145–162: padrão exato, compilação, match e dois near-misses por símbolo | ✅ PROVADO DIRETAMENTE |
+| caminho Windows com separadores por barra invertida é provado por esta suíte | linhas 164–178: padrão exato, match e três near-misses | ✅ PROVADO DIRETAMENTE |
+| near-miss negativo para o caso * / ? | linha 125 rejeita TitleName | ✅ PROVADO DIRETAMENTE |
 
 ## 13. Evidência complementar encontrada
 
@@ -221,37 +221,21 @@ tests/unit/background/open-existing-folder-action.test.js também verifica diret
 
 Outras suítes reais exercitam SHOW_EXISTING_FOLDER com paths comuns e com anchorId existente, provando roteamento e reuso de downloads, mas não adicionam cobertura específica para todos os metacaracteres restantes da classe de escape.
 
-Assim, a cobertura robusta desta suíte é real para ., (, ), +, * e ?, porém não deve ser generalizada como prova direta de cada símbolo presente na classe de replace.
+A revisão atual cobre diretamente todos os metacaracteres da classe de replace. A tabela adicional não depende de uma cópia do algoritmo: cada símbolo tem um padrão literal esperado e near-misses explícitos. O caminho Windows inclui separadores, colchetes e ponto.
 
-## 14. Lacunas e solicitações ao auditor
+## 14. Correções e execução na CI
 
-### 162-001 — TEST_REQUIRED — OPEN
+162-001 foi corrigida pelos oito casos tabelados das linhas 145–162 e pelo caso Windows das linhas 164–178. Cada símbolo restante tem padrão esperado, compilação, match positivo e dois near-misses. O caso Windows rejeita remoção de colchetes, substituição do ponto e troca de separadores. O near-miss de * e ? também foi adicionado.
 
-**Encontrado:** a implementação escapa uma classe maior de metacaracteres do que a suíte verifica diretamente.
+162-002 foi corrigida no comentário inicial: o teste carrega o background real e executa fallbackSearch na ação modular open-existing-folder.js. O status canônico das requests permanece no .state.
 
-**Coberto diretamente:** ponto, parênteses, +, * e ?; além de um caminho composto com esses símbolos.
+O consumer de execução é o projeto background de jest.config.js (linhas 7–9), cujo testMatch inclui tests/unit/background/**/*.test.js. scripts/ci/run-jest-ci.js resolve jest.config.js na linha 14, inclui background em unitProjects na linha 15 e executa essa seleção. package.json, em test:ci, chama esse runner. O job unit-and-integration de .github/workflows/ci.yml executa npm run test:ci (linha 145). Esse encadeamento prova por inspeção de consumers como a suíte entra na CI; uma execução focal local não equivale a afirmar que a CI inteira está verde.
 
-**Sem prova focal:** ^, $, {, }, [, ], pipe e barra invertida. Também não existe neste arquivo um caso Windows com separadores de caminho por barra invertida.
+O wiring até a ação registrada é EXECUTADO INDIRETAMENTE e confirmado por inspeção de bootstrap/router. A suíte observa downloads.search e seu padrão; não observa diretamente actionRegistry.get ou a identidade da função execute.
 
-**Por que importa:** uma regressão futura que remova apenas um desses símbolos da classe de escape pode manter todos os casos atuais verdes.
+### Casos adicionais e limites
 
-**Ação solicitada:** em auditoria separada, ampliar a suíte com casos tabelados usando a implementação real, verificando filenameRegex, compilação sem SyntaxError, match positivo e near-miss negativo quando aplicável.
-
-**Risco:** títulos/caminhos menos comuns, especialmente caminhos Windows, podem voltar a produzir regex semanticamente incorreta ou inválida sem serem detectados por esta suíte.
-
-**Severidade:** NORMAL.
-
-### 162-002 — DOCUMENTATION_CORRECTION — OPEN
-
-**Encontrado:** o cabeçalho da suíte afirma que testa “a regex de escape no fallbackSearch do background.js real”. O fluxo realmente passa por background.js real, porém fallbackSearch está fisicamente implementado em extension/background/actions/open-existing-folder.js.
-
-**Evidência atual:** background.js requer o módulo da ação; router.js mapeia SHOW_EXISTING_FOLDER para open-existing-folder; a função fallbackSearch está no arquivo da ação.
-
-**Ação solicitada:** em alteração externa separada, atualizar o comentário inicial para distinguir “background real” de “implementação modular da ação”, sem mudar comportamento.
-
-**Risco:** documentação inline arquitetural pode induzir manutenção no arquivo errado.
-
-**Severidade:** LOW.
+Nas linhas 145–162, test.each executa ^, $, {, }, [, ], pipe e barra invertida separadamente. Nas linhas 164–178, a string Windows preserva separadores literais. A RegExp usada pela ação é uma busca não ancorada: o nome histórico do caso complexo diz “match exato”, mas sua assertion prova aceitação da string literal, sem provar exclusão de prefixos ou sufixos.
 
 ## 15. O que esta suíte não pretende provar
 
@@ -265,7 +249,6 @@ Este arquivo não prova integralmente:
 - comportamento de folderPath ausente ou não-string;
 - política de origem do roteador;
 - comportamento do popup que constrói folderPath;
-- todos os metacaracteres aceitos pela classe de escape;
 - ausência de timers pendentes após cada caso por assertion explícita.
 
 Esses pontos pertencem a outras suítes ou permanecem como lacunas específicas.
@@ -276,9 +259,9 @@ Esses pontos pertencem a outras suítes ou permanecem como lacunas específicas.
 /**
  * regex-escape.test.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Testa a regex de escape no fallbackSearch do background.js real (BUG #14 Fix).
- * Garante que caminhos de mangá com '.', '(', ')', '+', '*', '?' sejam
- * escapados corretamente ao realizar chrome.downloads.search({ filenameRegex }).
+ * Carrega o background real e executa fallbackSearch da ação modular
+ * extension/background/actions/open-existing-folder.js (BUG #14 Fix).
+ * Verifica escape literal de metacaracteres em downloads.search({ filenameRegex }).
  */
 
 const path = require('path');
@@ -397,6 +380,7 @@ describe('SHOW_EXISTING_FOLDER - Escape de Metacaracteres para Regex no backgrou
 
         const regex = new RegExp(query.filenameRegex);
         expect(regex.test('MangaTranslator/Title*Name?')).toBe(true);
+        expect(regex.test('MangaTranslator/TitleName')).toBe(false);
     });
 
     test('path complexo do mundo real não lança SyntaxError e faz match exato', async () => {
@@ -414,6 +398,41 @@ describe('SHOW_EXISTING_FOLDER - Escape de Metacaracteres para Regex no backgrou
 
         const regex = new RegExp(query.filenameRegex);
         expect(regex.test(complexPath)).toBe(true);
+    });
+
+    test.each(['^', '$', '{', '}', '[', ']', '|', '\\'])(
+        'escapa o metacaractere restante %s como literal', async (symbol) => {
+            const searchSpy = jest.spyOn(downloadsMock, 'search');
+            const folderPath = `MangaTranslator/Before${symbol}After`;
+            await dispatchToBackground(runtimeMock, {
+                action: 'SHOW_EXISTING_FOLDER', folderPath, safeTitle: 'Literal',
+            });
+
+            expect(searchSpy).toHaveBeenCalled();
+            const query = searchSpy.mock.calls[0][0];
+            expect(query.filenameRegex).toBe(`MangaTranslator/Before\\${symbol}After`);
+            expect(() => new RegExp(query.filenameRegex)).not.toThrow();
+            const regex = new RegExp(query.filenameRegex);
+            expect(regex.test(folderPath)).toBe(true);
+            expect(regex.test('MangaTranslator/BeforeXAfter')).toBe(false);
+            expect(regex.test('MangaTranslator/BeforeAfter')).toBe(false);
+        }
+    );
+
+    test('escapa separadores e metacaracteres de um caminho Windows', async () => {
+        const searchSpy = jest.spyOn(downloadsMock, 'search');
+        const folderPath = 'C:\\Users\\Reader\\MangaTranslator\\Arc[2]\\One.Piece';
+        await dispatchToBackground(runtimeMock, {
+            action: 'SHOW_EXISTING_FOLDER', folderPath, safeTitle: 'One.Piece',
+        });
+
+        const query = searchSpy.mock.calls[0][0];
+        expect(query.filenameRegex).toBe('C:\\\\Users\\\\Reader\\\\MangaTranslator\\\\Arc\\[2\\]\\\\One\\.Piece');
+        const regex = new RegExp(query.filenameRegex);
+        expect(regex.test(folderPath)).toBe(true);
+        expect(regex.test(folderPath.replace('Arc[2]', 'Arc2'))).toBe(false);
+        expect(regex.test(folderPath.replace('One.Piece', 'OneXPiece'))).toBe(false);
+        expect(regex.test(folderPath.replace(/\\/g, '/'))).toBe(false);
     });
 });
 ~~~
@@ -442,28 +461,20 @@ describe('SHOW_EXISTING_FOLDER - Escape de Metacaracteres para Regex no backgrou
 | 93 | separação |
 | 94–109 | caso do sinal de mais |
 | 110 | separação |
-| 111–125 | caso de * e ? |
-| 126 | separação |
-| 127–142 | caminho complexo / não lançar SyntaxError |
-| 143 | fechamento do describe |
-| posição 144 | newline final |
+| 111–126 | caso de * e ?, com near-miss |
+| 127 | separação |
+| 128–143 | caminho complexo / não lançar SyntaxError |
+| 144 | separação |
+| 145–162 | oito metacaracteres restantes: tabela, padrão, match e near-misses |
+| 163 | separação |
+| 164–178 | caminho Windows: padrão, match e near-misses |
+| 179 | fechamento do describe |
+| posição 180 | newline final |
 
-Todas as 143 linhas textuais e a posição final de newline estão cobertas pelo mapa acima.
+Todas as 179 linhas textuais e a posição final de newline estão cobertas pelo mapa acima.
 
-## 18. Autoauditoria do AGENTE 17
+## 18. Revalidação da correção — AGENTE 2
 
-- [x] reserva existente #162 relida e confirmada como AGENTE 17;
-- [x] state #162 relido e confirmado como IN_PROGRESS para o mesmo arquivo;
-- [x] SHA reservado reconfirmado contra o fonte atual;
-- [x] fonte integral de 143 linhas incorporada;
-- [x] newline final contabilizado como posição 144;
-- [x] implementação real open-existing-folder.js inspecionada;
-- [x] router.js inspecionado para o mapeamento SHOW_EXISTING_FOLDER;
-- [x] bootstrap Node/Jest de background.js inspecionado;
-- [x] helpers e mocks relevantes inspecionados;
-- [x] assertions diretas separadas de execução indireta e gates estáticos;
-- [x] cobertura não comprovada explicitamente marcada como lacuna;
-- [x] duas solicitações ao auditor identificadas;
-- [x] nenhum código, teste, fixture, workflow ou configuração foi alterado para fabricar evidência.
+Fonte integral relida, implementação real e consumers inspecionados, assertions diretas separadas de wiring indireto. Não há skip/only no arquivo. Os casos novos preservam o fluxo real pelo listener e usam expectativas literais independentes da classe de replace. O teardown continua cancelando os timers tardios da ação.
 
-**Resultado:** a suíte #162 prova diretamente o escape correto de ., (, ), +, * e ? no fluxo real SHOW_EXISTING_FOLDER e prova que um caminho composto correspondente compila e encontra a string literal. Ela não fornece prova focal para todos os demais metacaracteres da classe de escape nem para separadores Windows por barra invertida.
+Validação focal: regex-escape.test.js e open-existing-folder-action.test.js passaram em 16/16 testes com --runInBand --detectOpenHandles. A primeira suíte contém 14 casos executados. A suíte background completa passou em 45/45 suítes e 237/237 testes. Os testes do protocolo de transições, reconciliação e auditoria também passaram. A aprovação final depende de PRIMARY e ADVERSARIAL independentes para os novos blobs; esta correção não atribui 100/100 por conta própria.

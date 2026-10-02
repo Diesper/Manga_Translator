@@ -371,6 +371,15 @@ function projectAuditDecision(state, pipeline, options = {}) {
   if (pipeline.bible_sha && snapshot.bible_sha && pipeline.bible_sha !== snapshot.bible_sha) {
     throw new Error('RECONCILE_BIBLE_STALE');
   }
+  if (!snapshot.bible_sha && pipeline.bible_sha && !life.validSha(pipeline.bible_sha)) {
+    throw new Error('RECONCILE_BIBLE_SHA_INVALID');
+  }
+  // Legacy states can predate Bible revision binding. The final distributed
+  // decision already names the audited Bible blob, so materialize that exact
+  // binding before issuing a correction token for this decision.
+  const decisionSnapshot = !snapshot.bible_sha && pipeline.bible_sha
+    ? life.lifecycleSnapshot(state, { bible_sha: pipeline.bible_sha })
+    : snapshot;
   const openRequests = (state.audit_requests || []).filter((request) => request?.status === 'OPEN');
   if (pipeline.decision === 'APPROVED' && openRequests.length) {
     throw new Error('RECONCILE_OPEN_REQUESTS:' + openRequests.length);
@@ -411,16 +420,16 @@ function projectAuditDecision(state, pipeline, options = {}) {
       primary: pipeline.primary?.verdict || null,
       adversarial: pipeline.adversarial?.verdict || null,
       reaudit: pipeline.reaudit?.verdict || null,
-      revision_id: snapshot.revision_id,
-      audit_epoch: snapshot.audit_epoch,
-      handoff_id: snapshot.handoff_id,
+      revision_id: decisionSnapshot.revision_id,
+      audit_epoch: decisionSnapshot.audit_epoch,
+      handoff_id: decisionSnapshot.handoff_id,
       reason: targetStatus === 'COMPLETED'
         ? 'PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.'
         : 'Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.',
     });
   }
 
-  persistSnapshot(next, snapshot);
+  persistSnapshot(next, decisionSnapshot);
   next.progress_note = targetStatus === 'COMPLETED'
     ? 'Decisão distribuída final APPROVED vinculada à revisão atual.'
     : 'Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.';
@@ -1023,11 +1032,6 @@ function main(argv=process.argv.slice(2)) {
   throw new Error('comando desconhecido: ' + args.command);
 }
 
-if (require.main===module) {
-  try { main(); }
-  catch (error) { console.error('Unit transition: ERROR — '+error.message); process.exit(1); }
-}
-
 module.exports = {
   finalDecisionRecord,
   decisionIdForPipeline,
@@ -1057,3 +1061,8 @@ module.exports = {
   releaseCorrectionReservation,
   ownershipIndex,
 };
+
+if (require.main===module) {
+  try { main(); }
+  catch (error) { console.error('Unit transition: ERROR — '+error.message); process.exit(1); }
+}
