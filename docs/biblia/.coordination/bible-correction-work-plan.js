@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const lifecycleCore = require('./lifecycle-core');
 const {
   loadModel,
 } = require('./audit-protocol');
@@ -43,6 +44,11 @@ function planCorrections(model, editorOrdinal, editorCount = DEFAULT_EDITOR_COUN
 
     const state = (model.states || []).find((item) => item.index === pipeline.index);
     if (!state || state.status === 'IN_PROGRESS') continue;
+    const lifecycle = lifecycleCore.lifecycleSnapshot(state);
+    if (lifecycle.human_locked) continue;
+    const actor = 'AGENTE ' + positiveInt(editorOrdinal, 'editorOrdinal');
+    const eligibility = lifecycleCore.correctorEligibility(state, actor);
+    if (!eligibility.eligible) continue;
     const record = correctionRecord(pipeline);
     const shard = shardForIndex(pipeline.index, count);
     candidates.push({
@@ -59,10 +65,22 @@ function planCorrections(model, editorOrdinal, editorCount = DEFAULT_EDITOR_COUN
       final_verdict_source: record?.phase || null,
       final_auditor: record?.auditor || null,
       findings: Array.isArray(record?.findings) ? record.findings : [],
+      correction_cycle: lifecycle.correction_cycle,
+      escalation_level: lifecycle.escalation_level,
+      priority_score: lifecycle.priority_score,
+      revision_id: lifecycle.revision_id,
+      audit_epoch: lifecycle.audit_epoch,
+      handoff_id: lifecycle.handoff_id,
+      correction_token_required: true,
+      root_cause_review_required: lifecycle.correction_cycle === 6,
     });
   }
 
-  candidates.sort((a,b) => a.steal_distance - b.steal_distance || a.index - b.index);
+  candidates.sort((a,b) => (
+    b.priority_score - a.priority_score
+    || a.steal_distance - b.steal_distance
+    || a.index - b.index
+  ));
   return {
     editor: positiveInt(editorOrdinal, 'editorOrdinal'),
     shard_count: count,
@@ -102,6 +120,8 @@ function main(argv = process.argv.slice(2)) {
       (item.preferred ? 'LOCAL ' : 'STEAL ')
       + '#' + item.index_label
       + ' shard=' + item.shard
+      + ' escalation=' + item.escalation_level
+      + ' cycle=' + item.correction_cycle
       + ' source_sha=' + item.source_sha
       + ' bible_sha=' + (item.bible_sha || '-')
       + ' findings=' + item.findings.length
