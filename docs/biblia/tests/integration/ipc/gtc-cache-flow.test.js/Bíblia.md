@@ -1,2334 +1,440 @@
 # Bíblia técnica — tests/integration/ipc/gtc-cache-flow.test.js
 
-> **Estado documental:** ✅ CONCLUÍDO pelo AGENTE 9  
-> **SHA auditado:** `e6eb5c744499fcaa0309a187a173841c185bbaea`  
-> **Agente responsável:** AGENTE 9  
-> **Tipo real observado:** suíte Jest de simulação/contrato do GTC legado sobre `ChromeStorageMock`  
-> **Linhas textuais:** **250**  
-> **Posições documentais:** **251**, contando o newline final  
+> **Estado documental:** reparo corretivo materializado; decisão distribuída final pendente  
+> **SHA auditado:** `d2d0685772206873d2dfe5b5a43efd7f5218ad60`  
+> **Índice do corpus:** 110  
+> **Tipo:** integração Jest real do pipeline GTC moderno + fallback legado  
+> **Linhas textuais:** **290**  
+> **Posições documentais:** **291**, contando o LF final  
+> **Tamanho textual observado:** **11068 caracteres**  
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
-## 1. Papel arquitetural real
+## 1. Papel arquitetural
 
-Apesar do caminho `tests/integration/ipc/` e do cabeçalho “Fluxo Completo v3.2”, este arquivo **não importa nem executa a implementação real do GTC/pipeline**. A regra central de lookup é reimplementada localmente por `simulateExtractWithGTC`; os cenários de “UPDATE_IMAGE” gravam diretamente no `ChromeStorageMock`. Portanto, as assertions são prova direta da simulação e do mock, não de `extractAndSendImages`, `UPDATE_IMAGE`, `GTC_QUERY_MANY`, `GTC_SAVE` ou do repositório IndexedDB real.
+A revisão anterior era um modelo sintético sobre `ChromeStorageMock`. A revisão atual removeu `simulateExtractWithGTC`, o import morto `fs` e as gravações diretas usadas como falsa evidência de `UPDATE_IMAGE`.
 
-Isso não torna a suíte inútil: ela documenta/valida um contrato legado simples — chaves `gtc_<sha256>`, consulta batch, particionamento por índice, equivalência de hash cross-URL e comportamento para hash nulo. O risco é **classificação excessiva**: tratar essa suíte como evidência de integração completa produziria falso positivo documental.
+O fluxo exercitado agora é real dentro do ambiente Jest suportado:
 
-## 2. Contraste com a arquitetura atual
+`content_manga.js / cm-gtc-client.js` → `chrome.runtime` → `createGtcRuntimeHandler()` → `createIndexedDbRepository()` com `fake-indexeddb`.
 
-- `extension/content/content_manga.js` consulta primeiro o runtime com `GTC_QUERY_MANY`; somente se a resposta moderna não estiver disponível cai no fallback legado `chrome.storage.local` com `gtc_<hash>`.
-- O mesmo módulo salva via `GTC_SAVE` com metadados visuais e só usa `storage.local` como fallback de backward compatibility.
-- O pipeline atual possui níveis SHA-256, dHash e consultas perceptuais correlacionadas; esta suíte cobre apenas SHA-256 exato legado.
-- `tests/unit/content-manga/extract-flow-real.test.js` carrega `content_manga.js` real e possui cenários focais de `extractAndSendImages`.
-- `tests/unit/content-manga/extraction-and-handlers-real.test.js` despacha `UPDATE_IMAGE` real e verifica emissão de `GTC_SAVE`.
-- Existem ainda testes reais do bridge/background/IndexedDB; logo esta suíte deve ser classificada como complemento simulado, não como substituta dessas provas.
+O fallback `storage.local gtc_<hash>` permanece coberto somente quando a resposta moderna é forçada a falhar; a decisão de cair no fallback pertence ao cliente GTC real.
 
-## 3. Isolamento do storage mock
+## 2. Dependências revalidadas
 
-`getStorageMock()` devolve uma instância singleton, mas o próprio `tests/mocks/chrome-api.mock.js` instala um `beforeEach` global que chama `initChromeMocks()`. Nas chamadas subsequentes, esse reset executa `storageMock.clear()` e cancela timers antes de cada caso. Assim, o Cenário B pode assumir storage vazio apesar de Cenário A ter gravado dados; a limpeza não aparece neste arquivo porque pertence à infraestrutura Jest compartilhada.
+- `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
+- `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
+- `extension/content/content_manga.js`: `a8b3698019f6f22027f09f544f15c0563a9f6515`.
+- `extension/shared/gtc-indexeddb.js`: `0c872f23a665304b46dc2bb43c6468762feb2e31`.
+- `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
+- `jest.config.js`: `f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc`.
+- `package.json`: `5b5c328f6139eeff920dc65a78014a6c5b6db3a6`.
+- `.github/workflows/ci.yml`: `9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a`.
+- `.github/workflows/gtc-cache-flow-selftest.yml`: `65fd11e02cb63ae290772526da30aae6365d186b`.
 
-## 4. Matriz de evidência
+## 3. Bridge GTC real
 
-| Alegação | O que este arquivo realmente executa | Classificação |
-|---|---|---|
-| 100% hits / 0% misses | helper local `simulateExtractWithGTC` + storage mock | ✅ PROVADO DIRETAMENTE **na simulação** |
-| 0% hits / todos misses | helper local + storage vazio | ✅ PROVADO DIRETAMENTE **na simulação** |
-| hits parciais preservam índices | helper local | ✅ PROVADO DIRETAMENTE **na simulação** |
-| mesma imagem cross-URL dá hit | passa literalmente o mesmo hash; não usa URLs/fingerprint real | ✅ PROVADO apenas como **mesmo hash → mesma chave** |
-| `UPDATE_IMAGE` salva GTC | não despacha `UPDATE_IMAGE`; chama `storageMock.set` | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO NESTE ARQUIVO |
-| `extractAndSendImages` usa cache | não importa/chama `content_manga.js` | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO NESTE ARQUIVO |
-| sem hash não salva | branch local `if (origHash)` | ✅ PROVADO apenas para a reimplementação local |
-| batch get retorna mesmas três entradas | uma chamada `storageMock.get([...])` | ✅ PROVADO DIRETAMENTE para o mock |
-| batch get é mais eficiente que N gets | não mede chamadas/tempo versus N gets | ⚠️ NÃO PROVADO; somente equivalência dos dados |
-| arquitetura GTC moderna runtime/IndexedDB | não executada | ⚠️ SEM PROVA NESTE ARQUIVO |
+`installRealGtcBridge()` cria `createGtcRuntimeHandler({ repository })` da implementação de produção. Mensagens `GTC_*` são delegadas a esse handler; o repository é o `createIndexedDbRepository()` real sobre uma `IDBFactory` do `fake-indexeddb`.
 
-## 5. Invariantes/casos-limite realmente cobertos
+Nos cenários de hit, a fixture pré-popula o repository **antes de delegar a consulta ao handler real**. Ela não decide se algo é hit/miss; essa decisão ocorre no repository/handler/cliente reais.
 
-1. Hash truthy é mapeado para `gtc_<hash>` pela simulação.
-2. Hash falsy não gera chave de lookup e vira miss.
-3. Índices originais são preservados nos dois vetores.
-4. Valor truthy armazenado vira hit; ausência/falsy vira miss.
-5. Um array de chaves pode ser lido em batch pelo `ChromeStorageMock`.
-6. Mesmo hash sintético recupera a mesma tradução independentemente da narrativa de URL.
-7. Cada caso recebe storage limpo pela infraestrutura global de mocks.
-8. Nenhum destes invariantes, isoladamente, prova que o pipeline de produção continua igual à simulação.
+Mensagens externas ao escopo GTC (`START_BATCH`, fingerprint visual e alguns serviços auxiliares) recebem respostas controladas somente para permitir observar o comportamento do content script.
 
-## 6. Achados e solicitações ao auditor
+## 4. Caso 100% hit
 
-> **Lifecycle canônico:** os status abaixo refletem `docs/biblia/.state/110.json`; todos os cinco findings estão `ACCEPTED` e continuam como lacunas não bloqueantes de software/cobertura.
+O primeiro teste cria duas imagens, intercepta a primeira `GTC_QUERY_MANY` somente para pré-popular o repository real com as traduções correspondentes e então delega a mesma request ao handler de produção.
 
-- **110-001 — TEST_CLASSIFICATION_REVIEW — ACCEPTED — HIGH:** o nome/cabeçalho falam em integração e “FLUXO COMPLETO”, mas a suíte não carrega produção. Reclassificar/documentar de forma que simulação não seja citada como prova real.
-- **110-002 — TEST_REQUIRED — ACCEPTED — HIGH:** se este arquivo deve permanecer responsável por fluxo GTC, criar/usar teste que execute `content_manga.js`/bridge/IndexedDB reais e verifique `GTC_QUERY_MANY`, miss→fila, cache hit→replacement e `UPDATE_IMAGE`→`GTC_SAVE`; hoje essas provas estão dispersas em outras suítes.
-- **110-003 — ARCHITECTURE_DRIFT — ACCEPTED:** decidir se a cobertura de `gtc_<hash>` deve ser explicitamente rotulada como fallback legado, porque o caminho primário atual usa runtime/IndexedDB e metadados perceptuais.
-- **110-004 — TEST_ASSERTION_QUALITY — ACCEPTED:** o teste intitulado “Batch get vs N gets individuais (eficiência)” não executa N gets, não conta chamadas nem mede desempenho; ajustar a alegação ou adicionar prova correspondente.
-- **110-005 — CLEANUP — ACCEPTED — LOW:** `const fs = require('fs')` não possui consumidor no arquivo.
+As assertions exigem:
 
-## 7. Fonte integral exata
+- as duas imagens marcadas como traduzidas;
+- Data URLs exatos aplicados ao DOM;
+- nenhum `START_BATCH`; e
+- exatamente **uma** `GTC_QUERY_MANY` contendo os dois hashes.
+
+Essa última assertion substitui a antiga alegação de “eficiência” sem prova por uma propriedade observável: o cliente moderno faz consulta SHA em batch único.
+
+## 5. Hit parcial e miss → fila
+
+O segundo teste pré-popula apenas o primeiro hash. O handler/repository reais devolvem um hit e um miss.
+
+O content script real aplica a tradução do índice 0 e envia `START_BATCH` **somente** com `{ index: 1 }`. Também exige uma única consulta `GTC_QUERY_MANY` com os dois hashes.
+
+## 6. Fallback legado
+
+O terceiro teste força apenas a indisponibilidade da resposta moderna `GTC_QUERY_MANY`. No momento dessa request, a fixture grava as chaves legadas correspondentes para representar dados históricos já existentes.
+
+`cm-gtc-client.js` real detecta `ok:false`, lê `storage.local` e aplica as duas traduções. O teste exige nenhum `START_BATCH`, uma única consulta moderna tentada e as duas chaves legacy presentes.
+
+Assim a suíte diferencia explicitamente a arquitetura primária moderna do caminho de backward compatibility.
+
+## 7. UPDATE_IMAGE → GTC_SAVE
+
+O quarto teste carrega `content_manga.js` real, marca o elemento com `dataset.origHash = 'abc123hash'` e despacha `UPDATE_IMAGE` pelo listener real.
+
+O content script emite `GTC_SAVE`; o bridge de produção persiste no repository IndexedDB real. A prova final consulta **o repository**, não apenas a mensagem, e exige `{ abc123hash: TRANSLATED_0 }`, além de validar `cleanUrl` e DOM atualizado.
+
+## 8. Ambiente fake-indexeddb
+
+A primeira execução real reproduziu um problema do ambiente de teste: sem `structuredClone`, o backend `fake-indexeddb` rejeitava operações, fazendo os hits modernos virarem misses e impedindo `GTC_SAVE` de persistir.
+
+A correção adiciona o mesmo polyfill de `structuredClone` já usado em `tests/integration/performance.test.js`. Nenhuma assertion de produto foi enfraquecida.
+
+## 9. Audit requests
+
+### 110-001 — RESOLVED
+
+A suíte é agora integração real do pipeline moderno; `simulateExtractWithGTC` foi removida e o cabeçalho/classificação correspondem ao que é executado.
+
+### 110-002 — RESOLVED
+
+Hit completo, hit parcial/miss→fila e `UPDATE_IMAGE→GTC_SAVE→IndexedDB` passam por produtores/consumidores reais.
+
+### 110-003 — RESOLVED
+
+O caminho primário runtime/IndexedDB é o foco da suíte; o fallback `gtc_<hash>` é exercitado separadamente forçando falha moderna e deixando o cliente real decidir pelo fallback.
+
+### 110-004 — RESOLVED
+
+O caso antigo de “eficiência” foi removido. A estratégia moderna é provada por call-count: exatamente uma `GTC_QUERY_MANY` com todos os hashes do lote nos casos de hit completo e parcial.
+
+### 110-005 — RESOLVED
+
+O import morto `fs` foi removido.
+
+## 10. Evidência executável
+
+- Workflow focal: `.github/workflows/gtc-cache-flow-selftest.yml` SHA `65fd11e02cb63ae290772526da30aae6365d186b`.
+- Run negativa: `36945821282`, job `110647594401`: 3/4 casos falharam e revelaram a ausência de `structuredClone` no backend fake IndexedDB.
+- Run final: `36945960530`, job `110648032272`: **success**.
+- Focal final: **1/1 suíte, 4/4 testes**, `--runTestsByPath`, `--runInBand`, `--detectOpenHandles`.
+- Regressão relacionada: **13/13 suítes, 81/81 testes** do projeto `integration`.
+- Snapshots: 0.
+
+## 11. Limites honestos
+
+- O IndexedDB exercitado é `fake-indexeddb`, não armazenamento Chromium em disco; a lógica de repository/transações é a implementação real.
+- `START_BATCH` é observado por listener controlado; o background Gemini não é necessário para provar que apenas os misses são enfileirados.
+- O seed tardio do repository existe somente para descobrir os hashes gerados pelo content real antes da consulta; depois disso a request original é processada pelo handler/repository reais.
+- O fallback legacy precisa de fixture direta em `storage.local` porque representa entradas históricas preexistentes; a decisão de consultá-las permanece lógica real do cliente.
+
+## 12. Fonte integral exata
 
 ```js
 /**
  * gtc-cache-flow.test.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Testes de integração do Global Translation Cache (GTC) — v3.2.
+ * Integração real do GTC moderno:
+ * content_manga.js -> chrome.runtime -> createGtcRuntimeHandler -> IndexedDB.
  *
- * FLUXO COMPLETO:
- * 1. extractAndSendImages gera fingerprints em paralelo
- * 2. Consulta o GTC no storage (batch get)
- * 3. Cache hits → applyImageReplacement(fromCache=true)
- * 4. Cache misses → fila do Gemini
- * 5. UPDATE_IMAGE salva no GTC após nova tradução
- *
- * CENÁRIOS:
- * A. 100% cache hits → sem Gemini, checkIfComplete(true)
- * B. 0% cache hits → tudo vai para Gemini (comportamento v3.1)
- * C. Hits parciais → alguns imediatos + resto para Gemini
- * D. Mesma imagem em site espelho → GTC resolve sem Gemini
+ * A suíte não reimplementa a decisão hit/miss. Fixtures apenas pré-populam o
+ * repository real ou forçam explicitamente o fallback legado.
  */
 
-const path = require('path');
-const fs   = require('fs');
-// Portable root finder — works regardless of where this file is placed in the tree.
-// Walks up from __dirname until it finds the folder containing extension/manifest.json.
-const { findRepoRoot } = require('../../helpers/repo-root');
-const ROOT = findRepoRoot(__dirname);
+const crypto = require('crypto');
+const { TextEncoder } = require('util');
+const { IDBFactory } = require('fake-indexeddb');
 
-const { getStorageMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
+const { loadContentScript } = require('../../helpers/load-content-script.js');
+const {
+    getRuntimeMock,
+    getStorageMock,
+} = require('../../mocks/chrome-api.mock.js');
+const {
+    createGtcRuntimeHandler,
+    createIndexedDbRepository,
+} = require('../../../extension/shared/gtc-indexeddb.js');
 
-describe('Global Translation Cache (GTC) — Fluxo Completo v3.2', () => {
+Object.defineProperty(global, 'crypto', {
+    value: crypto.webcrypto,
+    configurable: true,
+});
+global.TextEncoder = TextEncoder;
+if (typeof globalThis.structuredClone !== 'function') {
+    globalThis.structuredClone = value => JSON.parse(JSON.stringify(value));
+}
 
-    const TRANS_BASE64 = 'data:image/png;base64,TRANSLATED_IMAGE';
-    const HASH_PAGE1   = 'a'.repeat(64); // SHA-256 simulado para página 1
-    const HASH_PAGE2   = 'b'.repeat(64); // SHA-256 simulado para página 2
-    const HASH_PAGE3   = 'c'.repeat(64); // SHA-256 simulado para página 3
+describe('Global Translation Cache (GTC) — integração moderna real', () => {
+    const TRANSLATED_0 = 'data:image/png;base64,Q0FDSEVfMA==';
+    const TRANSLATED_1 = 'data:image/png;base64,Q0FDSEVfMQ==';
 
-    // ── Simulação do fluxo de extractAndSendImages com GTC ─────────────────────
-    async function simulateExtractWithGTC(chromeStorage, imageHashes) {
-        const hashKeys = imageHashes.filter(Boolean).map(h => `gtc_${h}`);
-        const gtcData = hashKeys.length > 0
-            ? await new Promise(r => chromeStorage.get(hashKeys, r))
-            : {};
+    let runtimeMock;
+    let storageMock;
+    let repository;
+    let runtimeMessages;
+    let startBatches;
+    let queryManyMode;
 
-        const cacheHits = [];
-        const cacheMisses = [];
-
-        imageHashes.forEach((hash, i) => {
-            const cacheKey = hash ? `gtc_${hash}` : null;
-            const cached = cacheKey ? gtcData[cacheKey] : null;
-            if (cached) cacheHits.push({ index: i, base64: cached });
-            else cacheMisses.push({ index: i });
-        });
-
-        return { cacheHits, cacheMisses };
+    function uniqueDbName() {
+        return `gtc-cache-flow-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
 
-    let storageMock;
+    async function waitFor(assertion, { timeout = 3000, interval = 10 } = {}) {
+        const startedAt = performance.now();
+        while (performance.now() - startedAt < timeout) {
+            const result = await assertion();
+            if (result) return result;
+            await new Promise(resolve => setTimeout(resolve, interval));
+        }
+        throw new Error('Timeout aguardando integração GTC');
+    }
 
-    beforeEach(() => {
-        storageMock = getStorageMock();
-    });
+    function installRealGtcBridge() {
+        const realHandler = createGtcRuntimeHandler({ repository });
 
-    describe('Cenário A: 100% cache hits', () => {
-        test('todas as imagens no cache → sem envio para Gemini', async () => {
-            // Pré-popula o GTC
-            await storageMock.set({
-                [`gtc_${HASH_PAGE1}`]: TRANS_BASE64,
-                [`gtc_${HASH_PAGE2}`]: TRANS_BASE64,
-            });
+        runtimeMock.onMessage.addListener((request, sender, sendResponse) => {
+            if (!request || !request.action || !request.action.startsWith('GTC_')) return false;
+            runtimeMessages.push(request);
 
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2]
-            );
+            if (request.action === 'GTC_QUERY_MANY' && queryManyMode) {
+                if (queryManyMode.kind === 'seed') {
+                    Promise.resolve()
+                        .then(async () => {
+                            const selected = queryManyMode.select(request.hashes || []);
+                            await repository.putMany(
+                                selected.map(({ hash, translatedDataUrl }) => ({
+                                    hash,
+                                    translatedDataUrl,
+                                    cleanUrl: `fixture://${hash}`,
+                                }))
+                            );
+                            realHandler(request, sender, sendResponse);
+                        })
+                        .catch(error => sendResponse({ ok: false, error: error.message }));
+                    return true;
+                }
 
-            expect(cacheHits).toHaveLength(2);
-            expect(cacheMisses).toHaveLength(0);
-        });
-
-        test('cache hits têm o base64 correto', async () => {
-            const TRANS_P1 = 'data:image/png;base64,PAGE1_TRANSLATED';
-            const TRANS_P2 = 'data:image/png;base64,PAGE2_TRANSLATED';
-
-            await storageMock.set({
-                [`gtc_${HASH_PAGE1}`]: TRANS_P1,
-                [`gtc_${HASH_PAGE2}`]: TRANS_P2,
-            });
-
-            const { cacheHits } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2]
-            );
-
-            expect(cacheHits[0].base64).toBe(TRANS_P1);
-            expect(cacheHits[1].base64).toBe(TRANS_P2);
-        });
-    });
-
-    describe('Cenário B: 0% cache hits', () => {
-        test('nenhuma imagem no cache → todas vão para Gemini', async () => {
-            // Storage vazio — sem GTC entries
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]
-            );
-
-            expect(cacheHits).toHaveLength(0);
-            expect(cacheMisses).toHaveLength(3);
-        });
-
-        test('indices dos cache misses são preservados corretamente', async () => {
-            const { cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]
-            );
-
-            expect(cacheMisses.map(m => m.index)).toEqual([0, 1, 2]);
-        });
-    });
-
-    describe('Cenário C: hits parciais', () => {
-        test('pag1 e pag3 no cache, pag2 não → pag2 vai para Gemini', async () => {
-            await storageMock.set({
-                [`gtc_${HASH_PAGE1}`]: TRANS_BASE64,
-                // HASH_PAGE2 não está no cache
-                [`gtc_${HASH_PAGE3}`]: TRANS_BASE64,
-            });
-
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]
-            );
-
-            expect(cacheHits.map(h => h.index)).toEqual([0, 2]);
-            expect(cacheMisses.map(m => m.index)).toEqual([1]);
-        });
-
-        test('contagem total = cache hits + cache misses = imagens selecionadas', async () => {
-            await storageMock.set({ [`gtc_${HASH_PAGE1}`]: TRANS_BASE64 });
-
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]
-            );
-
-            expect(cacheHits.length + cacheMisses.length).toBe(3);
-        });
-    });
-
-    describe('Cenário D: mesma imagem em site espelho (cross-URL)', () => {
-        test('imagem traduzida em siteA é reconhecida em siteB pelo hash', async () => {
-            // A MESMA imagem física (mesmo conteúdo de pixels) tem URLs diferentes
-            // em dois sites, mas produz o MESMO fingerprint hash.
-            const SHARED_HASH = HASH_PAGE1; // Mesmo hash = mesma imagem
-
-            // Salva no GTC após tradução em siteA
-            await storageMock.set({ [`gtc_${SHARED_HASH}`]: TRANS_BASE64 });
-
-            // siteB tenta traduzir a mesma imagem — deve encontrar no GTC
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [SHARED_HASH] // Mesmo hash, URL diferente (mas hash é o que importa)
-            );
-
-            expect(cacheHits).toHaveLength(1);
-            expect(cacheMisses).toHaveLength(0);
-            expect(cacheHits[0].base64).toBe(TRANS_BASE64);
-        });
-    });
-
-    describe('Salvamento no GTC após tradução pelo Gemini', () => {
-        test('UPDATE_IMAGE salva entry no GTC com chave gtc_${hash}', async () => {
-            const hash = HASH_PAGE1;
-            const translated = TRANS_BASE64;
-
-            // Simula o que UPDATE_IMAGE faz
-            await storageMock.set({ [`gtc_${hash}`]: translated });
-
-            // Verifica que a entry foi salva
-            const data = await storageMock.get([`gtc_${hash}`]);
-            expect(data[`gtc_${hash}`]).toBe(translated);
-        });
-
-        test('sem hash disponível (fingerprint falhou), GTC não é salvo', async () => {
-            // origHash = null significa que generateImageFingerprint retornou null
-            const origHash = null;
-            const toSet = {};
-
-            if (origHash) {
-                toSet[`gtc_${origHash}`] = TRANS_BASE64;
+                if (queryManyMode.kind === 'legacy-fallback') {
+                    Promise.resolve()
+                        .then(async () => {
+                            const legacyEntries = Object.fromEntries(
+                                (request.hashes || []).map((hash, index) => [
+                                    `gtc_${hash}`,
+                                    queryManyMode.values[index] || TRANSLATED_0,
+                                ])
+                            );
+                            await storageMock.set(legacyEntries);
+                            sendResponse({ ok: false, error: 'forced modern GTC failure' });
+                        })
+                        .catch(error => sendResponse({ ok: false, error: error.message }));
+                    return true;
+                }
             }
 
-            await storageMock.set(toSet);
-
-            // Nenhuma chave gtc_* deve existir
-            const data = await storageMock.get(null);
-            const gtcKeys = Object.keys(data).filter(k => k.startsWith('gtc_'));
-            expect(gtcKeys).toHaveLength(0);
+            return realHandler(request, sender, sendResponse);
         });
 
-        test('múltiplas traduções criam múltiplas entries no GTC', async () => {
-            await storageMock.set({ [`gtc_${HASH_PAGE1}`]: 'data:base64:T1' });
-            await storageMock.set({ [`gtc_${HASH_PAGE2}`]: 'data:base64:T2' });
-            await storageMock.set({ [`gtc_${HASH_PAGE3}`]: 'data:base64:T3' });
+        runtimeMock.onMessage.addListener((request, _sender, sendResponse) => {
+            if (!request || !request.action) return false;
 
-            const data = await storageMock.get(null);
-            const gtcKeys = Object.keys(data).filter(k => k.startsWith('gtc_'));
-            expect(gtcKeys).toHaveLength(3);
+            if (request.action === 'START_BATCH') {
+                startBatches.push(request);
+                sendResponse({
+                    ok: true,
+                    batchId: request.batchId,
+                    queued: false,
+                    queuePosition: null,
+                });
+                return false;
+            }
+
+            if (request.action === 'CALCULATE_VISUAL_FINGERPRINT') {
+                sendResponse({ ok: false, error: 'fingerprint visual não necessário no cenário SHA' });
+                return false;
+            }
+
+            if (
+                request.action === 'LOG_ENTRY'
+                || request.action === 'SM_SAVE_PAGE'
+                || request.action === 'SM_STATS'
+            ) {
+                sendResponse({ ok: true });
+                return false;
+            }
+
+            return false;
         });
+    }
+
+    async function loadPages(count = 2) {
+        return loadContentScript({
+            hostname: 'localhost',
+            domImages: Array.from({ length: count }, (_, index) => ({
+                src: `http://localhost/page-${index}.png`,
+                width: 800 + index,
+                height: 1200 + index,
+            })),
+        });
+    }
+
+    beforeEach(async () => {
+        jest.resetModules();
+        runtimeMock = getRuntimeMock();
+        storageMock = getStorageMock();
+
+        runtimeMock._messageListeners = [];
+        runtimeMock._connectListeners = [];
+        runtimeMock.lastError = null;
+        runtimeMessages = [];
+        startBatches = [];
+        queryManyMode = null;
+
+        await storageMock.clear();
+        repository = createIndexedDbRepository({
+            indexedDbFactory: new IDBFactory(),
+            dbName: uniqueDbName(),
+        });
+        installRealGtcBridge();
+
+        delete window.__manga_translator_content_injected;
+        delete window.__manga_translator_active_instance;
+        delete window.MangaTranslatorGtcFingerprint;
+        document.documentElement.innerHTML = '<head></head><body></body>';
     });
 
-    describe('Batch get vs N gets individuais (eficiência)', () => {
-        test('um único get com N chaves retorna os mesmos dados que N gets individuais', async () => {
-            await storageMock.set({
-                [`gtc_${HASH_PAGE1}`]: 'data:T1',
-                [`gtc_${HASH_PAGE2}`]: 'data:T2',
-                [`gtc_${HASH_PAGE3}`]: 'data:T3',
-            });
-
-            // Batch get (uma chamada)
-            const batchResult = await new Promise(r =>
-                storageMock.get([
-                    `gtc_${HASH_PAGE1}`,
-                    `gtc_${HASH_PAGE2}`,
-                    `gtc_${HASH_PAGE3}`
-                ], r)
-            );
-
-            expect(batchResult[`gtc_${HASH_PAGE1}`]).toBe('data:T1');
-            expect(batchResult[`gtc_${HASH_PAGE2}`]).toBe('data:T2');
-            expect(batchResult[`gtc_${HASH_PAGE3}`]).toBe('data:T3');
-        });
+    afterEach(async () => {
+        jest.restoreAllMocks();
+        await repository.clear();
+        await storageMock.clear();
+        runtimeMock._messageListeners = [];
+        runtimeMock._connectListeners = [];
+        delete window.__manga_translator_content_injected;
+        delete window.__manga_translator_active_instance;
+        delete window.MangaTranslatorGtcFingerprint;
+        document.documentElement.innerHTML = '<head></head><body></body>';
     });
 
-    describe('Hashes nulos ou imagens inválidas', () => {
-        test('hash null é ignorado (sem entrada no GTC)', async () => {
-            const hashes = [null, HASH_PAGE1, null];
-            await storageMock.set({ [`gtc_${HASH_PAGE1}`]: TRANS_BASE64 });
+    test('100% SHA hits passam pelo runtime/IndexedDB real e evitam START_BATCH', async () => {
+        queryManyMode = {
+            kind: 'seed',
+            select(hashes) {
+                return (hashes || []).map((hash, index) => ({
+                    hash,
+                    translatedDataUrl: index === 0 ? TRANSLATED_0 : TRANSLATED_1,
+                }));
+            },
+        };
 
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                hashes
-            );
+        await loadPages(2);
+        document.getElementById('manga-main-content').click();
 
-            // null hashes = cache miss
-            expect(cacheMisses.map(m => m.index)).toContain(0);
-            expect(cacheMisses.map(m => m.index)).toContain(2);
-            expect(cacheHits.map(h => h.index)).toContain(1);
+        await waitFor(() =>
+            Array.from(document.querySelectorAll('img')).every(img => img.dataset.translated === 'true')
+        );
+
+        const images = Array.from(document.querySelectorAll('img'));
+        expect(images[0].getAttribute('src')).toBe(TRANSLATED_0);
+        expect(images[1].getAttribute('src')).toBe(TRANSLATED_1);
+        expect(startBatches).toHaveLength(0);
+
+        const shaQueries = runtimeMessages.filter(message => message.action === 'GTC_QUERY_MANY');
+        expect(shaQueries).toHaveLength(1);
+        expect(shaQueries[0].hashes).toHaveLength(2);
+    });
+
+    test('hit parcial aplica cache e encaminha somente o miss para START_BATCH', async () => {
+        queryManyMode = {
+            kind: 'seed',
+            select(hashes) {
+                return hashes && hashes[0]
+                    ? [{ hash: hashes[0], translatedDataUrl: TRANSLATED_0 }]
+                    : [];
+            },
+        };
+
+        await loadPages(2);
+        document.getElementById('manga-main-content').click();
+
+        const batch = await waitFor(() => startBatches[0]);
+        expect(batch.images).toEqual([{ index: 1 }]);
+
+        await waitFor(() => document.querySelector('[data-testid="img-0"]').dataset.translated === 'true');
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src')).toBe(TRANSLATED_0);
+        expect(document.querySelector('[data-testid="img-1"]').dataset.translated).not.toBe('true');
+
+        const shaQueries = runtimeMessages.filter(message => message.action === 'GTC_QUERY_MANY');
+        expect(shaQueries).toHaveLength(1);
+        expect(shaQueries[0].hashes).toHaveLength(2);
+    });
+
+    test('falha do caminho moderno ativa fallback legado gtc_<hash> na implementação real', async () => {
+        queryManyMode = {
+            kind: 'legacy-fallback',
+            values: [TRANSLATED_0, TRANSLATED_1],
+        };
+
+        await loadPages(2);
+        document.getElementById('manga-main-content').click();
+
+        await waitFor(() =>
+            Array.from(document.querySelectorAll('img')).every(img => img.dataset.translated === 'true')
+        );
+
+        const images = Array.from(document.querySelectorAll('img'));
+        expect(images[0].getAttribute('src')).toBe(TRANSLATED_0);
+        expect(images[1].getAttribute('src')).toBe(TRANSLATED_1);
+        expect(startBatches).toHaveLength(0);
+
+        const shaQueries = runtimeMessages.filter(message => message.action === 'GTC_QUERY_MANY');
+        expect(shaQueries).toHaveLength(1);
+
+        const legacyState = await storageMock.get(
+            shaQueries[0].hashes.map(hash => `gtc_${hash}`)
+        );
+        expect(Object.keys(legacyState)).toHaveLength(2);
+    });
+
+    test('UPDATE_IMAGE real persiste tradução via GTC_SAVE no repository IndexedDB real', async () => {
+        const context = await loadPages(1);
+        const original = document.querySelector('[data-testid="img-0"]');
+        original.dataset.mangaIndex = '0';
+        original.dataset.origHash = 'abc123hash';
+
+        await context.sendMessage('UPDATE_IMAGE', {
+            index: 0,
+            newSrc: TRANSLATED_0,
         });
+
+        await waitFor(async () => {
+            const result = await repository.getMany(['abc123hash']);
+            return result.abc123hash === TRANSLATED_0;
+        });
+
+        const stored = await repository.getMany(['abc123hash']);
+        expect(stored).toEqual({ abc123hash: TRANSLATED_0 });
+        expect(runtimeMessages).toContainEqual(expect.objectContaining({
+            action: 'GTC_SAVE',
+            hash: 'abc123hash',
+            translatedDataUrl: TRANSLATED_0,
+            cleanUrl: 'http://localhost/page-0.png',
+        }));
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src')).toBe(TRANSLATED_0);
     });
 });
 ```
 
-## 8. Auditoria linha a linha
-
-### Linha 001 — cabeçalho e intenção declarada
-
-- **Código:** `/**`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 002 — cabeçalho e intenção declarada
-
-- **Código:** ` * gtc-cache-flow.test.js`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 003 — cabeçalho e intenção declarada
-
-- **Código:** ` * ─────────────────────────────────────────────────────────────────────────────`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 004 — cabeçalho e intenção declarada
-
-- **Código:** ` * Testes de integração do Global Translation Cache (GTC) — v3.2.`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 005 — cabeçalho e intenção declarada
-
-- **Código:** ` *`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 006 — cabeçalho e intenção declarada
-
-- **Código:** ` * FLUXO COMPLETO:`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 007 — cabeçalho e intenção declarada
-
-- **Código:** ` * 1. extractAndSendImages gera fingerprints em paralelo`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 008 — cabeçalho e intenção declarada
-
-- **Código:** ` * 2. Consulta o GTC no storage (batch get)`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 009 — cabeçalho e intenção declarada
-
-- **Código:** ` * 3. Cache hits → applyImageReplacement(fromCache=true)`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 010 — cabeçalho e intenção declarada
-
-- **Código:** ` * 4. Cache misses → fila do Gemini`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 011 — cabeçalho e intenção declarada
-
-- **Código:** ` * 5. UPDATE_IMAGE salva no GTC após nova tradução`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 012 — cabeçalho e intenção declarada
-
-- **Código:** ` *`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 013 — cabeçalho e intenção declarada
-
-- **Código:** ` * CENÁRIOS:`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 014 — cabeçalho e intenção declarada
-
-- **Código:** ` * A. 100% cache hits → sem Gemini, checkIfComplete(true)`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 015 — cabeçalho e intenção declarada
-
-- **Código:** ` * B. 0% cache hits → tudo vai para Gemini (comportamento v3.1)`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 016 — cabeçalho e intenção declarada
-
-- **Código:** ` * C. Hits parciais → alguns imediatos + resto para Gemini`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 017 — cabeçalho e intenção declarada
-
-- **Código:** ` * D. Mesma imagem em site espelho → GTC resolve sem Gemini`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 018 — cabeçalho e intenção declarada
-
-- **Código:** ` */`
-- **O que faz:** Parte do comentário de cabeçalho que descreve a intenção alegada da suíte; não executa código.
-- **Como:** É texto de comentário interpretado apenas por leitores/ferramentas, não pelo runtime.
-- **Por que / risco de alternativa:** Comentários deveriam refletir com precisão a evidência. Aqui “FLUXO COMPLETO/integração” excede o que o corpo realmente executa, por isso há solicitação ao auditor.
-- **Evidência:** ⚠️ DESCRIÇÃO NÃO PROBATÓRIA — o cabeçalho declara integração/fluxo completo, mas o corpo usa simulação local.
-
-### Linha 019 — infraestrutura e root/mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de infraestrutura e root/mock; não produz efeito em runtime.
-- **Como:** Não há operação em runtime.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 020 — infraestrutura e root/mock
-
-- **Código:** `const path = require('path');`
-- **O que faz:** Importa `path`, usado para resolver o mock Chrome a partir do root detectado.
-- **Como:** Usa CommonJS e paths derivados de `__dirname` para carregar infraestrutura de teste.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE pela própria suíte.
-
-### Linha 021 — infraestrutura e root/mock
-
-- **Código:** `const fs   = require('fs');`
-- **O que faz:** Importa `fs`, mas nenhum uso de `fs` aparece no restante deste arquivo; é uma dependência atualmente ociosa.
-- **Como:** Usa CommonJS e paths derivados de `__dirname` para carregar infraestrutura de teste.
-- **Por que / risco de alternativa:** Não há justificativa funcional observável no estado atual porque `fs` não é consumido; manter import morto aumenta ruído e merece limpeza separada.
-- **Evidência:** ⚠️ SEM EFEITO/SEM TESTE — import não utilizado.
-
-### Linha 022 — infraestrutura e root/mock
-
-- **Código:** `// Portable root finder — works regardless of where this file is placed in the tree.`
-- **O que faz:** Comentário do infraestrutura e root/mock; descreve intenção do cenário, sem constituir execução/prova por si só.
-- **Como:** Usa CommonJS e paths derivados de `__dirname` para carregar infraestrutura de teste.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 023 — infraestrutura e root/mock
-
-- **Código:** `// Walks up from __dirname until it finds the folder containing extension/manifest.json.`
-- **O que faz:** Comentário do infraestrutura e root/mock; descreve intenção do cenário, sem constituir execução/prova por si só.
-- **Como:** Usa CommonJS e paths derivados de `__dirname` para carregar infraestrutura de teste.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 024 — infraestrutura e root/mock
-
-- **Código:** `const { findRepoRoot } = require('../../helpers/repo-root');`
-- **O que faz:** Importa `findRepoRoot`, helper compartilhado que procura a raiz real do repositório.
-- **Como:** Usa CommonJS e paths derivados de `__dirname` para carregar infraestrutura de teste.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE pela própria suíte.
-
-### Linha 025 — infraestrutura e root/mock
-
-- **Código:** `const ROOT = findRepoRoot(__dirname);`
-- **O que faz:** Calcula `ROOT` a partir de `__dirname`, tornando o path do mock independente da profundidade/cwd.
-- **Como:** Usa CommonJS e paths derivados de `__dirname` para carregar infraestrutura de teste.
-- **Por que / risco de alternativa:** Resolver a raiz evita acoplamento à profundidade do teste ou cwd; hardcode absoluto seria menos portável.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE pela própria suíte.
-
-### Linha 026 — infraestrutura e root/mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de infraestrutura e root/mock; não produz efeito em runtime.
-- **Como:** Usa CommonJS e paths derivados de `__dirname` para carregar infraestrutura de teste.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 027 — infraestrutura e root/mock
-
-- **Código:** `const { getStorageMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));`
-- **O que faz:** Importa `getStorageMock` do mock Chrome usando o root resolvido.
-- **Como:** Usa CommonJS e paths derivados de `__dirname` para carregar infraestrutura de teste.
-- **Por que / risco de alternativa:** Resolver a raiz evita acoplamento à profundidade do teste ou cwd; hardcode absoluto seria menos portável.
-- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE pela própria suíte.
-
-### Linha 028 — suite e fixtures constantes
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de suite e fixtures constantes; não produz efeito em runtime.
-- **Como:** Não há operação em runtime.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 029 — suite e fixtures constantes
-
-- **Código:** `describe('Global Translation Cache (GTC) — Fluxo Completo v3.2', () => {`
-- **O que faz:** Abre a suíte Jest principal rotulada como fluxo completo GTC v3.2.
-- **Como:** Executa dentro do processo Jest e do ambiente de mocks configurado pelo projeto.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 030 — suite e fixtures constantes
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de suite e fixtures constantes; não produz efeito em runtime.
-- **Como:** Não há operação em runtime.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 031 — suite e fixtures constantes
-
-- **Código:** `    const TRANS_BASE64 = 'data:image/png;base64,TRANSLATED_IMAGE';`
-- **O que faz:** Define o Data URL sintético comum usado como tradução armazenada.
-- **Como:** Executa dentro do processo Jest e do ambiente de mocks configurado pelo projeto.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 032 — suite e fixtures constantes
-
-- **Código:** `    const HASH_PAGE1   = 'a'.repeat(64); // SHA-256 simulado para página 1`
-- **O que faz:** Define um hash SHA-256 sintético de 64 caracteres para página 1; não calcula fingerprint real.
-- **Como:** Executa dentro do processo Jest e do ambiente de mocks configurado pelo projeto.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 033 — suite e fixtures constantes
-
-- **Código:** `    const HASH_PAGE2   = 'b'.repeat(64); // SHA-256 simulado para página 2`
-- **O que faz:** Define um hash SHA-256 sintético de 64 caracteres para página 2; não calcula fingerprint real.
-- **Como:** Executa dentro do processo Jest e do ambiente de mocks configurado pelo projeto.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 034 — suite e fixtures constantes
-
-- **Código:** `    const HASH_PAGE3   = 'c'.repeat(64); // SHA-256 simulado para página 3`
-- **O que faz:** Define um hash SHA-256 sintético de 64 caracteres para página 3; não calcula fingerprint real.
-- **Como:** Executa dentro do processo Jest e do ambiente de mocks configurado pelo projeto.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 035 — simulação local de lookup GTC
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de simulação local de lookup GTC; não produz efeito em runtime.
-- **Como:** Não há operação em runtime.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 036 — simulação local de lookup GTC
-
-- **Código:** `    // ── Simulação do fluxo de extractAndSendImages com GTC ─────────────────────`
-- **O que faz:** Comentário do simulação local de lookup GTC; descreve intenção do cenário, sem constituir execução/prova por si só.
-- **Como:** Executa dentro do processo Jest e do ambiente de mocks configurado pelo projeto.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 037 — simulação local de lookup GTC
-
-- **Código:** `    async function simulateExtractWithGTC(chromeStorage, imageHashes) {`
-- **O que faz:** Declara `simulateExtractWithGTC`, uma implementação local/espelho que particiona hashes em hits e misses usando somente o storage mock.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 038 — simulação local de lookup GTC
-
-- **Código:** `        const hashKeys = imageHashes.filter(Boolean).map(h => \`gtc_${h}\`);`
-- **O que faz:** Filtra hashes falsy e produz chaves legadas `gtc_<hash>` para consulta em lote.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 039 — simulação local de lookup GTC
-
-- **Código:** `        const gtcData = hashKeys.length > 0`
-- **O que faz:** Inicia a expressão ternária que decide se haverá consulta ao storage.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 040 — simulação local de lookup GTC
-
-- **Código:** `            ? await new Promise(r => chromeStorage.get(hashKeys, r))`
-- **O que faz:** Quando há chaves, faz um único `chromeStorage.get(hashKeys, callback)` encapsulado em Promise.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 041 — simulação local de lookup GTC
-
-- **Código:** `            : {};`
-- **O que faz:** Quando não há chave válida, usa objeto vazio sem consultar storage.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 042 — simulação local de lookup GTC
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de simulação local de lookup GTC; não produz efeito em runtime.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 043 — simulação local de lookup GTC
-
-- **Código:** `        const cacheHits = [];`
-- **O que faz:** Cria acumulador dos cache hits produzidos pela simulação.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 044 — simulação local de lookup GTC
-
-- **Código:** `        const cacheMisses = [];`
-- **O que faz:** Cria acumulador dos cache misses produzidos pela simulação.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 045 — simulação local de lookup GTC
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de simulação local de lookup GTC; não produz efeito em runtime.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 046 — simulação local de lookup GTC
-
-- **Código:** `        imageHashes.forEach((hash, i) => {`
-- **O que faz:** Percorre os hashes originais preservando o índice de cada imagem.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 047 — simulação local de lookup GTC
-
-- **Código:** `            const cacheKey = hash ? \`gtc_${hash}\` : null;`
-- **O que faz:** Converte hash truthy em chave legada; hash falsy recebe chave nula.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 048 — simulação local de lookup GTC
-
-- **Código:** `            const cached = cacheKey ? gtcData[cacheKey] : null;`
-- **O que faz:** Lê do resultado do storage somente quando existe chave válida.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 049 — simulação local de lookup GTC
-
-- **Código:** `            if (cached) cacheHits.push({ index: i, base64: cached });`
-- **O que faz:** Classifica valor truthy como hit e preserva índice/base64.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 050 — simulação local de lookup GTC
-
-- **Código:** `            else cacheMisses.push({ index: i });`
-- **O que faz:** Classifica ausência/falsy como miss e preserva o índice.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 051 — simulação local de lookup GTC
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do simulação local de lookup GTC.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 052 — simulação local de lookup GTC
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de simulação local de lookup GTC; não produz efeito em runtime.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 053 — simulação local de lookup GTC
-
-- **Código:** `        return { cacheHits, cacheMisses };`
-- **O que faz:** Retorna os dois vetores simulados para as assertions da suíte.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 054 — simulação local de lookup GTC
-
-- **Código:** `    }`
-- **O que faz:** Fecha uma construção sintática do simulação local de lookup GTC.
-- **Como:** Opera exclusivamente sobre `imageHashes`, `chromeStorage.get` e arrays locais; não importa/chama `content_manga.js` nem `cm-gtc-client.js`.
-- **Por que / risco de alternativa:** A simulação torna cenários simples e determinísticos, mas copiar a regra de produção cria risco de drift: ela pode continuar verde quando o pipeline real muda.
-- **Evidência:** ✅ PROVADO DIRETAMENTE para a **função simulada local** pelos cenários A–D e hashes nulos; ⚠️ não prova a implementação real.
-
-### Linha 055 — setup do storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de setup do storage mock; não produz efeito em runtime.
-- **Como:** Não há operação em runtime.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 056 — setup do storage mock
-
-- **Código:** `    let storageMock;`
-- **O que faz:** Declara referência mutável ao singleton do storage mock.
-- **Como:** Executa dentro do processo Jest e do ambiente de mocks configurado pelo projeto.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 057 — setup do storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de setup do storage mock; não produz efeito em runtime.
-- **Como:** Não há operação em runtime.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 058 — setup do storage mock
-
-- **Código:** `    beforeEach(() => {`
-- **O que faz:** Registra setup por teste; o setup global de `chrome-api.mock.js` executa antes e limpa os dados do singleton.
-- **Como:** O `chrome-api.mock.js` possui hook Jest global que limpa storage/timers antes de cada teste e `getStorageMock()` devolve o singleton já resetado.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** ✅ PROVADO POR INFRAESTRUTURA DE TESTE — `chrome-api.mock.js` registra hook `beforeEach(initChromeMocks)` que limpa o storage singleton.
-
-### Linha 059 — setup do storage mock
-
-- **Código:** `        storageMock = getStorageMock();`
-- **O que faz:** Obtém a instância corrente do storage mock; não cria storage de produção nem IndexedDB.
-- **Como:** O `chrome-api.mock.js` possui hook Jest global que limpa storage/timers antes de cada teste e `getStorageMock()` devolve o singleton já resetado.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** ✅ PROVADO POR INFRAESTRUTURA DE TESTE — `chrome-api.mock.js` registra hook `beforeEach(initChromeMocks)` que limpa o storage singleton.
-
-### Linha 060 — setup do storage mock
-
-- **Código:** `    });`
-- **O que faz:** Fecha uma construção sintática do setup do storage mock.
-- **Como:** O `chrome-api.mock.js` possui hook Jest global que limpa storage/timers antes de cada teste e `getStorageMock()` devolve o singleton já resetado.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** ✅ PROVADO POR INFRAESTRUTURA DE TESTE — `chrome-api.mock.js` registra hook `beforeEach(initChromeMocks)` que limpa o storage singleton.
-
-### Linha 061 — Cenário A — 100% hits simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário A — 100% hits simulados; não produz efeito em runtime.
-- **Como:** Não há operação em runtime.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 062 — Cenário A — 100% hits simulados
-
-- **Código:** `    describe('Cenário A: 100% cache hits', () => {`
-- **O que faz:** Abre o agrupamento Jest do Cenário A — 100% hits simulados, organizando os casos sem mudar a lógica de produção.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 063 — Cenário A — 100% hits simulados
-
-- **Código:** `        test('todas as imagens no cache → sem envio para Gemini', async () => {`
-- **O que faz:** Declara um caso Jest do Cenário A — 100% hits simulados; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 064 — Cenário A — 100% hits simulados
-
-- **Código:** `            // Pré-popula o GTC`
-- **O que faz:** Comentário do Cenário A — 100% hits simulados; descreve intenção do cenário, sem constituir execução/prova por si só.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 065 — Cenário A — 100% hits simulados
-
-- **Código:** `            await storageMock.set({`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 066 — Cenário A — 100% hits simulados
-
-- **Código:** `                [\`gtc_${HASH_PAGE1}\`]: TRANS_BASE64,`
-- **O que faz:** Linha estrutural do Cenário A — 100% hits simulados: `[\`gtc_${HASH_PAGE1}\`]: TRANS_BASE64,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 067 — Cenário A — 100% hits simulados
-
-- **Código:** `                [\`gtc_${HASH_PAGE2}\`]: TRANS_BASE64,`
-- **O que faz:** Linha estrutural do Cenário A — 100% hits simulados: `[\`gtc_${HASH_PAGE2}\`]: TRANS_BASE64,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 068 — Cenário A — 100% hits simulados
-
-- **Código:** `            });`
-- **O que faz:** Fecha uma construção sintática do Cenário A — 100% hits simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 069 — Cenário A — 100% hits simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário A — 100% hits simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 070 — Cenário A — 100% hits simulados
-
-- **Código:** `            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(`
-- **O que faz:** Executa a simulação local e desestrutura seu resultado para as assertions subsequentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 071 — Cenário A — 100% hits simulados
-
-- **Código:** `                storageMock,`
-- **O que faz:** Linha estrutural do Cenário A — 100% hits simulados: `storageMock,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 072 — Cenário A — 100% hits simulados
-
-- **Código:** `                [HASH_PAGE1, HASH_PAGE2]`
-- **O que faz:** Linha estrutural do Cenário A — 100% hits simulados: `[HASH_PAGE1, HASH_PAGE2]`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 073 — Cenário A — 100% hits simulados
-
-- **Código:** `            );`
-- **O que faz:** Linha estrutural do Cenário A — 100% hits simulados: `);`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 074 — Cenário A — 100% hits simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário A — 100% hits simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 075 — Cenário A — 100% hits simulados
-
-- **Código:** `            expect(cacheHits).toHaveLength(2);`
-- **O que faz:** Assertion Jest direta sobre o vetor de hits produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 076 — Cenário A — 100% hits simulados
-
-- **Código:** `            expect(cacheMisses).toHaveLength(0);`
-- **O que faz:** Assertion Jest direta sobre o vetor de misses produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 077 — Cenário A — 100% hits simulados
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do Cenário A — 100% hits simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 078 — Cenário A — 100% hits simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário A — 100% hits simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 079 — Cenário A — 100% hits simulados
-
-- **Código:** `        test('cache hits têm o base64 correto', async () => {`
-- **O que faz:** Declara um caso Jest do Cenário A — 100% hits simulados; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 080 — Cenário A — 100% hits simulados
-
-- **Código:** `            const TRANS_P1 = 'data:image/png;base64,PAGE1_TRANSLATED';`
-- **O que faz:** Declara valor local usado pelo Cenário A — 100% hits simulados; sua validade é limitada à fixture/teste e não deriva automaticamente da implementação de produção.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 081 — Cenário A — 100% hits simulados
-
-- **Código:** `            const TRANS_P2 = 'data:image/png;base64,PAGE2_TRANSLATED';`
-- **O que faz:** Declara valor local usado pelo Cenário A — 100% hits simulados; sua validade é limitada à fixture/teste e não deriva automaticamente da implementação de produção.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 082 — Cenário A — 100% hits simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário A — 100% hits simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 083 — Cenário A — 100% hits simulados
-
-- **Código:** `            await storageMock.set({`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 084 — Cenário A — 100% hits simulados
-
-- **Código:** `                [\`gtc_${HASH_PAGE1}\`]: TRANS_P1,`
-- **O que faz:** Linha estrutural do Cenário A — 100% hits simulados: `[\`gtc_${HASH_PAGE1}\`]: TRANS_P1,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 085 — Cenário A — 100% hits simulados
-
-- **Código:** `                [\`gtc_${HASH_PAGE2}\`]: TRANS_P2,`
-- **O que faz:** Linha estrutural do Cenário A — 100% hits simulados: `[\`gtc_${HASH_PAGE2}\`]: TRANS_P2,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 086 — Cenário A — 100% hits simulados
-
-- **Código:** `            });`
-- **O que faz:** Fecha uma construção sintática do Cenário A — 100% hits simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 087 — Cenário A — 100% hits simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário A — 100% hits simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 088 — Cenário A — 100% hits simulados
-
-- **Código:** `            const { cacheHits } = await simulateExtractWithGTC(`
-- **O que faz:** Executa a simulação local e desestrutura seu resultado para as assertions subsequentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 089 — Cenário A — 100% hits simulados
-
-- **Código:** `                storageMock,`
-- **O que faz:** Linha estrutural do Cenário A — 100% hits simulados: `storageMock,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 090 — Cenário A — 100% hits simulados
-
-- **Código:** `                [HASH_PAGE1, HASH_PAGE2]`
-- **O que faz:** Linha estrutural do Cenário A — 100% hits simulados: `[HASH_PAGE1, HASH_PAGE2]`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 091 — Cenário A — 100% hits simulados
-
-- **Código:** `            );`
-- **O que faz:** Linha estrutural do Cenário A — 100% hits simulados: `);`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 092 — Cenário A — 100% hits simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário A — 100% hits simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 093 — Cenário A — 100% hits simulados
-
-- **Código:** `            expect(cacheHits[0].base64).toBe(TRANS_P1);`
-- **O que faz:** Assertion Jest direta sobre o vetor de hits produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 094 — Cenário A — 100% hits simulados
-
-- **Código:** `            expect(cacheHits[1].base64).toBe(TRANS_P2);`
-- **O que faz:** Assertion Jest direta sobre o vetor de hits produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 095 — Cenário A — 100% hits simulados
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do Cenário A — 100% hits simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 096 — Cenário A — 100% hits simulados
-
-- **Código:** `    });`
-- **O que faz:** Fecha uma construção sintática do Cenário A — 100% hits simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 097 — Cenário B — 0% hits simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário B — 0% hits simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 098 — Cenário B — 0% hits simulados
-
-- **Código:** `    describe('Cenário B: 0% cache hits', () => {`
-- **O que faz:** Abre o agrupamento Jest do Cenário B — 0% hits simulados, organizando os casos sem mudar a lógica de produção.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 099 — Cenário B — 0% hits simulados
-
-- **Código:** `        test('nenhuma imagem no cache → todas vão para Gemini', async () => {`
-- **O que faz:** Declara um caso Jest do Cenário B — 0% hits simulados; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 100 — Cenário B — 0% hits simulados
-
-- **Código:** `            // Storage vazio — sem GTC entries`
-- **O que faz:** Comentário do Cenário B — 0% hits simulados; descreve intenção do cenário, sem constituir execução/prova por si só.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 101 — Cenário B — 0% hits simulados
-
-- **Código:** `            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(`
-- **O que faz:** Executa a simulação local e desestrutura seu resultado para as assertions subsequentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 102 — Cenário B — 0% hits simulados
-
-- **Código:** `                storageMock,`
-- **O que faz:** Linha estrutural do Cenário B — 0% hits simulados: `storageMock,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 103 — Cenário B — 0% hits simulados
-
-- **Código:** `                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]`
-- **O que faz:** Linha estrutural do Cenário B — 0% hits simulados: `[HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 104 — Cenário B — 0% hits simulados
-
-- **Código:** `            );`
-- **O que faz:** Linha estrutural do Cenário B — 0% hits simulados: `);`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 105 — Cenário B — 0% hits simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário B — 0% hits simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 106 — Cenário B — 0% hits simulados
-
-- **Código:** `            expect(cacheHits).toHaveLength(0);`
-- **O que faz:** Assertion Jest direta sobre o vetor de hits produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 107 — Cenário B — 0% hits simulados
-
-- **Código:** `            expect(cacheMisses).toHaveLength(3);`
-- **O que faz:** Assertion Jest direta sobre o vetor de misses produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 108 — Cenário B — 0% hits simulados
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do Cenário B — 0% hits simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 109 — Cenário B — 0% hits simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário B — 0% hits simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 110 — Cenário B — 0% hits simulados
-
-- **Código:** `        test('indices dos cache misses são preservados corretamente', async () => {`
-- **O que faz:** Declara um caso Jest do Cenário B — 0% hits simulados; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 111 — Cenário B — 0% hits simulados
-
-- **Código:** `            const { cacheMisses } = await simulateExtractWithGTC(`
-- **O que faz:** Executa a simulação local e desestrutura seu resultado para as assertions subsequentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 112 — Cenário B — 0% hits simulados
-
-- **Código:** `                storageMock,`
-- **O que faz:** Linha estrutural do Cenário B — 0% hits simulados: `storageMock,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 113 — Cenário B — 0% hits simulados
-
-- **Código:** `                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]`
-- **O que faz:** Linha estrutural do Cenário B — 0% hits simulados: `[HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 114 — Cenário B — 0% hits simulados
-
-- **Código:** `            );`
-- **O que faz:** Linha estrutural do Cenário B — 0% hits simulados: `);`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 115 — Cenário B — 0% hits simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário B — 0% hits simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 116 — Cenário B — 0% hits simulados
-
-- **Código:** `            expect(cacheMisses.map(m => m.index)).toEqual([0, 1, 2]);`
-- **O que faz:** Assertion Jest direta sobre o vetor de misses produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 117 — Cenário B — 0% hits simulados
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do Cenário B — 0% hits simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 118 — Cenário B — 0% hits simulados
-
-- **Código:** `    });`
-- **O que faz:** Fecha uma construção sintática do Cenário B — 0% hits simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 119 — Cenário C — hits parciais simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário C — hits parciais simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 120 — Cenário C — hits parciais simulados
-
-- **Código:** `    describe('Cenário C: hits parciais', () => {`
-- **O que faz:** Abre o agrupamento Jest do Cenário C — hits parciais simulados, organizando os casos sem mudar a lógica de produção.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 121 — Cenário C — hits parciais simulados
-
-- **Código:** `        test('pag1 e pag3 no cache, pag2 não → pag2 vai para Gemini', async () => {`
-- **O que faz:** Declara um caso Jest do Cenário C — hits parciais simulados; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 122 — Cenário C — hits parciais simulados
-
-- **Código:** `            await storageMock.set({`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 123 — Cenário C — hits parciais simulados
-
-- **Código:** `                [\`gtc_${HASH_PAGE1}\`]: TRANS_BASE64,`
-- **O que faz:** Linha estrutural do Cenário C — hits parciais simulados: `[\`gtc_${HASH_PAGE1}\`]: TRANS_BASE64,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 124 — Cenário C — hits parciais simulados
-
-- **Código:** `                // HASH_PAGE2 não está no cache`
-- **O que faz:** Comentário do Cenário C — hits parciais simulados; descreve intenção do cenário, sem constituir execução/prova por si só.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 125 — Cenário C — hits parciais simulados
-
-- **Código:** `                [\`gtc_${HASH_PAGE3}\`]: TRANS_BASE64,`
-- **O que faz:** Linha estrutural do Cenário C — hits parciais simulados: `[\`gtc_${HASH_PAGE3}\`]: TRANS_BASE64,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 126 — Cenário C — hits parciais simulados
-
-- **Código:** `            });`
-- **O que faz:** Fecha uma construção sintática do Cenário C — hits parciais simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 127 — Cenário C — hits parciais simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário C — hits parciais simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 128 — Cenário C — hits parciais simulados
-
-- **Código:** `            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(`
-- **O que faz:** Executa a simulação local e desestrutura seu resultado para as assertions subsequentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 129 — Cenário C — hits parciais simulados
-
-- **Código:** `                storageMock,`
-- **O que faz:** Linha estrutural do Cenário C — hits parciais simulados: `storageMock,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 130 — Cenário C — hits parciais simulados
-
-- **Código:** `                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]`
-- **O que faz:** Linha estrutural do Cenário C — hits parciais simulados: `[HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 131 — Cenário C — hits parciais simulados
-
-- **Código:** `            );`
-- **O que faz:** Linha estrutural do Cenário C — hits parciais simulados: `);`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 132 — Cenário C — hits parciais simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário C — hits parciais simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 133 — Cenário C — hits parciais simulados
-
-- **Código:** `            expect(cacheHits.map(h => h.index)).toEqual([0, 2]);`
-- **O que faz:** Assertion Jest direta sobre o vetor de hits produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 134 — Cenário C — hits parciais simulados
-
-- **Código:** `            expect(cacheMisses.map(m => m.index)).toEqual([1]);`
-- **O que faz:** Assertion Jest direta sobre o vetor de misses produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 135 — Cenário C — hits parciais simulados
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do Cenário C — hits parciais simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 136 — Cenário C — hits parciais simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário C — hits parciais simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 137 — Cenário C — hits parciais simulados
-
-- **Código:** `        test('contagem total = cache hits + cache misses = imagens selecionadas', async () => {`
-- **O que faz:** Declara um caso Jest do Cenário C — hits parciais simulados; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 138 — Cenário C — hits parciais simulados
-
-- **Código:** `            await storageMock.set({ [\`gtc_${HASH_PAGE1}\`]: TRANS_BASE64 });`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 139 — Cenário C — hits parciais simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário C — hits parciais simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 140 — Cenário C — hits parciais simulados
-
-- **Código:** `            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(`
-- **O que faz:** Executa a simulação local e desestrutura seu resultado para as assertions subsequentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 141 — Cenário C — hits parciais simulados
-
-- **Código:** `                storageMock,`
-- **O que faz:** Linha estrutural do Cenário C — hits parciais simulados: `storageMock,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 142 — Cenário C — hits parciais simulados
-
-- **Código:** `                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]`
-- **O que faz:** Linha estrutural do Cenário C — hits parciais simulados: `[HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 143 — Cenário C — hits parciais simulados
-
-- **Código:** `            );`
-- **O que faz:** Linha estrutural do Cenário C — hits parciais simulados: `);`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 144 — Cenário C — hits parciais simulados
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário C — hits parciais simulados; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 145 — Cenário C — hits parciais simulados
-
-- **Código:** `            expect(cacheHits.length + cacheMisses.length).toBe(3);`
-- **O que faz:** Assertion Jest direta sobre o vetor de hits produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 146 — Cenário C — hits parciais simulados
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do Cenário C — hits parciais simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 147 — Cenário C — hits parciais simulados
-
-- **Código:** `    });`
-- **O que faz:** Fecha uma construção sintática do Cenário C — hits parciais simulados.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 148 — Cenário D — cross-URL por hash simulado
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário D — cross-URL por hash simulado; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 149 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `    describe('Cenário D: mesma imagem em site espelho (cross-URL)', () => {`
-- **O que faz:** Abre o agrupamento Jest do Cenário D — cross-URL por hash simulado, organizando os casos sem mudar a lógica de produção.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 150 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `        test('imagem traduzida em siteA é reconhecida em siteB pelo hash', async () => {`
-- **O que faz:** Declara um caso Jest do Cenário D — cross-URL por hash simulado; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 151 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `            // A MESMA imagem física (mesmo conteúdo de pixels) tem URLs diferentes`
-- **O que faz:** Comentário explicando a hipótese simulada de site espelho: URLs diferentes são representadas pelo mesmo hash, sem haver URLs reais neste caso.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 152 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `            // em dois sites, mas produz o MESMO fingerprint hash.`
-- **O que faz:** Comentário explicando a hipótese simulada de site espelho: URLs diferentes são representadas pelo mesmo hash, sem haver URLs reais neste caso.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 153 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `            const SHARED_HASH = HASH_PAGE1; // Mesmo hash = mesma imagem`
-- **O que faz:** Alias do hash sintético da página 1 para representar conteúdo idêntico entre sites.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 154 — Cenário D — cross-URL por hash simulado
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário D — cross-URL por hash simulado; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 155 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `            // Salva no GTC após tradução em siteA`
-- **O que faz:** Comentário que descreve semanticamente um salvamento após tradução, embora a linha seguinte escreva diretamente no mock.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 156 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `            await storageMock.set({ [\`gtc_${SHARED_HASH}\`]: TRANS_BASE64 });`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 157 — Cenário D — cross-URL por hash simulado
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário D — cross-URL por hash simulado; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 158 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `            // siteB tenta traduzir a mesma imagem — deve encontrar no GTC`
-- **O que faz:** Comentário que descreve a consulta do segundo site; a execução real continua sendo a simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 159 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(`
-- **O que faz:** Executa a simulação local e desestrutura seu resultado para as assertions subsequentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 160 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `                storageMock,`
-- **O que faz:** Linha estrutural do Cenário D — cross-URL por hash simulado: `storageMock,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 161 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `                [SHARED_HASH] // Mesmo hash, URL diferente (mas hash é o que importa)`
-- **O que faz:** Fornece o mesmo hash à simulação; a afirmação de URL diferente é conceitual e não há URL como input.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 162 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `            );`
-- **O que faz:** Linha estrutural do Cenário D — cross-URL por hash simulado: `);`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 163 — Cenário D — cross-URL por hash simulado
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de Cenário D — cross-URL por hash simulado; não produz efeito em runtime.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 164 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `            expect(cacheHits).toHaveLength(1);`
-- **O que faz:** Assertion Jest direta sobre o vetor de hits produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 165 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `            expect(cacheMisses).toHaveLength(0);`
-- **O que faz:** Assertion Jest direta sobre o vetor de misses produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 166 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `            expect(cacheHits[0].base64).toBe(TRANS_BASE64);`
-- **O que faz:** Assertion Jest direta sobre o vetor de hits produzido pela simulação local.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 167 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do Cenário D — cross-URL por hash simulado.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 168 — Cenário D — cross-URL por hash simulado
-
-- **Código:** `    });`
-- **O que faz:** Fecha uma construção sintática do Cenário D — cross-URL por hash simulado.
-- **Como:** Prepara estado no storage mock, chama `simulateExtractWithGTC` e valida seus arrays com `expect`; portanto é prova direta da simulação.
-- **Por que / risco de alternativa:** Fixtures sintéticas isolam particionamento hit/miss, mas não podem ser promovidas a prova de Gemini, DOM, fingerprint, IPC ou IndexedDB que não são executados.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a simulação/storage mock; ⚠️ SEM PROVA DIRETA do pipeline de produção alegado.
-
-### Linha 169 — salvamento legado direto no storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de salvamento legado direto no storage mock; não produz efeito em runtime.
-- **Como:** Não há operação em runtime.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 170 — salvamento legado direto no storage mock
-
-- **Código:** `    describe('Salvamento no GTC após tradução pelo Gemini', () => {`
-- **O que faz:** Abre o agrupamento Jest do salvamento legado direto no storage mock, organizando os casos sem mudar a lógica de produção.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 171 — salvamento legado direto no storage mock
-
-- **Código:** `        test('UPDATE_IMAGE salva entry no GTC com chave gtc_${hash}', async () => {`
-- **O que faz:** Declara um caso Jest do salvamento legado direto no storage mock; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 172 — salvamento legado direto no storage mock
-
-- **Código:** `            const hash = HASH_PAGE1;`
-- **O que faz:** Declara valor local usado pelo salvamento legado direto no storage mock; sua validade é limitada à fixture/teste e não deriva automaticamente da implementação de produção.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 173 — salvamento legado direto no storage mock
-
-- **Código:** `            const translated = TRANS_BASE64;`
-- **O que faz:** Declara valor local usado pelo salvamento legado direto no storage mock; sua validade é limitada à fixture/teste e não deriva automaticamente da implementação de produção.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 174 — salvamento legado direto no storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de salvamento legado direto no storage mock; não produz efeito em runtime.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 175 — salvamento legado direto no storage mock
-
-- **Código:** `            // Simula o que UPDATE_IMAGE faz`
-- **O que faz:** Comentário reconhece explicitamente que o teste apenas simula o que `UPDATE_IMAGE` faria.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 176 — salvamento legado direto no storage mock
-
-- **Código:** `            await storageMock.set({ [\`gtc_${hash}\`]: translated });`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 177 — salvamento legado direto no storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de salvamento legado direto no storage mock; não produz efeito em runtime.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 178 — salvamento legado direto no storage mock
-
-- **Código:** `            // Verifica que a entry foi salva`
-- **O que faz:** Comentário do salvamento legado direto no storage mock; descreve intenção do cenário, sem constituir execução/prova por si só.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 179 — salvamento legado direto no storage mock
-
-- **Código:** `            const data = await storageMock.get([\`gtc_${hash}\`]);`
-- **O que faz:** Consulta diretamente a chave recém-gravada no storage mock.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 180 — salvamento legado direto no storage mock
-
-- **Código:** `            expect(data[\`gtc_${hash}\`]).toBe(translated);`
-- **O que faz:** Assertion Jest direta sobre o conteúdo atualmente salvo no storage mock.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 181 — salvamento legado direto no storage mock
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do salvamento legado direto no storage mock.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 182 — salvamento legado direto no storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de salvamento legado direto no storage mock; não produz efeito em runtime.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 183 — salvamento legado direto no storage mock
-
-- **Código:** `        test('sem hash disponível (fingerprint falhou), GTC não é salvo', async () => {`
-- **O que faz:** Declara um caso Jest do salvamento legado direto no storage mock; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 184 — salvamento legado direto no storage mock
-
-- **Código:** `            // origHash = null significa que generateImageFingerprint retornou null`
-- **O que faz:** Comentário do salvamento legado direto no storage mock; descreve intenção do cenário, sem constituir execução/prova por si só.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 185 — salvamento legado direto no storage mock
-
-- **Código:** `            const origHash = null;`
-- **O que faz:** Define `origHash=null` para simular falha do fingerprint; nenhum fingerprint real é executado.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 186 — salvamento legado direto no storage mock
-
-- **Código:** `            const toSet = {};`
-- **O que faz:** Inicializa objeto local que espelha um payload de persistência.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 187 — salvamento legado direto no storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de salvamento legado direto no storage mock; não produz efeito em runtime.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 188 — salvamento legado direto no storage mock
-
-- **Código:** `            if (origHash) {`
-- **O que faz:** Branch local que só adicionaria a chave se `origHash` fosse truthy.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 189 — salvamento legado direto no storage mock
-
-- **Código:** `                toSet[\`gtc_${origHash}\`] = TRANS_BASE64;`
-- **O que faz:** Montaria a chave legada no objeto local; neste cenário não é executada porque o hash é nulo.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 190 — salvamento legado direto no storage mock
-
-- **Código:** `            }`
-- **O que faz:** Fecha uma construção sintática do salvamento legado direto no storage mock.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 191 — salvamento legado direto no storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de salvamento legado direto no storage mock; não produz efeito em runtime.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 192 — salvamento legado direto no storage mock
-
-- **Código:** `            await storageMock.set(toSet);`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 193 — salvamento legado direto no storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de salvamento legado direto no storage mock; não produz efeito em runtime.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 194 — salvamento legado direto no storage mock
-
-- **Código:** `            // Nenhuma chave gtc_* deve existir`
-- **O que faz:** Comentário do salvamento legado direto no storage mock; descreve intenção do cenário, sem constituir execução/prova por si só.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 195 — salvamento legado direto no storage mock
-
-- **Código:** `            const data = await storageMock.get(null);`
-- **O que faz:** Lê todo o storage mock para checar ausência de chaves.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 196 — salvamento legado direto no storage mock
-
-- **Código:** `            const gtcKeys = Object.keys(data).filter(k => k.startsWith('gtc_'));`
-- **O que faz:** Filtra as chaves do mock pelo prefixo legado `gtc_`.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 197 — salvamento legado direto no storage mock
-
-- **Código:** `            expect(gtcKeys).toHaveLength(0);`
-- **O que faz:** Assertion Jest direta sobre a contagem/lista de chaves `gtc_` do storage mock.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 198 — salvamento legado direto no storage mock
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do salvamento legado direto no storage mock.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 199 — salvamento legado direto no storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de salvamento legado direto no storage mock; não produz efeito em runtime.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 200 — salvamento legado direto no storage mock
-
-- **Código:** `        test('múltiplas traduções criam múltiplas entries no GTC', async () => {`
-- **O que faz:** Declara um caso Jest do salvamento legado direto no storage mock; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 201 — salvamento legado direto no storage mock
-
-- **Código:** `            await storageMock.set({ [\`gtc_${HASH_PAGE1}\`]: 'data:base64:T1' });`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 202 — salvamento legado direto no storage mock
-
-- **Código:** `            await storageMock.set({ [\`gtc_${HASH_PAGE2}\`]: 'data:base64:T2' });`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 203 — salvamento legado direto no storage mock
-
-- **Código:** `            await storageMock.set({ [\`gtc_${HASH_PAGE3}\`]: 'data:base64:T3' });`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 204 — salvamento legado direto no storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de salvamento legado direto no storage mock; não produz efeito em runtime.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 205 — salvamento legado direto no storage mock
-
-- **Código:** `            const data = await storageMock.get(null);`
-- **O que faz:** Obtém snapshot completo do storage mock depois das três gravações.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 206 — salvamento legado direto no storage mock
-
-- **Código:** `            const gtcKeys = Object.keys(data).filter(k => k.startsWith('gtc_'));`
-- **O que faz:** Seleciona somente chaves com prefixo legado para contagem.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 207 — salvamento legado direto no storage mock
-
-- **Código:** `            expect(gtcKeys).toHaveLength(3);`
-- **O que faz:** Assertion Jest direta sobre a contagem/lista de chaves `gtc_` do storage mock.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 208 — salvamento legado direto no storage mock
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do salvamento legado direto no storage mock.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 209 — salvamento legado direto no storage mock
-
-- **Código:** `    });`
-- **O que faz:** Fecha uma construção sintática do salvamento legado direto no storage mock.
-- **Como:** Escreve/lê `storageMock` diretamente e usa lógica local; não despacha `UPDATE_IMAGE` e não chama `GTC_SAVE`.
-- **Por que / risco de alternativa:** A escrita direta é adequada para testar o mock/forma da chave legado, porém não comprova que `UPDATE_IMAGE` real persiste corretamente; existe teste real separado para isso.
-- **Evidência:** ✅ ASSERTION DIRETA sobre gravação/leitura do storage mock; ⚠️ SEM EXECUÇÃO do handler `UPDATE_IMAGE`/`GTC_SAVE` real.
-
-### Linha 210 — batch get do storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de batch get do storage mock; não produz efeito em runtime.
-- **Como:** Não há operação em runtime.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 211 — batch get do storage mock
-
-- **Código:** `    describe('Batch get vs N gets individuais (eficiência)', () => {`
-- **O que faz:** Abre o agrupamento Jest do batch get do storage mock, organizando os casos sem mudar a lógica de produção.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 212 — batch get do storage mock
-
-- **Código:** `        test('um único get com N chaves retorna os mesmos dados que N gets individuais', async () => {`
-- **O que faz:** Declara um caso Jest do batch get do storage mock; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 213 — batch get do storage mock
-
-- **Código:** `            await storageMock.set({`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 214 — batch get do storage mock
-
-- **Código:** `                [\`gtc_${HASH_PAGE1}\`]: 'data:T1',`
-- **O que faz:** Linha estrutural do batch get do storage mock: `[\`gtc_${HASH_PAGE1}\`]: 'data:T1',`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 215 — batch get do storage mock
-
-- **Código:** `                [\`gtc_${HASH_PAGE2}\`]: 'data:T2',`
-- **O que faz:** Linha estrutural do batch get do storage mock: `[\`gtc_${HASH_PAGE2}\`]: 'data:T2',`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 216 — batch get do storage mock
-
-- **Código:** `                [\`gtc_${HASH_PAGE3}\`]: 'data:T3',`
-- **O que faz:** Linha estrutural do batch get do storage mock: `[\`gtc_${HASH_PAGE3}\`]: 'data:T3',`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 217 — batch get do storage mock
-
-- **Código:** `            });`
-- **O que faz:** Fecha uma construção sintática do batch get do storage mock.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 218 — batch get do storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de batch get do storage mock; não produz efeito em runtime.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 219 — batch get do storage mock
-
-- **Código:** `            // Batch get (uma chamada)`
-- **O que faz:** Comentário do batch get do storage mock; descreve intenção do cenário, sem constituir execução/prova por si só.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 220 — batch get do storage mock
-
-- **Código:** `            const batchResult = await new Promise(r =>`
-- **O que faz:** Inicia uma Promise que converte a API callback do mock em valor aguardável.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 221 — batch get do storage mock
-
-- **Código:** `                storageMock.get([`
-- **O que faz:** Chama `storageMock.get` uma única vez com um array de três chaves.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 222 — batch get do storage mock
-
-- **Código:** `                    \`gtc_${HASH_PAGE1}\`,`
-- **O que faz:** Inclui a chave legada da página 1 no array da consulta em lote.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 223 — batch get do storage mock
-
-- **Código:** `                    \`gtc_${HASH_PAGE2}\`,`
-- **O que faz:** Inclui a chave legada da página 2 no array da consulta em lote.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 224 — batch get do storage mock
-
-- **Código:** `                    \`gtc_${HASH_PAGE3}\``
-- **O que faz:** Inclui a chave legada da página 3 no array da consulta em lote.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 225 — batch get do storage mock
-
-- **Código:** `                ], r)`
-- **O que faz:** Fecha o array de chaves passado ao único `get`.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 226 — batch get do storage mock
-
-- **Código:** `            );`
-- **O que faz:** Fecha a chamada/Promise da consulta em lote.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 227 — batch get do storage mock
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de batch get do storage mock; não produz efeito em runtime.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 228 — batch get do storage mock
-
-- **Código:** `            expect(batchResult[\`gtc_${HASH_PAGE1}\`]).toBe('data:T1');`
-- **O que faz:** Assertion Jest direta sobre o valor devolvido pelo `storageMock.get` em lote.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 229 — batch get do storage mock
-
-- **Código:** `            expect(batchResult[\`gtc_${HASH_PAGE2}\`]).toBe('data:T2');`
-- **O que faz:** Assertion Jest direta sobre o valor devolvido pelo `storageMock.get` em lote.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 230 — batch get do storage mock
-
-- **Código:** `            expect(batchResult[\`gtc_${HASH_PAGE3}\`]).toBe('data:T3');`
-- **O que faz:** Assertion Jest direta sobre o valor devolvido pelo `storageMock.get` em lote.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 231 — batch get do storage mock
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do batch get do storage mock.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 232 — batch get do storage mock
-
-- **Código:** `    });`
-- **O que faz:** Fecha uma construção sintática do batch get do storage mock.
-- **Como:** Exercita diretamente a API callback/promessa do `ChromeStorageMock`, confirmando que um array de chaves pode ser buscado numa única chamada.
-- **Por que / risco de alternativa:** Batch get testa eficiência sem N chamadas no nível do mock, mas não mede tempo nem conta spy de chamadas; o título deve ser entendido como equivalência funcional da leitura.
-- **Evidência:** ✅ ASSERTION DIRETA sobre o `storageMock.get` em lote; não é benchmark nem prova do IndexedDB real.
-
-### Linha 233 — hashes nulos na simulação
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de hashes nulos na simulação; não produz efeito em runtime.
-- **Como:** Não há operação em runtime.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Linha 234 — hashes nulos na simulação
-
-- **Código:** `    describe('Hashes nulos ou imagens inválidas', () => {`
-- **O que faz:** Abre o agrupamento Jest do hashes nulos na simulação, organizando os casos sem mudar a lógica de produção.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 235 — hashes nulos na simulação
-
-- **Código:** `        test('hash null é ignorado (sem entrada no GTC)', async () => {`
-- **O que faz:** Declara um caso Jest do hashes nulos na simulação; a prova resultante se limita ao código local e ao storage mock executados dentro deste arquivo.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 236 — hashes nulos na simulação
-
-- **Código:** `            const hashes = [null, HASH_PAGE1, null];`
-- **O que faz:** Cria sequência com hashes nulos nas posições 0 e 2 e um hash válido na posição 1.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 237 — hashes nulos na simulação
-
-- **Código:** `            await storageMock.set({ [\`gtc_${HASH_PAGE1}\`]: TRANS_BASE64 });`
-- **O que faz:** Pré-popula diretamente o storage mock com chaves legadas; não passa por `GTC_SAVE` nem pelo handler de produção.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 238 — hashes nulos na simulação
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de hashes nulos na simulação; não produz efeito em runtime.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 239 — hashes nulos na simulação
-
-- **Código:** `            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(`
-- **O que faz:** Executa a simulação local e desestrutura seu resultado para as assertions subsequentes.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 240 — hashes nulos na simulação
-
-- **Código:** `                storageMock,`
-- **O que faz:** Linha estrutural do hashes nulos na simulação: `storageMock,`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 241 — hashes nulos na simulação
-
-- **Código:** `                hashes`
-- **O que faz:** Linha estrutural do hashes nulos na simulação: `hashes`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 242 — hashes nulos na simulação
-
-- **Código:** `            );`
-- **O que faz:** Linha estrutural do hashes nulos na simulação: `);`; conecta as operações de teste imediatamente adjacentes.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 243 — hashes nulos na simulação
-
-- **Código:** linha vazia
-- **O que faz:** Separa visualmente o bloco de hashes nulos na simulação; não produz efeito em runtime.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 244 — hashes nulos na simulação
-
-- **Código:** `            // null hashes = cache miss`
-- **O que faz:** Comentário explicita o contrato da simulação: hash nulo é tratado como miss.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 245 — hashes nulos na simulação
-
-- **Código:** `            expect(cacheMisses.map(m => m.index)).toContain(0);`
-- **O que faz:** Assertion Jest direta sobre o vetor de misses produzido pela simulação local.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 246 — hashes nulos na simulação
-
-- **Código:** `            expect(cacheMisses.map(m => m.index)).toContain(2);`
-- **O que faz:** Assertion Jest direta sobre o vetor de misses produzido pela simulação local.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 247 — hashes nulos na simulação
-
-- **Código:** `            expect(cacheHits.map(h => h.index)).toContain(1);`
-- **O que faz:** Assertion Jest direta sobre o vetor de hits produzido pela simulação local.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 248 — hashes nulos na simulação
-
-- **Código:** `        });`
-- **O que faz:** Fecha uma construção sintática do hashes nulos na simulação.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 249 — hashes nulos na simulação
-
-- **Código:** `    });`
-- **O que faz:** Fecha uma construção sintática do hashes nulos na simulação.
-- **Como:** Usa a própria função simulada para classificar valores nulos como misses e o único hash válido como hit.
-- **Por que / risco de alternativa:** Tratar hash nulo como miss é conservador na simulação; a implementação real deve ser validada pelos testes que carregam `content_manga.js`.
-- **Evidência:** ✅ ASSERTION DIRETA sobre a classificação feita por `simulateExtractWithGTC`; produção não executada.
-
-### Linha 250 — hashes nulos na simulação
-
-- **Código:** `});`
-- **O que faz:** Fecha uma construção sintática do hashes nulos na simulação.
-- **Como:** Executa dentro do processo Jest e do ambiente de mocks configurado pelo projeto.
-- **Por que / risco de alternativa:** A estrutura mantém o teste legível, mas sua interpretação deve permanecer limitada ao que é realmente executado.
-- **Evidência:** 🟨 EXECUTADO no carregamento/estrutura da suíte; sem assertion específica isolada.
-
-### Posição 251 — newline final
-
-- **Código:** newline terminal após a linha 250.
-- **O que faz:** encerra o arquivo textual de forma canônica; não executa lógica Jest.
-- **Como:** o blob auditado termina em `\n`.
-- **Por que:** evita diffs artificiais e preserva convenção textual do repositório.
-- **Evidência:** 🟦 INTEGRIDADE DOCUMENTAL confirmada no blob auditado.
-
-## 9. Conclusão documental
-
-O SHA `e6eb5c744499fcaa0309a187a173841c185bbaea` contém 250 linhas textuais mais newline final e foi coberto integralmente. A suíte oferece prova direta de uma **simulação de cache legado sobre o mock**, não de integração end-to-end do GTC real. A Bíblia preserva essa distinção e registra as lacunas sem modificar testes, produção, mocks ou qualquer arquivo externo ao ownership do AGENTE 9.
+## 13. Cobertura integral por posições
+
+- **1–33:** cabeçalho, imports, polyfills e abertura da suíte.
+- **34–44:** constantes e estado compartilhado.
+- **45–48:** nome único do banco IndexedDB.
+- **49–58:** polling bounded.
+- **59–135:** bridge GTC real, seed/fallback controlados e responders auxiliares.
+- **136–146:** criação de páginas reais pelo helper.
+- **147–171:** setup por teste e repository IndexedDB.
+- **172–183:** cleanup por teste.
+- **184–211:** 100% hit moderno.
+- **212–236:** hit parcial e miss para `START_BATCH`.
+- **237–263:** fallback legado real.
+- **264–290:** `UPDATE_IMAGE → GTC_SAVE → repository`.
+- **291:** posição vazia do LF final.
+
+**Cobertura:** 291/291 posições, contíguas e sem overlap.
+
+## 14. Autoauditoria pós-correção
+
+- Fonte integral byte-a-byte exata com o blob auditado, exceto LF terminal fora do fence.
+- Nenhum `.skip`, `.only`, `xit`, `xdescribe`, TODO/FIXME.
+- Nenhum helper local reimplementa a decisão hit/miss.
+- Erro de ambiente reproduzido em CI antes do reparo e revalidado depois.
+- Cinco requests possuem correção executável e evidência verde.
+- A unidade deve voltar para PRIMARY + ADVERSARIAL independentes; esta correção não substitui a decisão distribuída final.
