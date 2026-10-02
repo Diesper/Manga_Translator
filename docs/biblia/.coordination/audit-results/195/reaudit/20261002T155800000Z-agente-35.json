@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "index": 195,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 35",
+  "file": "tests/unit/content-manga/button-ui-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/button-ui-real.test.js/Bíblia.md",
+  "source_sha": "a82baea685c1b325e8b21a9a914ef405a142ef97",
+  "bible_sha": "0859d455835a4a735a18bb151067f6d84b640446",
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "id": "195-REAUDIT-001",
+      "severity": "INFO",
+      "type": "ADVERSARIAL_FINDING_REFUTED",
+      "summary": "O finding ADVERSARIAL 195-ADV-NEW-001 é falso para o BIBLE_SHA auditado: a linha textual 440 está explicitamente documentada e a união do mapa cobre exatamente 1..441.",
+      "evidence": [
+        "A seção 13 da Bíblia 0859d455835a4a735a18bb151067f6d84b640446 contém `| 391–439 | resize sul e sudeste |`, `| 440 | fechamento do describe |` e `| 441 | newline final do arquivo |`.",
+        "O source a82baea685c1b325e8b21a9a914ef405a142ef97 possui 440 linhas textuais e LF terminal: linha 439 = `    });`, linha 440 = `});`, posição editorial 441 = LF.",
+        "Parser independente das faixas retornou gaps=[], overlaps=[] e outOfRange=[] para as posições 1..441.",
+        "O bloco de fonte integral embutido na Bíblia é byte-a-byte idêntico ao source, inclusive LF terminal."
+      ]
+    },
+    {
+      "id": "195-REAUDIT-NB-001",
+      "severity": "LOW",
+      "type": "AUXILIARY_STATE_METADATA_STALE",
+      "summary": "O state ainda registra document_quality.bible_lines=919 enquanto a Bíblia atual possui 920 linhas textuais; é metadado auxiliar do state, não erro da Bíblia nem do binding SOURCE_SHA+BIBLE_SHA.",
+      "evidence": [
+        "docs/biblia/.state/195.json mantém document_quality.bible_lines=919.",
+        "O blob da Bíblia atual permanece 0859d455835a4a735a18bb151067f6d84b640446 e o conteúdo auditado não depende desse contador auxiliar."
+      ]
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X_441_DE_441_SEM_GAPS_OVERLAPS",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers_wiring": "CONFIRMADO_3X",
+    "tests_assertions": "CONFIRMADO_3X_11_CENARIOS_29_ASSERTIONS",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X_ACCEPTED_E_HONESTAMENTE_LIMITADAS",
+    "history_state": "CONFIRMADO_3X_COM_METADATA_AUXILIAR_STALE_NAO_BLOQUEANTE",
+    "phase_independence": "CONFIRMADA_AGENTE_35_DIFERENTE_DE_PRIMARY_AGENTE_23_E_ADVERSARIAL_AGENTE_29",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "divergence_resolution": "PRIMARY APPROVED é sustentada; ADVERSARIAL CHANGES_REQUIRED foi refutada porque a própria Bíblia do mesmo BIBLE_SHA contém a posição 440 que o finding afirmou estar ausente.",
+    "embedded_source": "Fonte integral extraída do fence é exatamente igual ao source de 15164 bytes; source possui LF terminal.",
+    "wiring": "load-content-script.js deriva a cadeia Manga do manifest e usa jest.isolateModules para requerer os módulos reais; manifest atual lista gtc-fingerprint, cm-gtc-client, cm-dom-replace, cm-chapter, cm-auto-restore e content_manga nessa ordem.",
+    "assertions": "A suíte possui 11 test() e 29 expect(); as assertions verificam criação/estrutura, ENABLE_PAGE idempotente, btnPos, clamp de altura/texto, SET_SELECTED_IMAGES, drag/persistência, limiar <=2, guarda pós-drag e resize e/w/s/se.",
+    "limitations": "A Bíblia não transforma gaps em prova: n/ne/nw/sw, conjunto exato de direções, ENABLE_PAGE ausente→presente, cap superior de resize e rendering Chromium permanecem explicitamente não provados/ACCEPTED em 195-001..003.",
+    "execution_evidence": "Run 36577447500 teve Unit + Integration Node 20 (job 109437162616) e Node 22 (job 109437162754) com sucesso; o blob focal nesse commit é exatamente a82baea685c1b325e8b21a9a914ef405a142ef97. Embora content_manga.js inteiro tenha mudado depois, o segmento createTranslatorButton até applyDebugDrawer, updateBtnStatus e os branches SET_SELECTED_IMAGES/ENABLE_PAGE relevantes à suíte são byte-a-byte idênticos entre o commit verde b6ad13fce47adcab3fcd10281f28848f7b4ce50f e a revisão atual.",
+    "current_ci_caveat": "Execuções completas recentes no branch foram repetidamente canceladas por churn concorrente; este REAUDIT não as usa como prova de green atual do PR inteiro.",
+    "formal_refutation": "A melhor acusação material disponível era a suposta lacuna posicional 440. Ela falha por inspeção textual, comparação com source e união matemática independente. Nenhuma outra objeção documental material sobre SHA, fonte, semântica, wiring, assertions, classificação de evidência ou requests sobreviveu às releituras."
+  },
+  "completed_at_utc": "2026-10-02T15:58:00Z"
+}
