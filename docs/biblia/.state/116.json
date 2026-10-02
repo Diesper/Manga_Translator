@@ -2,10 +2,10 @@
   "index": 116,
   "file": "tests/integration/popup.advanced.ui.test.js",
   "bible": "docs/biblia/tests/integration/popup.advanced.ui.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
-  "source_sha": "dd15edcefd5963fea83a72801b1d3c00b7e37453",
-  "started_at_utc": "2026-10-02T01:28:00Z",
+  "status": "CHANGES_REQUIRED",
+  "agent": null,
+  "source_sha": "4f1a3fc9c734713124de1719cacd91a56aa500ec",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -27,7 +27,8 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:49:00Z",
       "audit_finding": "ACCEPTED. `popup.js` envia `folderPath` em SHOW_EXISTING_FOLDER, mas a expectation da suíte exige apenas action, anchorId e safeTitle. Uma regressão na derivação do diretório pode continuar verde.",
-      "auditor_recommended_action": "Assertar folderPath exato no cenário POSIX semeado e adicionar variante Windows se o formato fizer parte do contrato suportado."
+      "auditor_recommended_action": "Assertar folderPath exato no cenário POSIX semeado e adicionar variante Windows se o formato fizer parte do contrato suportado.",
+      "repair_progress": "REGRESSION_IMPLEMENTED; PRODUCT_BUG_EXPOSED_IN_054; POST_FIX_VALIDATION_PENDING"
     },
     {
       "id": "116-002",
@@ -48,29 +49,23 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:49:00Z",
       "audit_finding": "ACCEPTED. O popup possui radio `minimized_window`, mas a suíte avançada cobre apenas background_delete e temp_chat nesse controle. Restauração/persistência do terceiro modo não têm prova focal nessa UI.",
-      "auditor_recommended_action": "Adicionar seed/load/change para minimized_window, verificando radio checked e `geminiExecutionMode` persistido."
+      "auditor_recommended_action": "Adicionar seed/load/change para minimized_window, verificando radio checked e `geminiExecutionMode` persistido.",
+      "repair_progress": "REGRESSION_IMPLEMENTED; EXECUTABLE_VALIDATION_PENDING"
     }
   ],
   "document_quality": {
-    "self_audit": "APPROVED",
+    "self_audit": "APPROVED_PARTIAL",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "311/311",
-    "source_text_lines": 310,
-    "bible_lines": 2482,
+    "documented_positions": "361/361",
+    "source_text_lines": 360,
     "external_audit_requests_open": 0,
-    "evidence_run": 36521561968,
-    "evidence_jobs": [
-      109255348388,
-      109255348406,
-      109256050280
-    ],
-    "evidence_summary": "Mesmo blob executado no run 36521561968: popup.advanced.ui.test.js passou com cinco casos em Node 20.x e 22.x; em ambos os jobs, 109/109 suítes e 851/851 testes passaram.",
-    "repair_note": "Lifecycle documental 116-001..002 alinhado ao state canônico: ACCEPTED; nenhuma alteração no source/testes."
+    "accepted_requests_pending_validation": 2,
+    "note": "Regressions materialized. Windows folderPath case exposes popup.js separator bug; #116 released while #054 is corrected, then must be reacquired for final validation."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:28:00Z",
+  "updated_at_utc": "2026-10-02T01:33:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:36:23.079Z",
@@ -108,6 +103,18 @@
       "bible_sha": "a0b98ad040e5adfa87a59ea41751e9267665e6da",
       "agent": "AGENTE 30",
       "reason": "REAUDIT CHANGES_REQUIRED line-278 semantic mismatch plus accepted 116-001 folderPath and 116-002 minimized_window test gaps."
+    },
+    {
+      "at_utc": "2026-10-02T01:33:00Z",
+      "type": "DEPENDENCY_BUG_EXPOSED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "CHANGES_REQUIRED",
+      "previous_source_sha": "dd15edcefd5963fea83a72801b1d3c00b7e37453",
+      "current_source_sha": "4f1a3fc9c734713124de1719cacd91a56aa500ec",
+      "bible_sha": "aa524e4a2f4cce93003210ca67885d5aa20992b4",
+      "agent": "AGENTE 30",
+      "dependency_unit": 54,
+      "reason": "Windows SHOW_EXISTING_FOLDER regression proves popup.js checks/splits two consecutive backslashes; product fix required before 116-001 can close. minimized_window regression also added."
     }
   ],
   "evidence": [
@@ -125,6 +132,15 @@
       "editor": "AGENTE 23",
       "at_utc": "2026-10-01T13:38:36Z",
       "note": "Source permaneceu inalterado; somente lifecycle textual dos requests e conclusão documental foram corrigidos. Reauditoria independente necessária."
+    },
+    {
+      "type": "STATIC_PRODUCT_BUG",
+      "at_utc": "2026-10-02T01:33:00Z",
+      "source_sha": "4f1a3fc9c734713124de1719cacd91a56aa500ec",
+      "finding": "popup.js derives sep with includes('\\\\\\\\')/split('\\\\\\\\'), while chap paths originate from chrome.downloads.search().filename and normal Windows separators are single backslashes.",
+      "validation_pr": 70,
+      "pre_fix_ci_status": "PENDING"
     }
-  ]
+  ],
+  "bible_sha": "aa524e4a2f4cce93003210ca67885d5aa20992b4"
 }
