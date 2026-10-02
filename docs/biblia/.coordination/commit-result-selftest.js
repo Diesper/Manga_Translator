@@ -54,6 +54,10 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
+function tick() {
+  return new Promise(resolve => setImmediate(resolve));
+}
+
 function ownershipCallback({ owns = true, tabId = 321, job = null } = {}) {
   return (_sender, _jobId, callback) => callback(owns, tabId, job);
 }
@@ -163,13 +167,12 @@ async function main() {
     }));
     pending.then(() => { settled = true; });
 
-    await Promise.resolve();
+    await tick();
     assert.deepStrictEqual(events, ['update:start']);
     assert.strictEqual(settled, false);
 
     updateGate.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    await tick();
     assert.deepStrictEqual(events, ['update:start', 'update:end', 'finalize:start']);
     assert.strictEqual(settled, false);
 
