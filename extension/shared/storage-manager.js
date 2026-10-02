@@ -134,10 +134,10 @@ function dataUrlToBlob(dataUrl) {
     return new Blob([decoded], { type: mime });
 }
 
-/** Blob → Data URL. FileReader não existe em Service Worker: usamos arrayBuffer. */
+/** Blob → Data URL. Prefere arrayBuffer (Service Worker); FileReader cobre Blob de DOM/JSDOM sem esse método. */
 async function blobToDataUrl(blob) {
     if (!blob) return null;
-    const buffer = await blob.arrayBuffer();
+    const buffer = typeof blob.arrayBuffer === 'function' ? await blob.arrayBuffer() : await new Promise((resolve, reject) => { if (typeof FileReader === 'undefined') { reject(new Error('Blob sem suporte a leitura binária')); return; } const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = () => reject(reader.error || new Error('Falha ao ler Blob')); reader.readAsArrayBuffer(blob); });
     const bytes = new Uint8Array(buffer);
     let binary = '';
     const CHUNK = 0x8000; // evita "Maximum call stack size exceeded" em imagens grandes
