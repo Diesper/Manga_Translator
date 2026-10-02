@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 30",
   "source_sha": "e53e43da4f20d727355666e444f0adf0428fc6dc",
-  "started_at_utc": "2026-09-30T14:42:39Z",
+  "started_at_utc": "2026-10-02T00:51:00Z",
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -83,7 +83,17 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-02T00:51:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T00:51:00Z",
+      "type": "HYBRID_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "e53e43da4f20d727355666e444f0adf0428fc6dc",
+      "agent": "AGENTE 30",
+      "reason": "Distributed PRIMARY+ADVERSARIAL verdict is CHANGES_REQUIRED; repair documentary map/status plus accepted authenticity/stale-contract/test-strength gaps."
+    }
+  ],
   "evidence": []
 }
