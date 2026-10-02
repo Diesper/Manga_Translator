@@ -99,20 +99,6 @@ function eventChainProblems(state) {
     }
     previousHash = entry.event_hash;
   }
-  if (state?.status === 'IN_PROGRESS') {
-    const updatedMs = Date.parse(state?.updated_at_utc || '');
-    const hasCanonicalStart = history.some((entry) => {
-      const atMs = Date.parse(entry?.at_utc || '');
-      return Number.isFinite(atMs)
-        && atMs >= effectiveMs
-        && entry?.to_status === 'IN_PROGRESS'
-        && typeof entry?.correction_token_id === 'string'
-        && entry.correction_token_id.trim();
-    });
-    if (Number.isFinite(updatedMs) && updatedMs >= effectiveMs && !hasCanonicalStart) {
-      problems.push(label + ': IN_PROGRESS pós-policy sem START_CORRECTION canônico');
-    }
-  }
   return problems;
 }
 
@@ -330,6 +316,21 @@ function lifecycleProblems(state, options = {}) {
       if (typeof entry?.correction_token_id !== 'string' || !entry.correction_token_id.trim()) {
         problems.push(label + ': correção pós-policy sem correction_token_id em ' + entry.at_utc);
       }
+    }
+  }
+
+  if (state?.status === 'IN_PROGRESS') {
+    const updatedMs = Date.parse(state?.updated_at_utc || '');
+    const hasCanonicalStart = history.some((entry) => {
+      const atMs = Date.parse(entry?.at_utc || '');
+      return Number.isFinite(atMs)
+        && atMs >= effectiveMs
+        && entry?.to_status === 'IN_PROGRESS'
+        && typeof entry?.correction_token_id === 'string'
+        && entry.correction_token_id.trim();
+    });
+    if (Number.isFinite(updatedMs) && updatedMs >= effectiveMs && !hasCanonicalStart) {
+      problems.push(label + ': IN_PROGRESS pós-policy sem START_CORRECTION canônico');
     }
   }
   return problems;
