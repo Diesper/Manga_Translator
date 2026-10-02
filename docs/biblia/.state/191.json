@@ -2,10 +2,10 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
-  "started_at_utc": "2026-10-02T01:56:00Z",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
@@ -163,14 +163,14 @@
     "source_text_lines": 591,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 0,
-    "note": "191-001..004 corrigidos. Source/Bíblia finais preservados; run corretiva 36951292966 também concluiu SUCCESS com --runTestsByPath em Node 20/22 e full content-scripts 40/40 suites, 439/439 tests.",
-    "bible_lines": 727,
-    "bible_blob_sha": "63f4f2323ebd7c175038c32aed375bf9eb9f41d6",
-    "evidence_quality": "Real content_manga audio integration; 11 lifecycle/synthesis cases; Node 20/22 + full content-scripts suite with open-handle detection."
+    "note": "191-001..004 corrigidos; a Bíblia agora registra também o follow-up 36951292966 já concluído com --runTestsByPath em Node 20/22 e full content-scripts 40/40 suites, 439/439 tests.",
+    "bible_lines": 730,
+    "bible_blob_sha": "d95135f438c9e9b47cc638208265d6787a039c00",
+    "evidence_quality": "Real content_manga audio integration; 11 lifecycle/synthesis cases; Node 20/22 focal 20/20 + full content-scripts 439/439 with open-handle detection."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:56:00Z",
+  "updated_at_utc": "2026-10-02T01:57:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -249,6 +249,16 @@
       "bible_sha": "63f4f2323ebd7c175038c32aed375bf9eb9f41d6",
       "agent": "AGENTE 30",
       "reason": "REAUDIT 191-REAUDIT-A30-001: Bible executable-evidence section is stale relative to already-successful follow-up run 36951292966."
+    },
+    {
+      "at_utc": "2026-10-02T01:57:00Z",
+      "type": "EDITOR_DOCUMENTATION_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
+      "bible_sha": "d95135f438c9e9b47cc638208265d6787a039c00",
+      "agent": "AGENTE 30",
+      "reason": "Resolved 191-REAUDIT-A30-001 by recording completed follow-up run 36951292966 and Node20/Node22/full-content jobs in Bible §8; source unchanged."
     }
   ],
   "evidence": [
@@ -288,7 +298,15 @@
       "full_content_job_id": 110664598276,
       "focal_result": "PASS_2_OF_2_SUITES_20_OF_20_TESTS_BOTH_NODES_RUN_TESTS_BY_PATH",
       "content_suite_result": "PASS_40_OF_40_SUITES_439_OF_439_TESTS_DETECT_OPEN_HANDLES"
+    },
+    {
+      "type": "DOCUMENTATION_REPAIR",
+      "at_utc": "2026-10-02T01:57:00Z",
+      "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
+      "bible_sha": "d95135f438c9e9b47cc638208265d6787a039c00",
+      "finding": "191-REAUDIT-A30-001",
+      "resolution": "Bible §8 now records follow-up run 36951292966 as completed success with Node20 110664598493, Node22 110664598462, and full content 110664598276."
     }
   ],
-  "bible_sha": "63f4f2323ebd7c175038c32aed375bf9eb9f41d6"
+  "bible_sha": "d95135f438c9e9b47cc638208265d6787a039c00"
 }
