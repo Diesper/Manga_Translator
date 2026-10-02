@@ -51,6 +51,8 @@ const REQUIRED = {
   ],
   ci: [
     'name: CI Gate',
+    'group: ci-${{ github.workflow }}-${{ github.ref }}',
+    'cancel-in-progress: false',
     'name: Bible Final Readiness',
     'npm run bible:final-readiness',
     'node scripts/validation/verify-bible-protocol-governance.js',
