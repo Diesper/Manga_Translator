@@ -54,6 +54,15 @@ assert.ok(
   guard.problemsForHumanDiff(
     locked,
     locked,
+    ['docs/biblia/.state/012.json'],
+  ).some((item) => item.includes('sem correction approval')),
+);
+console.log('PASS HUMAN state mutation without approval is blocked');
+
+assert.ok(
+  guard.problemsForHumanDiff(
+    locked,
+    locked,
     ['docs/biblia/.coordination/audit-results/012/primary/result.json'],
   ).some((item) => item.includes('não permite lease/resultado')),
 );
