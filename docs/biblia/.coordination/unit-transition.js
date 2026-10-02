@@ -958,6 +958,7 @@ module.exports = {
   tokenConsumed,
   tokenConsumptionCount,
   tokenHistoryProblems,
+  expectedCorrectionTokenId,
   issueCorrectionToken,
   validateCorrectionToken,
   assertCas,
