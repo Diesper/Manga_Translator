@@ -133,6 +133,31 @@ function persistSnapshot(next, snapshot) {
   next.revision_id = snapshot.revision_id;
 }
 
+function deterministicProductionSha(root, state) {
+  const files = [...new Set(Array.isArray(state?.production_files) ? state.production_files : [])]
+    .filter((value) => typeof value === 'string' && value)
+    .sort();
+  if (!files.length) return life.lifecycleSnapshot(state).production_sha;
+  const manifest = files.map((file) => {
+    const sha = auditCore.gitWorkingTreeBlobSha(root, file);
+    if (!life.validSha(sha)) throw new Error('PRODUCTION_FILE_SHA_UNAVAILABLE:' + file);
+    return { file: file.replace(/\\/g, '/'), sha };
+  });
+  return auditCore.gitBlobShaBuffer(Buffer.from(life.stableJson(manifest)));
+}
+
+function workingRevision(root, state) {
+  const testSha = auditCore.gitWorkingTreeBlobSha(root, state?.file);
+  const bibleSha = auditCore.gitWorkingTreeBlobSha(root, state?.bible);
+  if (!life.validSha(testSha)) throw new Error('TEST_SHA_UNAVAILABLE');
+  if (!life.validSha(bibleSha)) throw new Error('BIBLE_SHA_UNAVAILABLE');
+  return {
+    test_sha: testSha,
+    bible_sha: bibleSha,
+    production_sha: deterministicProductionSha(root, state),
+  };
+}
+
 function projectAuditDecision(state, pipeline, options = {}) {
   if (!pipeline || !['APPROVED', 'CHANGES_REQUIRED'].includes(pipeline.decision)) {
     throw new Error('RECONCILE_DECISION_INVALID');
@@ -286,23 +311,40 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
   if (action === 'HANDOFF_FOR_AUDIT') {
     if (state.status !== 'IN_PROGRESS') throw new Error('HANDOFF_REQUIRES_IN_PROGRESS');
     if (state.agent && state.agent !== actor) throw new Error('HANDOFF_ACTOR_NOT_OWNER');
+    const handoffTestSha = request.test_sha || state.test_sha || state.source_sha;
+    const handoffBibleSha = request.bible_sha || state.bible_sha;
+    const handoffProductionSha = request.production_sha === undefined
+      ? snapshot.production_sha
+      : request.production_sha;
+    if (!life.validSha(handoffTestSha)) throw new Error('HANDOFF_TEST_SHA_INVALID');
+    if (!life.validSha(handoffBibleSha)) throw new Error('HANDOFF_BIBLE_SHA_INVALID');
+    if (handoffProductionSha !== null && handoffProductionSha !== undefined
+      && !life.validSha(handoffProductionSha)) throw new Error('HANDOFF_PRODUCTION_SHA_INVALID');
+
+    next.source_sha = String(handoffTestSha).toLowerCase();
+    next.test_sha = String(handoffTestSha).toLowerCase();
+    next.bible_sha = String(handoffBibleSha).toLowerCase();
+    next.production_sha = handoffProductionSha ? String(handoffProductionSha).toLowerCase() : null;
+
     const nextEpoch = snapshot.audit_epoch + 1;
     const handoffId = String(state.index).padStart(3, '0')
-      + '-e' + nextEpoch + '-' + life.sha256(JSON.stringify({
+      + '-e' + nextEpoch + '-' + life.sha256(life.stableJson({
         index: state.index,
         epoch: nextEpoch,
         at_utc: at,
-        source_sha: state.source_sha,
-        bible_sha: state.bible_sha,
+        test_sha: next.test_sha,
+        bible_sha: next.bible_sha,
+        production_sha: next.production_sha,
       })).slice(0, 12);
     life.appendLifecycleEvent(next.history, {
       at_utc: at,
       type: life.HANDOFF_EVENT,
       from_status: 'IN_PROGRESS',
       to_status: snapshot.current_escalation_cycle + 1 >= 7 ? 'HUMAN_LOCKED' : 'READY_FOR_AUDIT',
-      source_sha: state.source_sha,
-      bible_sha: state.bible_sha,
-      production_sha: request.production_sha || snapshot.production_sha,
+      source_sha: next.source_sha,
+      test_sha: next.test_sha,
+      bible_sha: next.bible_sha,
+      production_sha: next.production_sha,
       agent: actor,
       correction_cycle: snapshot.current_escalation_cycle + 1,
       audit_epoch: nextEpoch,
@@ -312,7 +354,11 @@ function planTransition({ state, pipeline = null, request, token = null, humanAp
     next.status = snapshot.current_escalation_cycle + 1 >= 7 ? 'HUMAN_LOCKED' : 'READY_FOR_AUDIT';
     next.agent = null;
     next.updated_at_utc = at;
-    const after = life.lifecycleSnapshot(next, { production_sha: request.production_sha || snapshot.production_sha });
+    const after = life.lifecycleSnapshot(next, {
+      production_sha: next.production_sha,
+      test_sha: next.test_sha,
+      bible_sha: next.bible_sha,
+    });
     persistSnapshot(next, after);
     return { state: next, handoff_id: after.handoff_id, audit_epoch: after.audit_epoch };
   }
@@ -582,6 +628,9 @@ function main(argv=process.argv.slice(2)) {
     const approval=request.approval_id
       ? (model.human_approvals || []).find((item)=>item.approval_id===request.approval_id)
       : null;
+    if (String(request.action || '').toUpperCase() === 'HANDOFF_FOR_AUDIT') {
+      Object.assign(request, workingRevision(root, state));
+    }
     const result=planTransition({
       state,
       pipeline,
@@ -625,6 +674,8 @@ module.exports = {
   validateCorrectionToken,
   assertCas,
   persistSnapshot,
+  deterministicProductionSha,
+  workingRevision,
   projectAuditDecision,
   planTransition,
   loadCorrectionTokens,
