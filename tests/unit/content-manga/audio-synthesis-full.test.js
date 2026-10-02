@@ -904,7 +904,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         )).toBe(false);
     });
 
-    test('UPDATE_IMAGE tardio do lote concluído é rejeitado sem substituir a imagem', async () => {
+    test('UPDATE_IMAGE tardio sem histórico persistido é rejeitado sem substituir a imagem', async () => {
         installRuntimeResponder({ tabId: 90 });
         const { ctx } = createAudioContext({ state: 'running' });
         Object.defineProperty(window, 'AudioContext', {
@@ -939,7 +939,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 
         const lateResult = await dispatchToContent(runtimeMock, {
             action: 'UPDATE_IMAGE',
-            batchId: liveBatch.batchId,
+            batchId: `${liveBatch.batchId}-stale`,
             index: 0,
             newSrc: 'data:image/png;base64,U0VDT05E',
             expectAck: true,
