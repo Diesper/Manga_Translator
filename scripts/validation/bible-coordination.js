@@ -69,6 +69,10 @@ function isContiguousFromOne(intervals) {
   return true;
 }
 
+function hasExplicitCoverageSection(bible) {
+  return /^##\s+.*(?:cobertura[^\n]*(?:documental|linhas?|posi[cç]|faixa)|rastreabilidade|mapa[^\n]*(?:linha|posi[cç]|faixa)|auditoria linha a linha)[^\n]*$/gmi.test(normalizeText(bible));
+}
+
 function coverageScope(bible) {
   const normalized = normalizeText(bible);
   const matches = [...normalized.matchAll(/^##\s+.*(?:cobertura[^\n]*(?:documental|linhas?|posi[cç]|faixa)|rastreabilidade|mapa[^\n]*(?:linha|posi[cç]|faixa)|auditoria linha a linha)[^\n]*$/gmi)];
@@ -189,7 +193,9 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
   if (!tableCandidates.length && /\\n/.test(scope)) {
     tableCandidates = collectCoverageTables(scope.replace(/\\n/g, '\n'));
   }
-  const bulletCandidate = collectCoverageBullets(scope);
+  const bulletCandidate = hasExplicitCoverageSection(bible)
+    ? collectCoverageBullets(scope)
+    : [];
 
   const combinedRanges = [...rangeHeadings];
   for (const single of singleHeadings) {
