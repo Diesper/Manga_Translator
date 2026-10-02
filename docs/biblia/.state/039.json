@@ -2,11 +2,11 @@
   "index": 39,
   "file": "extension/content/content_manga.js",
   "bible": "docs/biblia/extension/content/content_manga.js/Bíblia.md",
-  "status": "COMPLETED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 30",
   "source_sha": "a8b3698019f6f22027f09f544f15c0563a9f6515",
-  "started_at_utc": "2026-09-30T15:54:00Z",
-  "completed_at_utc": "2026-09-30T16:01:00Z",
+  "started_at_utc": "2026-10-02T02:14:30Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "039-001",
@@ -106,7 +106,18 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
+  "updated_at_utc": "2026-10-02T02:14:30Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T02:14:30Z",
+      "type": "EDITOR_REOPEN_EXPOSED_BUG",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "a8b3698019f6f22027f09f544f15c0563a9f6515",
+      "agent": "AGENTE 30",
+      "exposed_by_unit": 191,
+      "reason": "191-005 pre-fix regression proves repeated SHOW_ERROR_INTEGRATED creates 2 AudioContexts; playErrorSound must reuse notificationAudioContext."
+    }
+  ],
   "evidence": []
 }
