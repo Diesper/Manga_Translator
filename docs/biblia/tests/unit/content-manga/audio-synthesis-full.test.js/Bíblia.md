@@ -1,7 +1,7 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** correções 191-001 a 191-024 aplicadas e validadas; revisão técnica pronta para novo par independente PRIMARY + ADVERSARIAL  
-> **SHA auditado:** `92722a127b1068fd4d4ac20d5ccd12f7e9a1f971`  
+> **Estado documental:** correções 191-001 a 191-026 aplicadas e validadas; revisão técnica pronta para novo par independente PRIMARY + ADVERSARIAL  
+> **SHA auditado:** `a887718724aa3fa65da433269cc12fb82af7bb18`  
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
 > **Linhas textuais:** **2357**  
@@ -445,29 +445,56 @@ A correção mantém um histórico recente/bounded de identidades persistidas al
 
 **Green final:** run `36965852017` no head `3a6581cfbb19b907b1e266e4d8f44208db6b6ca4`.
 
-## 28. Evidência executável
+## 28. 191-025 — TEST_ISOLATION — RESOLVED
+
+`runtimeMock` é singleton por suíte e não é recriado pelo `initChromeMocks()`. Como `installRuntimeResponder()` substitui `sendMessage` por atribuição direta, `jest.restoreAllMocks()` não restaurava o método original.
+
+A correção:
+
+- captura `runtimeMock.sendMessage` original no `beforeEach`;
+- restaura o método no `afterEach`;
+- zera também `runtimeMock.lastError`;
+- mantém listeners/storage/flags já limpos pelo harness.
+
+**Validação:** PR #79, run `36966562157`: Node 20/22 e full content-scripts verdes.
+
+## 29. 191-026 — TEST_STRENGTH_REPEAT_ERROR — RESOLVED
+
+O cenário de dois erros consecutivos já provava um único `AudioContext` e quatro nós, mas o segundo par não era validado por instância.
+
+A correção reaplica `assertNote()` aos nós 3 e 4, exigindo no segundo erro:
+
+- 300 Hz em t+0 e 150 Hz em t+0,2;
+- onda `sawtooth`;
+- envelope 0 → 0,4 → 0,001;
+- wiring `oscillator → gain → destination`;
+- `start/stop` corretos.
+
+**Validação:** PR #79, run `36966562157`: Node 20/22 50/50 e full content-scripts 469/469.
+
+## 30. Evidência executável
 
 ### Revisão final atual
 
-Workflow **Audio Synthesis Selftest**, run `36965852017`, head `3a6581cfbb19b907b1e266e4d8f44208db6b6ca4`:
+Workflow **Audio Synthesis Selftest**, PR de validação #79, run `36966562157`, head `18f4bf6f097aa698ec8259dec040d0b1711fe591`:
 
-- fonte #191: `92722a127b1068fd4d4ac20d5ccd12f7e9a1f971`, **41/41 casos**;
+- fonte #191: `a887718724aa3fa65da433269cc12fb82af7bb18`, **41/41 casos**;
 - production dependency: `893a03442cddb9e32487d7c7599be13ba8dc349c`;
-- Node 20 job `110709321351`: **2/2 suítes, 50/50 testes PASS**;
-- Node 22 job `110709321277`: **2/2 suítes, 50/50 testes PASS**;
-- full content-scripts job `110709321176`: **40/40 suítes, 469/469 testes PASS**;
+- Node 20 job `110711482525`: **2/2 suítes, 50/50 testes PASS**;
+- Node 22 job `110711482366`: **2/2 suítes, 50/50 testes PASS**;
+- full content-scripts job `110711482467`: **40/40 suítes, 469/469 testes PASS**;
 - execução focal e full com `--detectOpenHandles`;
 - conclusão do workflow: **success**.
 
-### Red proofs finais
+### Evidência histórica preservada
 
-- 191-023: run `36965341539`, Node 20 `110707760634`, Node 22 `110707760644`.
-- 191-024: run `36965638722`, Node 20 `110708677430`, Node 22 `110708677198`.
-- Green intermediário do fix A→B: run `36965779955`, 50/50 em Node 20/22 e 469/469 no full.
+- 191-023: red run `36965341539`.
+- 191-024: red run `36965638722`; green anterior `36965852017`.
+- 191-025/026: mudanças de harness/assertion não enfraqueceram testes; a revisão nova permaneceu verde em Node 20/22 e no projeto content-scripts completo.
 
 A revisão atual não contém `.skip`, `.only`, `xit`, `xdescribe`, TODO ou FIXME na suíte focal.
 
-## 29. Reauditoria adversarial pós-correção
+## 31. Reauditoria adversarial pós-correção
 
 Matriz atualmente protegida:
 
@@ -484,11 +511,13 @@ Matriz atualmente protegida:
 - ACK perdido recuperável após commit/conclusão;
 - ACK perdido recuperável mesmo depois que outro lote começa;
 - replay conflitante continua `payload_conflict`;
+- `runtimeMock.sendMessage` é restaurado após cada teste, evitando contaminação do singleton;
+- o segundo erro consecutivo valida frequência/envelope/wiring por instância;
 - full content-scripts sem open handles detectados.
 
 A camada corretiva fica pronta para **auditoria independente**. A identidade `AGENTE HÍBRIDO`, que realizou correções, não pode assinar o par PRIMARY/ADVERSARIAL desta revisão.
 
-## 30. Fonte integral exata
+## 32. Fonte integral exata
 
 ```javascript
 /**
@@ -620,7 +649,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
     let storageMock;
     let sentMessages;
     let audioContextDescriptor;
-    let webkitAudioContextDescriptor;
+    let webkitAudioContextDescriptor, originalSendMessage;
 
     beforeEach(async () => {
         jest.resetModules();
@@ -631,7 +660,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         runtimeMock.lastError = null;
         sentMessages = [];
         await storageMock.clear();
-
+        originalSendMessage = runtimeMock.sendMessage;
         audioContextDescriptor = Object.getOwnPropertyDescriptor(window, 'AudioContext');
         webkitAudioContextDescriptor = Object.getOwnPropertyDescriptor(window, 'webkitAudioContext');
 
@@ -645,7 +674,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         jest.restoreAllMocks();
         await storageMock.clear();
         runtimeMock._messageListeners = [];
-        runtimeMock._connectListeners = [];
+        runtimeMock._connectListeners = []; runtimeMock.sendMessage = originalSendMessage; runtimeMock.lastError = null;
         delete window.__manga_translator_content_injected;
         delete window.__manga_translator_active_instance;
         delete window.MangaTranslatorGtcFingerprint;
@@ -767,10 +796,10 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         });
 
         expect(AudioContextMock).toHaveBeenCalledTimes(1);
-        expect(first.oscillators).toHaveLength(4);
-        expect(first.gains).toHaveLength(4);
-        expect(second.oscillators).toHaveLength(0);
-        expect(second.gains).toHaveLength(0);
+        expect(first.oscillators).toHaveLength(4); expect(first.gains).toHaveLength(4);
+        assertNote({ osc: first.oscillators[2], gain: first.gains[2], destination: first.ctx.destination, type: 'sawtooth', frequency: 300, start: 3, stop: 3.3 });
+        assertNote({ osc: first.oscillators[3], gain: first.gains[3], destination: first.ctx.destination, type: 'sawtooth', frequency: 150, start: 3.2, stop: 3.5 });
+        expect(second.oscillators).toHaveLength(0); expect(second.gains).toHaveLength(0);
         expect(sentMessages.filter(message =>
             message.source === 'audio'
             && message.action_name === 'AUDIO_CONTEXT_CREATED'
@@ -2850,7 +2879,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 });
 ```
 
-## 31. Cobertura integral por posições
+## 33. Cobertura integral por posições
 
 - **1–25:** cabeçalho/imports/globals.
 - **26–39:** delay/wait.
@@ -2904,7 +2933,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 
 **Cobertura documental:** **2358/2358 posições**, contíguas e sem overlap.
 
-## 32. Pontuação pós-correção / pré-auditoria distribuída
+## 34. Pontuação pós-correção / pré-auditoria distribuída
 
 - Correção funcional: **25/25**
 - Robustez adversarial: **20/20**
