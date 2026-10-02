@@ -1,10 +1,10 @@
 # Bíblia técnica — .github/workflows/ci.yml
 
 > **Estado:** 🟡 READY_FOR_AUDIT — correção de orquestração E2E aplicada; reauditoria independente pendente  
-> **SHA auditado:** `9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a`  
+> **SHA auditado:** `fbc108c255d06257b741839bb19fa56b4e6794b2`  
 > **Última auditoria independente válida para o SHA anterior:** AGENTE 3  
 > **Tipo:** workflow GitHub Actions / CI  
-> **Linhas textuais:** **558**  
+> **Linhas textuais:** **589**  
 > **Posições documentais:** **558** — o arquivo não possui newline terminal  
 > **PR:** #66  
 > **Branch:** docs/project-bible
@@ -225,6 +225,10 @@ jobs:
         run: node scripts/validation/verify-repository-structure.js
       - name: Validar contrato da própria CI
         run: node scripts/validation/verify-ci-contract.js
+      - name: Validar governança do protocolo anti-loop da Bíblia
+        run: node scripts/validation/verify-bible-protocol-governance.js
+      - name: Provar que remoção de gates anti-loop é rejeitada
+        run: node scripts/validation/verify-bible-protocol-governance-selftest.js
       - name: Validar política anti-skip/escape-hatch
         run: npm run validate:test-policy
       - name: Provar que a política anti-skip rejeita violações
@@ -628,6 +632,23 @@ jobs:
         run: npm test
 
 
+  bible-final-readiness:
+    name: Bible Final Readiness
+    if: ${{ (github.event_name == 'pull_request' && github.head_ref == 'docs/project-bible') || (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código com histórico completo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Executar gate final da Bíblia e anti-loop
+        run: npm run bible:final-readiness
+
+
   ci-gate:
     name: CI Gate
     # Avalia falhas reais e jobs skipped, mas não ressuscita o gate quando o
@@ -652,6 +673,7 @@ jobs:
       - background-leak-bisection
       - windows-portability
       - fresh-developer-flow
+      - bible-final-readiness
     steps:
       - name: Exigir execução e sucesso de todos os gates
         env:
@@ -671,6 +693,8 @@ jobs:
           BACKGROUND_LEAK_BISECTION: ${{ needs.background-leak-bisection.result }}
           WINDOWS_PORTABILITY: ${{ needs.windows-portability.result }}
           FRESH_DEVELOPER_FLOW: ${{ needs.fresh-developer-flow.result }}
+          BIBLE_FINAL_REQUIRED: ${{ (github.event_name == 'pull_request' && github.head_ref == 'docs/project-bible') || (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch' }}
+          BIBLE_FINAL_READINESS: ${{ needs.bible-final-readiness.result }}
         run: |
           failed=0
           check() {
@@ -694,6 +718,13 @@ jobs:
           check "E2E Shards" "$E2E_SHARDS"
           check "E2E Tests" "$E2E"
           check "Windows Portability" "$WINDOWS_PORTABILITY"
+
+          if [ "$BIBLE_FINAL_REQUIRED" = "true" ]; then
+            echo "🔒 Bible lifecycle/final readiness é obrigatório para esta revisão."
+            check "Bible Final Readiness" "$BIBLE_FINAL_READINESS"
+          else
+            echo "ℹ️ Bible Final Readiness não se aplica a esta PR."
+          fi
 
           if [ "$FULL_DIAGNOSTICS_REQUIRED" = "true" ]; then
             echo "🔒 Verificação completa pós-merge/manual: diagnósticos pesados são obrigatórios."
@@ -8542,3 +8573,13 @@ A seguir, cada uma das 558 posições do arquivo recebe heading próprio e expli
 - Nenhum código funcional foi alterado.
 
 **Estado documental desta materialização:** 🟡 READY_FOR_AUDIT; fonte integral e 558/558 posições foram atualizadas para o novo SHA após a correção `e2e: always() && !cancelled()`. A aprovação anterior permanece histórica e uma reauditoria independente é necessária.
+
+## Cobertura documental de linhas/posições — revisão atual
+
+Cobertura canônica da revisão vigente; mapas anteriores permanecem como contexto histórico.
+
+| Linhas/posição | Escopo | Evidência |
+|---:|---|---|
+| 1–589 | Blob integral atual `fbc108c255d06257b741839bb19fa56b4e6794b2` (589 linhas textuais + terminador final quando aplicável). | fonte integral embutida + SHA Git do source |
+
+A sincronização documental não reaproveita aprovação anterior: esta revisão requer nova auditoria distribuída.
