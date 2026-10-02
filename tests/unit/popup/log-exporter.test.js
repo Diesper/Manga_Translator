@@ -122,6 +122,7 @@ describe('Log Buffer e Exportador — popup.js', () => {
     test('exporta logs gerando arquivo mangatranslator_log.txt via downloads API', async () => {
         const downloadSpy = jest.spyOn(downloadsMock, 'download');
         window.URL.createObjectURL = jest.fn(() => 'blob:mock-log-download');
+        window.URL.revokeObjectURL = jest.fn();
 
         const sampleLogs = [
             { ts: 1700000000000, level: 'info', source: 'bg', action: 'BATCH_START', detail: 'Lote iniciado' },
@@ -156,8 +157,10 @@ describe('Log Buffer e Exportador — popup.js', () => {
             expect.objectContaining({
                 filename: 'mangatranslator_log.txt',
                 saveAs: true,
-            })
+            }),
+            expect.any(Function)
         );
+        expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-log-download');
     });
 
     test('alerta quando não há logs para exportar', async () => {
