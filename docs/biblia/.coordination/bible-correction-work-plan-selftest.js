@@ -28,6 +28,7 @@ function pipeline(index, decision, options = {}) {
     primary: options.primary || null,
     adversarial: options.adversarial || null,
     reaudit: options.reaudit || null,
+    problems: options.problems || [],
   };
 }
 
@@ -53,6 +54,7 @@ const model = {
     state(3),
     state(4, 'IN_PROGRESS'),
     state(5),
+    state(6),
   ],
   pipelines: [
     pipeline(1, 'CHANGES_REQUIRED', { adversarial: changeRecord }),
@@ -60,6 +62,7 @@ const model = {
     pipeline(3, 'CHANGES_REQUIRED', { adversarial: changeRecord }),
     pipeline(4, 'CHANGES_REQUIRED', { adversarial: changeRecord }),
     pipeline(5, 'APPROVED', { adversarial: { verdict: 'APPROVED' } }),
+    pipeline(6, 'CHANGES_REQUIRED', { adversarial: changeRecord, problems: ['pipeline inválido'] }),
   ],
   active_claims_and_leases: [
     'docs/biblia/.coordination/audit-leases/reaudit/003.lock.md',
@@ -72,6 +75,7 @@ assert('PRIMARY CHANGES_REQUIRED sozinho não abre correção', !plan.candidates
 assert('índice com ownership de auditoria ativo fica fora', !plan.candidates.some((x) => x.index === 3));
 assert('IN_PROGRESS editorial fica fora', !plan.candidates.some((x) => x.index === 4));
 assert('APPROVED fica fora', !plan.candidates.some((x) => x.index === 5));
+assert('pipeline com problemas não vira correção', !plan.candidates.some((x) => x.index === 6));
 assert('candidato expõe source_sha + bible_sha', plan.candidates[0].source_sha && plan.candidates[0].bible_sha);
 
 console.log('Bible correction work plan self-test: SUCCESS');
