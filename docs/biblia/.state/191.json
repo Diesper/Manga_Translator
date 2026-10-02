@@ -1213,6 +1213,26 @@
       "audited_by": "AGENTE 30",
       "audited_at_utc": "2026-10-02T06:16:30Z",
       "audit_finding": "PRIMARY supplemental finding on protected binding."
+    },
+    {
+      "id": "191-032",
+      "status": "ACCEPTED",
+      "type": "GTC_CROSS_CONTEXT_FALLBACK_RACE",
+      "target_file": "extension/content/cm-gtc-client.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "gtcSaveChains serializa por hash somente dentro de uma instância do content script; abas/contextos diferentes possuem Maps independentes, mas gravam o mesmo fallback compartilhado em chrome.storage.local.",
+      "current_evidence": "cm-gtc-client.js lines 147-200 define module-local `const gtcSaveChains = new Map()`; the file is injected as a classic content script per page/isolated world. No multi-tab/cross-context regression exists.",
+      "missing_evidence": "Dois clientes independentes no mesmo hash: A inicia save antigo que falha tarde, B salva payload novo com sucesso, A responde depois. O estado final não pode ressuscitar fallback A nem fazê-lo prevalecer sobre B.",
+      "why_needed": "191-027 resolveu reordenação dentro de uma única cadeia, mas não coordena cadeias de abas diferentes.",
+      "requested_action": "ADVERSARIAL deve decidir se o fallback deve ser coordenado no background ou possuir versão comparável/atomicidade cross-context. Qualquer marker de 191-029 deve incluir contrato explícito para concorrência entre abas.",
+      "expected_evidence": "Regression com duas instâncias independentes do GTC client prova que um save moderno mais novo/sucedido permanece vencedor apesar de uma falha antiga tardia em outro contexto.",
+      "expected_auditor_action": "Revisar race inter-tab antes de autorizar marker-based precedence.",
+      "possible_regression": "Fallback antigo de outra aba pode ser escrito por último e ressurgir/ganhar precedência.",
+      "impact": "Consistência global do cache entre abas concorrentes.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 30",
+      "audited_at_utc": "2026-10-02T06:18:30Z",
+      "audit_finding": "PRIMARY adversarial concurrency finding on protected binding."
     }
   ],
   "document_quality": {
@@ -1231,7 +1251,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T06:16:30Z",
+  "updated_at_utc": "2026-10-02T06:18:30Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1918,6 +1938,17 @@
       "audit_request_id": "191-031",
       "agent": "AGENTE 30",
       "reason": "Legacy fallback read ignores storage.local.get lastError and has no fault-injection coverage."
+    },
+    {
+      "at_utc": "2026-10-02T06:18:30Z",
+      "type": "PRIMARY_AUDIT_SUPPLEMENTAL_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "audit_request_id": "191-032",
+      "agent": "AGENTE 30",
+      "reason": "Module-local gtcSaveChains cannot serialize same-hash fallback writes across tabs/isolated content-script contexts."
     }
   ],
   "evidence": [
