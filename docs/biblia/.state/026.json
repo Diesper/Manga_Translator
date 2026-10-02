@@ -4,7 +4,7 @@
   "bible": "docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "44d5d9e7d4f9e0bcd2139b127d47e1b75aeef077",
+  "source_sha": "abbf440fd4cd8db415f991235aab0f59a9dbe58e",
   "started_at_utc": "2026-10-02T00:07:05Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -83,7 +83,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:09:00Z",
+  "updated_at_utc": "2026-10-02T00:12:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:07:05Z",
@@ -101,6 +101,13 @@
       "previous_source_sha": "07b4197a206f85559f2e843d74c71d4858734be7",
       "current_source_sha": "44d5d9e7d4f9e0bcd2139b127d47e1b75aeef077",
       "reason": "ACK moderno exige persisted:true; result_received fire-and-forget removido para eliminar race; settlement é reivindicado antes de awaits; falhas de state/finalize deixam de ser silenciosamente promovidas."
+    },
+    {
+      "at_utc": "2026-10-02T00:12:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_ADVERSARIAL_HARDENING",
+      "previous_source_sha": "44d5d9e7d4f9e0bcd2139b127d47e1b75aeef077",
+      "current_source_sha": "abbf440fd4cd8db415f991235aab0f59a9dbe58e",
+      "reason": "Mesmo timeoutMs agora limita updateJobState/finalizeJob após ACK; promises internas que nunca resolvem não podem deixar deliver pendente indefinidamente."
     }
   ],
   "evidence": []
