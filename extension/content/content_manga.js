@@ -1139,8 +1139,8 @@ if (!window.__manga_translator_content_injected) {
 
         function playErrorSound() {
             try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                [0, 0.2].forEach((t, i) => {
+                const audioCtx = getLoggedNotificationAudioContext('integrated_error'); if (!audioCtx) return;
+                const schedule = () => [0, 0.2].forEach((t, i) => {
                     const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
                     osc.connect(gain); gain.connect(audioCtx.destination);
                     osc.type = 'sawtooth'; osc.frequency.setValueAtTime([300, 150][i], audioCtx.currentTime + t);
@@ -1148,7 +1148,7 @@ if (!window.__manga_translator_content_injected) {
                     gain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + t + 0.04);
                     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + t + 0.28);
                     osc.start(audioCtx.currentTime + t); osc.stop(audioCtx.currentTime + t + 0.3);
-                });
+                }); if (audioCtx.state === 'running') schedule(); else if (audioCtx.state === 'suspended') Promise.resolve(audioCtx.resume()).then(() => { if (audioCtx.state === 'running') schedule(); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto permaneceu suspenso.', { contextState: audioCtx.state }); }).catch(error => sendAudioLog('warn', 'AUDIO_ERROR_FAILED', 'Não foi possível retomar o áudio de erro.', audioErrorExtra(error))); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto indisponível.', { contextState: audioCtx.state });
             } catch (e) {}
         }
 
