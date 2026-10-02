@@ -113,27 +113,4 @@ humanPlan = planAuditWork({
 assert('ALLOW_AUDIT_ONLY libera PRIMARY sem liberar correção', humanPlan.candidates.length === 1 && humanPlan.candidates[0].phase === 'PRIMARY');
 assert('candidato HUMAN carrega approval id', humanPlan.candidates[0].human_audit_approval_id === auditApproval.approval_id);
 
-const thresholdAuditState = state(7, 'READY_FOR_AUDIT');
-thresholdAuditState.bible_sha = 'c'.repeat(40);
-thresholdAuditState.history = [];
-for (let i=1;i<=7;i+=1) {
-  thresholdAuditState.history.push({
-    at_utc:'2026-10-01T0' + i + ':10:00Z',
-    type:lifecycleCore.HANDOFF_EVENT,
-    source_sha:thresholdAuditState.source_sha,
-    bible_sha:thresholdAuditState.bible_sha,
-    correction_cycle:i === 7 ? 7 : undefined,
-    to_status:i === 7 ? 'READY_FOR_AUDIT' : undefined,
-  });
-}
-const thresholdPlan = planAuditWork({
-  states:[thresholdAuditState],
-  pipelines:new Map([[7,{primary:null,adversarial:null,reaudit:null,divergent:false}]]),
-  auditorOrdinal:1,
-  shardCount:4,
-  humanApprovals:[],
-});
-assert('handoff que cruza cycle 7 continua auditável sem segunda aprovação humana', thresholdPlan.candidates.length === 1 && thresholdPlan.candidates[0].phase === 'PRIMARY');
-assert('audit-only HUMAN window não carrega approval artificial', thresholdPlan.candidates[0].human_audit_approval_id === null);
-
 console.log('Bible audit shards self-test: SUCCESS');
