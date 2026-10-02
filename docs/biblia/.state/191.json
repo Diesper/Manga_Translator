@@ -663,6 +663,27 @@
       "audited_at_utc": "2026-10-02T03:42:38Z",
       "audit_finding": "Encontrado em auto-revisão corretiva após handoff; não usado como auditor independente.",
       "repair_progress": "REGRESSION_PENDING_RED_PROOF"
+    },
+    {
+      "id": "191-019",
+      "status": "ACCEPTED",
+      "type": "INFLIGHT_DUPLICATE_PERSISTENCE_RACE",
+      "target_file": "extension/content/content_manga.js",
+      "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "finding": "Uma segunda entrega do mesmo batchId:index pode chegar enquanto o primeiro SM_SAVE_PAGE ainda está pendente. Nesse instante o DOM já está translated=true, mas o índice ainda não foi contabilizado e não há failedPersistence key; o runtime pode reaplicar o segundo payload e iniciar outra persistência concorrente.",
+      "current_evidence": "jobs-dom-ack aguarda ACK por até 30s; content_manga só trata duplicata já contabilizada ou retry após PERSIST_FAIL. Não existe estado explícito de persistência em voo.",
+      "missing_evidence": "Duplicata em voo deve compartilhar/aguardar a primeira persistência, preservar o primeiro DOM e produzir somente um SM_SAVE_PAGE para o índice.",
+      "why_needed": "Timeout/reentrega antes do ACK é uma condição normal de mensageria assíncrona. Sem coalescência, duas persistências concorrentes podem inverter ordem e deixar DOM/storage divergentes.",
+      "requested_action": "Adicionar regressão com primeiro SM_SAVE_PAGE bloqueado e segunda UPDATE_IMAGE do mesmo batchId:index antes do ACK; implementar coalescência por chave.",
+      "expected_evidence": "Pré-fix cria segundo save/reaplica DOM; pós-fix mantém um save e ambos ACKs refletem a mesma persistência.",
+      "expected_auditor_action": "Reauditar idempotência temporal durante persistência pendente.",
+      "possible_regression": "Retry de transporte durante storage lento substitui payload válido ou grava duas versões em ordem não determinística.",
+      "impact": "Idempotência, consistência DOM/storage e robustez contra timeout/reentrega.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE HÍBRIDO",
+      "audited_at_utc": "2026-10-02T03:47:15Z",
+      "audit_finding": "Encontrado na revisão corretiva adjacente ao 191-018; não usado como auditor independente.",
+      "repair_progress": "REGRESSION_PENDING_RED_PROOF"
     }
   ],
   "document_quality": {
@@ -1053,6 +1074,14 @@
       "bible_sha": "d3ee3cae8bb931b49e60af07fe61bb20f1d2703e",
       "agent": "AGENTE HÍBRIDO",
       "reason": "191-018 HIGH: active duplicate preserves DOM but still rewrites persisted page with the duplicate payload; correction role reopened, independent audit remains invalid until new handoff."
+    },
+    {
+      "at_utc": "2026-10-02T03:47:15Z",
+      "type": "POST_HANDOFF_CORRECTION_FINDING",
+      "source_sha": "f5c3d85e8d7774879be877cfb0d4ecabd8280f31",
+      "bible_sha": "d3ee3cae8bb931b49e60af07fe61bb20f1d2703e",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "191-019 HIGH: duplicate UPDATE_IMAGE can arrive while first persistence is still pending; no in-flight coalescing exists."
     }
   ],
   "evidence": [
