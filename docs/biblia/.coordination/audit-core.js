@@ -8,6 +8,9 @@ const path = require('path');
 const AUDIT_PHASES = new Set(['PRIMARY', 'ADVERSARIAL', 'REAUDIT']);
 const AUDIT_VERDICTS = new Set(['APPROVED', 'CHANGES_REQUIRED']);
 const BASELINE_RELATIVE = 'docs/biblia/.coordination/audit-bible-baseline.json';
+// Migração: a correção #191 já estava aberta às 05:08:00Z quando esta trava foi introduzida.
+// Handoffs posteriores ficam protegidos contra reabertura editorial espontânea.
+const HANDOFF_GUARD_EFFECTIVE_AT_UTC = '2026-10-02T05:08:00.001Z';
 
 const slash = (value) => String(value || '').replace(/\\/g, '/');
 
@@ -405,6 +408,91 @@ function pipelineMergeBlockers(states, evaluation) {
   return blockers;
 }
 
+function postHandoffCorrectionProblems(states, records = [], options = {}) {
+  const effectiveAtUtc = options.effectiveAtUtc || HANDOFF_GUARD_EFFECTIVE_AT_UTC;
+  const effectiveAtMs = Date.parse(effectiveAtUtc);
+  if (!Number.isFinite(effectiveAtMs)) {
+    throw new Error('HANDOFF guard effectiveAtUtc inválido: ' + effectiveAtUtc);
+  }
+
+  const problems = [];
+  for (const state of states || []) {
+    const history = Array.isArray(state?.history) ? state.history : [];
+    const handoffs = history
+      .map((entry, position) => ({
+        entry,
+        position,
+        at_ms: Date.parse(entry?.at_utc || ''),
+      }))
+      .filter(({ entry, at_ms }) => (
+        entry?.type === 'CORRECTION_HANDOFF_READY_FOR_INDEPENDENT_AUDIT'
+        && Number.isFinite(at_ms)
+        && at_ms >= effectiveAtMs
+        && /^[0-9a-f]{40}$/i.test(entry?.source_sha || '')
+        && /^[0-9a-f]{40}$/i.test(entry?.bible_sha || '')
+      ));
+
+    for (const handoff of handoffs) {
+      const sourceSha = String(handoff.entry.source_sha).toLowerCase();
+      const bibleSha = String(handoff.entry.bible_sha).toLowerCase();
+      const nextHandoffPosition = handoffs
+        .filter((candidate) => candidate.position > handoff.position)
+        .map((candidate) => candidate.position)
+        .sort((a, b) => a - b)[0] ?? Number.POSITIVE_INFINITY;
+
+      const reopen = history
+        .map((entry, position) => ({
+          entry,
+          position,
+          at_ms: Date.parse(entry?.at_utc || ''),
+        }))
+        .filter(({ entry, position, at_ms }) => (
+          position > handoff.position
+          && position < nextHandoffPosition
+          && Number.isFinite(at_ms)
+          && entry?.from_status === 'READY_FOR_AUDIT'
+          && entry?.to_status === 'IN_PROGRESS'
+          && String(entry?.source_sha || '').toLowerCase() === sourceSha
+          && String(entry?.bible_sha || '').toLowerCase() === bibleSha
+        ))
+        .sort((a, b) => a.position - b.position)[0];
+
+      if (!reopen) continue;
+
+      const eligibleRecords = (records || []).filter((record) => (
+        record?.index === state.index
+        && String(record?.source_sha || '').toLowerCase() === sourceSha
+        && String(record?.bible_sha || '').toLowerCase() === bibleSha
+        && Number.isFinite(record?.completed_at_ms)
+        && record.completed_at_ms >= handoff.at_ms
+        && record.completed_at_ms <= reopen.at_ms
+      ));
+      const boundState = {
+        ...state,
+        source_sha: sourceSha,
+        bible_sha: bibleSha,
+      };
+      const pipeline = resolveAuditPipeline(boundState, eligibleRecords, new Map(), {
+        root: null,
+        baseline: null,
+      });
+
+      if (pipeline.problems.length || pipeline.decision !== 'CHANGES_REQUIRED') {
+        problems.push(
+          'handoff protegido reaberto sem decisão final CHANGES_REQUIRED: #'
+          + String(state.index).padStart(3, '0')
+          + ' source=' + sourceSha.slice(0, 12)
+          + ' bible=' + bibleSha.slice(0, 12)
+          + ' handoff=' + handoff.entry.at_utc
+          + ' reopen=' + reopen.entry.at_utc
+          + ' decision=' + pipeline.decision
+        );
+      }
+    }
+  }
+  return problems;
+}
+
 function displayAuditStatus(pipeline) {
   if (pipeline?.hasDistributed) return pipeline.decision;
   if (pipeline?.primary?.legacy) return pipeline.primary.verdict;
@@ -415,6 +503,7 @@ module.exports = {
   AUDIT_PHASES,
   AUDIT_VERDICTS,
   BASELINE_RELATIVE,
+  HANDOFF_GUARD_EFFECTIVE_AT_UTC,
   walk,
   gitBlobShaBuffer,
   fileBlobSha,
@@ -432,5 +521,6 @@ module.exports = {
   nextAuditPhase,
   evaluateAuditPipelines,
   pipelineMergeBlockers,
+  postHandoffCorrectionProblems,
   displayAuditStatus,
 };
