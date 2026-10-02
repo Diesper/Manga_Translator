@@ -4,6 +4,96 @@ const fs = require('fs');
 const path = require('path');
 const life = require('./lifecycle-core');
 
+function humanReviewDiagnostics(state, cycles) {
+  const history = Array.isArray(state?.history) ? state.history : [];
+  const requests = Array.isArray(state?.audit_requests) ? state.audit_requests : [];
+
+  const decisions = history
+    .filter((entry) => entry?.type === 'DISTRIBUTED_AUDIT_DECISION')
+    .map((entry) => ({
+      at_utc: entry.at_utc || null,
+      decision: entry.decision || null,
+      primary: entry.primary || null,
+      adversarial: entry.adversarial || null,
+      reaudit: entry.reaudit || null,
+      revision_id: entry.revision_id || null,
+      audit_epoch: entry.audit_epoch ?? null,
+      handoff_id: entry.handoff_id || null,
+    }));
+
+  const failures = history
+    .filter((entry) => (
+      entry?.type === life.SAFE_ABORT_EVENT
+      || /(?:FAIL|ABORT|REJECT)/i.test(String(entry?.type || ''))
+      || entry?.to_status === 'BLOCKED'
+      || (entry?.type === 'DISTRIBUTED_AUDIT_DECISION' && entry?.decision === 'CHANGES_REQUIRED')
+    ))
+    .map((entry) => ({
+      at_utc: entry.at_utc || null,
+      type: entry.type || null,
+      decision: entry.decision || null,
+      reason: entry.reason || null,
+    }));
+
+  const regressions = requests.filter((request) => {
+    const haystack = [
+      request?.id,
+      request?.type,
+      request?.title,
+      request?.finding,
+      request?.evidence,
+      request?.reason,
+    ].filter(Boolean).join(' ');
+    return /regress/i.test(haystack);
+  });
+
+  const rootCauses = [];
+  for (const entry of history) {
+    const review = entry?.root_cause_review;
+    if (!review || typeof review !== 'object') continue;
+    rootCauses.push({
+      at_utc: entry.at_utc || null,
+      actor: entry.agent || entry.actor || null,
+      categories: Array.isArray(review.categories) ? review.categories : [],
+      evidence: review.evidence || '',
+      strategy: review.strategy || '',
+    });
+  }
+
+  const changed = new Map();
+  function add(file) {
+    if (!file) return;
+    changed.set(file, (changed.get(file) || 0) + 1);
+  }
+  let previous = null;
+  for (const cycle of cycles || []) {
+    if (previous) {
+      if ((cycle.source_sha || null) !== (previous.source_sha || null)) add(state.file);
+      if ((cycle.bible_sha || null) !== (previous.bible_sha || null)) add(state.bible);
+      if ((cycle.production_sha || null) !== (previous.production_sha || null)) {
+        const production = Array.isArray(state.production_files) && state.production_files.length
+          ? state.production_files
+          : ['<production bundle>'];
+        for (const file of production) add(file);
+      }
+    }
+    previous = cycle;
+  }
+  const filesMostChanged = [...changed.entries()]
+    .map(([file, changes]) => ({ file, changes }))
+    .sort((a, b) => b.changes - a.changes || a.file.localeCompare(b.file));
+
+  const agents = new Set();
+  for (const cycle of cycles || []) if (cycle.corrector) agents.add(cycle.corrector);
+  return {
+    decisions,
+    failures,
+    regressions,
+    possible_root_causes: rootCauses,
+    files_most_changed: filesMostChanged,
+    agents_involved: [...agents].sort(),
+  };
+}
 function buildHumanReviewPackage(state, snapshot, options = {}) {
   if (!snapshot?.human_locked) throw new Error('HUMAN_REVIEW_REQUIRES_HUMAN_LOCK');
   const history = Array.isArray(state?.history) ? state.history : [];
@@ -39,6 +129,8 @@ function buildHumanReviewPackage(state, snapshot, options = {}) {
     .sort((a,b) => b[1] - a[1])
     .map(([type, count]) => ({ type, count }));
 
+  const diagnostics = humanReviewDiagnostics(state, cycles);
+
   return {
     schema_version: 1,
     index: state.index,
@@ -62,6 +154,12 @@ function buildHumanReviewPackage(state, snapshot, options = {}) {
     superseded_findings: requestList.filter((item) => item?.status === 'SUPERSEDED'),
     unverified_findings: (options.unverified_findings || []).filter((item) => Number(item.index) === Number(state.index)),
     recent_correctors: snapshot.recent_correctors,
+    decisions: diagnostics.decisions,
+    failures: diagnostics.failures,
+    regressions: diagnostics.regressions,
+    possible_root_causes: diagnostics.possible_root_causes,
+    files_most_changed: diagnostics.files_most_changed,
+    agents_involved: diagnostics.agents_involved,
     reason_for_human_escalation: '7 or more correction cycles reached; automatic mutation is quarantined.',
   };
 }
@@ -93,6 +191,33 @@ function renderHumanSummary(pkg) {
       ? pkg.repeated_patterns.map((item) => '- ' + item.type + ': ' + item.count)
       : ['- nenhum padrão repetido derivável dos audit_requests']),
     '',
+    '## Decisões',
+    ...(pkg.decisions.length
+      ? pkg.decisions.map((item) => '- ' + (item.at_utc || '-') + ': ' + (item.decision || '-')
+        + ' [P=' + (item.primary || '-') + ', A=' + (item.adversarial || '-') + ', R=' + (item.reaudit || '-') + ']')
+      : ['- nenhuma decisão distribuída registrada']),
+    '',
+    '## Falhas / aborts',
+    ...(pkg.failures.length
+      ? pkg.failures.map((item) => '- ' + (item.at_utc || '-') + ': ' + (item.type || '-') + ' ' + (item.decision || ''))
+      : ['- nenhuma falha/abort derivável do histórico']),
+    '',
+    '## Regressões',
+    ...(pkg.regressions.length
+      ? pkg.regressions.map((item) => '- ' + (item.id || item.type || 'regressão'))
+      : ['- nenhuma regressão explicitamente registrada']),
+    '',
+    '## Arquivos mais alterados',
+    ...(pkg.files_most_changed.length
+      ? pkg.files_most_changed.map((item) => '- ' + item.file + ': ' + item.changes + ' mudança(s) entre ciclos')
+      : ['- sem mudança de SHA entre handoffs suficiente para ordenar arquivos']),
+    '',
+    '## Possíveis causas-raiz',
+    ...(pkg.possible_root_causes.length
+      ? pkg.possible_root_causes.map((item) => '- ' + (item.categories.join(', ') || 'OTHER')
+        + ': ' + (item.evidence || '-') + ' | estratégia=' + (item.strategy || '-'))
+      : ['- nenhuma ROOT_CAUSE_REVIEW registrada']),
+    '',
     '## Pendências',
     '- open findings: ' + pkg.open_findings.length,
     '- unverified findings: ' + pkg.unverified_findings.length,
@@ -116,6 +241,7 @@ function writeHumanReview(root, state, snapshot, options = {}) {
 }
 
 module.exports = {
+  humanReviewDiagnostics,
   buildHumanReviewPackage,
   renderHumanSummary,
   writeHumanReview,
