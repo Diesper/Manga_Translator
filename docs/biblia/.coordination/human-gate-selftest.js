@@ -203,5 +203,69 @@ auditProblems = gate.humanAuditResultProblems(
 assert.ok(auditProblems.some((x)=>x.includes('ALLOW_AUDIT_ONLY')));
 console.log('PASS audit-result HUMAN com approval id fabricada é rejeitado');
 
+const baseHumanHistory=state.history.slice(0,7);
+const forgedCloseState={...state,status:'COMPLETED',history:[
+  ...baseHumanHistory,
+  {
+    at_utc:'2026-10-02T07:30:00Z',
+    type:'HUMAN_PERMANENTLY_CLOSED',
+    approval_id:'forged-close',
+  },
+]};
+assert.ok(
+  gate.humanApprovalConsumptionProblems([forgedCloseState],[])
+    .some((x)=>x.includes('ação HUMAN sem consumo de approval')),
+);
+const forgedResetState={...state,status:'READY_FOR_AUDIT',history:[
+  ...baseHumanHistory,
+  {
+    at_utc:'2026-10-02T07:31:00Z',
+    type:life.HUMAN_RESET_EVENT,
+    approval_id:'forged-reset',
+  },
+]};
+assert.ok(
+  gate.humanApprovalConsumptionProblems([forgedResetState],[])
+    .some((x)=>x.includes('ação HUMAN sem consumo de approval')),
+);
+console.log('PASS forged HUMAN close/reset without approval consumption are rejected');
+
+const closeApproval={
+  ...approval,
+  approval_id:'007-human-close',
+  decision:'PERMANENTLY_CLOSE',
+  permission:null,
+  approved_at_utc:'2026-10-02T07:32:00Z',
+};
+const closeState={...state,status:'COMPLETED',history:[
+  ...baseHumanHistory,
+  {
+    at_utc:'2026-10-02T07:33:00Z',
+    type:'HUMAN_APPROVAL_CONSUMED',
+    approval_id:closeApproval.approval_id,
+    source_sha:closeApproval.test_sha,
+    bible_sha:closeApproval.bible_sha,
+  },
+  {
+    at_utc:'2026-10-02T07:33:01Z',
+    type:'HUMAN_PERMANENTLY_CLOSED',
+    approval_id:closeApproval.approval_id,
+  },
+]};
+assert.deepStrictEqual(
+  gate.humanApprovalConsumptionProblems([closeState],[closeApproval]),
+  [],
+);
+const approvedClosePipeline=new Map([[7,{index:7,decision:'APPROVED',problems:[]}]]);
+assert.deepStrictEqual(
+  gate.humanPermanentClosePipelineProblems([closeState],[closeApproval],approvedClosePipeline),
+  [],
+);
+const rejectedClosePipeline=new Map([[7,{index:7,decision:'CHANGES_REQUIRED',problems:[]}]]);
+assert.ok(
+  gate.humanPermanentClosePipelineProblems([closeState],[closeApproval],rejectedClosePipeline)
+    .some((x)=>x.includes('pipeline distribuído final APPROVED')),
+);
+console.log('PASS HUMAN permanent close requires both approval provenance and final APPROVED pipeline');
 
 console.log('Human gate self-test: SUCCESS');
