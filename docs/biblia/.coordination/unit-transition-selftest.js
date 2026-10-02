@@ -70,7 +70,9 @@ let planned = transition.planTransition({
 assert.strictEqual(planned.state.status, 'IN_PROGRESS');
 assert.ok(transition.tokenConsumed(planned.state, token.token_id));
 assert.ok(planned.state.history.some((e)=>e.correction_token_id===token.token_id));
+assert.deepStrictEqual(life.eventChainProblems(planned.state), []);
 console.log('PASS token is consumed append-only on correction start');
+console.log('PASS canonical transition history remains hash-chained');
 
 assert.throws(()=>transition.planTransition({
   state:planned.state,
