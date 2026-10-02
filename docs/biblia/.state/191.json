@@ -1094,6 +1094,27 @@
       "severity": "HIGH",
       "superseded_at_utc": "2026-10-02T05:46:00Z",
       "superseded_reason": "Finding opened by correction role after protected handoff without a new independent PRIMARY+ADVERSARIAL decision. Substance must be re-raised by an independent auditor before it can authorize correction."
+    },
+    {
+      "id": "191-029",
+      "status": "OPEN",
+      "type": "INDEPENDENT_AUDIT_GTC_FALLBACK_PRECEDENCE_REGRESSION",
+      "target_file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+      "related_production_file": "extension/content/cm-gtc-client.js",
+      "requested_by": "USER",
+      "requested_at_utc": "2026-10-02T05:48:00Z",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "finding": "A revisão protegida atual não possui regressão direta para IndexedDB miss -> legacy hit nem para fallback mais recente marcado prevalecendo sobre IndexedDB stale.",
+      "current_evidence": "A suíte #191 contém cobertura de reorder/fallback de GTC_SAVE, mas não contém asserts diretos para miss do GTC_QUERY_MANY mesclado com gtc_<hash> nem para precedência de um fallback recente/override sobre entrada IndexedDB stale.",
+      "requested_action": "O próximo auditor independente deve criar/provar os dois cenários em vermelho contra o binding atual e publicar PRIMARY/ADVERSARIAL conforme o protocolo. Este request não autoriza correção editorial.",
+      "required_cases": [
+        "IndexedDB miss -> legacy hit",
+        "fallback mais recente marcado -> prevalece sobre IndexedDB stale"
+      ],
+      "expected_evidence": "Resultado de auditoria append-only posterior ao handoff 2026-10-02T05:25:31Z, vinculado a SOURCE_SHA 52ede7cf... e BIBLE_SHA ef9c4326..., demonstrando explicitamente os dois contratos.",
+      "severity": "HIGH",
+      "independence_requirement": "Somente auditor independente pode transformar a evidência em CHANGES_REQUIRED; corretor não deve reabrir a unidade por este request."
     }
   ],
   "document_quality": {
@@ -1112,7 +1133,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T05:46:00Z",
+  "updated_at_utc": "2026-10-02T05:48:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -1702,6 +1723,16 @@
       "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
       "reopen_at_utc": "2026-10-02T05:30:00Z",
       "reason": "Post-handoff correction 191-028 was opened without any new independent PRIMARY+ADVERSARIAL decision for the protected binding. Unauthorized test edit reverted; finding retained only as SUPERSEDED provenance and must be independently re-raised."
+    },
+    {
+      "at_utc": "2026-10-02T05:48:00Z",
+      "type": "NEXT_INDEPENDENT_AUDIT_TARGET_RECORDED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+      "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+      "audit_request_id": "191-029",
+      "reason": "User-directed audit focus only: prove IndexedDB miss -> legacy hit and latest marked fallback -> stale IndexedDB precedence. No correction authorization; protected handoff remains READY_FOR_AUDIT."
     }
   ],
   "evidence": [
