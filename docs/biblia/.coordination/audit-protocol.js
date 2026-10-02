@@ -371,6 +371,10 @@ function loadModel() {
   );
   const pipelines = states.map((state) => evaluation.byIndex.get(state.index));
   const pipelineByIndex = new Map(pipelines.map((pipeline) => [pipeline.index, pipeline]));
+  const humanApprovalAuditorProblems = humanGate.humanApprovalAuditorProblems(
+    approvals.approvals,
+    pipelineByIndex
+  );
   const tokens = unitTransition.loadCorrectionTokens(repoRoot, states, { pipelines: pipelineByIndex });
 
   return {
@@ -398,6 +402,7 @@ function loadModel() {
       ...approvals.problems,
       ...humanProblems,
       ...humanAuditProblems,
+      ...humanApprovalAuditorProblems,
       ...tokens.problems,
     ],
     merge_problems: claims.strictProblems,
