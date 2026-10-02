@@ -6,6 +6,8 @@ const path = require('path');
 const REQUIRED = {
   protocol: [
     'os: [ubuntu-latest, windows-latest]',
+    'group: bible-protocol-infra-${{ github.ref }}',
+    'cancel-in-progress: false',
     'node docs/biblia/.coordination/anti-loop-integration-selftest.js',
     'node docs/biblia/.coordination/anti-loop-adversarial-selftest.js',
     'node scripts/validation/bible-anti-loop-adversarial-selftest.js',
