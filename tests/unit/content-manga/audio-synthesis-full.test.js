@@ -245,6 +245,44 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
         }));
     });
 
+    test('erros consecutivos reutilizam um único AudioContext de notificação', async () => {
+        installRuntimeResponder({ tabId: 74 });
+        const first = createAudioContext({ currentTime: 3 });
+        const second = createAudioContext({ currentTime: 9 });
+        const AudioContextMock = jest.fn()
+            .mockImplementationOnce(() => first.ctx)
+            .mockImplementationOnce(() => second.ctx);
+        Object.defineProperty(window, 'AudioContext', {
+            value: AudioContextMock,
+            configurable: true,
+        });
+
+        await loadOnePage();
+
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'erro um',
+            imgIndex: 0,
+            isDebug: false,
+        });
+        await dispatchToContent(runtimeMock, {
+            action: 'SHOW_ERROR_INTEGRATED',
+            errorMsg: 'erro dois',
+            imgIndex: 0,
+            isDebug: false,
+        });
+
+        expect(AudioContextMock).toHaveBeenCalledTimes(1);
+        expect(first.oscillators).toHaveLength(4);
+        expect(first.gains).toHaveLength(4);
+        expect(second.oscillators).toHaveLength(0);
+        expect(second.gains).toHaveLength(0);
+        expect(sentMessages.filter(message =>
+            message.source === 'audio'
+            && message.action_name === 'AUDIO_CONTEXT_CREATED'
+        )).toHaveLength(1);
+    });
+
     test('BATCH_COMPLETE executa arpejo real por nota e reutiliza o mesmo AudioContext', async () => {
         installRuntimeResponder({ tabId: 73 });
         const { ctx, oscillators, gains } = createAudioContext({ currentTime: 2 });
