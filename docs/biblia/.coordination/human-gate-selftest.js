@@ -60,4 +60,38 @@ const forged = { ...approval, approval_source: 'agent_commit' };
 assert.ok(gate.validateApproval(forged).some((x) => x.includes('workflow_dispatch')));
 console.log('PASS approval fora do workflow humano é inválida');
 
+const auditRecord = {
+  index:7,
+  source_sha:state.source_sha,
+  bible_sha:state.bible_sha,
+  phase:'PRIMARY',
+  completed_at_utc:'2026-10-02T07:10:00Z',
+  completed_at_ms:Date.parse('2026-10-02T07:10:00Z'),
+  path:'audit/primary.json',
+};
+let auditProblems = gate.humanAuditResultProblems(
+  [state],
+  new Map([[7,snapshot]]),
+  [],
+  [auditRecord]
+);
+assert.ok(auditProblems.some((x)=>x.includes('ALLOW_AUDIT_ONLY')));
+console.log('PASS audit-result HUMAN exige ALLOW_AUDIT_ONLY');
+
+const auditApproval = {
+  ...approval,
+  approval_id:'007-human-audit',
+  decision:'ALLOW_AUDIT_ONLY',
+  permission:null,
+  approved_at_utc:'2026-10-02T07:05:00Z',
+};
+auditProblems = gate.humanAuditResultProblems(
+  [state],
+  new Map([[7,snapshot]]),
+  [auditApproval],
+  [auditRecord]
+);
+assert.deepStrictEqual(auditProblems,[]);
+console.log('PASS audit-result HUMAN posterior à aprovação é aceito');
+
 console.log('Human gate self-test: SUCCESS');
