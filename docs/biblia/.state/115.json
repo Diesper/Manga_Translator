@@ -2,15 +2,15 @@
   "index": 115,
   "file": "tests/integration/popup-translated-thumbnails.test.js",
   "bible": "docs/biblia/tests/integration/popup-translated-thumbnails.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
-  "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
-  "started_at_utc": "2026-10-02T01:13:00Z",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "677347d968d2916dbcba2d7a8ae67ad37f802a74",
+  "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "115-001",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "ASSERTION_GAP",
       "target_file": "tests/integration/popup-translated-thumbnails.test.js",
       "found_while_auditing": "tests/integration/popup-translated-thumbnails.test.js",
@@ -27,11 +27,25 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:49:00Z",
       "audit_finding": "ACCEPTED. O teste intitulado 'somente a miniatura afetada' cria apenas um card; sem uma miniatura irmã saudável, não prova isolamento seletivo da falha.",
-      "auditor_recommended_action": "Adicionar segundo card saudável no mesmo capítulo e falha seletiva por asset, exigindo apenas o alvo com classe/estado failed."
+      "auditor_recommended_action": "Adicionar segundo card saudável no mesmo capítulo e falha seletiva por asset, exigindo apenas o alvo com classe/estado failed.",
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolution": "Fixture ampliada com cards broken/healthy; falha seletiva prova que somente a miniatura quebrada recebe failed/Falha enquanto a irmã preserva imagem válida.",
+      "resolved_by": "AGENTE 30",
+      "resolved_at_utc": "2026-10-02T01:26:00Z",
+      "validation": {
+        "source_sha": "677347d968d2916dbcba2d7a8ae67ad37f802a74",
+        "bible_sha": "cd815205c4a8ad747d37ac7510e204f65575fe4f",
+        "validation_pr": 69,
+        "workflow_run_id": 36950507414,
+        "node20_job_id": 110662183804,
+        "node22_job_id": 110662183707,
+        "focal": "PASS 5/5 in Node 20 and Node 22",
+        "external_failure": "Unit+Integration jobs red only because PERF-09 in tests/integration/performance.test.js failed in storage-manager.js (blob.arrayBuffer is not a function)."
+      }
     },
     {
       "id": "115-002",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "TEST_STRENGTH",
       "target_file": "tests/integration/popup-translated-thumbnails.test.js",
       "found_while_auditing": "tests/integration/popup-translated-thumbnails.test.js",
@@ -48,22 +62,36 @@
       "audited_by": "AGENTE 23",
       "audited_at_utc": "2026-09-30T20:49:00Z",
       "audit_finding": "ACCEPTED. O cenário lazy com IntersectionObserver verifica apenas número de observers e contagem de `SM_GET_ASSET`; não fixa assetId/card correto, `img.src`, disconnect nem idempotência após trigger repetido.",
-      "auditor_recommended_action": "Fortalecer com assertions de payload, DOM do card disparado, cleanup do observer e uma única leitura após retrigger."
+      "auditor_recommended_action": "Fortalecer com assertions de payload, DOM do card disparado, cleanup do observer e uma única leitura após retrigger.",
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolution": "Lazy loading valida assetId/card/src/disconnect e idempotência sob callback repetido sem segunda leitura.",
+      "resolved_by": "AGENTE 30",
+      "resolved_at_utc": "2026-10-02T01:26:00Z",
+      "validation": {
+        "source_sha": "677347d968d2916dbcba2d7a8ae67ad37f802a74",
+        "bible_sha": "cd815205c4a8ad747d37ac7510e204f65575fe4f",
+        "validation_pr": 69,
+        "workflow_run_id": 36950507414,
+        "node20_job_id": 110662183804,
+        "node22_job_id": 110662183707,
+        "focal": "PASS 5/5 in Node 20 and Node 22",
+        "external_failure": "Unit+Integration jobs red only because PERF-09 in tests/integration/performance.test.js failed in storage-manager.js (blob.arrayBuffer is not a function)."
+      }
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "339/339",
-    "bible_lines": 3880,
+    "documented_positions": "384/384",
+    "source_text_lines": 383,
     "external_audit_requests_open": 0,
-    "note": "Suíte documentada como prova direta da lógica do popup real sob mocks de browser/storage/runtime; não promovida a prova do background/IndexedDB.",
-    "repair_note": "Lifecycle documental 115-001..002 alinhado ao state canônico: ACCEPTED; nenhuma alteração no source/testes."
+    "accepted_requests_pending_validation": 0,
+    "note": "115-001/002 corrigidas e validadas no PR #69: popup-translated-thumbnails.test.js PASS 5/5 em Node 20 e Node 22. Falha global remanescente é externa: PERF-09/storage-manager."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:13:00Z",
+  "updated_at_utc": "2026-10-02T01:26:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:33:41.887Z",
@@ -101,6 +129,17 @@
       "bible_sha": "fa7dec1b031dfe9e90a0c7dc6ce99f4f10df8d5d",
       "agent": "AGENTE 30",
       "reason": "REAUDIT CHANGES_REQUIRED: consumer/CI gate omitted and semantic line mapping generic; accepted assertion gaps 115-001/002 will also be fixed."
+    },
+    {
+      "at_utc": "2026-10-02T01:26:00Z",
+      "type": "HYBRID_CORRECTION_VALIDATED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "previous_source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
+      "current_source_sha": "677347d968d2916dbcba2d7a8ae67ad37f802a74",
+      "bible_sha": "cd815205c4a8ad747d37ac7510e204f65575fe4f",
+      "agent": "AGENTE 30",
+      "reason": "Strengthened lazy-loading and selective-failure assertions passed 5/5 on Node 20 and Node 22 in isolated validation PR #69."
     }
   ],
   "evidence": [
@@ -118,6 +157,19 @@
       "editor": "AGENTE 23",
       "at_utc": "2026-10-01T13:37:00Z",
       "note": "Source permaneceu inalterado; somente lifecycle textual dos requests e conclusão documental foram corrigidos. Reauditoria independente necessária."
+    },
+    {
+      "type": "EXECUTABLE_VALIDATION",
+      "at_utc": "2026-10-02T01:26:00Z",
+      "source_sha": "677347d968d2916dbcba2d7a8ae67ad37f802a74",
+      "bible_sha": "cd815205c4a8ad747d37ac7510e204f65575fe4f",
+      "validation_pr": 69,
+      "workflow_run_id": 36950507414,
+      "node20_job_id": 110662183804,
+      "node22_job_id": 110662183707,
+      "focal_result": "PASS_5_OF_5_BOTH_NODES",
+      "external_failure": "PERF-09 tests/integration/performance.test.js: blob.arrayBuffer is not a function in storage-manager.js"
     }
-  ]
+  ],
+  "bible_sha": "cd815205c4a8ad747d37ac7510e204f65575fe4f"
 }
