@@ -2598,8 +2598,6 @@ if (!window.__manga_translator_content_injected) {
                         ) {
                             // Apenas um PERSIST_FAIL anterior do mesmo batch+índice
                             // transforma uma imagem já traduzida em retry legítimo.
-                            // Duplicatas comuns, mesmo com lote ainda ativo, continuam
-                            // sem reaplicar o DOM nem avançar a contabilidade.
                             foundImage = true;
                             shouldAccountUpdate = true;
                             retryTranslatedImage = img;
@@ -2610,6 +2608,21 @@ if (!window.__manga_translator_content_injected) {
                                 persistenceMeta || undefined
                             );
                             break;
+                        }
+
+                        if (
+                            img.dataset.translated === 'true'
+                            && _countedJobIndices.has(request.index)
+                        ) {
+                            // Duplicata de um resultado já persistido/contabilizado:
+                            // não reescreva storage com um payload divergente do DOM.
+                            sendLog('info', 'DUPLICATE_UPDATE_IGNORED',
+                                'UPDATE_IMAGE duplicado ignorado após conclusão do índice.', {
+                                    batchId: String(acceptedBatchId || '').slice(0, 8),
+                                    index: request.index,
+                                });
+                            ack({ ok: true, persisted: true, domApplied: false });
+                            return wantsAck;
                         }
 
                         const origSourceUrl    = img.getAttribute('src') || img.dataset.src || img.dataset.lazySrc || img.getAttribute('data-original') || '';
