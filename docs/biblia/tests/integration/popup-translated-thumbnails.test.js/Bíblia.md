@@ -107,15 +107,15 @@ A posição 384 é apenas o LF final após a linha textual 383. É editorial, n�
 
 ## 5. Audit requests
 
-### 115-001 — ASSERTION_GAP — IMPLEMENTED_AWAITING_EXECUTABLE_VALIDATION
+### 115-001 — ASSERTION_GAP — RESOLVED
 
-A fixture agora contém card quebrado + card irmão saudável no mesmo capítulo e valida isolamento completo do estado de falha.
+A fixture agora contém card quebrado + card irmão saudável no mesmo capítulo e valida isolamento completo do estado de falha. PR de validação #69, run `36950507414`: o arquivo focal passou 5/5 em Node 20 (`110662183804`) e Node 22 (`110662183707`).
 
-### 115-002 — TEST_STRENGTH — IMPLEMENTED_AWAITING_EXECUTABLE_VALIDATION
+### 115-002 — TEST_STRENGTH — RESOLVED
 
-O cenário lazy agora valida payload/assetId, card observado, `img.src`, `disconnect()` e idempotência após retrigger.
+O cenário lazy agora valida payload/assetId, card observado, `img.src`, `disconnect()` e idempotência após retrigger. Os mesmos jobs Node 20/22 passaram o cenário fortalecido.
 
-Nenhuma request é marcada RESOLVED apenas por inspeção estática; falta execução da revisão `677347d968d2916dbcba2d7a8ae67ad37f802a74`.
+As requests são marcadas RESOLVED com prova executável da revisão `677347d968d2916dbcba2d7a8ae67ad37f802a74` em Node 20 e Node 22.
 
 ## 6. Findings da REAUDIT
 
@@ -132,14 +132,16 @@ A revisão antiga continha dezenas de descrições genéricas para linhas substa
 - parse JavaScript estático: **PASS**;
 - source/Bíblia: **sincronizados para o SHA acima**;
 - fonte integral: **embutida abaixo**;
-- execução Jest da revisão atual: **PENDENTE**.
+- PR de validação #69, run `36950507414`, Node 20 job `110662183804`: **PASS 5/5** do arquivo focal;
+- PR de validação #69, run `36950507414`, Node 22 job `110662183707`: **PASS 5/5** do arquivo focal;
+- falha global dos jobs: **externa a #115**, `PERF-09` em `tests/integration/performance.test.js`/`storage-manager.js` (`blob.arrayBuffer is not a function`).
 
 ## 8. Limites honestos
 
 - A suíte prova `popup.js` real sob runtime/storage simulados, não o background/IndexedDB real.
 - `img.onload`/decodificação de imagem não são usados como prova; a associação é verificada por `src` e estados de card.
 - O fake `IntersectionObserver` prova contrato do callback/cleanup/deduplicação, não comportamento físico de viewport do Chromium.
-- A execução histórica da revisão anterior não substitui o gate do novo SHA.
+- A execução histórica da revisão anterior não substitui o gate do novo SHA; o gate do SHA atual foi executado no PR #69 em Node 20 e Node 22.
 
 ## 9. Fonte integral exata
 
@@ -569,4 +571,4 @@ LF terminal editorial; não executável.
 - 115-002: implementada com payload/card/src/disconnect/idempotência;
 - cobertura: 384/384 posições;
 - fonte integral: exata;
-- CI/Jest da revisão atual: ainda necessário antes de fechar as requests.
+- CI/Jest focal da revisão atual: PASS 5/5 em Node 20 e Node 22 no PR #69; vermelho global separado por `PERF-09`, fora do escopo de #115.
