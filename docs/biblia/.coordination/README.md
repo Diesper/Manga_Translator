@@ -576,3 +576,108 @@ npm run bible:finding:create
 
 O objetivo é deixar de depender de “o agente deve obedecer” e fazer os caminhos canônicos recusarem transições inválidas por construção.
 
+
+
+### Contrato operacional endurecido — writer, EMERGENCY e findings
+
+A implementação canônica também aplica estes invariantes:
+
+- `START_CORRECTION` valida a revisão real do working tree contra o correction token antes de escrever;
+- a correção adquire a reserva editorial por CREATE ONLY em `.reservas/<source>.lock.md`;
+- se a unidade já estiver reservada, o segundo writer recebe `UNIT_HIGH_PRIORITY_BUT_ALREADY_RESERVED`;
+- o mesmo corretor não pode manter duas reservas editoriais ativas pelo caminho canônico;
+- `HANDOFF_FOR_AUDIT` e `SAFE_ABORT` exigem ownership da reserva e a liberam canonicamente;
+- somente um correction token ativo é permitido por índice;
+- token ativo é invalidado se a decisão distribuída final for substituída ou a revisão real mudar.
+
+No ciclo 6, `ROOT_CAUSE_REVIEW` é obrigatório e deve registrar:
+
+```json
+{
+  "categories": ["CONCURRENCY", "STATE_MACHINE_FAILURE"],
+  "related_cycles": [4, 5, 6],
+  "evidence": "evidência concreta da causa provável",
+  "why_previous_failed": "por que as correções anteriores não estabilizaram",
+  "strategy": "estratégia diferente da já tentada"
+}
+```
+
+`related_cycles` não pode apontar para ciclo futuro e uma estratégia de EMERGENCY já registrada não pode ser reutilizada como se fosse nova.
+
+Findings pós-handoff usam duas camadas append-only:
+
+```text
+unverified-findings/NNN/<finding>.json
+        │
+        └── nasce UNVERIFIED e não é reescrito para promover status
+
+unverified-finding-events/NNN/<finding>/<event>.json
+        ├── PRIMARY_CONFIRM
+        ├── ADVERSARIAL_CONFIRM / REAUDIT_CONFIRM
+        ├── REJECT
+        ├── MARK_STALE
+        └── SUPERSEDE
+```
+
+Promoção exige audit-result real da mesma revisão e o resultado deve mencionar explicitamente o ID do finding. O reporter não pode auto-confirmar.
+
+A aprovação humana também deve ser independente dos auditores da revisão atual: o mesmo ator que figura como PRIMARY, ADVERSARIAL ou REAUDIT não satisfaz `approved_by` daquela revisão.
+
+### Lifecycle textual
+
+```text
+FINAL CHANGES_REQUIRED válido
+        │
+        ▼
+correction token revision/epoch/handoff/actor-bound
+        │
+        ▼
+CREATE-ONLY correction reservation
+        │
+        ▼
+START_CORRECTION → correção executada → HANDOFF_FOR_AUDIT
+        │
+        ├── correction_cycle++
+        ├── audit_epoch++
+        ├── novo handoff_id
+        └── revision_id = SHA256(canonical {production,test,bible})
+        │
+        ▼
+REVISION FROZEN
+        │
+        ├── PRIMARY
+        ├── ADVERSARIAL obrigatória
+        └── REAUDIT se houver divergência
+        │
+        ▼
+FINAL DECISION
+   ┌────┴───────────┐
+   ▼                ▼
+APPROVED       CHANGES_REQUIRED
+   │                │
+COMPLETED       escalation
+                    │
+             cycle < 7 → nova correção somente com novo token
+             cycle >=7 → HUMAN_LOCKED
+                            ├── nenhuma IA continua automaticamente
+                            ├── ALLOW_AUDIT_ONLY
+                            ├── ALLOW_ONE_CORRECTION (one-shot)
+                            ├── RESET_ESCALATION
+                            └── PERMANENTLY_CLOSE
+```
+
+Possível problema pós-handoff segue uma via sem autoridade:
+
+```text
+read-only observation → UNVERIFIED_FINDING
+                      ├── não altera status/cycle/revision
+                      ├── não cria token/reserva
+                      └── auditor independente confirma ou rejeita
+```
+
+### Self-tests anti-loop
+
+- `anti-loop-integration-selftest.js`: cobre os cinco cenários completos NORMAL/CRITICAL/EMERGENCY/HUMAN/finding;
+- `anti-loop-adversarial-selftest.js`: tenta os 20 bypasses da especificação e imprime `PASS bypass 01` … `PASS bypass 20`.
+
+Esses suites são executados pelo **Bible Handoff Guard** e pela matriz **Bible Protocol Infrastructure** em Linux e Windows.
