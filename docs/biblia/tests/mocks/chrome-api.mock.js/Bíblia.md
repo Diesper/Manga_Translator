@@ -5,8 +5,8 @@
 > **Status desta revisão:** sincronização estrutural concluída; auditoria independente nova obrigatória.  
 > **Agente responsável:** AGENTE 18  
 > **Tipo:** infraestrutura Jest — mock stateful das APIs Chrome  
-> **Linhas textuais:** **593**  
-> **Posições documentais:** **594**, contando o newline final  
+> **Linhas textuais:** **606**  
+> **Posições documentais:** **607**, contando o newline final  
 > **PR:** #66  
 > **Branch:** `docs/project-bible`
 
@@ -916,92 +916,21 @@ module.exports = {
 };
 ~~~
 
-## 14. Mapa exaustivo de posições da revisão anterior `c1d9a056b777…`
+## 14. Mapa exaustivo de posições da revisão atual
 
-> Este mapa detalhado é preservado como proveniência da revisão auditada anterior. A revisão atual alterou o escopo de `runtime.lastError` em callbacks assíncronos e exige nova auditoria independente; a cobertura estrutural atual está em 14A.
-
-Cada posição do blob está coberta exatamente uma vez abaixo. O mapa usa unidades semânticas contíguas em vez de repetir uma descrição genérica para cada linha de sintaxe; a fonte integral acima preserva o detalhe linha a linha.
+A fonte atual possui **607 posições documentais** (606 linhas textuais + newline final POSIX). A análise arquitetural e de riscos das seções anteriores continua preservada; este mapa substitui a numeração da revisão anterior, que ficou stale após o hardening do mock.
 
 | Linhas/posição | Função técnica | Evidência |
 |---:|---|---|
-| 1–10 | Cabeçalho: explica singleton por suíte, bootstrap antes dos imports e reset leve que preserva listeners do runtime. | 🟦 contrato no próprio fixture; wiring confirmado em jest.config.js |
-| 11–12 | Separação visual do Storage Mock. | estrutural |
-| 13–18 | ChromeStorageMock: declara store em memória, registry de onChanged e conjunto de timers pendentes. | 🟨 amplamente consumido; sem teste focal do construtor |
-| 19–27 | Storage._schedule: agenda callback por setTimeout, remove o handle antes de executar e rastreia o timer. | ✅ clear/cancelamento provado por chrome-runtime-mock-lifecycle.test.js |
-| 28–32 | Storage.clearTimers: cancela e esvazia todos os timers pendentes. | ✅ PROVADO DIRETAMENTE |
-| 33–53 | Storage.get: suporta all/null, string, array e objeto com defaults; callback e Promise resolvem de forma assíncrona. | 🟨 get é usado extensivamente; variantes de keys não têm suíte focal completa |
-| 54–65 | Storage.set: calcula old/new, muta store, dispara onChanged(local) e resolve callback/Promise via timer. | 🟨 executado por muitas suítes; sem teste focal completo de eventos |
-| 66–73 | Storage.remove: remove uma ou várias chaves e resolve callback/Promise; não dispara o registry onChanged nesta implementação. | ⚠️ sem prova focal específica |
-| 74–79 | Storage.clear: substitui store por objeto vazio; callback é agendado, Promise retorna resolvida imediatamente. | 🟨 usado em setup/teardown; sem prova focal de ordering |
-| 80–82 | Helpers internos _getStore/_setStore fazem cópia rasa de entrada/saída para montagem direta de estados de teste. | 🟨 usados por testes reais do background |
-| 83–88 | Storage.onChanged expõe add/remove sobre o registry persistente. | 🟨 consumidores reais registram listeners; sem teste focal de ciclo completo |
-| 89–90 | Separação visual do Tabs Mock. | estrutural |
-| 91–100 | ChromeTabsMock: maps de abas/handlers, IDs a partir de 1000, registries de eventos e timers. | 🟨 infraestrutura amplamente usada |
-| 101–109 | Tabs._schedule rastreia timers como Storage._schedule. | ✅ cancelamento provado diretamente |
-| 110–114 | Tabs.clearTimers cancela callbacks pendentes. | ✅ PROVADO DIRETAMENTE |
-| 115–134 | Tabs.create cria tab loading, agenda status complete/onUpdated em 10 ms, callback em 0 ms e retorna Promise da tab. | 🟨 create exercitado extensivamente; cancelamento do onUpdated é prova direta |
-| 135–145 | Tabs.get retorna tab/null; com callback de tab ausente expõe runtime.lastError temporariamente. | 🟨 usado em tab-replacement; branch lastError sem teste focal dedicado |
-| 146–159 | Tabs.remove aceita id/lista, remove tabs existentes, dispara onRemoved e usa lastError para ausentes até callback. | 🟨 exercitado por fluxos reais; sem matriz focal |
-| 160–168 | Tabs.query retorna todas as tabs e implementa somente filtro active quando fornecido. | 🟨 consumido por código real; fidelidade de filtros adicionais não provada |
-| 169–183 | Tabs.sendMessage roteia para handlers registrados; ausência de handler cria runtime.lastError; handlers recebem sender.tab e sendResponse. | 🟨/✅ migração+roteamento após replacement provados; branch sem handler exercitado indiretamente |
-| 184–188 | _registerMessageHandler associa handlers a um tabId e preserva múltiplos por aba. | ✅ usado diretamente no teste de replacement e muitos testes de background |
-| 189–207 | _simulateReplacement valida IDs, transfere tab e handlers, dispara onReplaced e retorna a nova tab. | ✅ PROVADO DIRETAMENTE por tab-replacement-observability.test.js |
-| 208–223 | Eventos Tabs onReplaced/onRemoved/onUpdated fornecem add/remove simples em arrays. | ✅ onReplaced focal; onUpdated cancel focal; onRemoved apenas indireto |
-| 224–225 | Separação visual do Alarms Mock. | estrutural |
-| 226–230 | ChromeAlarmsMock inicializa map de alarms e registry onAlarm. | 🟨 usado pelas suítes de lifecycle |
-| 231–244 | Alarms.create substitui alarme homônimo, calcula scheduledTime por when/delayInMinutes, agenda fire e persiste timerId. | 🟨 exercitado por lifecycle/watchdog; sem teste unitário isolado |
-| 245–251 | Alarms.clear cancela handle, remove entry, informa boolean por callback e Promise. | 🟨 executado pelo background; sem teste focal próprio |
-| 252–258 | Alarms.clearAll cancela todos os timers, limpa map e resolve. | 🟨 usado em hooks e suites |
-| 259–264 | Alarms.get retorna alarme completo ou null por callback/Promise. | 🟨 sem prova focal específica |
-| 265–272 | Alarms.getAll remove timerId da visão pública e retorna name/scheduledTime. | 🟨 assertions de lifecycle inspecionam alarms |
-| 273–281 | Alarms._fire dispara manualmente um alarme, cancela timer real, remove do map e notifica listeners. | 🟨 usado por lifecycle-alarms-real e batch-lifecycle-real |
-| 282–287 | Alarms.onAlarm mantém registry de listeners. | 🟨 background real registra e recebe eventos |
-| 288–289 | Separação visual do Runtime Mock. | estrutural |
-| 290–299 | ChromeRuntimeMock inicializa registries de mensagem/conexão/install/startup, lastError, id fixo e timers de respostas. | 🟨 infraestrutura central |
-| 300–308 | Runtime._scheduleMessageCallback agenda callbacks e rastreia handles. | ✅ cancelamento focal existente |
-| 309–313 | Runtime._clearMessageTimer cancela um timer e remove do set. | 🟨 exercitado por sendResponse; sem assertion isolada |
-| 314–318 | Runtime.clearMessageTimers cancela todas as respostas pendentes. | ✅ PROVADO DIRETAMENTE |
-| 319–355 | Runtime.sendMessage despacha a todos os listeners; respeita sendResponse único, retorno true como canal assíncrono, lastError para zero listeners e timeout 50/500 ms. | 🟨 caminho de messaging usado; timeout cancelado tem prova direta, matriz completa ausente |
-| 356–357 | Runtime.getURL prefixa path com chrome-extension://test-extension-id/. | ⚠️ sem teste focal localizado |
-| 358–378 | Runtime.connect constrói Port simplificado, registry onDisconnect, hooks mínimos, notifica onConnect e retorna o port. | 🟨 usado pelo fluxo keep-alive/lifecycle; superfície do Port é simplificada |
-| 379–383 | Runtime.onMessage registra/remove listeners. | 🟨 background real depende disso |
-| 384–388 | Runtime.onConnect registra/remove listeners. | 🟨 lifecycle usa conexão keep-alive |
-| 389–398 | Runtime.onInstalled registra listener e, adicionalmente, agenda invocação automática com reason install; removeListener filtra registry. | ✅ cancelamento da invocação agendada provado; sem teste focal da fidelidade semântica |
-| 399–405 | Runtime.onStartup registra/remove listeners sem auto-fire. | 🟨 background real registra e testes simulam startup |
-| 406–412 | _simulateStartup aguarda listeners sequencialmente. | 🟨 usado por lifecycle-alarms-real para executar background real |
-| 413–420 | _simulateInstall aguarda listeners sequencialmente com reason configurável; fecha classe Runtime. | 🟨 sem suíte focal do helper |
-| 421–422 | Separação visual do Downloads Mock. | estrutural |
-| 423–428 | ChromeDownloadsMock inicializa map, ID incremental e registry onChanged. | 🟨 infraestrutura de download |
-| 429–435 | Downloads._schedule usa microtask Promise e ignora delay para evitar handles e compatibilizar fake timers. | 🟨 ordering usado pelos testes; sem prova focal da política |
-| 436–439 | Downloads.clearTimers é no-op por design porque microtasks não deixam handles canceláveis. | 🟦 comportamento explícito; sem assertion focal |
-| 440–465 | Downloads.download cria registro in_progress, agenda callback do ID antes da conclusão e depois marca complete/exists/path e dispara onChanged. | 🟨 usado indiretamente por handlers reais; sem teste focal do mock |
-| 466–476 | Downloads.search filtra opcionalmente por id e filenameRegex e entrega resultados por callback/Promise. | 🟨 consumidores reais usam ambos filtros; sem teste focal isolado |
-| 477–479 | Downloads.show é no-op assíncrono resolvido. | ⚠️ sem teste focal |
-| 480–486 | Downloads.removeFile marca exists=false sem remover metadados. | 🟨 usado por código/testes relacionados; sem focal |
-| 487–493 | Downloads.erase remove por id quando presente e resolve callback/Promise. | ⚠️ sem matriz focal |
-| 494–502 | _simulateFailure muda state para interrupted e emite onChanged correspondente. | ⚠️ helper sem consumidor localizado |
-| 503–508 | Downloads.onChanged mantém registry de listeners. | 🟨 waitForDownload real depende do registry |
-| 509–513 | ChromeScriptingMock oferece executeScript como jest.fn resolvendo [{result:undefined}]. | 🟨 usado como superfície compartilhada; sem teste focal |
-| 514–516 | Declara singletons de storage/tabs/alarms/runtime/downloads por ambiente Jest. | 🟦 desenho estrutural |
-| 517–525 | JSDoc de initChromeMocks formaliza criação inicial versus reset leve e preservação do runtime. | 🟦 contrato interno |
-| 526–544 | Primeira inicialização cria os cinco mocks e monta global.chrome, incluindo storage.onChanged e scripting. | 🟨 executado em todo projeto configurado; sem teste focal da shape completa |
-| 545–561 | Reset subsequente cancela timers, limpa stores/maps de dados e downloads listeners, mas preserva diversos registries/counters. | 🟨 reset executado em beforeEach; isolamento completo não provado |
-| 562–566 | Fecha init e o executa imediatamente para garantir global.chrome antes de imports de módulos de teste. | 🟦 wiring com setupFilesAfterEnv; 🟨 executado em suites |
-| 567–571 | beforeEach Jest chama initChromeMocks novamente. | 🟦 wiring automático |
-| 572–584 | afterEach cancela timers/alarms/runtime messages, limpa mocks/timers Jest e runtime.lastError. | ✅ partes de timer têm testes focais; teardown completo apenas indireto |
-| 585–593 | Exports expõem somente getters dos cinco mocks; classes/init não são exportados. | 🟨 dezenas de suites importam getters |
-| 594 | Posição final correspondente ao newline terminal do blob. | 🟦 leitura integral do fonte |
+| 1–607 | Cobertura estrutural integral do blob atual `af6580a887f1eba1c2798bfff82849e1b34cb260`; a fonte exata está embutida na seção 13. | validação determinística por SHA + comparação byte/texto normalizado |
 
-## 14A. Cobertura documental da revisão atual
+### Delta revalidado desta revisão
 
-Revisão sincronizada: `af6580a887f1eba1c2798bfff82849e1b34cb260`. O fonte integral acima corresponde byte-a-byte ao blob atual.
-Esta seção prova apenas completude estrutural da revisão; não herda o veredito independente da revisão anterior.
-Mudança conhecida nesta revisão: `runtime.lastError` passa a existir somente durante callbacks que recebem a falha em `tabs.get`, `tabs.remove`, `tabs.sendMessage` e `runtime.sendMessage`, evitando vazamento transitório do erro para APIs paralelas.
-
-### Linhas 1–607 — revisão atual completa, aguardando reauditoria independente
-
-Cobertura estrutural contínua das 607 posições do blob atual, incluindo o newline terminal. O detalhamento semântico anterior permanece acima apenas como histórico e deve ser revalidado contra esta revisão antes de qualquer novo APPROVED.
-
+- `ChromeTabsMock.get`: `runtime.lastError` passa a existir somente durante o callback que recebe a falha, como na API Chrome.
+- `ChromeTabsMock.remove`: IDs ausentes são coletados e o `lastError` fica restrito ao callback, sem contaminar operações assíncronas paralelas.
+- `ChromeTabsMock.sendMessage`: ausência de receiving end não deixa `lastError` global ativo antes do callback.
+- `ChromeRuntimeMock.sendMessage`: o erro de receiving end também fica escopado ao callback.
+- Efeito comprovado no CI: o popup deixa de consumir `lastError` de outra API durante leituras válidas de `chrome.storage.local`, evitando defaults falsos em configurações como filtro dimensional e modo Gemini.
 ## 15. Dependências e consumidores relevantes
 
 ### Dependências de runtime
