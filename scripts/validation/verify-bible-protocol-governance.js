@@ -13,6 +13,7 @@ const REQUIRED = {
     'node scripts/validation/bible-anti-loop-adversarial-selftest.js',
     'npm run bible:lifecycle:verify',
     'npm run bible:lifecycle:metrics',
+    'npm run bible:lifecycle:metrics:check',
     'verify-human-protected-diff.js --base',
     'verify-lifecycle-artifacts-append-only.js --base',
     'verify-bible-state-history-append-only.js --base',
@@ -55,6 +56,7 @@ const REQUIRED = {
 
 const PROTOCOL_POST_LIFECYCLE_CONTROLS = [
   { command: 'npm run bible:lifecycle:metrics', pushOnly: false },
+  { command: 'npm run bible:lifecycle:metrics:check', pushOnly: false },
   { command: 'verify-human-protected-diff.js --base', pushOnly: true },
   { command: 'verify-lifecycle-artifacts-append-only.js --base', pushOnly: true },
   { command: 'verify-bible-state-history-append-only.js --base', pushOnly: true },
