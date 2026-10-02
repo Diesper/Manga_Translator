@@ -91,6 +91,7 @@ function problemsForHumanDiff(before, current, changed, approvals = []) {
 
   const label = '#' + String(current.index).padStart(3, '0');
   const auditControl = touched.filter((candidate) => humanAuditControlPath(before.index, candidate));
+  const correctionTouched = touched.filter((candidate) => !humanAuditControlPath(before.index, candidate));
   if (auditControl.length) {
     const approval = humanGate.activeHumanApproval(
       before,
@@ -106,9 +107,9 @@ function problemsForHumanDiff(before, current, changed, approvals = []) {
     }
   }
 
-  if (!humanCorrectionAuthorized(before, current)) {
+  if (correctionTouched.length && !humanCorrectionAuthorized(before, current)) {
     return [
-      label + ': HUMAN protegido alterado sem correction approval one-shot ativa: ' + touched.join(', '),
+      label + ': HUMAN protegido alterado sem correction approval one-shot ativa: ' + correctionTouched.join(', '),
     ];
   }
   return [];
