@@ -2572,10 +2572,20 @@ if (!window.__manga_translator_content_injected) {
 
                 const images = document.querySelectorAll('img');
                 let foundImage = false;
+                let shouldAccountUpdate = false;
                 let persistPromise = null;
 
                 for (let img of images) {
                     if (img.dataset.mangaIndex == request.index) {
+                        // Retry após falha de persistência: o DOM já pode conter a
+                        // tradução com translated=true. Não reaplique a imagem; apenas
+                        // tente persistir de novo e, se der certo, contabilize o índice.
+                        if (img.dataset.translated === 'true') {
+                            shouldAccountUpdate = true;
+                            persistPromise = persistTranslatedPage(request.index, request.newSrc);
+                            break;
+                        }
+
                         const origSourceUrl    = img.getAttribute('src') || img.dataset.src || img.dataset.lazySrc || img.getAttribute('data-original') || '';
                         const origCleanUrl     = getCleanUrl(origSourceUrl);
                         const origHash         = img.dataset.origHash         || null;
@@ -2594,6 +2604,7 @@ if (!window.__manga_translator_content_injected) {
                         const newImg = applyImageReplacement(img, request.newSrc, false);
                         if (!newImg) break;
                         foundImage = true;
+                        shouldAccountUpdate = true;
 
                         const width  = newImg.naturalWidth  || img.naturalWidth  || 0;
                         const height = newImg.naturalHeight || img.naturalHeight || 0;
@@ -2657,7 +2668,7 @@ if (!window.__manga_translator_content_injected) {
                 }
 
                 const accountPersistedUpdate = () => {
-                    if (!foundImage) return;
+                    if (!shouldAccountUpdate) return;
                     if (!acceptedBatchId || !_currentBatchId || acceptedBatchId !== _currentBatchId || !isTranslating) {
                         sendLog('warn', 'STALE_UPDATE_COMPLETION_SKIPPED',
                             'Persistência de UPDATE_IMAGE terminou após o lote deixar de ser o ativo; contabilização ignorada.', {
