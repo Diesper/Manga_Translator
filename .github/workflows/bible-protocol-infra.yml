@@ -29,6 +29,9 @@ on:
       - 'docs/biblia/.coordination/unit-transition.js'
       - 'docs/biblia/.coordination/unit-transition-selftest.js'
       - 'scripts/validation/verify-human-protected-diff.js'
+      - '.github/workflows/bible-unit-transition.yml'
+      - '.github/workflows/bible-human-approval.yml'
+      - 'scripts/validation/verify-bible-lifecycle.js'
       - 'scripts/validation/verify-bible-audit-results-append-only.js'
       - 'scripts/validation/verify-bible-audit-results-append-only-selftest.js'
       - 'scripts/validation/bible-audit-pipeline.js'
@@ -82,6 +85,7 @@ jobs:
           node --check docs/biblia/.coordination/unverified-findings.js
           node --check docs/biblia/.coordination/unit-transition.js
           node --check scripts/validation/verify-human-protected-diff.js
+          node --check scripts/validation/verify-bible-lifecycle.js
           node --check scripts/validation/verify-bible-audit-results-append-only.js
           node --check scripts/validation/verify-bible-audit-results-append-only-selftest.js
           node --check scripts/validation/bible-audit-pipeline.js
@@ -99,6 +103,15 @@ jobs:
           node docs/biblia/.coordination/unverified-findings-selftest.js
           node docs/biblia/.coordination/unit-transition-selftest.js
           node docs/biblia/.coordination/human-review-selftest.js
+
+      - name: Validate anti-loop lifecycle
+        run: npm run bible:lifecycle:verify
+
+      - name: Validate HUMAN protected diff
+        if: github.event_name == 'push'
+        env:
+          BIBLE_BASE_SHA: ${{ github.event.before }}
+        run: node scripts/validation/verify-human-protected-diff.js --base "$BIBLE_BASE_SHA"
 
       - name: Enforce append-only audit result history
         run: npm run bible:audit:append-only
