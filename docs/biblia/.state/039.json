@@ -4,7 +4,7 @@
   "bible": "docs/biblia/extension/content/content_manga.js/Bíblia.md",
   "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "ca8419ae0f2f0d4adfc036ee9e81ce0a039d1d94",
+  "source_sha": "ee7f359de7afa837d9fc3669496844d3ddae6919",
   "started_at_utc": null,
   "completed_at_utc": null,
   "audit_requests": [
@@ -97,14 +97,14 @@
     "self_audit": "APPROVED_FOR_191_DEPENDENCY_CHANGE_ONLY",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "3116/3116",
-    "source_text_lines": 3115,
+    "documented_positions": "3120/3120",
+    "source_text_lines": 3119,
     "external_audit_requests_open": 4,
     "note": "Fonte integral e cobertura 3116/3116 sincronizadas; revisão devolvida para auditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T20:16:16Z",
+  "updated_at_utc": "2026-10-02T21:21:50Z",
   "history": [
     {
       "at_utc": "2026-10-02T02:14:30Z",
@@ -149,6 +149,27 @@
       "reason": "Sincroniza a Bíblia #039 com a revisão atual de content_manga.js; auditorias anteriores ficam invalidadas e a nova revisão requer PRIMARY + ADVERSARIAL independentes.",
       "previous_event_hash": "5114ce2d8f629c325f35157c2d07ae28f2719ce92b4aa8b479d9d99c1cb10555",
       "event_hash": "c4d8a927ad608c686dbfd2f05cf07e8760ad51ac6817db247b965e9728731a32"
+    },
+    {
+      "at_utc": "2026-10-02T21:21:50Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "previous_source_sha": "ca8419ae0f2f0d4adfc036ee9e81ce0a039d1d94",
+      "previous_bible_sha": "8fb768dbb197404eb74f7eb930608812c9b3dce5",
+      "previous_production_sha": null,
+      "previous_revision_id": "f8d33f5ac82e8cbf3f16bb3ca0d707ec5c1e95943969fd3e09a10f86680f074d",
+      "source_sha": "ee7f359de7afa837d9fc3669496844d3ddae6919",
+      "test_sha": "ee7f359de7afa837d9fc3669496844d3ddae6919",
+      "bible_sha": "3b10a84656e862a704e14da72b513644d54a130d",
+      "production_sha": null,
+      "revision_id": "c4c08294966f9b997ea74694d1b70c8c5e8616465327f389e223a09f1d2f3ab2",
+      "correction_cycle": 0,
+      "audit_epoch": 2,
+      "handoff_id": "039-e2-422a1a17664c",
+      "reason": "Sincroniza a Bíblia #039 com content_manga.js atual; auditorias anteriores são invalidadas para a nova revisão.",
+      "previous_event_hash": "c4d8a927ad608c686dbfd2f05cf07e8760ad51ac6817db247b965e9728731a32",
+      "event_hash": "711f3f7df9f9642150cf4789fd29d8ab81ebfaa82a47481536944a556fd22f2d"
     }
   ],
   "evidence": [
@@ -165,15 +186,15 @@
       "result": "AUDIO_SCOPE_PASS; 039 unrelated requests remain open"
     }
   ],
-  "bible_sha": "8fb768dbb197404eb74f7eb930608812c9b3dce5",
-  "test_sha": "ca8419ae0f2f0d4adfc036ee9e81ce0a039d1d94",
+  "bible_sha": "3b10a84656e862a704e14da72b513644d54a130d",
+  "test_sha": "ee7f359de7afa837d9fc3669496844d3ddae6919",
   "production_sha": null,
   "correction_cycle": 0,
   "lifetime_correction_cycles": 0,
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 1,
-  "handoff_id": "039-e1-d3c55f85652d",
-  "revision_id": "f8d33f5ac82e8cbf3f16bb3ca0d707ec5c1e95943969fd3e09a10f86680f074d"
+  "audit_epoch": 2,
+  "handoff_id": "039-e2-422a1a17664c",
+  "revision_id": "c4c08294966f9b997ea74694d1b70c8c5e8616465327f389e223a09f1d2f3ab2"
 }
