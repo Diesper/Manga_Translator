@@ -4,7 +4,7 @@
   "bible": "docs/biblia/tests/e2e/reader-offline.spec.js/Bíblia.md",
   "status": "IN_PROGRESS",
   "agent": "AGENTE HÍBRIDO",
-  "source_sha": "ff0758efb2ce1bcdd3fcedf88fcdcfb820df3f7e",
+  "source_sha": "2837775deacca5123fa99232633b4652774abf96",
   "started_at_utc": "2026-09-30T06:14:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -87,7 +87,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:09:00Z",
+  "updated_at_utc": "2026-10-02T01:13:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:30:20Z",
@@ -130,6 +130,13 @@
       "previous_source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
       "current_source_sha": "ff0758efb2ce1bcdd3fcedf88fcdcfb820df3f7e",
       "reason": "Reader E2E agora falha fechado no reset chrome.storage/IndexedDB, verifica pós-condição de stores vazios, prova migração via page index/count + flag + remoção legado e remove persistent profile no teardown."
+    },
+    {
+      "at_utc": "2026-10-02T01:13:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_ADVERSARIAL_HARDENING",
+      "previous_source_sha": "ff0758efb2ce1bcdd3fcedf88fcdcfb820df3f7e",
+      "current_source_sha": "2837775deacca5123fa99232633b4652774abf96",
+      "reason": "Cenário fail-closed agora aborta uma transação IndexedDB real e valida tx.onerror/tx.onabort, em vez de lançar antes da transação."
     }
   ],
   "evidence": [
