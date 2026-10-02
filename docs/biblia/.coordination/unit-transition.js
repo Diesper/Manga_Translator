@@ -623,6 +623,16 @@ function main(argv=process.argv.slice(2)) {
     const sp=statePathFor(root,Number(request.index));
     const raw=fs.readFileSync(sp,'utf8');
     const state=JSON.parse(raw);
+    if (String(request.action || '').toUpperCase() === 'HANDOFF_FOR_AUDIT') {
+      const actualTestSha = auditCore.gitWorkingTreeBlobSha(root, state.file);
+      const actualBibleSha = auditCore.gitWorkingTreeBlobSha(root, state.bible);
+      const actualProductionSha = auditCore.currentProductionSha(root, state);
+      if (!actualTestSha) throw new Error('HANDOFF_TEST_FILE_UNAVAILABLE');
+      if (!actualBibleSha) throw new Error('HANDOFF_BIBLE_FILE_UNAVAILABLE');
+      request.test_sha = actualTestSha;
+      request.bible_sha = actualBibleSha;
+      request.production_sha = actualProductionSha;
+    }
     const pipeline=model.pipelines.find((item)=>item.index===state.index) || null;
     const token=request.token_id ? loadToken(root,state.index,request.token_id) : null;
     const approval=request.approval_id
