@@ -62,6 +62,29 @@ function passedAttempts(total = 21) {
     );
   }
 
+  {
+    const previous = process.env.MANGA_E2E_MIN_TESTS;
+    process.env.MANGA_E2E_MIN_TESTS = '4';
+    try {
+      assert.strictEqual(
+        await finish({ total: 4, attempts: passedAttempts(4) }),
+        undefined
+      );
+      assert.deepStrictEqual(
+        await finish({ total: 3, attempts: passedAttempts(3) }),
+        { status: 'failed' }
+      );
+      process.env.MANGA_E2E_MIN_TESTS = '0';
+      assert.throws(
+        () => PlaywrightGateReporter.minimumExpectedTests(),
+        /inteiro positivo/
+      );
+    } finally {
+      if (previous === undefined) delete process.env.MANGA_E2E_MIN_TESTS;
+      else process.env.MANGA_E2E_MIN_TESTS = previous;
+    }
+  }
+
   for (const terminalStatus of ['failed', 'timedOut', 'interrupted']) {
     const attempts = passedAttempts(20);
     attempts.push({ id: 't20', status: terminalStatus, retry: 0 });
