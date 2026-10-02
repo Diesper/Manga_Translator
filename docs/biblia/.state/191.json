@@ -2,11 +2,11 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE 30",
-  "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
-  "started_at_utc": "2026-10-02T01:55:15Z",
-  "completed_at_utc": null,
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+  "started_at_utc": null,
+  "completed_at_utc": "2026-10-02T02:27:00Z",
   "audit_requests": [
     {
       "id": "191-001",
@@ -156,7 +156,7 @@
     },
     {
       "id": "191-005",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "AUDIO_CONTEXT_LEAK",
       "target_file": "extension/content/content_manga.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -172,11 +172,30 @@
       "severity": "HIGH",
       "audited_by": "AGENTE 30",
       "audited_at_utc": "2026-10-02T01:54:30Z",
-      "audit_finding": "REAUDIT final encontrou divergência entre lifecycle de sucesso/contexto único e playErrorSound que instancia contexto novo por erro."
+      "audit_finding": "REAUDIT final encontrou divergência entre lifecycle de sucesso/contexto único e playErrorSound que instancia contexto novo por erro.",
+      "repair_progress": "RESOLVED_WITH_RED_GREEN_EXECUTABLE_VALIDATION",
+      "resolution": "playErrorSound passou a reutilizar notificationAudioContext via getLoggedNotificationAudioContext('integrated_error'); dois erros consecutivos usam um único contexto e quatro notas no mesmo contexto.",
+      "resolved_by": "AGENTE 30",
+      "resolved_at_utc": "2026-10-02T02:27:00Z",
+      "validation": {
+        "final_test_source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+        "production_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
+        "pre_fix_pr": 72,
+        "pre_fix_run_id": 36954506306,
+        "pre_fix_node20_job_id": 110674388356,
+        "pre_fix_node22_job_id": 110674388455,
+        "pre_fix_result": "FAIL_EXPECTED_CONTEXT_CARDINALITY_1_EXPECTED_2_RECEIVED_BOTH_NODES",
+        "post_fix_pr": 73,
+        "post_fix_run_id": 36954798257,
+        "post_fix_node20_job_id": 110675268570,
+        "post_fix_node22_job_id": 110675268644,
+        "post_fix_full_job_id": 110675268412,
+        "post_fix_result": "PASS_NODE20_NODE22_23_OF_23_AND_FULL_40_OF_40_442_OF_442"
+      }
     },
     {
       "id": "191-006",
-      "status": "ACCEPTED",
+      "status": "RESOLVED",
       "type": "ERROR_OBSERVABILITY",
       "target_file": "extension/content/content_manga.js",
       "found_while_auditing": "tests/unit/content-manga/audio-synthesis-full.test.js",
@@ -192,25 +211,46 @@
       "severity": "HIGH",
       "audited_by": "AGENTE 30",
       "audited_at_utc": "2026-10-02T02:19:45Z",
-      "audit_finding": "REAUDIT pós-191-005 encontrou catch vazio em playErrorSound apesar de lifecycle já instrumentado."
+      "audit_finding": "REAUDIT pós-191-005 encontrou catch vazio em playErrorSound apesar de lifecycle já instrumentado.",
+      "repair_progress": "RESOLVED_WITH_RED_GREEN_EXECUTABLE_VALIDATION",
+      "resolution": "O catch síncrono de playErrorSound agora emite AUDIO_ERROR_FAILED com audioErrorExtra(error) sem rethrow; constructor e createOscillator failures permanecem UI-safe e observáveis.",
+      "resolved_by": "AGENTE 30",
+      "resolved_at_utc": "2026-10-02T02:27:00Z",
+      "validation": {
+        "final_test_source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+        "production_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
+        "pre_fix_pr": 74,
+        "pre_fix_run_id": 36955075188,
+        "pre_fix_node20_job_id": 110676149604,
+        "pre_fix_node22_job_id": 110676149544,
+        "pre_fix_result": "FAIL_EXPECTED_ONLY_TWO_NEW_OBSERVABILITY_CASES_BOTH_NODES",
+        "post_fix_pr": 75,
+        "post_fix_run_id": 36955311711,
+        "post_fix_node20_job_id": 110676865237,
+        "post_fix_node22_job_id": 110676865246,
+        "post_fix_full_job_id": 110676864994,
+        "post_fix_result": "PASS_NODE20_NODE22_26_OF_26_AND_FULL_40_OF_40_445_OF_445_DETECT_OPEN_HANDLES"
+      }
     }
   ],
   "document_quality": {
     "self_audit": "APPROVED",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "592/592",
-    "source_text_lines": 591,
+    "documented_positions": "807/807",
+    "source_text_lines": 806,
+    "test_count": 17,
     "external_audit_requests_open": 0,
     "accepted_requests_pending_validation": 0,
-    "note": "191-001..004 corrigidos; a Bíblia agora registra também o follow-up 36951292966 já concluído com --runTestsByPath em Node 20/22 e full content-scripts 40/40 suites, 439/439 tests.",
-    "bible_lines": 730,
-    "bible_blob_sha": "d95135f438c9e9b47cc638208265d6787a039c00",
-    "evidence_quality": "Real content_manga audio integration; 11 lifecycle/synthesis cases; Node 20/22 focal 20/20 + full content-scripts 439/439 with open-handle detection."
+    "bible_lines": 1007,
+    "bible_blob_sha": "1e2ac345bd34e8f3604c2726ddccb40ed0d8abfd",
+    "production_dependency_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
+    "evidence_quality": "Real content_manga integration; red→green for context leak and synchronous observability; Node20/22 26/26 focal+related; full content-scripts 40/40 suites 445/445 tests with --detectOpenHandles.",
+    "note": "191-001..006 resolved; no known correctable issue remains inside unit scope."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T02:23:30Z",
+  "updated_at_utc": "2026-10-02T02:27:00Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -333,6 +373,18 @@
       "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
       "agent": "AGENTE 30",
       "finding": "191-006 HIGH: synchronous playErrorSound exceptions are swallowed; pre-fix fails exactly 2 observability regressions on Node20/22."
+    },
+    {
+      "at_utc": "2026-10-02T02:27:00Z",
+      "type": "FINAL_REAUDIT_APPROVED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "COMPLETED",
+      "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+      "bible_sha": "1e2ac345bd34e8f3604c2726ddccb40ed0d8abfd",
+      "production_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
+      "agent": "AGENTE 30",
+      "score": "100/100",
+      "reason": "All 17 real audio cases pass; 191-005 and 191-006 have red→green proof; full content-scripts 40/40 suites 445/445 tests pass with open-handle detection; source/Bible exact 807/807."
     }
   ],
   "evidence": [
@@ -380,7 +432,20 @@
       "bible_sha": "d95135f438c9e9b47cc638208265d6787a039c00",
       "finding": "191-REAUDIT-A30-001",
       "resolution": "Bible §8 now records follow-up run 36951292966 as completed success with Node20 110664598493, Node22 110664598462, and full content 110664598276."
+    },
+    {
+      "type": "FINAL_EXECUTABLE_VALIDATION",
+      "at_utc": "2026-10-02T02:27:00Z",
+      "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+      "bible_sha": "1e2ac345bd34e8f3604c2726ddccb40ed0d8abfd",
+      "production_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
+      "workflow_run_id": 36955311711,
+      "node20_job_id": 110676865237,
+      "node22_job_id": 110676865246,
+      "full_content_job_id": 110676864994,
+      "focal_result": "PASS_2_OF_2_SUITES_26_OF_26_TESTS_NODE20_AND_NODE22",
+      "content_suite_result": "PASS_40_OF_40_SUITES_445_OF_445_TESTS_DETECT_OPEN_HANDLES"
     }
   ],
-  "bible_sha": "d95135f438c9e9b47cc638208265d6787a039c00"
+  "bible_sha": "1e2ac345bd34e8f3604c2726ddccb40ed0d8abfd"
 }
