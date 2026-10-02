@@ -4,6 +4,7 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const humanGate = require('../../docs/biblia/.coordination/human-gate');
+const lifecycle = require('../../docs/biblia/.coordination/lifecycle-core');
 
 const root = path.resolve(__dirname, '../..');
 const TRUSTED_COMMITTER_EMAIL = '41898282+github-actions[bot]@users.noreply.github.com';
@@ -45,6 +46,66 @@ function introducingCommitter(file) {
   return { name: parts[0] || '', email: parts[1] || '' };
 }
 
+function approvalStateBindingProblems(approval, state, rel = '<approval>') {
+  const problems = [];
+  if (!state || Number(state.index) !== Number(approval?.index)) {
+    problems.push(rel + ': branch_head state ausente ou pertence a outro índice');
+    return problems;
+  }
+  const snapshot = lifecycle.lifecycleSnapshot(state);
+  if (!snapshot.human_locked || state.status !== 'HUMAN_LOCKED') {
+    problems.push(rel + ': branch_head_sha não aponta para unidade HUMAN_LOCKED');
+  }
+  if (Number(approval?.locked_cycle) !== Number(snapshot.current_escalation_cycle)) {
+    problems.push(rel + ': locked_cycle diverge do state no branch_head_sha');
+  }
+  if (approval?.revision_id !== snapshot.revision_id) problems.push(rel + ': revision_id diverge do state no branch_head_sha');
+  if (approval?.test_sha !== snapshot.test_sha) problems.push(rel + ': test_sha diverge do state no branch_head_sha');
+  if (approval?.bible_sha !== snapshot.bible_sha) problems.push(rel + ': bible_sha diverge do state no branch_head_sha');
+  if ((approval?.production_sha || null) !== (snapshot.production_sha || null)) {
+    problems.push(rel + ': production_sha diverge do state no branch_head_sha');
+  }
+  const approvedMs = Date.parse(approval?.approved_at_utc || '');
+  const handoffMs = Date.parse(snapshot.latest_handoff_at_utc || '');
+  if (Number.isFinite(approvedMs) && Number.isFinite(handoffMs) && approvedMs < handoffMs) {
+    problems.push(rel + ': approval timestamp antecede o handoff HUMAN aprovado');
+  }
+  return problems;
+}
+
+function introducingCommit(file) {
+  return git(['log','--diff-filter=A','-1','--format=%H','HEAD','--',file]).trim() || null;
+}
+
+function approvalGitProvenanceProblems(file, approval) {
+  const problems = [];
+  const intro = introducingCommit(file);
+  const branchHead = String(approval?.branch_head_sha || '').trim();
+  if (!intro) {
+    problems.push(file + ': commit de introdução da approval não encontrado');
+    return problems;
+  }
+  if (!/^[0-9a-f]{40}$/i.test(branchHead)) {
+    problems.push(file + ': branch_head_sha inválido para proveniência Git');
+    return problems;
+  }
+  try {
+    git(['merge-base','--is-ancestor',branchHead,intro]);
+  } catch (_) {
+    problems.push(file + ': branch_head_sha não é ancestral do commit que introduziu a approval');
+    return problems;
+  }
+
+  const stateRel='docs/biblia/.state/' + String(approval.index).padStart(3,'0') + '.json';
+  try {
+    const state=JSON.parse(git(['show',branchHead + ':' + stateRel]));
+    problems.push(...approvalStateBindingProblems(approval,state,file));
+  } catch (error) {
+    problems.push(file + ': não foi possível validar state no branch_head_sha: ' + error.message);
+  }
+  return problems;
+}
+
 function trustedAuthorityCommitter(committer) {
   return Boolean(committer && committer.email === TRUSTED_COMMITTER_EMAIL);
 }
@@ -77,6 +138,7 @@ function verify(base) {
             problems.push('approval humana nova deve usar schema_version 2 com proveniência: ' + file);
           }
           for (const problem of humanGate.validateApproval(approval, file)) problems.push(problem);
+          problems.push(...approvalGitProvenanceProblems(file, approval));
         } catch (error) {
           problems.push('approval humana nova inválida: ' + file + ' ' + error.message);
         }
@@ -125,6 +187,17 @@ function verifyHistoricalAuthority() {
         + file + ' committer=' + (committer ? committer.name + '<' + committer.email + '>' : '-')
       );
     }
+    if (/\/human-approvals\//.test(file)) {
+      try {
+        const approval=JSON.parse(fs.readFileSync(path.join(root,file),'utf8'));
+        if (Number(approval?.schema_version) !== 2) {
+          problems.push('approval humana no HEAD deve usar schema_version 2: ' + file);
+        }
+        problems.push(...approvalGitProvenanceProblems(file,approval));
+      } catch (error) {
+        problems.push('approval humana no HEAD inválida: ' + file + ' ' + error.message);
+      }
+    }
   }
   return { problems };
 }
@@ -151,6 +224,8 @@ module.exports = {
   LIFECYCLE_AUTHORITY_EFFECTIVE_AT_UTC,
   parseRawHistory,
   protectedArtifact,
+  approvalStateBindingProblems,
+  approvalGitProvenanceProblems,
   trustedAuthorityCommitter,
   verify,
   verifyHistoricalAuthority,
