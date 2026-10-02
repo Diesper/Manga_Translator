@@ -171,10 +171,25 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
     return tables;
   }
 
+  function collectCoverageBullets(bulletText) {
+    const intervals = [];
+    for (const line of bulletText.split(/\r?\n/)) {
+      let match = /^\s*[-*]\s+(?:\*\*)?0*(\d+)\s*[–—-]\s*0*(\d+)(?:\*\*)?\s*:/i.exec(line);
+      if (match) {
+        intervals.push({ start: Number(match[1]), end: Number(match[2]), raw: line.trim() });
+        continue;
+      }
+      match = /^\s*[-*]\s+(?:\*\*)?0*(\d+)(?:\*\*)?\s*:/i.exec(line);
+      if (match) intervals.push({ start: Number(match[1]), end: Number(match[1]), raw: line.trim() });
+    }
+    return intervals.sort((a,b) => a.start - b.start || a.end - b.end);
+  }
+
   let tableCandidates = collectCoverageTables(scope);
   if (!tableCandidates.length && /\\n/.test(scope)) {
     tableCandidates = collectCoverageTables(scope.replace(/\\n/g, '\n'));
   }
+  const bulletCandidate = collectCoverageBullets(scope);
 
   const combinedRanges = [...rangeHeadings];
   for (const single of singleHeadings) {
@@ -190,6 +205,7 @@ function parseCoverageIntervals(bible, sourcePositions = null) {
     singleHeadings,
     combinedRanges,
     ...tableCandidates,
+    bulletCandidate,
     rangeHeadings,
   ].filter((candidate) => candidate.length);
   if (sourcePositions) {
