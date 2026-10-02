@@ -66,6 +66,48 @@ assert.strictEqual(gate.approvalConsumed(state, approval.approval_id), true);
 assert.strictEqual(gate.approvalMatches(state, snapshot, approval), false);
 console.log('PASS approval é single-use sem reescrever artefato append-only');
 
+const consumptionState={
+  ...state,
+  history:state.history.slice(0,7),
+};
+consumptionState.history.push({
+  at_utc:'2026-10-02T07:01:00Z',
+  type:'HUMAN_APPROVAL_CONSUMED',
+  approval_id:approval.approval_id,
+  source_sha:approval.test_sha,
+  bible_sha:approval.bible_sha,
+});
+consumptionState.history.push({
+  at_utc:'2026-10-02T07:01:01Z',
+  type:'HUMAN_AUTHORIZED_CORRECTION_STARTED',
+  approval_id:approval.approval_id,
+});
+assert.deepStrictEqual(gate.humanApprovalConsumptionProblems([consumptionState],[approval]),[]);
+const duplicatedConsumption=JSON.parse(JSON.stringify(consumptionState));
+duplicatedConsumption.history.push({
+  at_utc:'2026-10-02T07:02:00Z',
+  type:'HUMAN_APPROVAL_CONSUMED',
+  approval_id:approval.approval_id,
+  source_sha:approval.test_sha,
+  bible_sha:approval.bible_sha,
+});
+duplicatedConsumption.history.push({
+  at_utc:'2026-10-02T07:02:01Z',
+  type:'HUMAN_AUTHORIZED_CORRECTION_STARTED',
+  approval_id:approval.approval_id,
+});
+assert.ok(gate.humanApprovalConsumptionProblems([duplicatedConsumption],[approval])
+  .some((x)=>x.includes('mais de uma vez')));
+const orphanConsumption=JSON.parse(JSON.stringify(consumptionState));
+orphanConsumption.history.push({
+  at_utc:'2026-10-02T07:03:00Z',
+  type:'HUMAN_APPROVAL_CONSUMED',
+  approval_id:'missing-approval',
+});
+assert.ok(gate.humanApprovalConsumptionProblems([orphanConsumption],[approval])
+  .some((x)=>x.includes('approval inexistente')));
+console.log('PASS duplicate/orphan HUMAN approval consumption is rejected structurally');
+
 const auditorConflictPipeline = new Map([[7, {
   index:7,
   primary:{auditor:'AUDITOR-PRIMARY'},
