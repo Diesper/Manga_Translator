@@ -17,7 +17,9 @@ const states=fs.readdirSync(stateRoot)
 const evaluation=life.evaluateLifecycleStates(states);
 const findingLoad=findings.loadUnverifiedFindings(root);
 const approvalLoad=human.loadHumanApprovals(root);
-const tokenLoad=transition.loadCorrectionTokens(root,states);
+const tokenLoad=transition.loadCorrectionTokens(root,states,{
+  humanApprovals:approvalLoad.approvals,
+});
 const problems=[
   ...evaluation.problems,
   ...findingLoad.problems,
