@@ -56,6 +56,20 @@ assert.strictEqual(gate.approvalConsumed(state, approval.approval_id), true);
 assert.strictEqual(gate.approvalMatches(state, snapshot, approval), false);
 console.log('PASS approval é single-use sem reescrever artefato append-only');
 
+const auditorConflictPipeline = new Map([[7, {
+  index:7,
+  primary:{auditor:'AUDITOR-PRIMARY'},
+  adversarial:{auditor:'AUDITOR-ADVERSARIAL'},
+  reaudit:{auditor:'AUDITOR-REAUDIT'},
+}]]);
+assert.ok(gate.humanApprovalAuditorProblems([
+  {...approval, approval_id:'007-human-conflict', approved_by:'AUDITOR-PRIMARY'},
+], auditorConflictPipeline).some((x)=>x.includes('independente dos auditores')));
+assert.deepStrictEqual(gate.humanApprovalAuditorProblems([
+  {...approval, approval_id:'007-human-independent', approved_by:'HUMAN-REVIEWER'},
+], auditorConflictPipeline),[]);
+console.log('PASS same auditor cannot satisfy HUMAN approval; independent reviewer can');
+
 const forged = { ...approval, approval_source: 'agent_commit' };
 assert.ok(gate.validateApproval(forged).some((x) => x.includes('workflow_dispatch')));
 console.log('PASS approval fora do workflow humano é inválida');
