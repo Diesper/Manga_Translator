@@ -1,7 +1,7 @@
 # Bíblia técnica — tests/unit/popup/log-exporter.test.js
 
 > **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA APROVADA  
-> **SHA auditado:** `3983f9d428ba12d6ec6b4f5f714de31eaa56e488`  
+> **SHA auditado:** `7149c3eb155c345094b73ef2355aea1b479dfebb`  
 > **Agente responsável:** AGENTE 25  
 > **Tipo:** suíte Jest/JSDOM do popup real — logs, filtro, export e cópia  
 > **Linhas textuais:** **219**  
@@ -271,6 +271,7 @@ describe('Log Buffer e Exportador — popup.js', () => {
     test('exporta logs gerando arquivo mangatranslator_log.txt via downloads API', async () => {
         const downloadSpy = jest.spyOn(downloadsMock, 'download');
         window.URL.createObjectURL = jest.fn(() => 'blob:mock-log-download');
+        window.URL.revokeObjectURL = jest.fn();
 
         const sampleLogs = [
             { ts: 1700000000000, level: 'info', source: 'bg', action: 'BATCH_START', detail: 'Lote iniciado' },
@@ -305,8 +306,10 @@ describe('Log Buffer e Exportador — popup.js', () => {
             expect.objectContaining({
                 filename: 'mangatranslator_log.txt',
                 saveAs: true,
-            })
+            }),
+            expect.any(Function)
         );
+        expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-log-download');
     });
 
     test('alerta quando não há logs para exportar', async () => {
@@ -370,7 +373,7 @@ describe('Log Buffer e Exportador — popup.js', () => {
 
 ## 12. Cobertura documental por linha/posição
 
-Faixas contíguas cobrindo **1–220**; 220 é o newline terminal.
+Faixas contíguas cobrindo **1–223**; 223 é o newline terminal.
 
 ### Posições 1–6 — cabeçalho
 Declara visualização, filtro, limpeza e export. Limpeza não aparece nos cenários. **Evidência:** 🟦 editorial.
@@ -405,36 +408,36 @@ Seleciona somente error e verifica exclusão de info. **Evidência:** ✅ error;
 ### Posição 121 — separador
 Linha vazia.
 
-### Posições 122–161 — export
-Mocka createObjectURL e verifica chamada Downloads API. **Evidência:** ✅ chamada; ⚠️ conteúdo.
+### Posições 122–164 — export
+Mocka createObjectURL/revokeObjectURL, verifica callback de download e liberação do Blob URL. **Evidência:** ✅ chamada e cleanup; ⚠️ conteúdo.
 
-### Posição 162 — separador
+### Posição 165 — separador
 Linha vazia.
 
-### Posições 163–189 — export vazio
+### Posições 166–192 — export vazio
 Lista vazia gera alerta. **Evidência:** ✅ PROVADO DIRETAMENTE.
 
-### Posição 190 — separador
+### Posição 193 — separador
 Linha vazia.
 
-### Posições 191–217 — cópia
+### Posições 194–220 — cópia
 Filtro warn + clipboard real mockado prova cópia de todos os logs e label. **Evidência:** ✅ PROVADO DIRETAMENTE.
 
-### Posição 218 — fechamento
+### Posição 221 — fechamento
 Fecha describe. **Evidência:** 🟨 estrutural.
 
-### Posição 219 — linha vazia final textual
+### Posição 222 — linha vazia final textual
 Sem comportamento.
 
-### Posição 220 — newline terminal
+### Posição 223 — newline terminal
 Terminador do blob. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
 
 ## 13. Autoauditoria documental
 
 - SHA reconfirmado antes da escrita.
 - Fonte integral embutida e posteriormente verificável contra o blob.
-- **220/220 posições** documentadas.
+- **223/223 posições** documentadas.
 - A suíte usa popup real; lacunas não foram preenchidas alterando testes.
 - Nenhum arquivo externo foi modificado.
 
-**Resultado da autoauditoria:** ✅ APROVADO documentalmente, com cinco solicitações externas abertas.
+**Resultado da sincronização:** fonte integral e cobertura estrutural atualizadas para `7149c3eb155c345094b73ef2355aea1b479dfebb`; a revisão permanece READY_FOR_AUDIT e exige auditoria independente nova.
