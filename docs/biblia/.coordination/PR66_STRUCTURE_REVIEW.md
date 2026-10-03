@@ -193,6 +193,19 @@ O ruleset ativo de main exige JS Syntax Check, Manifest Validation, E2E Tests (P
 | Check das projeções reais após reparo | Eliminou os falsos diagnostics; continua vermelho por STATUS/CHECKLIST stale, sem regenerar dados |
 | Cobertura, E2E e self-tests demorados | Uma primeira execução foi interrompida antes da conclusão; não conta como resultado verde |
 
+### Fechamento das execuções
+
+Implementação validada no GitHub no SHA `46dd5b0edf5890f1b2c1b6fc2b89a76da992c5f8`. A atualização final deste relatório altera somente documentação.
+
+- [CI isolada completa](https://github.com/Diesper/Manga_Translator/actions/runs/37086186952): SUCCESS; governança/fixtures no Ubuntu e no Windows, e actionlint.
+- [CI geral herdada](https://github.com/Diesper/Manga_Translator/actions/runs/37086186923): FAILURE; Node 20/22 e cobertura falham no mesmo teste de cleanup do popup, já reproduzido na baseline; CI Contract/Windows Portability bloqueiam pelas views stale. Esses gates foram preservados.
+- E2E local completo: **22/22 passed**, skipped=0, flaky=0, failed=0. Os cinco shards e o gate E2E também passaram no GitHub.
+- Coverage local: **56 arquivos instrumentados**, statements/lines **81,26%**, branches **72,55%**, functions **84,60%**. `test:coverage:verify` passou, incluindo mínimos por arquivos críticos.
+- A execução Jest com coverage terminou com **876/877 testes passing**, 108/109 suítes passing. O exit code continua 1 pelo cleanup do popup; coverage numérica suficiente não converte essa suíte em verde.
+- Coverage no Linux/GitHub: statements/lines **81,24%**, branches **72,39%**, functions **84,60%**. Pequenas diferenças V8/plataforma não demonstram regressão introduzida por essas correções; nenhum arquivo de runtime ou threshold foi alterado neste experimento.
+
+O plano e o PR experimental estão concluídos para revisão. A aplicação ao head atual do PR 66 continua exigindo revalidação nesse head, e a baseline vermelha precisa ser corrigida antes de uma migração ampla.
+
 A primeira corrida Jest foi concorrente com self-tests de infraestrutura; houve falhas de tempo em PERF-05 e no guard GTC. A reexecução isolada elimina apenas a falha GTC. Isso demonstra sensibilidade à carga para aquele caso, mas não prova que toda falha de performance é falsa. A máquina ainda tinha processos de outros trabalhos; não há justificativa para afrouxar thresholds.
 
 ## Ordem sugerida de entregas
