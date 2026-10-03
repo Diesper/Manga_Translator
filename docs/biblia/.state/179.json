@@ -2,8 +2,8 @@
   "index": 179,
   "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE HÍBRIDO 3",
   "source_sha": "4fd9efcb7d63fedfdc9843af1205cd9a805024a7",
   "started_at_utc": "2026-09-30T15:40:00Z",
   "completed_at_utc": null,
@@ -128,7 +128,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T09:05:59Z",
+  "updated_at_utc": "2026-10-03T09:14:04.923Z",
   "history": [
     {
       "at_utc": "2026-10-01T18:52:55.822Z",
@@ -287,6 +287,35 @@
       "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
       "previous_event_hash": "fbd3102060095debd58bfef26a442c781d733b3802b0e33f07e8aea42ac3341e",
       "event_hash": "204f05800b41c704cf38e8e73a986e55d44b339278cab9e6a44ea6cb62ca26ba"
+    },
+    {
+      "at_utc": "2026-10-03T09:14:04.923Z",
+      "type": "EDITOR_CORRECTION_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "agent": "AGENTE HÍBRIDO 3",
+      "source_sha": "4fd9efcb7d63fedfdc9843af1205cd9a805024a7",
+      "bible_sha": "43c4f723e46d32c43de98a85b601a4d38e490476",
+      "correction_cycle": 1,
+      "audit_epoch": 2,
+      "handoff_id": "179-e2-c70e2ab6a872",
+      "revision_id": "8bf07e0cf6ee6bcf5df6dbb34cb9ef3468baedc4bb08e3b361cee5f6bbc65258",
+      "correction_token_id": "corr-179-fd8d4fbd3f7432daf072",
+      "approval_id": null,
+      "root_cause_review": null,
+      "strategy_review": null,
+      "reservation_path": "docs/biblia/.reservas/tests/unit/content-gemini/helpers-and-regressions-real.test.js.lock.md",
+      "previous_event_hash": "204f05800b41c704cf38e8e73a986e55d44b339278cab9e6a44ea6cb62ca26ba",
+      "event_hash": "d71ac3bae1b2f8f2ab47f5492a24eea3cb2736c901e35d904a47c4f8afe641ba"
+    },
+    {
+      "at_utc": "2026-10-03T09:14:04.923Z",
+      "type": "CORRECTION_TOKEN_CONSUMED",
+      "correction_token_id": "corr-179-fd8d4fbd3f7432daf072",
+      "actor": "AGENTE HÍBRIDO 3",
+      "revision_id": "8bf07e0cf6ee6bcf5df6dbb34cb9ef3468baedc4bb08e3b361cee5f6bbc65258",
+      "previous_event_hash": "d71ac3bae1b2f8f2ab47f5492a24eea3cb2736c901e35d904a47c4f8afe641ba",
+      "event_hash": "d9329c2df63c08e36d162cc9a29d1cd71147087ae1b924ffe6ba87ccd711c305"
     }
   ],
   "evidence": [],
