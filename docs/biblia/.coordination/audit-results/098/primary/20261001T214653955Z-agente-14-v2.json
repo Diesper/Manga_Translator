@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "index": 98,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 14",
+  "file": "tests/helpers/background-test-utils.js",
+  "bible": "docs/biblia/tests/helpers/background-test-utils.js/Bíblia.md",
+  "source_sha": "1c38cfc47917f2a42788c467b9dbf58648b73e2b",
+  "bible_sha": "29370494a6794ce4d0240b4ecd525bbce38f06b9",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "098-PRI2-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "INDIRECT_SIDE_EFFECT_SCOPE_OVERSTATEMENT",
+      "bible_location": "Bíblia.md:13-15 (Papel arquitetural)",
+      "finding": "A Bíblia afirma de forma absoluta que o helper não abre rede e não persiste dados, mas dispatchToBackground executa o listener real do background e, portanto, pode desencadear efeitos indiretos do handler. A documentação não separa ausência de side effect próprio do módulo de side effects delegados pelo listener chamado.",
+      "evidence": [
+        "Source linha 46: getBackgroundListener(runtimeMock)(request, sender, sendResponse) invoca diretamente o listener do background.",
+        "tests/unit/background/test_bg59.test.js linhas 124-146: o fluxo chama dispatchToBackground(CALCULATE_VISUAL_FINGERPRINT) e depois exige global.fetch chamado com a URL da imagem; o efeito é disparado através do listener delegado.",
+        "tests/unit/background/plan-missing-handlers-real.test.js linhas 84-100: dispatchToBackground(LOG_ENTRY) é seguido por waitFor sobre chrome.storage.local/translatorLog, demonstrando persistência do handler acionado pelo dispatcher.",
+        "A própria Bíblia classifica esses consumers como execução do helper real, então os efeitos delegados fazem parte da semântica observável da API adaptadora, ainda que o helper não implemente fetch/storage diretamente."
+      ],
+      "required_change": "Qualificar o texto: o helper não possui I/O de rede/persistência próprios, mas dispatchToBackground delega ao listener real e pode provocar os efeitos do handler (storage, fetch, tabs etc.). Manter separados side effects diretos do helper e side effects indiretos do consumer."
+    },
+    {
+      "id": "098-PRI2-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EXECUTABLE_TEST_CI_WIRING_OMISSION",
+      "bible_location": "Bíblia.md:76-103 (Consumers reais / Evidência automatizada)",
+      "finding": "A Bíblia lista nove consumers e uma run verde, porém omite a cadeia executável que descobre essas suítes e as coloca no gate CI. Isso deixa incompleta a explicação de dependências/config/workflow exigida para interpretar por que a run realmente executa estes consumers.",
+      "evidence": [
+        "package.json linha 26: test:ci = node scripts/ci/run-jest-ci.js.",
+        "scripts/ci/run-jest-ci.js linhas 14-16/47-57 seleciona jest.config.js e o projeto background entre os projetos unitários.",
+        "jest.config.js linhas 7-10: projeto background usa tests/unit/background/**/*.test.js e chrome-api.mock.js, cobrindo os nove consumers documentados.",
+        ".github/workflows/ci.yml linhas 121-140: job Unit + Integration (${matrix.node-version}) executa npm run test:ci.",
+        "Run 36577447500 (head b6ad13fce47adcab3fcd10281f28848f7b4ce50f) concluiu success; jobs 109437162616 (20.x), 109437162754 (22.x) e 109437162789 (Windows) concluíram success.",
+        "Os nove consumer blobs, o helper, run-jest-ci.js e jest.config.js são byte-a-byte iguais entre o commit da run e a revisão atual; package.json/workflow mudaram em outras partes, mas o wiring relevante test:ci/Unit+Integration permanece igual."
+      ],
+      "required_change": "Documentar explicitamente a cadeia .github/workflows/ci.yml → npm run test:ci → package.json → scripts/ci/run-jest-ci.js → jest.config.js#background → tests/unit/background/**/*.test.js → nove consumers → background-test-utils.js, incluindo o papel do chrome-api.mock.js e distinguindo discovery/configuração de assertions dos testes."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage_positions": "CONFIRMADO_3X",
+    "semantics_main": "CONTRADITO",
+    "dependencies": "CONTRADITO",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "ci_evidence": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "documented_positions": "61/61",
+    "source_text_lines": 60,
+    "source_final_newline": true,
+    "embedded_source_exact": true,
+    "consumers_verified": 9,
+    "direct_assertions_rechecked": [
+      "test_bg59: keepAlive true + response + fetch call",
+      "helpers-real: waitFor truthy value used in later assertions",
+      "plan-missing-handlers-real BG-43: keepAlive false + response + storage persistence"
+    ],
+    "audit_requests_current": [
+      "098-001 ACCEPTED",
+      "098-002 ACCEPTED"
+    ],
+    "state_note_nonblocking": "document_quality.external_audit_requests_open ainda vale 2, mas o lifecycle canônico é audit_requests[].status; o código de coordenação conta OPEN pelo status individual e ambos estão ACCEPTED.",
+    "ci_run": 36577447500,
+    "ci_head_sha": "b6ad13fce47adcab3fcd10281f28848f7b4ce50f",
+    "last_prepublication_head": "50cef9f12b8ae379fa2ab8b82015851c17d0c8e0",
+    "formal_refutation": "Sustentada: a Bíblia ainda pode induzir o leitor a negar side effects indiretos do dispatcher e não reconstrói o wiring executável que transforma os consumers em evidência CI."
+  },
+  "completed_at_utc": "2026-10-01T21:46:53.956Z"
+}

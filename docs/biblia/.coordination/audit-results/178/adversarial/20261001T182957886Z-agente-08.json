@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "index": 178,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "tests/unit/content-gemini/editor-submit.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/editor-submit.test.js/Bíblia.md",
+  "source_sha": "ccfa4c881543111b13d0bd8f8198f402039b2233",
+  "bible_sha": "4bea8496eaef3fd24b92d972740754cd96dd8c92",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-178-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia rotula 178-001, 178-002 e 178-003 como OPEN, embora o state canônico registre as três como ACCEPTED.",
+      "evidence": [
+        "Bíblia §9: `178-001 — TEST_REQUIRED — OPEN — HIGH`, `178-002 — TEST_REQUIRED — OPEN — NORMAL` e `178-003 — TEST_REQUIRED — OPEN — NORMAL`.",
+        "`.state/178.json`: 178-001, 178-002 e 178-003 possuem `status: ACCEPTED` com audit_finding/recomendação persistidos.",
+        "As lacunas técnicas continuam válidas; o erro é de lifecycle documental, não a existência das lacunas."
+      ],
+      "relation_to_primary": "Confirma 178-PRI-001.",
+      "requested_documentation_fix": "Atualizar os três headings para ACCEPTED (ou rotular explicitamente como snapshot histórico) e ajustar a conclusão que ainda fala em três solicitações OPEN."
+    },
+    {
+      "id": "A8-178-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "SEND-05 é classificado como prova direta de que `disabled/aria-disabled não são forçados`/`jamais é alterado à força`, mas as assertions apenas verificam o estado final dos atributos após a operação.",
+      "evidence": [
+        "Matriz §8: `disabled/aria-disabled não são forçados | SEND-05 | ✅ PROVADO DIRETAMENTE`.",
+        "Título do teste: `SEND-05: controle disabled jamais é alterado à força`.",
+        "Assertions reais verificam somente `button.disabled === true`, presença de `disabled` e `aria-disabled === 'true'` depois que `submitWithConfirmation` termina.",
+        "Não há spy/observer sobre setters de `disabled`, `setAttribute`, `removeAttribute` ou MutationObserver que prove ausência de mutação transitória."
+      ],
+      "adversarial_mutation": "Uma regressão que removesse `disabled`/`aria-disabled` durante a tentativa e os restaurasse antes da resolução final manteria todas as assertions SEND-05 verdes.",
+      "requested_documentation_fix": "Rebaixar o claim para `estado final disabled/aria-disabled é preservado` ou adicionar uma assertion que observe ausência de mutação durante todo o fluxo antes de manter `jamais/não são forçados` como prova direta."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONTRADITO",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "ci_evidence": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_11_VS_AGENTE_8",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "265/265",
+    "ci_run": 36521561968,
+    "ci_blob_sha": "ccfa4c881543111b13d0bd8f8198f402039b2233",
+    "production_consumer": "extension/content/gemini/job-runner.js"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T18:29:57.886Z"
+}

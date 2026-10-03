@@ -1,0 +1,81 @@
+{
+  "schema_version": 2,
+  "index": 179,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
+  "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+  "bible_sha": "63ec308151c365d8673653ae0145274908d77409",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-179-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "summary": "A rastreabilidade 684/684 está numericamente completa, mas múltiplas posições recebem contexto/função de cenários diferentes do source real.",
+      "evidence": [
+        "Linha 260 declara `CG-01/CG-02: dataURLtoFile...`, mas a Bíblia a mapeia para `CG-16/17 — processGeminiJob delete guard`.",
+        "Linhas 272 e 279 (`CG-03/04` e `CG-05/06/07`) continuam dentro do mesmo contexto incorreto `CG-16/17`.",
+        "Linha 296 (`CG-08: sleep`) e 312 (`REG-03/CG-22`) são mapeadas como `CG-18/19/20 — delete wrappers`.",
+        "Linha 432 (`CG-14 deleting_urls`) e 458 (`CG-45 deleteCurrentConversation`) são mapeadas como `CG-23 — CustomEvent + fallback DOM`.",
+        "Linhas 522, 553 e 603 de `deleteCurrentConversation` recebem contextos `CG-24`/`CG-25/26` que pertencem a outras regressões.",
+        "A fonte integral é byte-a-byte exata e as 684 posições existem; portanto o erro é de semântica posição↔comportamento, não de cobertura."
+      ],
+      "relation_to_primary": "Confirma e amplia 179-PRI-001.",
+      "requested_documentation_fix": "Realinhar o contexto/função de cada faixa e cada declaração de teste ao cenário efetivamente presente no source; revalidar todas as 684 posições depois da correção."
+    },
+    {
+      "id": "A8-179-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia rotula 179-001/002/003 como OPEN, enquanto o state canônico registra 179-001 SUPERSEDED por 050-001 e 179-002/003 ACCEPTED.",
+      "evidence": [
+        "Bíblia §10: os três headings usam `OPEN`.",
+        "`.state/179.json`: 179-001=`SUPERSEDED`, `superseded_by=050-001`; 179-002=`ACCEPTED`; 179-003=`ACCEPTED`.",
+        "A lacuna MAIN-world de 179-001 permanece rastreada canonicamente em 050-001, não deve ser reaberta localmente."
+      ],
+      "relation_to_primary": "Confirma 179-PRI-002.",
+      "requested_documentation_fix": "Atualizar lifecycle para SUPERSEDED/ACCEPTED/ACCEPTED e referenciar 050-001 onde aplicável."
+    },
+    {
+      "id": "A8-179-03",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_MATRIX_SCENARIO_ID_MISMATCH",
+      "summary": "O resumo/matriz atribui a rejeição de dataURL sem vírgula/MIME a `CG-02`, mas o source e os logs CI colocam esses casos em `CG-03/CG-04`; `CG-01/CG-02` são os casos nominais PNG/JPEG.",
+      "evidence": [
+        "Bíblia §2: `CG-01/02 provam conversão nominal e rejeição de dataURL sem vírgula ou sem MIME`.",
+        "Bíblia §9: `dataURL sem vírgula/MIME falha | CG-02 | ✅ PROVADO DIRETAMENTE`.",
+        "Source linha 260: `CG-01/CG-02: dataURLtoFile cria File com MIME correto para PNG e JPEG`.",
+        "Source linha 272: `CG-03/CG-04: dataURLtoFile rejeita dataURL sem virgula ou sem MIME`.",
+        "Run 36521561968 em Node 20/22 mostra exatamente esses dois títulos com os mesmos IDs."
+      ],
+      "requested_documentation_fix": "Corrigir §2 e a matriz para associar os casos inválidos a CG-03/CG-04 e manter CG-01/CG-02 somente para conversão nominal PNG/JPEG."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "ci_evidence": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_11_VS_AGENTE_8",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "684/684",
+    "ci_run": 36521561968,
+    "ci_blob_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T18:31:53.576Z"
+}

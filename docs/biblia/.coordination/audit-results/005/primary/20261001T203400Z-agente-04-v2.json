@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "index": 5,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 4",
+  "file": "extension/background/actions/claim-gemini-job.js",
+  "bible": "docs/biblia/extension/background/actions/claim-gemini-job.js/Bíblia.md",
+  "source_sha": "f5c4643d291931f133a791a2deaa6eb94ef4500d",
+  "bible_sha": "297de42bf91e03d1b3ac08213dd4467eb72b1735",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "005-PRI2-001",
+      "severity": "MATERIAL",
+      "category": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "bible_location": "Seção 10 — rastreabilidade, especialmente linhas documentais 302, 308, 310, 319, 326-327, 333, 337, 339-340",
+      "finding": "O remapeamento U07–U14 ficou numericamente 103/103, mas várias posições ainda descrevem fechamento/separação da unidade antiga, contradizendo a própria coluna Unidade e as fronteiras atuais da seção 11.",
+      "evidence": [
+        "Posição 063 está em U08 e fecha context.log da guarda de fallback, porém diz 'Fecha ... unidade U07'.",
+        "Posições 069/071 estão em U09, mas dizem U08; 080 está em U10, mas diz U09.",
+        "Posições 087/088 estão em U11, mas dizem U10; 094 está em U12, mas ainda se rotula como separador de U11.",
+        "Posições 098/100/101 estão em U13, mas dizem fechar U12.",
+        "O source 56–101 confirma que cada um desses tokens pertence aos blocos atualmente rotulados U08–U13."
+      ],
+      "required_change": "Corrigir os papéis locais/remissões de unidade das posições remapeadas e revalidar semanticamente a tabela 103/103, não apenas sua contagem."
+    },
+    {
+      "id": "005-PRI2-002",
+      "severity": "MATERIAL",
+      "category": "EVIDENCE_OVERCLASSIFICATION",
+      "bible_location": "Seção 11 — U05 e U12 (linhas documentais 404 e 488)",
+      "finding": "A Bíblia promove a 'PROVADO DIRETAMENTE' dois mecanismos que as assertions atuais não isolam causalmente: canonicalização do sender em U05 e read-after-write pós-migração em U12.",
+      "evidence": [
+        "TAB-06 usa sender id 200 e alias 100→200 no entry indexado. Se U05 deixasse de chamar resolveCanonicalTabId(senderTabId) e mantivesse senderTabId=200, o cenário continuaria passando; a prova focal ali é da canonicalização do tabId indexado/migração, não da canonicalização do sender.",
+        "TAB-06 não espiona storage.get pós-migração, não fixa ordem e não possui cenário de migrated key ausente/jobId divergente. As assertions verificam resposta parcial e efeitos da migração em state/storage.",
+        "A própria audit request 005-001, ACCEPTED/HIGH, registra como missing_evidence a pós-condição de migrateTabIdentity e pede chave migrada ausente/divergente.",
+        "Logo uma regressão plausível que remova/bypasse a revalidação 90–93 pode permanecer verde, contrariando o rótulo de prova direta do mecanismo."
+      ],
+      "required_change": "Reclassificar conservadoramente U05/U12 como execução/prova parcial com as limitações explícitas, ou fortalecer testes focais antes de afirmar prova direta causal."
+    },
+    {
+      "id": "005-PRI2-003",
+      "severity": "DOCUMENTAL",
+      "category": "STALE_REVISION_AUDIT_STATUS",
+      "bible_location": "Cabeçalho linha documental 3 e revisão final linha documental 525",
+      "finding": "A revisão atual da Bíblia se apresenta como 'REAUDITADO E APROVÁVEL'/'aprovada', mas o único REAUDIT schema v2 existente foi emitido para o BIBLE_SHA anterior.",
+      "evidence": [
+        "BIBLE_SHA atual: 297de42bf91e03d1b3ac08213dd4467eb72b1735.",
+        "Baseline e REAUDIT anterior: b7d9ac0fe1cdd6b1c24d4e0e4ec1d8a9089c0f0a.",
+        "O state registra DISTRIBUTED_AUDIT_CORRECTION_COMPLETED para a revisão 297de... e diz explicitamente que a nova revisão exige PRIMARY + ADVERSARIAL.",
+        "O protocolo atual vincula resultados a source_sha+bible_sha; portanto a reauditoria anterior é histórica, não um status da revisão corrente."
+      ],
+      "required_change": "Remover/qualificar o status de reauditoria/aprovação como histórico da revisão anterior e não apresentar a revisão 297de... como já reaudidata/aprovada antes das fases válidas atuais."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:34:00Z"
+}

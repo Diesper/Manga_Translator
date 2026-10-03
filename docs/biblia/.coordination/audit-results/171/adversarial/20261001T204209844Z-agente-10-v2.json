@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "index": 171,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 10",
+  "file": "tests/unit/background/tab-replacement-observability.test.js",
+  "bible": "docs/biblia/tests/unit/background/tab-replacement-observability.test.js/Bíblia.md",
+  "source_sha": "b5aeb216f48ef28e471233aaa074c86a15561f01",
+  "bible_sha": "f14560d284155de01994b00399187dfc6f1efa16",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "171-ADV-R2-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "blocking": true,
+      "summary": "A seção `Invariantes provados` amplia a preservação provada de URL/active para todas as propriedades da aba, sem assertion que sustente essa generalização.",
+      "evidence": [
+        "A Bíblia §1 delimita o contrato testado a atributos relevantes `URL` e `active`.",
+        "A Bíblia §5 classifica como prova direta somente `id`, `url`, `active:false`, emissão de onReplaced e reachability do handler.",
+        "A Bíblia §6 afirma sob `Invariantes provados`: `o objeto novo preserva propriedades da aba antiga salvo o id`.",
+        "ChromeTabsMock.create adiciona também `status` e `title`; o teste usa `toMatchObject({ id, url, active:false })` e nunca afirma `status` ou `title`.",
+        "Mutação adversarial: reconstruir newTab somente com `{id,url,active}` preservaria todas as assertions desta suíte, mas falsificaria o invariante amplo.",
+        "O source atual do mock (`{ ...oldTab, id:newTabId }`) de fato preserva os demais campos, portanto esse comportamento pode ser documentado como inspeção estática do mock, não como invariante provado diretamente pela suíte."
+      ],
+      "required_change": "Restringir `Invariantes provados` aos campos efetivamente assertados ou qualificar explicitamente a preservação dos demais campos como comportamento observado na implementação `chrome-api.mock.js`, sem promovê-lo a prova direta desta suíte."
+    },
+    {
+      "id": "171-ADV-R2-002",
+      "severity": "NORMAL_COORDINATION_METADATA",
+      "type": "STATE_METADATA_STALE",
+      "blocking": false,
+      "summary": "O state ainda contém `document_quality.external_audit_requests_open: 3`, embora as três requests estejam ACCEPTED/ACCEPTED/SUPERSEDED e a contagem OPEN real seja 0.",
+      "evidence": [
+        ".state/171.json: 171-001=ACCEPTED, 171-002=ACCEPTED, 171-003=SUPERSEDED.",
+        ".state/171.json: `external_audit_requests_open` permanece 3.",
+        "A Bíblia atual já sincroniza corretamente os headings de lifecycle; a inconsistência é do metadado derivado do state, não um segundo blocker documental da Bíblia."
+      ],
+      "required_change": "Normalizar o metadado derivado no checkpoint/reconciliador apropriado, sem reabrir requests."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONTRADITO_META_DERIVADO",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "source_text_lines": 36,
+    "documented_positions": "37/37",
+    "embedded_source_exact": true,
+    "source_blob": "b5aeb216f48ef28e471233aaa074c86a15561f01",
+    "bible_blob": "f14560d284155de01994b00399187dfc6f1efa16",
+    "mock_blob": "c1d9a056b7777183bfd3f540c49811335f410425",
+    "jest_config_blob": "f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc",
+    "background_blob": "667c05eb2d7adfca16a79d3e706c39a1e9398b72",
+    "current_primary_auditor": "AGENTE 11",
+    "current_primary_verdict": "CHANGES_REQUIRED",
+    "current_primary_bible_sha": "f14560d284155de01994b00399187dfc6f1efa16",
+    "points_passed": [
+      "state/source/Bible identity and SHA",
+      "embedded source exact",
+      "37/37 contiguous positional coverage",
+      "nominal assertions for id/url/active/onReplaced/handler reachability",
+      "mock implementation and Jest/CI wiring",
+      "production listener correctly separated from mock-only proof",
+      "audit request lifecycle in the Bible"
+    ]
+  },
+  "completed_at_utc": "2026-10-01T20:42:09.844Z"
+}

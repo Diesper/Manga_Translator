@@ -1,0 +1,37 @@
+name: Claim Gemini Job Selftest
+
+on:
+  pull_request:
+    paths:
+      - 'extension/background/actions/claim-gemini-job.js'
+      - 'extension/background/router.js'
+      - 'extension/background/tab-identity.js'
+      - 'tests/mocks/**'
+      - 'tests/unit/background/claim-gemini-job-action.test.js'
+      - 'jest.config.js'
+      - 'tests/infra/bible/claim-gemini-job-selftest.js'
+      - '.github/workflows/claim-gemini-job-selftest.yml'
+  workflow_dispatch:
+
+jobs:
+  focal-and-background:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run claim focal selftest
+        run: node tests/infra/bible/claim-gemini-job-selftest.js
+
+      - name: Run background unit suite with open-handle detection
+        run: npx jest --config jest.config.js --selectProjects background --runInBand --detectOpenHandles

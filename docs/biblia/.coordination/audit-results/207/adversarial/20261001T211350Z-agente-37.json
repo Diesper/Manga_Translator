@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "index": 207,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 37",
+  "file": "tests/unit/content-manga/image-filtering.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/image-filtering.test.js/Bíblia.md",
+  "source_sha": "a187a4c6e681457067746964c7c714c64542e4a8",
+  "bible_sha": "cbbee4878fb7d1002a9be45c84d8af94b8180b33",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "207-ADV-001",
+      "severity": "BLOCKING",
+      "type": "COVERAGE_RANGE_SEMANTICS",
+      "summary": "A união numérica cobre 100/100 posições, mas as posições 45, 68 e 85 são documentadas como separadores/linhas vazias quando o source contém fechamentos `});` nessas posições.",
+      "evidence": [
+        "Source linha 45 = `    });`; Bíblia seção de cobertura declara 'Posição 45 — separador' e 'Linha vazia'. A linha vazia real é 46.",
+        "Source linha 68 = `    });`; Bíblia declara 'Posição 68 — separador'. A linha vazia real é 69.",
+        "Source linha 85 = `    });`; Bíblia declara 'Posição 85 — separador'. A linha vazia real é 86.",
+        "A análise matemática das faixas 1–19,20,21–29,30,31–44,45,46–67,68,69–84,85,86–99,100 cobre exatamente 1..100 sem gaps/overlaps; portanto o defeito é semântico, não de cardinalidade.",
+        "A fonte integral embutida é byte-exata ao source atual: 99 linhas textuais + LF terminal = 100 posições."
+      ],
+      "requested_action": "Realinhar os limites/descriptions da cobertura para que os fechamentos estruturais 45/68/85 sejam descritos corretamente e os separadores vazios 46/69/86 também sejam mapeados corretamente; revalidar todas as transições."
+    },
+    {
+      "id": "207-ADV-002",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 207-001 como OPEN e conclui que há uma solicitação externa aberta, enquanto o state canônico atual registra 207-001 como ACCEPTED.",
+      "evidence": [
+        "docs/biblia/.state/207.json registra 207-001 status ACCEPTED, audited_by AGENTE 23 e audited_at_utc 2026-09-30T22:55:00Z.",
+        "Bíblia.md usa o heading '207-001 — TEST_MAINTENANCE — OPEN' e termina com 'uma solicitação externa aberta'.",
+        "207-001 permanece tecnicamente factual: o arquivo auditado contém filterBySize local hardcoded em 300x400; a produção atual usa cm-dom-replace.js#getScanEligibleImages com limites configuráveis, filtros de translated/banidas e agrupamento por URL/backdrop.",
+        "O teste real extraction-and-handlers-real.test.js, blob 038961e8228c7b5f1a87023a739ad5f33288423b, cobre limites customizados e atualização em runtime, mas a busca independente não localizou caso focal contra a produção para boundary default exato 300/299, 400/399 ou fallback de configuração inválida.",
+        "A referência de produção da Bíblia foi reconfirmada: cm-dom-replace.js blob d3fc72032dbddc81eae8fadc5e4da89b13a3bb79."
+      ],
+      "requested_action": "Atualizar a documentação para refletir 207-001 como ACCEPTED, preservando a lacuna técnica descrita."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:13:50Z"
+}

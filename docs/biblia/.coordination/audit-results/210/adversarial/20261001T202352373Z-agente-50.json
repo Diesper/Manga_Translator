@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "index": 210,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 50",
+  "file": "tests/unit/content-manga/twin-backdrop-sync.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/twin-backdrop-sync.test.js/Bíblia.md",
+  "source_sha": "5d2151b3673af6ca7c4faf39b4a23d039d9aaa64",
+  "bible_sha": "4888036d11fdbaf0ae00eca30203cf329736b988",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A50-210-001",
+      "severity": "BLOCKING",
+      "type": "INTERNAL_CONTRADICTION",
+      "finding": "A autoauditoria final declara `com duas solicitações abertas`, mas a própria Bíblia contém três solicitações distintas (210-001, 210-002 e 210-003).",
+      "evidence": "§8 contém três headings de audit request, todos rotulados OPEN; o state canônico também contém três requests correspondentes (hoje ACCEPTED). §11 termina literalmente com `✅ APROVADO documentalmente, com duas solicitações abertas.` A política canônica permite que OPEN/ACCEPTED dentro da Bíblia permaneça como snapshot, mas não resolve a cardinalidade interna 2 versus 3."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:23:52.373Z"
+}

@@ -1,0 +1,46 @@
+name: Performance Integration Selftest
+
+on:
+  pull_request:
+    paths:
+      - 'tests/integration/performance.test.js'
+      - 'tests/helpers/load-background-module.js'
+      - 'tests/helpers/load-extension-page.js'
+      - 'tests/mocks/chrome-api.mock.js'
+      - 'extension/background.js'
+      - 'extension/content/cm-chapter.js'
+      - 'extension/shared/storage-manager.js'
+      - 'extension/shared/gtc-indexeddb.js'
+      - '.github/workflows/performance-integration-selftest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  performance-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run performance focal three times
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            echo "Performance attempt ${attempt}/3"
+            npx jest --config jest.config.js --selectProjects integration --runTestsByPath tests/integration/performance.test.js --runInBand --detectOpenHandles
+          done
+
+      - name: Run full integration suite
+        run: npm run test:integration -- --runInBand

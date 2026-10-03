@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "index": 164,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 1",
+  "file": "tests/unit/background/request-image-data-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/request-image-data-action.test.js/Bíblia.md",
+  "source_sha": "b04cd6cac53339fb479c19b7977acb61339ffdd9",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "164-ADV-001",
+      "severity": "MATERIAL",
+      "category": "SEMANTIC_LINE_MAPPING_ERROR",
+      "location": "Bíblia.md — seção 10, linhas 39 e 49",
+      "problem": "A documentação linha-a-linha atribui às linhas 39 e 49 a criação de `contentResponse`, embora somente a linha 38 crie o objeto. A linha 39 instala o mock de `chrome.tabs.sendMessage` e entrega o objeto já existente ao callback; a linha 49 é a assertion `toBe(contentResponse)` que prova preservação por identidade.",
+      "evidence": [
+        "Source linha 38: `const contentResponse = { srcData: ... };`.",
+        "Source linha 39: `chrome.tabs.sendMessage = jest.fn((_tabId, _message, callback) => callback(contentResponse));`.",
+        "Source linha 49: `expect(result).toBe(contentResponse);`.",
+        "A seção 3 da própria Bíblia descreve corretamente `toBe` como prova de identidade, contradizendo a descrição da linha 49."
+      ],
+      "required_change": "Corrigir o significado das linhas 39 e 49 sem alterar source/teste: linha 39 deve documentar o mock/callback; linha 49 deve documentar a assertion de identidade."
+    },
+    {
+      "id": "164-ADV-002",
+      "severity": "DOCUMENTAL",
+      "category": "AUDIT_REQUEST_STATUS_STALE",
+      "location": "Bíblia.md — seção 8",
+      "problem": "Os rótulos de audit request são apresentados como OPEN sem indicação de snapshot histórico, mas o state canônico atual já registra 164-001 como SUPERSEDED por 022-001 e 164-002 como ACCEPTED.",
+      "evidence": [
+        ".state/164.json: `164-001.status=SUPERSEDED`, `superseded_by=022-001`; `164-002.status=ACCEPTED`.",
+        ".state/022.json: `022-001.status=ACCEPTED` e cobre a ausência de validação de mangaTabId/index.",
+        "Bíblia.md seção 8 ainda rotula 164-001 e 164-002 como OPEN."
+      ],
+      "required_change": "Atualizar os estados documentais ou declarar explicitamente que os rótulos são um snapshot histórico; registrar a relação 164-001 → 022-001."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:15:00Z"
+}

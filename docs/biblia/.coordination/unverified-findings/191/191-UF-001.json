@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "191-UF-001",
+  "index": 191,
+  "status": "CONFIRMED_BY_PRIMARY",
+  "reported_by": "USER",
+  "reported_at_utc": "2026-10-02T05:48:00Z",
+  "revision_observed": {
+    "production_sha": "b7bb841499a9e677f9709f0c634c648ac6a0f65b",
+    "test_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+    "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+    "revision_id": "1b2a030ba2043a574af6a97c14331650c59b6939cf92d5186a9b7a13b70942bd",
+    "audit_epoch": 5,
+    "handoff_id": "191-e5-46403124293c"
+  },
+  "title": "GTC fallback precedence regressions missing from #191",
+  "finding": "Provar IndexedDB miss -> legacy hit; fallback mais recente explicitamente marcado -> prevalece sobre IndexedDB stale; legacy histórico não marcado não pode sobrescrever hit moderno válido.",
+  "evidence": "Request 191-029 no state #191, binding 52ede7cf/ef9c4326. PRIMARY AGENTE 30 confirmou CHANGES_REQUIRED; ADVERSARIAL independente ainda é obrigatório.",
+  "suggested_test": "Adicionar três contratos executáveis na suíte #191 sem alterar produção antes da decisão distribuída final.",
+  "may_change_lifecycle": false,
+  "source_request_id": "191-029",
+  "confirmed_by_primary": "AGENTE 30",
+  "primary_confirmed_at_utc": "2026-10-02T06:06:30Z",
+  "independence_note": "CONFIRMED_BY_PRIMARY não equivale a decisão final; correção permanece proibida até ADVERSARIAL/REAUDIT exigida pelo pipeline."
+}

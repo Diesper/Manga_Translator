@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "index": 173,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/background/version-sync.test.js",
+  "bible": "docs/biblia/tests/unit/background/version-sync.test.js/Bíblia.md",
+  "source_sha": "45927901e904e239c9d00cece98495055a8acf1d",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "173-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia ainda apresenta 173-001 e 173-002 como OPEN, mas ambos os requests já estão ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia.md linha 139 usa `173-001 — TEST_REQUIRED — OPEN` e linha 153 usa `173-002 — GATE_STRENGTH_REVIEW — OPEN`.",
+        "docs/biblia/.state/173.json registra 173-001=ACCEPTED e 173-002=ACCEPTED, ambos com auditoria e recomendação persistidas.",
+        "As lacunas continuam factualmente válidas: o teste importa/exercita apenas parseNumericSemver/deriveVersionInfo, e verify-publish-contract.js também usa checks textuais de marcadores do workflow, portanto o finding é de lifecycle documental stale, não de remoção indevida dos riscos."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:30:00Z"
+}

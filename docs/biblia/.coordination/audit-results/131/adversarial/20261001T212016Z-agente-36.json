@@ -1,0 +1,47 @@
+{
+  "schema_version": 2,
+  "index": 131,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 36",
+  "file": "tests/unit/background/batch-actions.test.js",
+  "bible": "docs/biblia/tests/unit/background/batch-actions.test.js/Bíblia.md",
+  "source_sha": "113344a0e8dbb334fbd14eeb9e241b165a95cdfb",
+  "bible_sha": "922901751763d5d13113e5af7cd66d6eccbd041a",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "131-ADV36-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A conclusão documental afirma preservar solicitações OPEN no state, mas 131-001/002/003 estão ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia.md linha 618 afirma 'preservando as solicitações OPEN no state'.",
+        "docs/biblia/.state/131.json registra 131-001=ACCEPTED, 131-002=ACCEPTED e 131-003=ACCEPTED.",
+        "As três lacunas foram revalidadas contra source/router/actions e continuam factuais; somente o lifecycle documental está stale."
+      ]
+    },
+    {
+      "id": "131-ADV36-002",
+      "severity": "NORMAL",
+      "type": "STALE_DEPENDENCY_EVIDENCE",
+      "summary": "A Bíblia apresenta como SHAs observados de package.json e ci.yml blobs que já não são as revisões atuais, embora as alegações semânticas ainda sejam verdadeiras.",
+      "evidence": [
+        "Bíblia.md linha 89: package.json SHA 33e0b91d1a6f1790124b700d2ce331f80d2b7095; blob atual 5b5c328f6139eeff920dc65a78014a6c5b6db3a6.",
+        "Bíblia.md linha 101: .github/workflows/ci.yml SHA ebee75820db9bfab618bf3c3016065c5bc857ed7; blob atual 9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a.",
+        "No HEAD atual, package.json ainda seleciona background/test:ci e ci.yml ainda executa npm run test:ci; portanto o problema é identidade de evidência stale, não o comportamento descrito."
+      ]
+    },
+    {
+      "id": "131-ADV36-003",
+      "severity": "NORMAL",
+      "type": "INCOMPLETE_GATE_EVIDENCE",
+      "summary": "A cadeia de gates está documentada de forma incompleta: run-jest-ci.js é citado pelo nome, mas não validado como elo que seleciona background; verify-test-policy.js, que lê diretamente este arquivo, não é identificado.",
+      "evidence": [
+        "Bíblia.md linha 95 menciona que test:ci chama scripts/ci/run-jest-ci.js, portanto não é correto dizer que esse arquivo é literalmente omitido.",
+        "scripts/ci/run-jest-ci.js atual inclui 'background' em unitProjects e usa jest.config.js; essa função de consumer não é mapeada/classificada na Bíblia.",
+        "scripts/validation/verify-test-policy.js percorre tests/**/*.{js,cjs,mjs}, lê cada source e rejeita skip/only/todo; a Bíblia apenas diz genericamente que 'policy global existe' e não identifica esse consumer/gate."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:20:16Z"
+}

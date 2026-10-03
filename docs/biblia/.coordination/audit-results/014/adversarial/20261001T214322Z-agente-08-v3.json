@@ -1,0 +1,68 @@
+{
+  "schema_version": 2,
+  "index": 14,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "extension/background/actions/force-send-activation.js",
+  "bible": "docs/biblia/extension/background/actions/force-send-activation.js/Bíblia.md",
+  "source_sha": "cbeea5768301008e363a087a1daf636deabb9076",
+  "bible_sha": "f8cba40cef6330849635ae667de51b58c9da0190",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "014-ADV3-001",
+      "severity": "MATERIAL",
+      "category": "EVIDENCE_OVERCLASSIFICATION_CHROME_MOCKS",
+      "location": "Bíblia.md — Fluxos minimized_window/outros modos e tabela Evidência",
+      "problem": "A Bíblia classifica o teste focal como prova direta do fluxo, DO_SEND_NOW e 'estado restaurado', mas a suíte substitui chrome.tabs/chrome.windows por jest.fn que apenas invocam callbacks. Ela prova que a implementação focal emite chamadas/payloads e agenda a restauração sob mocks; não prova foco real da janela/aba, entrega real de runtime message nem restauração do estado do navegador.",
+      "evidence": [
+        "force-send-activation-action.test.js substitui chrome.tabs.get/sendMessage/update e chrome.windows.update por jest.fn; nenhum Chromium/Chrome real é exercitado.",
+        "As assertions verificam toHaveBeenCalledWith(...) e callbacks simulados, não active/focused real observado no browser.",
+        "A Bíblia diz 'O teste direto verifica essas chamadas', o que é suportado, mas a tabela amplia para 'Fluxo ... DO_SEND_NOW e estado restaurado' sob rótulo PROVADO DIRETAMENTE.",
+        "Pelo contrato de evidência da auditoria, mock/simulação não deve ser apresentado como prova do backend/API real."
+      ],
+      "required_change": "Reclassificar explicitamente a evidência externa como MOCK_OU_SIMULACAO (ou equivalente) e limitar a conclusão a orquestração/chamadas/payloads da action sob mocks. Se quiser afirmar foco/entrega/estado reais, citar execução E2E/browser que observe esses efeitos."
+    },
+    {
+      "id": "014-ADV3-002",
+      "severity": "MATERIAL",
+      "category": "ASYNC_ERROR_POLICY_OVERGENERALIZATION",
+      "location": "Bíblia.md — Contrato síncrono versus efeitos assíncronos / Lacunas e riscos",
+      "problem": "A frase 'Os callbacks também consomem chrome.runtime.lastError sem propagá-lo' generaliza uma política que o source não aplica a todos os callbacks relevantes.",
+      "evidence": [
+        "O callback inicial de chrome.windows.update(windowId,{focused:true},...) não lê chrome.runtime.lastError.",
+        "O callback inicial de chrome.tabs.update(geminiTabId,{active:true},...) não lê chrome.runtime.lastError.",
+        "O callback de chrome.tabs.get(mangaTabId,...) não lê chrome.runtime.lastError; chrome.storage.local.get também não consulta lastError.",
+        "Somente callbacks específicos de sendMessage e das chamadas de restauração/minimização leem lastError com corpo vazio.",
+        "A audit_request 014-002 pede justamente política de falhas/lastError; a Bíblia deve distinguir swallow explícito, erro não inspecionado e ausência de prova focal."
+      ],
+      "required_change": "Qualificar a seção de erros por chamada/callback: indicar quais callbacks leem e descartam lastError e quais não o inspecionam. Manter como lacuna a consequência das falhas não testadas, sem sugerir tratamento uniforme."
+    }
+  ],
+  "non_blocking_observations": [
+    {
+      "id": "014-OBS-001",
+      "category": "STATE_METADATA_STALE",
+      "note": "document_quality.external_audit_requests_open=2, mas requests realmente OPEN=0; ambos 014-001/002 estão ACCEPTED. O reconciliador deriva contagens dos statuses reais, então isto não altera a decisão da fase, mas o metadado merece sincronização na próxima correção."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage_71_of_71": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "primary_ref": "docs/biblia/.coordination/audit-results/014/primary/20261001T204406Z-agente-13.json",
+  "completed_at_utc": "2026-10-01T21:43:22Z"
+}

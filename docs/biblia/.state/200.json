@@ -1,0 +1,83 @@
+{
+  "index": 200,
+  "file": "tests/unit/content-manga/close-interval.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/close-interval.test.js/Bíblia.md",
+  "status": "CHANGES_REQUIRED",
+  "agent": null,
+  "source_sha": "e9bcb9c9267176fab8ec8229c66514c21ebbc814",
+  "started_at_utc": "2026-09-30T06:27:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "200-001",
+      "status": "ACCEPTED",
+      "type": "TEST_INTEGRITY_REVIEW",
+      "target_file": "tests/unit/content-manga/close-interval.test.js",
+      "related_files": [
+        "extension/content/content_manga.js",
+        "tests/unit/content-manga/drawer-real.test.js"
+      ],
+      "found_while_auditing": "tests/unit/content-manga/close-interval.test.js",
+      "finding": "O teste usa uma reimplementação local apresentada como espelho exato, mas ela diverge da implementação real: chama onTick(0) e exige FECHANDO EM 0S, enquanto content_manga.js trata zero como estado terminal e só escreve FECHANDO EM N S para valores positivos.",
+      "current_evidence": "As linhas 31-37 e 163-165 do #200 provam o helper local. content_manga.js linhas 1421-1433 mostra o branch terminal real. drawer-real.test.js linhas 130-160 e 163-197 executa a implementação real e prova início em 30S, término/restauração e cancelamento ao reabrir.",
+      "missing_evidence": "Não existe vínculo automatizado de equivalência entre createCloseCountdown e produção; também não foi encontrada assertion real focal para ticks intermediários nem para prevenção de dois intervals concorrentes no fluxo DOM real.",
+      "why_needed": "Uma cópia local pode continuar verde após drift de produção; neste SHA a divergência já é observável.",
+      "requested_action": "Decidir se #200 deve ser removido/reduzido, refeito via load-content-script para executar content_manga.js real, ou substituído por teste de um módulo de produção extraído e compartilhado.",
+      "expected_evidence": "Teste da implementação real provando início 30S, tick intermediário, término sem 0S visível, cancelamento, reinício e ausência de timers duplicados.",
+      "expected_auditor_action": "Confirmar a divergência e tratar eventual alteração do teste/produção em mudança separada, preservando a Bíblia como retrato do estado atual.",
+      "possible_regression": "Manutenção futura pode confiar em uma suíte verde que testa somente o espelho enquanto a UI real diverge.",
+      "impact": "drawer-real.test.js já protege início, término e cancelamento básicos, mas não todos os cenários modelados no #200.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T19:38:00Z",
+      "audit_finding": "ACCEPTED. `close-interval.test.js` usa `createCloseCountdown()` local e exige inclusive `FECHANDO EM 0S`; a UI real só escreve `FECHANDO EM N S` para valores positivos e trata zero como estado terminal. A divergência entre mirror e produção está materialmente confirmada.",
+      "auditor_recommended_action": "Remover/reduzir o mirror ou testar o countdown real via content script/módulo extraído canônico, cobrindo ticks intermediários, término sem 0S visível, cancelamento/restart e ausência de timers duplicados."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "169/169",
+    "source_text_lines": 168,
+    "bible_lines": 497,
+    "external_audit_requests_open": 1,
+    "evidence_note": "Assertions locais provam o helper espelho; evidência de produção foi separada e confrontada com drawer-real.test.js/content_manga.js."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-01T20:30:00Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T20:30:00Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "e9bcb9c9267176fab8ec8229c66514c21ebbc814",
+      "bible_sha": "490a083a0ae60203521c295f187f7e0dc1b0dee5",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "11ebe08e7d59dbcc86c6a59793b73957f59c93d4e074791605a6c22013a51154",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "ccfe6c82a5ac63cec09ab6ad534dc0a5cd92eb3d991d021c20cc1e4ff43e7ddc"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "e9bcb9c9267176fab8ec8229c66514c21ebbc814",
+  "bible_sha": null,
+  "revision_id": "11ebe08e7d59dbcc86c6a59793b73957f59c93d4e074791605a6c22013a51154",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
+}

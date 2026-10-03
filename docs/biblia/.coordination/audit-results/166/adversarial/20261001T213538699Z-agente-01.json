@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "index": 166,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 1",
+  "file": "tests/unit/background/router.test.js",
+  "bible": "docs/biblia/tests/unit/background/router.test.js/Bíblia.md",
+  "source_sha": "d7c33bc525e1683acabff44389c5d51471cc7037",
+  "bible_sha": "be1bfe153521c3a178704315e1690d2dafc8d194",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "166-ADV2-001",
+      "severity": "MATERIAL",
+      "category": "EVIDENCE_OVERCLAIM_INTERNAL_CONTRADICTION",
+      "location": "Bíblia.md — Seções 1, 4 e 5",
+      "problem": "A Seção 1 afirma genericamente que a suíte registra actions controladas para 'provar ordem de gates', mas as próprias Seções 4 e 5 reconhecem que as assertions atuais não provam a ordem causal completa.",
+      "evidence": [
+        "No caso SOURCE_DENIED, o source não instala validate observável; ele prova apenas que execute não é chamado quando a origem é negada.",
+        "No caso INVALID_PAYLOAD, execute é jest.fn(), mas não há expect(execute).not.toHaveBeenCalled(); uma regressão que executasse após responder erro não seria refutada por essa assertion.",
+        "A própria Bíblia declara que SOURCE_DENIED não prova sozinho origem → validate → execute e que o short-circuit após INVALID_PAYLOAD não está congelado."
+      ],
+      "required_change": "Rebaixar a formulação da Seção 1 para comportamentos selecionados dos gates, ou adicionar prova focal que congele a ordem completa; não manter uma alegação global de prova incompatível com as ressalvas documentadas."
+    },
+    {
+      "id": "166-ADV2-002",
+      "severity": "MATERIAL",
+      "category": "EVIDENCE_CLASSIFICATION",
+      "location": "Bíblia.md — Seções 8 e 10 / linha 'reject assíncrono → INTERNAL_ERROR'",
+      "problem": "A matriz classifica o catch assíncrono como 'SEM TESTE PROBATÓRIO ESPECÍFICO', embora exista execução indireta concreta do router real em tests/unit/background/fetch-image-base64-action.test.js.",
+      "evidence": [
+        "fetch-image-base64-action.test.js carrega extension/background/router.js real e a action real, depois despacha via router.createMessageRouter({}).",
+        "Cenários de Content-Type inválido, imagem >50MB e abort exigem keepAlive:true e resposta ok:false/INTERNAL_ERROR, atravessando o catch assíncrono do router.",
+        "Continua faltando um caso focal em router.test.js, mas a categoria correta da evidência existente é EXECUCAO_INDIRETA/PROVA_DE_CONSUMIDOR, não ausência de prova específica em sentido absoluto."
+      ],
+      "required_change": "Distinguir explicitamente 'sem caso focal nesta suíte' de 'há execução indireta em suítes consumidoras' e reclassificar a força da evidência sem apagar a lacuna canônica 031-003."
+    },
+    {
+      "id": "166-ADV2-003",
+      "severity": "MATERIAL",
+      "category": "CONSUMER_AND_GATE_OMISSION",
+      "location": "Bíblia.md — dependências/consumers e Seção 9",
+      "problem": "A Bíblia cita um run CI, mas omite o wiring que descobre e executa esta suíte e a dependência de ambiente que fornece chrome.",
+      "evidence": [
+        "jest.config.js inclui tests/unit/background/**/*.test.js no projeto background e injeta tests/mocks/chrome-api.mock.js via setupFilesAfterEnv.",
+        "scripts/ci/run-jest-ci.js inclui o projeto background, executa Jest com jest.config.js e ainda prova por --listTests/inventário que todos os .test.js unit/integration foram descobertos.",
+        "package.json#test:ci aponta para node scripts/ci/run-jest-ci.js; package.json#test:unit e #test:unit:background incluem background.",
+        ".github/workflows/ci.yml, job unit-and-integration em Node 20.x/22.x, executa npm run test:ci.",
+        "O run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 confirma sucesso dos jobs Unit + Integration 20.x (109255348388), 22.x (109255348406) e CI Gate (109256050280), e o source histórico router.test.js é byte-a-byte igual ao source atual."
+      ],
+      "required_change": "Documentar a cadeia real de descoberta/execução/gate e o chrome-api.mock.js como dependência de ambiente, classificando corretamente o que cada camada prova."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:35:38.699Z"
+}

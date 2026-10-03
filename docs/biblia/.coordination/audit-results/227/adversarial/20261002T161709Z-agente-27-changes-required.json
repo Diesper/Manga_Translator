@@ -1,0 +1,124 @@
+{
+  "schema_version": 2,
+  "index": 227,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 27",
+  "file": "tests/visual/crop.visual.js",
+  "bible": "docs/biblia/tests/visual/crop.visual.js/Bíblia.md",
+  "source_sha": "432fe488697a98d09e056b89f40b4bf686e8541c",
+  "bible_sha": "38b9014fec64de3b9ed0f4f25083e15abde06053",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "227-A27-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "INCOMPLETE_DOCUMENTARY_COVERAGE",
+      "summary": "O `Mapa integral por faixas` cobre somente 103 das 107 posições declaradas; as posições 13, 19, 26 e 101 ficam sem cobertura.",
+      "evidence": [
+        "Source possui 106 linhas textuais e LF terminal: 107 posições.",
+        "Fonte integral incorporada é texto-a-texto exata e, com o LF terminal, reproduz o source.",
+        "União matemática das faixas + posição 107 cobre 103/107 posições, sem overlaps posicionais.",
+        "Posições 13, 19, 26 e 101 são linhas vazias reais do source e contam na política posicional desta Bíblia.",
+        "A seção 12 declara `106 linhas + newline = 107 posições`, e o state ainda projeta `documented_positions: 107/107`, contradizendo o mapa efetivo."
+      ],
+      "requested_documentation_fix": "Cobrir explicitamente 13, 19, 26 e 101 e revalidar que a união das faixas seja exatamente 1–107 uma vez cada."
+    },
+    {
+      "id": "227-A27-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_COVERAGE_RANGE_MISMATCH",
+      "summary": "Mesmo nas posições cobertas, várias fronteiras do mapa atribuem linhas ao teste errado.",
+      "evidence": [
+        "Mapa 27–34=`describe + beforeEach`, mas source linha 34 já inicia `it('calculateWHash...')`.",
+        "Mapa 35–40=`wHash crop`, mas source linha 40 já inicia `it('calculatePHash...')`.",
+        "Mapa 41–46=`pHash crop`, mas source linha 46 já inicia `ita('put persiste...')`.",
+        "Mapa 47–68=`persistência crop`, mas source linhas 67–68 já iniciam o lookup crop positivo.",
+        "Mapa 69–88=`lookup crop positivo`, mas source linhas 85–88 já pertencem ao teste que ignora entradas sem crop.",
+        "Mapa 89–100=`ignora entrada sem crop`, mas source linhas 97–100 já iniciam/configuram o teste strict de 10 bits.",
+        "Mapa 102–105=`caso strict`, omitindo semanticamente a declaração/setup do mesmo teste em 97–100 e a posição 101."
+      ],
+      "requested_documentation_fix": "Realinhar todas as faixas às unidades semânticas reais, incluindo linha de declaração, corpo, fechamento e separadores conforme a política adotada."
+    },
+    {
+      "id": "227-A27-003",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia mantém 227-001 e 227-002 como OPEN e a autoauditoria diz `duas solicitações abertas`, mas o state canônico registra ambas como ACCEPTED.",
+      "evidence": [
+        "Bíblia seção 9: `227-001 — STALE_TEST_CONTRACT — OPEN`.",
+        "Bíblia seção 9: `227-002 — TEST_STRENGTH_REVIEW — OPEN`.",
+        "Bíblia autoauditoria: `[x] duas solicitações abertas`.",
+        ".state/227.json: 227-001=ACCEPTED e 227-002=ACCEPTED, auditadas por AGENTE 23 em 2026-09-30.",
+        "As lacunas técnicas continuam verdadeiras; o defeito é o lifecycle documental stale."
+      ],
+      "requested_documentation_fix": "Sincronizar as duas requests como ACCEPTED e preservar suas limitações técnicas sem apresentá-las como ainda OPEN."
+    },
+    {
+      "id": "227-A27-004",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "LIFECYCLE_STATUS_CONTRADICTION",
+      "summary": "O cabeçalho declara `Estado documental: ✅ CONCLUÍDA`, enquanto o state da mesma revisão está READY_FOR_AUDIT com completed_at_utc nulo.",
+      "evidence": [
+        "Bíblia linha 3: `Estado documental: ✅ CONCLUÍDA`.",
+        ".state/227.json: `status: READY_FOR_AUDIT`, `completed_at_utc: null`.",
+        "PRIMARY válida da revisão atual é CHANGES_REQUIRED e a ADVERSARIAL ainda estava pendente até esta auditoria."
+      ],
+      "requested_documentation_fix": "Alinhar o cabeçalho ao lifecycle distribuído atual; conclusão só após decisão/projeção correspondente."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONTRADITO",
+    "main_semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_2X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO_NO_LIFECYCLE",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_VS_PRIMARY_AGENTE_67",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "source_text_lines": 106,
+    "source_final_newline": true,
+    "total_positions": 107,
+    "embedded_source_text_exact": true,
+    "embedded_source_plus_terminal_lf_exact": true,
+    "documented_positions_effective": "103/107; gaps 13, 19, 26, 101; sem overlaps posicionais",
+    "visual_tests": 6,
+    "expect_assertions": 12,
+    "focal_evidence": [
+      "calculateWHash/checkerboard e calculatePHash/horizontalGradient executam funções reais e provam somente formato 64-hex localmente.",
+      "createInMemoryRepository real é usado para put/getMany/getManyByPerceptualCrop; APIs não são mirrors.",
+      "O último teste chama `matchPerceptualHashes` strict, nunca `matchPerceptualHashesRelaxed`; 0x03ff tem 10 bits de distância e é strict hit.",
+      "tests/unit/gtc/fingerprint.test.js possui prova relaxed-only independente em 44 bits wHash e 40 bits pHash.",
+      "tests/unit/gtc/indexeddb.test.js prova separadamente DB v4, índices by_whash_crop/by_phash_crop e consulta crop no IndexedDB com fake-indexeddb."
+    ],
+    "adversarial_regressions_that_would_still_pass": [
+      "calculateWHash/PHash podem mudar semanticamente mantendo saída 64-hex; 227-002 registra essa fraqueza.",
+      "Threshold relaxed pode regredir sem quebrar crop.visual.js porque o matcher relaxed não é chamado; 227-001 registra essa lacuna.",
+      "Seleção do melhor candidato entre múltiplos hits pode regredir sem ser isolada por esta suíte visual."
+    ],
+    "evidence_classification_notes": [
+      "Inclusão em test:visual é GATE_ESTATICO_ESPECIFICO via run-all.js + package.json + workflow.",
+      "Assertions dos seis casos são PROVA_DIRETA da lógica real exercitada, com runner customizado.",
+      "IndexedDB v4 real é PROVA_EM_OUTRA_SUITE, não prova direta deste arquivo.",
+      "Não foi promovida a evidência de execução fresca uma CI atualmente cancelada por pushes concorrentes."
+    ],
+    "primary_comparison": "A PRIMARY do AGENTE 67 acertou a cobertura incompleta. A ADVERSARIAL reconfirmou os quatro gaps e acrescentou fronteiras semânticas deslocadas, lifecycle stale das requests e contradição `CONCLUÍDA` vs READY_FOR_AUDIT.",
+    "formal_refutation_attempt": "A aprovação não resiste: fonte integral, strict-vs-relaxed e classificação das limitações estão honestas, porém mapa posicional/semântico e lifecycle documental são materialmente falsos.",
+    "final_head_before_publish": "96fe89dcdbc0f2d29754944539220d7fa26ea0f2",
+    "dependency_shas": {
+      "fingerprint": "fa014028d5e2ec9d9ca5d05c1199e1f6c45a2198",
+      "indexeddb": "0c872f23a665304b46dc2bb43c6468762feb2e31",
+      "visual_runner": "fe34764874cac8961bf6c614f5f6d5f85a599763",
+      "visual_run_all": "2a55421675439c2631778841345c258beaac24a9"
+    }
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-02T16:17:09Z"
+}

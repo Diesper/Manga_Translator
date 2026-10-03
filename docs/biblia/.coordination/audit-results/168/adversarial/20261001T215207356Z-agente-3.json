@@ -1,0 +1,86 @@
+{
+  "schema_version": 2,
+  "index": 168,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 3",
+  "file": "tests/unit/background/startup-recovery.test.js",
+  "bible": "docs/biblia/tests/unit/background/startup-recovery.test.js/Bíblia.md",
+  "source_sha": "649829ac36bb9428c9458c615365970349b741a1",
+  "bible_sha": "db26704100bcdebe21b9d57da8547eb4fd7f47f9",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "168-A3-ADV-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION_RESIDUAL",
+      "summary": "A Linha 015 é comentário histórico, mas ainda é classificada como `EXECUTADO INDIRETAMENTE`, embora a suíte atual não execute o cenário de fake timers descrito no comentário.",
+      "evidence": [
+        "Linha 015 documenta apenas o comentário `* esses timeouts NUNCA disparam, as Promises de storageMock.set/get NUNCA` e a própria Função o identifica como comentário histórico.",
+        "A evidência da Linha 015 é `🟨 EXECUTADO INDIRETAMENTE — prova o mock de storage, não o recovery de produção`, enquanto as linhas históricas vizinhas são corretamente `⚠️ DOCUMENTAÇÃO HISTÓRICA`.",
+        "tests/mocks/chrome-api.mock.js implementa ChromeStorageMock._schedule com setTimeout, mas isso é inspeção estática do mock; não executa a combinação histórica com jest.useFakeTimers().",
+        "Busca por `useFakeTimers ChromeStorageMock` encontra apenas o comentário desta suíte, sem caso focal que prove a promessa pendente sob fake timers.",
+        "O run histórico 36521561968 executou a suíte com timers reais; uma alteração no comportamento sob fake timers não quebraria nenhuma assertion atual."
+      ],
+      "required_change": "Rebaixar a Linha 015 para DOCUMENTAÇÃO_HISTÓRICA/GATE_ESTATICO, ou citar evidência focal que execute de fato ChromeStorageMock sob fake timers."
+    },
+    {
+      "id": "168-A3-ADV-002",
+      "severity": "MATERIAL",
+      "type": "CURRENT_TEST_GATE_WIRING_OMISSION",
+      "summary": "A Bíblia revalida um run histórico, mas não documenta a cadeia estática atual que descobre e executa startup-recovery.test.js nos gates Jest/CI.",
+      "evidence": [
+        "A Bíblia atual não contém `jest.config.js`, `run-jest-ci.js`, `test:ci`, `.github/workflows/ci.yml` nem `unit-and-integration`; `CI Gate` aparece apenas no relato do run histórico.",
+        "jest.config.js, projeto `background`, usa `testMatch: ['<rootDir>/tests/unit/background/**/*.test.js']`, descobrindo diretamente esta suíte.",
+        "scripts/ci/run-jest-ci.js inclui `background` em `unitProjects` e usa jest.config.js.",
+        "package.json liga `test:ci` a `node scripts/ci/run-jest-ci.js`.",
+        ".github/workflows/ci.yml executa `npm run test:ci` no job `unit-and-integration`, e o `CI Gate` depende desse job.",
+        "O run histórico 36521561968 e o blob histórico da suíte foram revalidados e são legítimos, mas evidência histórica não substitui a documentação do wiring corrente."
+      ],
+      "required_change": "Adicionar a cadeia atual jest.config.js → run-jest-ci.js/package.json → unit-and-integration/CI Gate, separando gate estático atual de evidência histórica de execução."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "positional_coverage": "CONFIRMADO_3X_112_DE_112",
+    "code_fields": "CONFIRMADO_3X_111_DE_111",
+    "semantics": "CONFIRMADO_3X",
+    "production_behavior": "CONFIRMADO_3X",
+    "external_real_tests": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "current_gate_wiring": "CONTRADITO_DOCUMENTACAO",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO_LINHA_015",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_8_VS_AGENTE_3",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "source_text_lines": 111,
+    "documented_positions": "112/112",
+    "embedded_source_exact": true,
+    "code_fields_exact": "111/111",
+    "current_primary": "AGENTE 8 / CHANGES_REQUIRED / BIBLE_SHA db26704100bcdebe21b9d57da8547eb4fd7f47f9",
+    "production_background_blob": "667c05eb2d7adfca16a79d3e706c39a1e9398b72",
+    "lifecycle_real_blob": "1d4c22ba9a78ef994906c4dd16617ddb6079942b",
+    "batch_lifecycle_real_blob": "1368df4b1fdb85d8ad1f593f78decd16a3175c98",
+    "process_finalize_real_blob": "abb1b936fadf0e309933e39b4b705116eb320a1f",
+    "chrome_mock_blob": "c1d9a056b7777183bfd3f540c49811335f410425",
+    "jest_config_blob": "f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc",
+    "ci_runner_blob": "6d2e36a647aadeadb2b875c1b3f92df24cd2f494",
+    "package_blob": "5b5c328f6139eeff920dc65a78014a6c5b6db3a6",
+    "ci_workflow_blob": "9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a",
+    "historical_ci_run": 36521561968,
+    "historical_ci_head_sha": "e720890cf34dc9437ee91f3b8172953497d69870",
+    "historical_source_blob": "649829ac36bb9428c9458c615365970349b741a1",
+    "accepted_requests": [
+      "168-001",
+      "168-002",
+      "168-003"
+    ]
+  },
+  "completed_at_utc": "2026-10-01T21:52:07.356Z"
+}

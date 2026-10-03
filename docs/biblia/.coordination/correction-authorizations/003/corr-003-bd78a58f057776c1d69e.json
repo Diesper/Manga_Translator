@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "token_id": "corr-003-bd78a58f057776c1d69e",
+  "index": 3,
+  "authorization_type": "CORRECTION",
+  "decision": "CHANGES_REQUIRED",
+  "correction_cycle": 0,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "ea474845cf9c6a6784e3ceb75298f0ac8df86e06",
+  "bible_sha": "4e9e7e7879e546454ee9486c80a271ca751aa4ca",
+  "revision_id": "f243cb993618c9b6947524146b0817b63416b4de52f834a96f1b6db6726ffb92",
+  "decision_id": "a50efb368067c5c6e2a47e5542e3b6af4cff9cdd71a7b0c2921d0e9ab41499fb",
+  "actor": "AGENTE 2",
+  "issued_at_utc": "2026-10-03T02:20:53Z",
+  "human_approval_id": null
+}

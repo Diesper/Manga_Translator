@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 89,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE HÍBRIDO",
+  "file": "scripts/validation/verify-repository-structure.js",
+  "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
+  "source_sha": "b085fac82c83c4091df407d6e2c869ce7c37a48f",
+  "bible_sha": "b9fc31ead41728d6fc16e3ad17089fdbfe7aaac4",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "identity_and_hashes": "CONFIRMADO_3X",
+    "embedded_source": "BYTE_A_BYTE_EXATO",
+    "coverage": "416/416_CONTIGUA",
+    "architecture_boundary": "CONFIRMADA_bible-coordination_vs_audit-protocol",
+    "filesystem_type_contract": "CONFIRMADO_COM_NEGATIVE_TESTS",
+    "negative_detectors": "CONFIRMADOS_COM_VERIFIER_REAL_EM_SANDBOX",
+    "mutation_exit_codes": "CONFIRMADOS",
+    "process_timeout_guard": "CONFIRMADO_30S",
+    "skips_only_todos": "NENHUM_TECNICO",
+    "base_regression_review": "CONFIRMADO_CONTRA_BASE_650f9864",
+    "workflow_run": "36937713766_SUCCESS"
+  },
+  "audit_notes": {
+    "passes": [
+      "PASSAGEM_A_COMO_DEVERIA_FUNCIONAR",
+      "PASSAGEM_B_COMO_QUEBRAR",
+      "REAUDITORIA_POS_CORRECAO",
+      "RELEITURA_FINAL_DO_DIFF_E_DA_BIBLIA"
+    ],
+    "base_source_sha": "5151c7706c077a67901adde03fbf0d4633204b46",
+    "selftest_sha": "d87c3ca4d1abbcb8f26f4a47084ef2cdae76242f",
+    "selftest_run_id": 36937713766,
+    "selftest_result": "success",
+    "known_requests": "089-001/002/003/005 RESOLVED; 089-004 SUPERSEDED",
+    "external_pr_baseline": "Possui pendências de outras unidades; o self-test valida deltas focais e restauração do fixture para evitar falso bloqueio por estado concorrente."
+  },
+  "completed_at_utc": "2026-10-01T22:55:00Z"
+}

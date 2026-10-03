@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "index": 62,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 62",
+  "file": "jest.config.js",
+  "bible": "docs/biblia/jest.config.js/Bíblia.md",
+  "source_sha": "f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc",
+  "bible_sha": "498be146178c867bc0992dd404d721a4c41da9c7",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "062-ADV-001",
+      "type": "SEMANTIC_POSITION_MISBINDING",
+      "severity": "NORMAL",
+      "location": "Bíblia.md — cobertura linha a linha, posições 62, 73 e 82",
+      "problem": "A cobertura posicional cita o texto fonte correto, mas atribui semântica ao constructo errado em três posições. Isso viola a exigência de que cada linha/faixa descreva o comportamento real.",
+      "evidence": [
+        "Source posição 62 é `];`, que fecha o array `unitProjects`; a Bíblia diz que fecha a coleção/objeto do projeto `shared-ui` e que a linha faz parte do objeto shared-ui.",
+        "Source posições 72–74 são `...unitProjects,`, `{`, `displayName: 'integration'`; portanto a posição 73 abre o objeto `integration`, mas a Bíblia diz `Delimita o objeto do projeto shared-ui`.",
+        "Source posição 82 é `],`, que fecha o array raiz `projects`; a Bíblia a descreve como fechamento da coleção/objeto do projeto `integration` e afirma que a propriedade faz parte do objeto integration.",
+        "As três divergências foram reconfirmadas contra o blob fonte f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc e o blob da Bíblia 498be146178c867bc0992dd404d721a4c41da9c7."
+      ],
+      "required_change": "Corrigir as descrições/agrupamentos das posições 62, 73 e 82 para refletirem respectivamente o fechamento de `unitProjects`, a abertura do objeto `integration` e o fechamento do array raiz `projects`, mantendo o texto fonte posicional intacto."
+    },
+    {
+      "id": "062-ADV-002",
+      "type": "CONSUMER_MAP_INCOMPLETE",
+      "severity": "NORMAL",
+      "location": "Bíblia.md — seção 1 (Papel arquitetural) e dependências/consumidores",
+      "problem": "A Bíblia não identifica consumidores operacionais diretos relevantes de `jest.config.js`, embora eles dependam dos `displayName`/projetos e sejam executados por jobs diagnósticos da CI.",
+      "evidence": [
+        "`scripts/maintenance/diagnose-jest-workers.js` executa Jest com `--config jest.config.js` e seleciona projetos individuais/combinações (`background`, `gtc`, `content-scripts`, `popup`, `reader`, `manifest`, `shared-ui`, `integration`).",
+        "`scripts/maintenance/diagnose-background-leak.js` executa Jest com `--config jest.config.js --selectProjects background` durante a bisseção de leak.",
+        "`package.json` expõe `test:diagnose-workers` e `test:diagnose-background-leak`; `.github/workflows/ci.yml` executa esses diagnósticos nos jobs de worker/leak.",
+        "A Bíblia não contém qualquer menção a `diagnose-jest-workers` ou `diagnose-background-leak`, embora uma alteração de `displayName`/topologia possa quebrar esses consumidores."
+      ],
+      "required_change": "Adicionar os consumidores diagnósticos diretos e seu vínculo com os nomes/topologia de projetos; registrar também o gate estrutural relevante se a seção pretende ser exaustiva."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:22:11Z"
+}

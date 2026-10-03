@@ -1,0 +1,81 @@
+{
+  "schema_version": 2,
+  "index": 191,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 28",
+  "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+  "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "191-A28-029",
+      "severity": "HIGH",
+      "type": "GTC_FALLBACK_PRECEDENCE_GAP",
+      "summary": "`queryGlobalTranslationCache` retorna imediatamente `entriesByHash` sempre que `GTC_QUERY_MANY` responde ok, portanto misses por hash não consultam o fallback legado e um fallback mais novo criado por save moderno falho não pode prevalecer sobre um valor IndexedDB stale.",
+      "evidence": [
+        "cm-gtc-client.js@b7bb841499a9e677f9709f0c634c648ac6a0f65b linha 116: `if (response && response.ok && response.entriesByHash) return response.entriesByHash;`.",
+        "O read legado só ocorre nas linhas 117-119 depois de falha da resposta moderna inteira.",
+        "O save moderno falho grava `gtc_<hash>` na linha 190; sem marker/version, a query moderna bem-sucedida pode ignorar esse fallback completamente.",
+        "A suíte #191 atual não contém regressões para modern-ok + hash-miss -> legacy hit nem para fallback marcado mais recente -> IndexedDB stale.",
+        "O contrato existente de full modern hit com zero lookup legado continua compatível com preencher apenas misses e preservar hits modernos válidos."
+      ],
+      "requested_action": "Definir e testar precedência por hash: modern miss deve poder recuperar legacy; fallback recente explicitamente marcado deve poder prevalecer sobre modern stale; legacy histórico não marcado não deve sobrescrever modern hit válido."
+    },
+    {
+      "id": "191-A28-030",
+      "severity": "HIGH",
+      "type": "GTC_FALLBACK_CLEANUP_ERROR_SILENCED",
+      "summary": "Após `GTC_SAVE` moderno bem-sucedido, o cleanup de `gtc_<hash>` ignora `chrome.runtime.lastError` e a função retorna sucesso mesmo se o fallback stale permanecer.",
+      "evidence": [
+        "cm-gtc-client.js linha 184 aguarda `chrome.storage.local.remove(legacyKey, resolve)` sem inspecionar `chrome.runtime.lastError`.",
+        "O branch retorna `true` logo após o callback, independentemente do resultado real do cleanup.",
+        "Se o remove falhar e uma consulta moderna posterior falhar por inteiro, o raw fallback stale ainda pode ser servido pelas linhas 117-119.",
+        "Não há fault-injection regressão atual para `storage.local.remove` com lastError."
+      ],
+      "requested_action": "Tornar o cleanup de fallback error-aware e observável; adicionar regressão em que remove falha e provar que stale fallback não é tratado como cleanup concluído."
+    },
+    {
+      "id": "191-A28-031",
+      "severity": "HIGH",
+      "type": "GTC_FALLBACK_READ_ERROR_UNHANDLED",
+      "summary": "O read do fallback legado não possui contrato explícito para `chrome.runtime.lastError`; a callback é resolvida diretamente e o resultado é indexado como objeto.",
+      "evidence": [
+        "cm-gtc-client.js linha 118 resolve diretamente a callback de `chrome.storage.local.get(...)`.",
+        "Linha 119 indexa `legacy[gtc_<hash>]` sem branch de `runtime.lastError` e sem normalização defensiva de resultado ausente.",
+        "Em erro de storage, o caminho pode tornar-se miss silencioso ou lançar se a callback não fornecer objeto; nenhum dos comportamentos é documentado/telemetrizado.",
+        "Não há regressão atual que injete lastError no read legado."
+      ],
+      "requested_action": "Adicionar helper/branch error-aware para leitura do fallback e teste de fault injection que garanta miss seguro/erro controlado com observabilidade."
+    },
+    {
+      "id": "191-A28-032",
+      "severity": "HIGH",
+      "type": "GTC_CROSS_CONTEXT_FALLBACK_RACE",
+      "summary": "`gtcSaveChains` serializa saves apenas dentro de uma instância de content script; abas diferentes executam módulos independentes mas escrevem o mesmo fallback em `storage.local`, permitindo uma falha antiga tardia ressuscitar valor stale.",
+      "evidence": [
+        "cm-gtc-client.js linha 147 define `const gtcSaveChains = new Map()` em escopo de módulo.",
+        "manifest.json carrega `cm-gtc-client.js` como content script em `<all_urls>`, portanto cada página/contexto possui sua própria instância e Map.",
+        "Cenário adversarial: A inicia save antigo; B em outra aba salva payload novo com sucesso e remove legacy; depois A recebe falha e grava raw fallback antigo na linha 190.",
+        "O full modern path pode continuar retornando B, mas se a query moderna falhar depois, o fallback antigo de A ressuscita.",
+        "A suíte #191 cobre reordenação dentro de uma única instância, não duas instâncias independentes."
+      ],
+      "requested_action": "Definir coordenação global/versionamento do fallback e adicionar regressão multi-instância/multi-contexto que preserve o save moderno mais novo contra falha antiga tardia."
+    },
+    {
+      "id": "191-A28-033",
+      "severity": "NORMAL",
+      "type": "GTC_AUXILIARY_SAVE_ERROR_SWALLOWED",
+      "summary": "`persistTranslatedUpdateWithSideEffects` dispara o save GTC auxiliar com `.catch(() => {})`, removendo toda observabilidade de rejeições sem necessidade funcional de tornar a persistência da página fatal.",
+      "evidence": [
+        "content_manga.js@893a03442cddb9e32487d7c7599be13ba8dc349c linhas 2561-2576 chama `saveGlobalTranslationCacheEntry(...)` e termina em `.catch(() => {})`.",
+        "Não existe `GTC_SAVE_FAILED` no source atual.",
+        "A persistência principal da página é retornada separadamente por `persistTranslatedPage(...)`, portanto é possível manter o cache auxiliar non-blocking e ainda registrar falha.",
+        "A suíte atual não prova `page persistence success + GTC rejection observable`."
+      ],
+      "requested_action": "Substituir catch vazio por telemetria bounded sem rethrow e adicionar regressão que prove persistência de página verde com falha GTC observável."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T12:12:37.094Z"
+}

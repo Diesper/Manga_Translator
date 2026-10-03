@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "index": 8,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 7",
+  "file": "extension/background/actions/deliver-result-url.js",
+  "bible": "docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md",
+  "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
+  "bible_sha": "6feb448c74445e061abb7deb47efd4d52003d921",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "008-ADV2-001",
+      "severity": "MATERIAL",
+      "category": "ARCHITECTURAL_WIRING_AND_CALLER_CONTRACT_OMISSION",
+      "summary": "A revisão atual descreve o alias no router e o fluxo downstream, mas omite o producer/caller real e o loader que tornam esta action alcançável em produção, além do contrato de resposta exigido pelo caller.",
+      "evidence": [
+        "extension/content/gemini/job-runner.js linhas 1320-1339: onAuxiliaryFallback envia GEMINI_RESULT_URL com mangaTabId/index/url/jobId/batchId e rejeita a operação se `registered?.ok` for falso ou `registered.extractionRegistered !== true`, lançando AUXILIARY_REGISTRATION_FAILED.",
+        "extension/background/router.js linha 14: `GEMINI_RESULT_URL` resolve para `deliver-result-url` e o router assíncrono envolve o retorno da action em `{ok:true,...result}`.",
+        "extension/background.js linhas 72 e 131 carrega `background/actions/deliver-result-url.js` via importScripts no worker e require no harness Node.",
+        "tests/unit/content-gemini/rpa-flow.test.js caso CG-30/CG-39 exerce o producer real e afirma a emissão de GEMINI_RESULT_URL com mangaTabId/index/url.",
+        "A Bíblia atual contém zero referências a `job-runner.js`, `background.js`, `onAuxiliaryFallback` e `AUXILIARY_REGISTRATION_FAILED`; portanto a cadeia upstream e o contrato observado pelo caller não podem ser reconstruídos apenas a partir do documento."
+      ],
+      "requested_change": "Documentar explicitamente loader, producer/caller, alias e contrato de resposta/falha, separando prova de emissão do producer, wiring do router e comportamento da própria action."
+    },
+    {
+      "id": "008-ADV2-002",
+      "severity": "MATERIAL",
+      "category": "STALE_DISTRIBUTED_AUDIT_LIFECYCLE_CLAIM",
+      "summary": "O cabeçalho afirma `Estado: ✅ REAUDITADO E APROVÁVEL` e a conclusão declara a Bíblia aprovada, mas o REAUDIT histórico não está vinculado à revisão documental atual; a própria state registra que a correção gerou uma nova revisão que exige PRIMARY + ADVERSARIAL.",
+      "evidence": [
+        "Bíblia atual blob 6feb448c74445e061abb7deb47efd4d52003d921, linha 3: `Estado: ✅ REAUDITADO E APROVÁVEL`.",
+        ".state/008.json history: a correção terminou com bible_sha 6feb448c... e razão `Nova revisão exige PRIMARY + ADVERSARIAL`.",
+        "audit-bible-baseline.json registra a revisão anterior d9bc3073da381c26994c9f4675bdee95e9b5fa7b.",
+        "REAUDIT histórico 20261001T161100000Z-agent-7.json é schema v1, sem bible_sha, e portanto não valida a revisão atual que diverge da baseline.",
+        "Para a revisão atual existe PRIMARY schema v2 de AGENTE 8 com CHANGES_REQUIRED; antes desta publicação não havia ADVERSARIAL válida para bible_sha 6feb448c...."
+      ],
+      "requested_change": "Remover/qualificar o estado de `REAUDITADO/APROVÁVEL` e o veredito de aprovação como autoavaliação histórica, ou atualizá-los para refletir que a revisão corrente está em auditoria distribuída e não herda o REAUDIT da revisão anterior."
+    },
+    {
+      "id": "008-ADV2-003",
+      "severity": "MATERIAL",
+      "category": "ACCEPTED_HIGH_RISK_ONLY_PARTIALLY_DOCUMENTED",
+      "summary": "A request HIGH 008-003 cobre dois adapters callback→Promise sem timeout (`assertJobOwnership` e `chrome.tabs.create`), porém a Bíblia explicita o risco de callback ausente apenas para `tabs.create`; o mesmo hang em ownership não é registrado como limitação.",
+      "evidence": [
+        ".state/008.json 008-003 ACCEPTED/HIGH: `assertJobOwnership e chrome.tabs.create são adaptados para Promise sem timeout local; callbacks ausentes mantêm execute pendente`.",
+        "Source linhas 24-28 aguarda uma Promise que só resolve quando assertJobOwnership invoca seu callback; não há timeout/cancelamento.",
+        "Bíblia U03 apenas diz que assertJobOwnership é adaptado para Promise; não menciona timeout/callback ausente. Busca na Bíblia por `timeout` retorna zero ocorrências.",
+        "Bíblia seção `Falha de tabs.create` documenta explicitamente `criação que nunca chama callback`, mostrando que apenas a segunda metade da request foi preservada.",
+        "deliver-result-url-action.test.js chama o callback de assertJobOwnership em todos os caminhos que chegam a ownership; não há caso que mantenha esse callback ausente."
+      ],
+      "requested_change": "Registrar explicitamente a ausência de timeout/cancelamento em assertJobOwnership e a consequência de execute/canal pendente, mantendo 008-003 como ACCEPTED até evidência/correção externa."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONTRADITO",
+    "consumers": "CONTRADITO",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONTRADITO",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "completed_at_utc": "2026-10-01T19:45:29.795Z"
+}

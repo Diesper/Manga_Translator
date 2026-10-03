@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "index": 204,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 37",
+  "file": "tests/unit/content-manga/floating-button-guard-and-single-click.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/floating-button-guard-and-single-click.test.js/Bíblia.md",
+  "source_sha": "a417ca15acc4d2b604a3a72cecad19e476ff4626",
+  "bible_sha": "16d5f45666ba2a5d887a029360ceaf69d3b34147",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "204-ADV-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 204-001, 204-002 e 204-003 como OPEN e conclui que permanecem OPEN, enquanto o state canônico atual registra os três requests como ACCEPTED.",
+      "evidence": [
+        "docs/biblia/.state/204.json registra 204-001=ACCEPTED, 204-002=ACCEPTED e 204-003=ACCEPTED, com decisões de auditoria externas já persistidas.",
+        "Bíblia.md usa os headings '204-001 — TEST_REQUIRED — OPEN', '204-002 — TEST_REQUIRED — OPEN' e '204-003 — TEST_REQUIRED — OPEN'; a conclusão documental afirma 'pode ser marcada COMPLETED com 204-001..003 OPEN'.",
+        "O source atual tem blob a417ca15acc4d2b604a3a72cecad19e476ff4626 e a Bíblia atual blob 16d5f45666ba2a5d887a029360ceaf69d3b34147, exatamente os mesmos SHAs da PRIMARY válida do AGENTE 11; não houve reparo documental posterior.",
+        "A fonte integral embutida na Bíblia é byte-exata ao arquivo auditado; 410 linhas textuais + LF final produzem 411 posições, e as faixas documentais cobrem 1..411 sem gaps, overlaps ou posições fora do source.",
+        "A suíte contém 15 test() e 43 expect(), sem skip/only/todo, e load-content-script.js requer o extension/content/content_manga.js real na ordem de módulos do manifest; mocks substituem runtime/storage, não a implementação focal.",
+        "204-001 permanece factual: content_manga.js executa ensureFloatingButtonHealth('translation_watchdog') em setInterval de 1000 ms; os casos atuais recuperam por MutationObserver ou PROGRESS, sem isolar o tick periódico.",
+        "204-002 permanece factual: createTranslatorButton chama restoreIntegratedErrorDrawer após inserir/reconstruir o botão, mas não há caso focal desta suíte para erro pendente + remoção + recovery preservando drawer.",
+        "204-003 permanece factual: startSingleImageTranslation retorna reason 'disabled' quando clickToTranslateEnabled=false e 'page_disabled' quando isPageEnabled=false; os cenários TRANSLATE_CONTEXT_IMAGE desta suíte usam a feature habilitada e não exercitam esses dois guards.",
+        "A referência de produção da Bíblia também foi reconfirmada: extension/content/content_manga.js tem blob a8b3698019f6f22027f09f544f15c0563a9f6515, igual ao SHA declarado no documento; jest.config.js inclui tests/unit/content-manga/**/*.test.js no projeto content-scripts JSDOM e run-jest-ci.js verifica inventário/partição dos .test.js."
+      ],
+      "requested_action": "Atualizar somente a documentação de #204 para refletir 204-001/002/003 como ACCEPTED, preservando as lacunas técnicas e sem alterar source/testes para fabricar evidência."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:08:40Z"
+}

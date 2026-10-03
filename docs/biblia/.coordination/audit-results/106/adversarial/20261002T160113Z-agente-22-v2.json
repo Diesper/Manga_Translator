@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "index": 106,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 22",
+  "file": "tests/integration/banned-images-flow.test.js",
+  "bible": "docs/biblia/tests/integration/banned-images-flow.test.js/Bíblia.md",
+  "source_sha": "3e750df20bdfb54c56202916191ef04eeafc9e9e",
+  "bible_sha": "05e278a27d957bf9785c4b5c9bd67a0c12f5acec",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "ADV-106-A22-001",
+      "severity": "BLOCKING",
+      "category": "STALE_DEPENDENCY_BINDINGS",
+      "finding": "A Bíblia rotula como 'blobs revalidados' e como revisão atual quatro SHAs que não correspondem mais ao branch auditado.",
+      "evidence": [
+        "Bíblia §2: popup.js 300cfe9a9c81814443c9d52a17915d851408748b; branch atual 2b49ae1aaf94ed6aac1ff93437bea177d9a53644.",
+        "Bíblia §2: content_manga.js a8b3698019f6f22027f09f544f15c0563a9f6515; branch atual 893a03442cddb9e32487d7c7599be13ba8dc349c.",
+        "Bíblia §2: package.json 5b5c328f6139eeff920dc65a78014a6c5b6db3a6; branch atual 2d749c02e45d0a0cd63deb8ffa2ab1ac9a813c21.",
+        "Bíblia §2: ci.yml 9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a; branch atual fbc108c255d06257b741839bb19fa56b4e6794b2.",
+        "Os outros sete bindings listados na mesma seção foram reabertos e conferem, isolando o drift aos quatro itens acima.",
+        "A autoauditoria §15 afirma que SHAs stale foram revalidados nos blobs atuais, o que contradiz os blobs atuais."
+      ],
+      "refutation_of_primary": "Tentei reduzir o finding a metadata inofensiva. Falhou porque a Bíblia usa esses SHAs como âncoras atuais e repete que foram revalidados; logo a falsidade é documental, mesmo quando alguns contratos textuais ainda permanecem presentes.",
+      "required_change": "Atualizar/revalidar os quatro bindings contra a revisão vigente e revisar todas as alegações que dependem deles."
+    },
+    {
+      "id": "ADV-106-A22-002",
+      "severity": "BLOCKING",
+      "category": "CURRENT_EXECUTION_CONTRADICTS_GREEN_EVIDENCE",
+      "finding": "A evidência verde citada (run 36945155749) é histórica e foi superada por execuções focais posteriores que falham 3/3 no popup real atual. A Bíblia afirma prova executável verde/requests resolvidas sem registrar essa regressão atual.",
+      "evidence": [
+        "Run citada 36945155749/job 110645467215: 1/1 suíte e 3/3 testes verdes, mas checkout do head e6c8536a580cfd29eae922b045ddfcfca57e4af6, quando popup.js ainda era 300cfe9a... e content_manga.js a8b3698....",
+        "Após a mudança do popup, runs 36952250579, 36952319100 e 36952471460 falharam 1/1 suíte e 3/3 testes com o mesmo erro.",
+        "Run 36965780018/job 110709106093, disparada pelo commit f8c45bac6b3590295b3678fa55ad89b8f2928500, também falhou 1/1 e 3/3. Nesse commit o source #106 já é exatamente 3e750df20bdfb54c56202916191ef04eeafc9e9e, popup.js é exatamente o blob atual 2b49ae1a..., e content_manga.js é exatamente o blob atual 893a0344....",
+        "Falha focal: ReferenceError 'Cannot access storageGet before initialization' em extension/popup/popup.js:54. No popup atual, storageGet é chamado no início do DOMContentLoaded e só é declarado como const na linha 196/197, produzindo TDZ antes de banWithRealPopup alcançar o fluxo documentado.",
+        "A Bíblia §10 registra apenas a run verde antiga; §15 afirma '106-001 e 106-002 possuem prova executável verde'. Essa afirmação não é válida para a revisão atual das implementações reais."
+      ],
+      "nuance": "106-001/106-002 podem permanecer RESOLVED como solicitações de qualidade de teste porque a suíte real foi criada e detecta a regressão. O problema documental é apresentar a validação histórica como prova verde atual e omitir o estado executável atual. O bug TDZ do popup deve ser rastreado separadamente como problema de software/dependência.",
+      "required_change": "Corrigir/rastrear o TDZ do popup ou, enquanto ele existir, documentar explicitamente que o fluxo focal atual falha e rebaixar a evidência antiga a histórica. Depois executar a suíte focal sobre os blobs atuais e atualizar a Bíblia/state com a evidência vigente."
+    }
+  ],
+  "confidence_matrix": {
+    "sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO_QUANTO_AO_FLUXO_REAL_ATUAL",
+    "dependencies": "CONTRADITO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONTRADITO_POR_EXECUCAO_ATUAL_3_DE_3_FALHANDO",
+    "assertions": "CONFIRMADO_3X_NO_SOURCE; NAO_EXECUTADAS_COM_SUCESSO_NA_REVISAO_ATUAL",
+    "evidence_classification": "CONTRADITO_3X",
+    "audit_requests": "RESOLVED_ESTRUTURALMENTE; VALIDACAO_VERDE_ATUAL_STALE",
+    "history_state": "CONTRADITO_QUANTO_A_EVIDENCIA_CORRENTE",
+    "phase_independence": "CONFIRMADA_AGENTE_22_DIFERENTE_DO_PRIMARY_AGENTE_25",
+    "phase_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passages_executed": "0-15",
+    "source_text_lines": 261,
+    "source_chars": 9023,
+    "source_final_newline": true,
+    "documented_positions": "262/262",
+    "coverage_gaps": 0,
+    "coverage_overlaps": 0,
+    "embedded_source_exact_with_documented_final_lf": true,
+    "primary_under_attack": {
+      "auditor": "AGENTE 25",
+      "verdict": "CHANGES_REQUIRED",
+      "result": "docs/biblia/.coordination/audit-results/106/primary/20261002T154940Z-agente-25-v2.json",
+      "outcome": "Dois findings PRIMARY sobreviveram; o segundo foi reforçado por runs atuais falhando."
+    },
+    "current_failed_runs": [
+      {
+        "run_id": 36952250579,
+        "conclusion": "failure",
+        "focal": "1/1 suite failed; 3/3 tests failed",
+        "error": "storageGet TDZ"
+      },
+      {
+        "run_id": 36952319100,
+        "conclusion": "failure",
+        "focal": "1/1 suite failed; 3/3 tests failed",
+        "error": "storageGet TDZ"
+      },
+      {
+        "run_id": 36952471460,
+        "conclusion": "failure",
+        "focal": "1/1 suite failed; 3/3 tests failed",
+        "error": "storageGet TDZ"
+      },
+      {
+        "run_id": 36965780018,
+        "job_id": 110709106093,
+        "conclusion": "failure",
+        "focal": "1/1 suite failed; 3/3 tests failed",
+        "error": "storageGet TDZ",
+        "source_sha": "3e750df20bdfb54c56202916191ef04eeafc9e9e",
+        "popup_sha": "2b49ae1aaf94ed6aac1ff93437bea177d9a53644",
+        "content_manga_sha": "893a03442cddb9e32487d7c7599be13ba8dc349c"
+      }
+    ],
+    "historical_green_run": {
+      "run_id": 36945155749,
+      "job_id": 110645467215,
+      "conclusion": "success",
+      "focal": "1/1; 3/3",
+      "integration": "13/13; 89/89",
+      "head": "e6c8536a580cfd29eae922b045ddfcfca57e4af6"
+    },
+    "final_checks": {
+      "A_integridade": "SIM",
+      "B_veracidade": "NAO",
+      "C_honestidade": "NAO_QUANTO_A_ATUALIDADE_DA_EVIDENCIA"
+    },
+    "recommended_external_followup": "Registrar/corrigir o ReferenceError de TDZ de storageGet em extension/popup/popup.js; é bug de software/dependência detectado pela suíte, distinto dos blockers documentais desta Bíblia."
+  },
+  "completed_at_utc": "2026-10-02T16:01:13Z"
+}

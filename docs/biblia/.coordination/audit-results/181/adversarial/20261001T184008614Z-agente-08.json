@@ -1,0 +1,56 @@
+{
+  "schema_version": 2,
+  "index": 181,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "tests/unit/content-gemini/job-runner.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
+  "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
+  "bible_sha": "4fe74c5b46a97e760d94eb2763f2ce8f21104838",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-181-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 181-001/002/003/004 como OPEN, mas o state canônico registra SUPERSEDED/ACCEPTED/SUPERSEDED/ACCEPTED.",
+      "evidence": [
+        "Bíblia §10: 181-001, 181-002, 181-003 e 181-004 usam headings OPEN.",
+        "`.state/181.json`: 181-001=SUPERSEDED por 045-001; 181-002=ACCEPTED; 181-003=SUPERSEDED por 045-005; 181-004=ACCEPTED.",
+        "`.state/045.json`: 045-001 e 045-005 estão ACCEPTED e cobrem respectivamente GEMINI_COMPOSER_NOT_READY e três commits falhos/RESULT_COMMIT_FAILED.",
+        "Os gaps técnicos de 181-002 e 181-004 permanecem reais e corretamente descritos; o defeito é o lifecycle documental."
+      ],
+      "relation_to_primary": "Confirma 181-PRI-001 após auditoria independente das assertions e branches.",
+      "requested_documentation_fix": "Atualizar os quatro status para SUPERSEDED/ACCEPTED/SUPERSEDED/ACCEPTED e apontar 181-001→045-001 e 181-003→045-005."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "ci_evidence": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_11_VS_AGENTE_8",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "758/758",
+    "ci_run": 36521561968,
+    "ci_blob_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
+    "nonblocking_gaps": [
+      "181-002 watchdog failure path",
+      "181-004 auxiliary fallback registration"
+    ]
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T18:40:08.614Z"
+}

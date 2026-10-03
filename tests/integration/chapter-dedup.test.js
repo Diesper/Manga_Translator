@@ -1,261 +1,243 @@
 /**
  * chapter-dedup.test.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Teste de integração: Deduplicação de capítulos com canonicalTitle (BUG #12).
+ * Integração real da identidade/persistência de capítulos.
  *
- * CENÁRIO: O usuário traduz páginas do mesmo capítulo em duas sessões distintas.
- * Entre as sessões, o título da aba pode variar ligeiramente (sufixos do site,
- * separadores diferentes, etc.). O sistema deve reconhecer que é o mesmo capítulo
- * e agrupar todas as imagens na mesma "pasta" do banco de dados.
- *
- * Testa a integração completa: canonicalTitle + _getOrCreateChapterIdImpl +
- * persistência no chrome.storage.
+ * A suíte carrega extension/content/cm-chapter.js e observa chapterList +
+ * mensagens SM_SAVE_PAGE. Nenhuma regra de canonicalTitle/getOrCreate é copiada
+ * para o teste.
  */
 
-const path = require('path');
-const fs   = require('fs');
-// Portable root finder — works regardless of where this file is placed in the tree.
-// Walks up from __dirname until it finds the folder containing extension/manifest.json.
-const { findRepoRoot } = require('../helpers/repo-root');
-const ROOT = findRepoRoot(__dirname);
+const { getStorageMock } = require('../mocks/chrome-api.mock.js');
 
-const { getStorageMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
-
-// Implementação espelho completa de getOrCreateChapterId (mesma lógica do content_manga.js v3.1)
-function buildChapterSystem(chromeStorage, location) {
-    let _chapterIdPromise = null;
-
-    function canonicalTitle(t) {
-        // CORREÇÃO v3.2: alinhado com extracted-functions.js
-        // 1. Prefixo textual opcional + número: "Cap 5: " além de "1050 - "
-        // 2. Strip de sufixo de site: "| Ler Online", " - Mangás"
-        //    Garante que o mesmo capítulo visitado com sufixos diferentes
-        //    (variando entre sessões) produza a mesma chave de deduplicação.
-        return (t || '')
-            .replace(/^(?:[A-Za-z]+\.?\s+)?\d+[\s.\-\u2013\u2014:|]+/, '')
-            .replace(/\s+[-|\u2013\u2014]\s+.+$/, '')
-            .replace(/[|\u2013\u2014\u2022\u00B7\[\]()\u00AB\u00BB]/g, ' ')
-            .replace(/\s*[-:]\s*$/, '')
-            .replace(/\s{2,}/g, ' ')
-            .trim()
-            .toLowerCase()
-            .slice(0, 80);
-    }
-
-    function impl() {
-        return new Promise((resolve, reject) => {
-            chromeStorage.get(['chapterList'], (data) => {
-                if (chrome.runtime.lastError) { reject(new Error(chrome.runtime.lastError.message)); return; }
-                const list = data.chapterList || [];
-                const href = location.href;
-                const hostname = location.hostname;
-                const titleKey = canonicalTitle(location.title || '').replace(/[^a-z0-9]/gi, '_');
-
-                // Busca por URL exata primeiro
-                let chapter = list.find(c => c.url === href);
-
-                // Fallback: mesmo hostname + título normalizado similar
-                if (!chapter) {
-                    chapter = list.find(c => {
-                        if (!c.url) return false;
-                        try {
-                            const sameHost = new URL(c.url).hostname === hostname;
-                            const cKey = canonicalTitle(c.title || '').replace(/[^a-z0-9]/gi, '_');
-                            return sameHost && cKey === titleKey;
-                        } catch { return false; }
-                    });
-                    if (chapter) {
-                        chapter.url = href;
-                        chapter.title = canonicalTitle(location.title || '');
-                        chromeStorage.set({ chapterList: list });
-                    }
-                }
-
-                if (chapter) { resolve(chapter.id); return; }
-
-                const newId = 'chap_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5);
-                list.push({ id: newId, url: href, title: canonicalTitle(location.title || ''), timestamp: Date.now() });
-                chromeStorage.set({ chapterList: list }, () => {
-                    if (chrome.runtime.lastError) { reject(new Error(chrome.runtime.lastError.message)); return; }
-                    resolve(newId);
-                });
-            });
-        });
-    }
-
-    function getOrCreate() {
-        if (!_chapterIdPromise) {
-            _chapterIdPromise = impl().catch(e => { _chapterIdPromise = null; throw e; });
-        }
-        return _chapterIdPromise;
-    }
-
-    function resetCache() { _chapterIdPromise = null; }
-
-    return { getOrCreate, resetCache };
-}
-
-describe('Deduplicação de Capítulos — Integração (BUG #12)', () => {
-
+describe('Deduplicação de capítulos — cm-chapter real', () => {
     let storageMock;
+    let chapterApi;
+    let idSequence;
+    let originalPath;
 
-    beforeEach(() => {
+    function setPage(pathname, title) {
+        window.history.replaceState({}, '', pathname);
+        document.title = title;
+    }
+
+    function createManager({
+        hostname = window.location.hostname,
+        sendRuntimeMessageAsync = async () => ({ ok: true, assetId: 'asset_default' }),
+        onRestoreEntry = null,
+    } = {}) {
+        return chapterApi.createChapterManager({
+            hostname,
+            generateId: prefix => `${prefix}${++idSequence}`,
+            sendRuntimeMessageAsync,
+            onRestoreEntry,
+        });
+    }
+
+    async function chapterList() {
+        const data = await storageMock.get(['chapterList']);
+        return data.chapterList || [];
+    }
+
+    beforeEach(async () => {
+        jest.resetModules();
         storageMock = getStorageMock();
+        await storageMock.clear();
+        chrome.runtime.lastError = null;
+        idSequence = 0;
+        originalPath = window.location.pathname + window.location.search + window.location.hash;
+
+        delete window.MangaTranslatorChapter;
+        delete globalThis.MangaTranslatorChapter;
+        require('../../extension/content/cm-chapter.js');
+        chapterApi = window.MangaTranslatorChapter || globalThis.MangaTranslatorChapter;
+        expect(chapterApi).toBeTruthy();
     });
 
-    describe('Sessão única', () => {
-        test('cria novo capítulo na primeira visita', async () => {
-            const system = buildChapterSystem(storageMock, {
-                href: 'https://manga.com/one-piece/cap-1050',
-                hostname: 'manga.com',
-                title: 'One Piece Capítulo 1050 | Ler Online',
-            });
-
-            const id = await system.getOrCreate();
-            expect(id).toMatch(/^chap_/);
-
-            const data = await storageMock.get(['chapterList']);
-            expect(data.chapterList).toHaveLength(1);
-        });
-
-        test('reutiliza capítulo na segunda chamada (mesma URL)', async () => {
-            const system = buildChapterSystem(storageMock, {
-                href: 'https://manga.com/one-piece/cap-1050',
-                hostname: 'manga.com',
-                title: 'One Piece Capítulo 1050 | Ler Online',
-            });
-
-            const id1 = await system.getOrCreate();
-            system.resetCache();
-            const id2 = await system.getOrCreate();
-
-            expect(id1).toBe(id2);
-
-            const data = await storageMock.get(['chapterList']);
-            expect(data.chapterList).toHaveLength(1);
-        });
+    afterEach(async () => {
+        await storageMock.clear();
+        chrome.runtime.lastError = null;
+        window.history.replaceState({}, '', originalPath || '/');
+        document.title = '';
+        delete window.MangaTranslatorChapter;
+        delete globalThis.MangaTranslatorChapter;
     });
 
-    describe('Duas sessões — mesmo capítulo, títulos variando (BUG #12)', () => {
-        test('Sessão 1: "One Piece Cap 1050 | Ler" → Sessão 2: "One Piece Cap 1050 - Mangás" → mesmo ID', async () => {
-            // Sessão 1
-            const system1 = buildChapterSystem(storageMock, {
-                href: 'https://manga.com/one-piece/1050',
-                hostname: 'manga.com',
-                title: 'One Piece Cap 1050 | Ler',
-            });
-            const id1 = await system1.getOrCreate();
+    test('primeira visita cria capítulo usando canonicalTitle da produção', async () => {
+        setPage('/one-piece/1050', 'One Piece [Cap 1050]');
 
-            // Sessão 2 — URL diferente, título similar
-            const system2 = buildChapterSystem(storageMock, {
-                href: 'https://manga.com/one-piece/1050?page=2',
-                hostname: 'manga.com',
-                title: 'One Piece Cap 1050 - Mangás',
-            });
-            const id2 = await system2.getOrCreate();
+        const manager = createManager();
+        const id = await manager.getOrCreateChapterId();
 
-            // Devem ser o mesmo capítulo
-            expect(id1).toBe(id2);
-
-            const data = await storageMock.get(['chapterList']);
-            expect(data.chapterList).toHaveLength(1);
-        });
-
-        test('capítulos DIFERENTES não devem ser agrupados', async () => {
-            const system1050 = buildChapterSystem(storageMock, {
-                href: 'https://manga.com/one-piece/1050',
-                hostname: 'manga.com',
-                title: 'One Piece Cap 1050',
-            });
-
-            const system1051 = buildChapterSystem(storageMock, {
-                href: 'https://manga.com/one-piece/1051',
-                hostname: 'manga.com',
-                title: 'One Piece Cap 1051',
-            });
-
-            const id1050 = await system1050.getOrCreate();
-            const id1051 = await system1051.getOrCreate();
-
-            expect(id1050).not.toBe(id1051);
-            const data = await storageMock.get(['chapterList']);
-            expect(data.chapterList).toHaveLength(2);
-        });
-
-        test('obras DIFERENTES não devem ser agrupadas', async () => {
-            const naruto = buildChapterSystem(storageMock, {
-                href: 'https://manga.com/naruto/1',
-                hostname: 'manga.com',
-                title: 'Naruto Capítulo 1',
-            });
-
-            const bleach = buildChapterSystem(storageMock, {
-                href: 'https://manga.com/bleach/1',
-                hostname: 'manga.com',
-                title: 'Bleach Capítulo 1',
-            });
-
-            const idN = await naruto.getOrCreate();
-            const idB = await bleach.getOrCreate();
-
-            expect(idN).not.toBe(idB);
-        });
+        expect(id).toBe('chap_1');
+        expect(await chapterList()).toEqual([
+            expect.objectContaining({
+                id,
+                url: window.location.href,
+                title: chapterApi.canonicalTitle(document.title),
+                timestamp: expect.any(Number),
+            }),
+        ]);
     });
 
-    describe('Imagens salvas no mesmo capítulo (integração com storage)', () => {
-        test('imagens de duas sessões são salvas sob o mesmo chapterId', async () => {
-            // Sessão 1: traduz página 0
-            const sys1 = buildChapterSystem(storageMock, {
-                href: 'https://manga.com/chapter/1',
-                hostname: 'manga.com',
-                title: 'Test Chapter 1',
-            });
-            const chapId = await sys1.getOrCreate();
+    test('URL exata tem prioridade e reutiliza ID mesmo se o título mudou', async () => {
+        setPage('/exact/chapter', 'Título inicial');
+        const first = createManager();
+        const id1 = await first.getOrCreateChapterId();
 
-            // Salva imagem da sessão 1
-            await storageMock.set({ [`${chapId}_images`]: { 0: 'data:image/png;base64,sess1page0' } });
+        document.title = 'Título completamente diferente';
+        const second = createManager();
+        const id2 = await second.getOrCreateChapterId();
 
-            // Sessão 2: traduz página 1 (URL ligeiramente diferente, título igual)
-            const sys2 = buildChapterSystem(storageMock, {
-                href: 'https://manga.com/chapter/1?p=2',
-                hostname: 'manga.com',
-                title: 'Test Chapter 1',
-            });
-            const chapId2 = await sys2.getOrCreate();
-
-            // Deve ser o mesmo capítulo
-            expect(chapId2).toBe(chapId);
-
-            // Adiciona imagem da sessão 2
-            const data = await storageMock.get([`${chapId}_images`]);
-            const images = data[`${chapId}_images`] || {};
-            images[1] = 'data:image/png;base64,sess2page1';
-            await storageMock.set({ [`${chapId}_images`]: images });
-
-            // Verifica que ambas estão no mesmo capítulo
-            const finalData = await storageMock.get([`${chapId}_images`]);
-            expect(Object.keys(finalData[`${chapId}_images`])).toHaveLength(2);
-        });
+        expect(id2).toBe(id1);
+        expect(await chapterList()).toHaveLength(1);
     });
 
-    describe('Domínios diferentes não interferem', () => {
-        test('mesmo título em domínios diferentes gera capítulos separados', async () => {
-            const siteA = buildChapterSystem(storageMock, {
-                href: 'https://siteA.com/chapter/1',
-                hostname: 'siteA.com',
-                title: 'Same Title',
-            });
+    test('URLs diferentes do mesmo host deduplicam quando canonicalTitle real é equivalente', async () => {
+        setPage('/one-piece/1050', 'One Piece [Cap 1050]');
+        const first = createManager();
+        const id1 = await first.getOrCreateChapterId();
 
-            const siteB = buildChapterSystem(storageMock, {
-                href: 'https://siteB.com/chapter/1',
-                hostname: 'siteB.com',
-                title: 'Same Title',
-            });
+        setPage('/one-piece/1050?page=2', 'One Piece (Cap 1050)');
+        const second = createManager();
+        const id2 = await second.getOrCreateChapterId();
 
-            const idA = await siteA.getOrCreate();
-            const idB = await siteB.getOrCreate();
+        expect(chapterApi.canonicalTitle('One Piece [Cap 1050]'))
+            .toBe(chapterApi.canonicalTitle('One Piece (Cap 1050)'));
+        expect(id2).toBe(id1);
 
-            expect(idA).not.toBe(idB);
+        const list = await chapterList();
+        expect(list).toHaveLength(1);
+        expect(list[0]).toEqual(expect.objectContaining({
+            id: id1,
+            url: window.location.href,
+            title: chapterApi.canonicalTitle(document.title),
+        }));
+    });
+
+    test('não inventa equivalência de sufixos textuais que canonicalTitle real preserva', async () => {
+        expect(chapterApi.canonicalTitle('One Piece Cap 1050 | Ler'))
+            .not.toBe(chapterApi.canonicalTitle('One Piece Cap 1050 - Mangás'));
+
+        setPage('/legacy-mirror/1050', 'One Piece Cap 1050 | Ler');
+        const id1 = await createManager().getOrCreateChapterId();
+
+        setPage('/legacy-mirror/1050?page=2', 'One Piece Cap 1050 - Mangás');
+        const id2 = await createManager().getOrCreateChapterId();
+
+        expect(id2).not.toBe(id1);
+        expect(await chapterList()).toHaveLength(2);
+    });
+
+    test('capítulos diferentes do mesmo host não são agrupados', async () => {
+        setPage('/one-piece/1050', 'One Piece Cap 1050');
+        const id1050 = await createManager().getOrCreateChapterId();
+
+        setPage('/one-piece/1051', 'One Piece Cap 1051');
+        const id1051 = await createManager().getOrCreateChapterId();
+
+        expect(id1051).not.toBe(id1050);
+        expect(await chapterList()).toHaveLength(2);
+    });
+
+    test('mesmo título armazenado em outro domínio não é reutilizado', async () => {
+        await storageMock.set({
+            chapterList: [{
+                id: 'chap_other_domain',
+                url: 'https://other.example/chapter/1',
+                title: chapterApi.canonicalTitle('Mesmo Título'),
+                timestamp: 1,
+            }],
         });
+
+        setPage('/site-b/chapter/1', 'Mesmo Título');
+        const currentId = await createManager().getOrCreateChapterId();
+
+        expect(currentId).not.toBe('chap_other_domain');
+        expect(await chapterList()).toEqual(expect.arrayContaining([
+            expect.objectContaining({ id: 'chap_other_domain' }),
+            expect.objectContaining({ id: currentId, url: window.location.href }),
+        ]));
+    });
+
+    test('persistTranslatedPage de duas sessões envia páginas ao SM_SAVE_PAGE sob o mesmo chapterId', async () => {
+        const saveRequests = [];
+        const restoreSpy = jest.fn();
+        const storageService = async request => {
+            expect(request.action).toBe('SM_SAVE_PAGE');
+            saveRequests.push(request);
+            return { ok: true, assetId: `asset_${saveRequests.length}` };
+        };
+
+        setPage('/manga/chapter-7', 'Manga [Chapter 7]');
+        const session1 = createManager({
+            sendRuntimeMessageAsync: storageService,
+            onRestoreEntry: restoreSpy,
+        });
+        const saved1 = await session1.persistTranslatedPage(
+            0,
+            'data:image/png;base64,UEFHRTA=',
+            {
+                sourceUrl: 'https://cdn.example/page-0.png?token=a',
+                cleanUrl: 'https://cdn.example/page-0.png',
+                width: 800,
+                height: 1200,
+            }
+        );
+
+        setPage('/manga/chapter-7?page=2', 'Manga (Chapter 7)');
+        const session2 = createManager({
+            sendRuntimeMessageAsync: storageService,
+            onRestoreEntry: restoreSpy,
+        });
+        const saved2 = await session2.persistTranslatedPage(
+            1,
+            'data:image/png;base64,UEFHRTE=',
+            {
+                sourceUrl: 'https://cdn.example/page-1.png?token=b',
+                cleanUrl: 'https://cdn.example/page-1.png',
+                width: 801,
+                height: 1201,
+            }
+        );
+
+        expect(saved2.chapterId).toBe(saved1.chapterId);
+        expect(saveRequests).toHaveLength(2);
+        expect(saveRequests.map(request => ({
+            action: request.action,
+            chapterId: request.chapterId,
+            pageIndex: request.pageIndex,
+        }))).toEqual([
+            { action: 'SM_SAVE_PAGE', chapterId: saved1.chapterId, pageIndex: 0 },
+            { action: 'SM_SAVE_PAGE', chapterId: saved1.chapterId, pageIndex: 1 },
+        ]);
+        expect(saveRequests[0]).toEqual(expect.objectContaining({
+            dataUrl: 'data:image/png;base64,UEFHRTA=',
+            originalUrl: 'https://cdn.example/page-0.png?token=a',
+            cleanUrl: 'https://cdn.example/page-0.png',
+            meta: expect.objectContaining({
+                host: window.location.hostname,
+                width: 800,
+                height: 1200,
+            }),
+        }));
+        expect(saveRequests[1]).toEqual(expect.objectContaining({
+            dataUrl: 'data:image/png;base64,UEFHRTE=',
+            cleanUrl: 'https://cdn.example/page-1.png',
+            meta: expect.objectContaining({ width: 801, height: 1201 }),
+        }));
+        expect(restoreSpy).toHaveBeenNthCalledWith(1, 'https://cdn.example/page-0.png', {
+            assetId: 'asset_1',
+            index: 0,
+        });
+        expect(restoreSpy).toHaveBeenNthCalledWith(2, 'https://cdn.example/page-1.png', {
+            assetId: 'asset_2',
+            index: 1,
+        });
+
+        const local = await storageMock.get(null);
+        expect(local.chapterList).toHaveLength(1);
+        expect(Object.keys(local).some(key => key.endsWith('_images'))).toBe(false);
+        expect(Object.keys(local).some(key => key.endsWith('_restoreMap'))).toBe(false);
     });
 });

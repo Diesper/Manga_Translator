@@ -13,8 +13,14 @@ function exists(rel) {
 function walk(dir, { ignore = new Set() } = {}) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    if (ignore.has(entry.name)) return [];
     const full = path.join(dir, entry.name);
+    if (entry.isSymbolicLink()) {
+      if (path.resolve(full) !== path.join(root, 'node_modules')) {
+        problems.push('link simbólico proibido: ' + rel(full));
+      }
+      return [];
+    }
+    if (ignore.has(entry.name)) return [];
     if (entry.isDirectory()) return walk(full, { ignore });
     return entry.isFile() ? [full] : [];
   });
@@ -24,13 +30,47 @@ function rel(file) {
   return path.relative(root, file).replace(/\\/g, '/');
 }
 
-function requirePresent(relPath) {
-  if (!exists(relPath)) problems.push('arquivo/diretório obrigatório ausente: ' + relPath);
+function requirePresent(relPath, expectedType) {
+  const full = path.join(root, relPath);
+  if (!fs.existsSync(full)) {
+    problems.push('arquivo/diretório obrigatório ausente: ' + relPath);
+    return;
+  }
+
+  if (!expectedType) return;
+  let stat;
+  try {
+    stat = fs.statSync(full);
+  } catch (error) {
+    problems.push('não foi possível inspecionar tipo de ' + relPath + ': ' + error.message);
+    return;
+  }
+
+  const validType = expectedType === 'directory' ? stat.isDirectory() : stat.isFile();
+  if (!validType) {
+    problems.push(
+      'tipo inválido para ' + relPath + ': esperado '
+      + (expectedType === 'directory' ? 'diretório' : 'arquivo')
+    );
+  }
 }
 
 function requireAbsent(relPath) {
   if (exists(relPath)) problems.push('legado proibido ainda existe: ' + relPath);
 }
+
+const requiredDirectories = new Set([
+  'extension/background',
+  'tests/unit',
+  'tests/integration',
+  'tests/smoke',
+  'tests/visual',
+  'tests/e2e',
+  'tests/fixtures',
+  'tests/helpers',
+  'tests/mocks',
+  'tests/setup',
+]);
 
 for (const required of [
   'package.json',
@@ -67,14 +107,34 @@ for (const required of [
   'scripts/ci/data/e2e-shard-plan.json',
   'scripts/ci/data/regression-matrix.json',
   'scripts/validation/verify-ci-contract.js',
+  'tests/infra/bible/verify-repository-structure-selftest.js',
   'scripts/release/sync-version.js',
   'docs/Documentação.md',
-]) requirePresent(required);
+  'docs/biblia/STATUS.md',
+  'docs/biblia/CHECKLIST.md',
+  'docs/biblia/AUDITORIA.md',
+]) requirePresent(required, requiredDirectories.has(required) ? 'directory' : 'file');
 
-const docsFiles = walk(path.join(root, 'docs')).map(rel).sort();
-if (docsFiles.length !== 1 || docsFiles[0] !== 'docs/Documentação.md') {
-  problems.push('docs/ deve conter somente docs/Documentação.md; encontrados: ' + docsFiles.join(', '));
+const docsRootEntries = fs.readdirSync(path.join(root, 'docs'), { withFileTypes: true })
+  .map(entry => entry.name)
+  .sort();
+const expectedDocsRootEntries = ['Documentação.md', 'biblia'].sort();
+if (JSON.stringify(docsRootEntries) !== JSON.stringify(expectedDocsRootEntries)) {
+  problems.push(
+    'docs/ deve conter somente Documentação.md e o diretório biblia/; encontrados: '
+    + docsRootEntries.join(', ')
+  );
 }
+
+requireAbsent('docs/Bíblia.md');
+
+
+const { validateBibleCoordination } = require('./bible-coordination');
+const bibleValidation = validateBibleCoordination(root, {
+  checkDerived: false,
+  headLabel: 'states-v2',
+});
+for (const problem of bibleValidation.problems) problems.push('Bíblia: ' + problem);
 
 for (const forbidden of [
   'extension/content_manga.js',
@@ -130,6 +190,7 @@ const expectedContentScripts = [
     'content/cm-dom-replace.js',
     'content/cm-chapter.js',
     'content/cm-auto-restore.js',
+    'content/cm-audio.js',
     'content/content_manga.js',
   ],
   ['content/inject.js'],
@@ -205,7 +266,7 @@ if (!popupSource.includes('reader/reader.html?id=')) {
 }
 
 const extensionRootFiles = fs.readdirSync(path.join(root, 'extension'), { withFileTypes: true })
-  .filter(entry => entry.isFile())
+  .filter(entry => entry.isFile() || entry.isSymbolicLink())
   .map(entry => entry.name)
   .sort();
 if (JSON.stringify(extensionRootFiles) !== JSON.stringify(['background.js', 'manifest.json'])) {
@@ -258,6 +319,8 @@ const operationalTextFiles = tracked.filter((file) => {
 });
 for (const file of operationalTextFiles) {
   const relative = rel(file);
+  // This fixture intentionally contains forbidden paths to test rejection.
+  if (relative === 'tests/infra/bible/verify-repository-structure-selftest.js') continue;
   const source = fs.readFileSync(file, 'utf8');
   for (const marker of legacyReferenceMarkers) {
     if (source.includes(marker)) {
@@ -337,7 +400,7 @@ for (const file of testJs) {
   if (/function\s+_?findRoot\s*\(/.test(source)) {
     problems.push('finder de raiz duplicado em ' + rel(file) + '; use tests/helpers/repo-root.js');
   }
-  if (source.includes('process.cwd()')) {
+  if (source.includes('process.cwd()') && rel(file) !== 'tests/infra/bible/verify-repository-structure-selftest.js') {
     problems.push('dependência de process.cwd() em ' + rel(file) + '; derive paths de __dirname/repo-root');
   }
 }

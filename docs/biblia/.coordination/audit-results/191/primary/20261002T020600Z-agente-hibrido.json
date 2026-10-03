@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 191,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE HÍBRIDO",
+  "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+  "source_sha": "e3a1f219a3f8cd597db1118950e3a8ed4677066f",
+  "bible_sha": "d95135f438c9e9b47cc638208265d6787a039c00",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "191-PRI3-001",
+      "severity": "HIGH",
+      "type": "ERROR_AUDIO_CONTEXT_LIFECYCLE_LEAK",
+      "summary": "playErrorSound cria um AudioContext novo para cada erro integrado, enquanto o runtime já reconhece que múltiplos contextos por página podem esgotar o limite do Chromium.",
+      "evidence": [
+        "extension/content/content_manga.js mantém notificationAudioContext reutilizável nas linhas 176–185 e o comentário do runtime explica que criar muitos AudioContexts fazia o som parar após algumas traduções.",
+        "playErrorSound, em content_manga.js linha 1142, executa `new (window.AudioContext || window.webkitAudioContext)()` diretamente; não usa getNotificationAudioContext/getLoggedNotificationAudioContext e não fecha o contexto.",
+        "showIntegratedError chama playErrorSound para cada erro com imgIndex (linha 1197), e o handler de erro de lote pode invocar showIntegratedError repetidamente para imagens diferentes.",
+        "audio-synthesis-full.test.js valida apenas uma ocorrência de SHOW_ERROR_INTEGRATED no teste de erro e, portanto, não detecta criação repetida de contextos.",
+        "replacement-and-completion-real.test.js cobre reuse/rejection do contexto de sucesso, mas não cobre lifecycle do AudioContext de erro.",
+        "A Bíblia atual descreve lifecycle/reuse do AudioContext e o som de erro real, porém não registra que o caminho de erro continua fora do mecanismo reutilizável."
+      ],
+      "requested_action": "Unificar o som de erro com o lifecycle reutilizável de notificationAudioContext (ou fechar explicitamente cada contexto de erro após a última nota), adicionar regressão com erros repetidos e provar que não há crescimento de AudioContexts sem limite.",
+      "expected_evidence": "Duas ou mais ocorrências consecutivas de SHOW_ERROR_INTEGRATED reutilizam um único contexto reutilizável, ou cada contexto efêmero é fechado deterministicamente; Node 20/22 e content-scripts permanecem verdes.",
+      "impact": "Erros repetidos podem acumular AudioContexts, degradar/cessar notificações sonoras e também consumir o orçamento de contexto usado pelo som de sucesso."
+    }
+  ],
+  "confirmations": {
+    "embedded_source_exact": "CONFIRMADO",
+    "coverage_map": "592/592_CONTIGUOUS_NO_GAP_NO_OVERLAP",
+    "source_text_lines": 591,
+    "skipped_tests": 0,
+    "dependency_shas": "COINCIDEM_COM_BIBLIA",
+    "executable_evidence": "36950824865 e 36951292966 verdes; follow-up focal 20/20 Node20+Node22 e full content-scripts 439/439",
+    "independence_note": "Este PRIMARY registra um finding negativo da revisão atual; não deve ser interpretado como aprovação independente final, pois o mesmo identificador participou de correção anterior."
+  },
+  "completed_at_utc": "2026-10-02T02:06:00Z"
+}

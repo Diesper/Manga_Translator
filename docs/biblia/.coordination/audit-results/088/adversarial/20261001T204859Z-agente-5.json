@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "index": 88,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 5",
+  "file": "scripts/validation/verify-publish-contract.js",
+  "bible": "docs/biblia/scripts/validation/verify-publish-contract.js/Bíblia.md",
+  "source_sha": "f5b3f6c69f85f90fe43689de2e44b6ed70cca757",
+  "bible_sha": "ef40e242e7c38c1828892bfe932509c31d80aed2",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "088-ADV3-001",
+      "severity": "MATERIAL",
+      "category": "SEMANTIC_OVERCLAIM_ORDERING",
+      "location": "Bíblia.md — seção 6, invariante 3",
+      "problem": "A Bíblia apresenta `version:check` antes de derivar metadados como invariante, mas o gate auditado e o CI Contract só protegem presença textual dos comandos, não sua ordem.",
+      "evidence": [
+        "Bíblia: `3. publicação valida versão antes de derivar metadados`.",
+        "verify-publish-contract.js inclui ambos os comandos em `required` e valida cada um isoladamente com `source.includes(marker)`.",
+        "verify-ci-contract.js também usa `includes` independentes para os dois comandos; não há comparação de índices/ordem.",
+        "O publish.yml atual possui a ordem desejada, mas isso é estado corrente, não garantia produzida por este gate.",
+        "Mutação adversarial executando o verifier real com os dois passos invertidos ainda imprimiu `Contrato de publicação validado` e terminou com exit 0."
+      ],
+      "required_change": "Qualificar a ordem como propriedade observada do publish.yml atual e declarar que o gate não a protege; ou implementar checagem explícita de ordering e evidência focal caso a ordem deva ser um contrato deste verifier."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_requests_non_blocking": [
+    "088-001",
+    "088-002"
+  ],
+  "completed_at_utc": "2026-10-01T20:48:59.392Z"
+}

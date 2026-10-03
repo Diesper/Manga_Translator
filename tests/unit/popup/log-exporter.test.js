@@ -41,6 +41,12 @@ describe('Log Buffer e Exportador — popup.js', () => {
         await flushAsyncTasks(4);
     }
 
+    function respondWithEmptyPageImages(tabId) {
+        tabsMock._registerMessageHandler(tabId, (message, _sender, sendResponse) => {
+            if (message?.action === 'GET_PAGE_IMAGES') sendResponse({ images: [] });
+        });
+    }
+
     test('renderiza registros de log salvos no storage e atualiza o contador', async () => {
         const sampleLogs = [
             { ts: Date.now() - 5000, level: 'info', source: 'bg', action: 'START_JOB', detail: 'Iniciando job 1' },
@@ -58,6 +64,7 @@ describe('Log Buffer e Exportador — popup.js', () => {
             title: 'Manga Test',
         });
         tabsMock._activeTabId = activeTab.id;
+        respondWithEmptyPageImages(activeTab.id);
 
         await loadExtensionPage({
             htmlPath: 'extension/popup/popup.html',
@@ -94,6 +101,7 @@ describe('Log Buffer e Exportador — popup.js', () => {
             title: 'Manga Test',
         });
         tabsMock._activeTabId = activeTab.id;
+        respondWithEmptyPageImages(activeTab.id);
 
         await loadExtensionPage({
             htmlPath: 'extension/popup/popup.html',
@@ -122,6 +130,7 @@ describe('Log Buffer e Exportador — popup.js', () => {
     test('exporta logs gerando arquivo mangatranslator_log.txt via downloads API', async () => {
         const downloadSpy = jest.spyOn(downloadsMock, 'download');
         window.URL.createObjectURL = jest.fn(() => 'blob:mock-log-download');
+        window.URL.revokeObjectURL = jest.fn();
 
         const sampleLogs = [
             { ts: 1700000000000, level: 'info', source: 'bg', action: 'BATCH_START', detail: 'Lote iniciado' },
@@ -138,6 +147,7 @@ describe('Log Buffer e Exportador — popup.js', () => {
             title: 'Manga Test',
         });
         tabsMock._activeTabId = activeTab.id;
+        respondWithEmptyPageImages(activeTab.id);
 
         await loadExtensionPage({
             htmlPath: 'extension/popup/popup.html',
@@ -156,8 +166,10 @@ describe('Log Buffer e Exportador — popup.js', () => {
             expect.objectContaining({
                 filename: 'mangatranslator_log.txt',
                 saveAs: true,
-            })
+            }),
+            expect.any(Function)
         );
+        expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-log-download');
     });
 
     test('alerta quando não há logs para exportar', async () => {
@@ -172,6 +184,7 @@ describe('Log Buffer e Exportador — popup.js', () => {
             title: 'Manga Test',
         });
         tabsMock._activeTabId = activeTab.id;
+        respondWithEmptyPageImages(activeTab.id);
 
         await loadExtensionPage({
             htmlPath: 'extension/popup/popup.html',
@@ -200,6 +213,7 @@ describe('Log Buffer e Exportador — popup.js', () => {
         await storageMock.set({ translatorLog: sampleLogs, enabledDomains: ['manga.test'] });
         const activeTab = await tabsMock.create({ url: 'https://manga.test/ch1', active: true, title: 'Manga Test' });
         tabsMock._activeTabId = activeTab.id;
+        respondWithEmptyPageImages(activeTab.id);
 
         await loadExtensionPage({ htmlPath: 'extension/popup/popup.html', scriptPath: 'extension/popup/popup.js', fireDOMContentLoaded: true });
         await flushAsyncTasks(8);
@@ -215,5 +229,40 @@ describe('Log Buffer e Exportador — popup.js', () => {
         expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('BATCH_DONE'));
         expect(document.getElementById('btn-log-copy').textContent).toBe('Copiado!');
     });
+    test('beforeunload remove o listener de storage dos logs e limpa o estado global', async () => {
+        await storageMock.set({
+            translatorLog: [{ ts: Date.now(), level: 'info', source: 'bg', action: 'CLEANUP', detail: 'cleanup' }],
+            enabledDomains: ['manga.test'],
+        });
+        const activeTab = await tabsMock.create({
+            url: 'https://manga.test/ch1',
+            active: true,
+            title: 'Manga Test',
+        });
+        tabsMock._activeTabId = activeTab.id;
+        respondWithEmptyPageImages(activeTab.id);
+
+        const removeListenerSpy = jest.spyOn(chrome.storage.onChanged, 'removeListener');
+
+        await loadExtensionPage({
+            htmlPath: 'extension/popup/popup.html',
+            scriptPath: 'extension/popup/popup.js',
+            fireDOMContentLoaded: true,
+        });
+        await flushAsyncTasks(8);
+        await openLogsSection();
+
+        const installedListener = window.logStorageListener;
+        expect(typeof installedListener).toBe('function');
+        expect(window.logListenerAdded).toBe(true);
+
+        window.dispatchEvent(new Event('beforeunload'));
+
+        expect(removeListenerSpy).toHaveBeenCalledWith(installedListener);
+        expect(window.logStorageListener).toBeNull();
+        expect(window.logListenerAdded).toBe(false);
+        expect(window.logPoller).toBeNull();
+    });
+
 });
 

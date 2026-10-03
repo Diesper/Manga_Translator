@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "index": 174,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-gemini/attachment.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/attachment.test.js/Bíblia.md",
+  "source_sha": "43d4591bc9ff684de97d8010aea428a9f83ea321",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "174-PRI-001",
+      "severity": "HIGH",
+      "type": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "summary": "O mapa linha-a-linha cobre 407/407 posições, mas reutiliza uma descrição semântica incorreta em grande escala; foram localizadas 146 ocorrências de `Observa arquivos atribuídos ao input`, inclusive em linhas cujo comportamento não tem essa função.",
+      "evidence": [
+        "Bíblia.md bloco da Linha 347 (inicia na linha documental 2922) mapeia `editor,` para `Observa arquivos atribuídos ao input`, embora a linha apenas passe o editor para attachFile.",
+        "Bíblia.md bloco da Linha 353 (linha documental 2964) mapeia `onAttempt: attempt => attempts.push(attempt)` para a mesma função, embora a linha registre tentativas para assertions posteriores.",
+        "Bíblia.md Linhas 354-355 descrevem `dispatchMethodFn` e seu filtro de método como observação de arquivos atribuídos ao input, em vez de descrever o stub que controla quais métodos são considerados tentados.",
+        "Bíblia.md Linhas 395-398 descrevem a criação/conexão de `model-response` e `addPreview({ parent: response })` como observação de arquivos atribuídos ao input; na fonte essas linhas constroem deliberadamente evidência fora do composer para provar ATT-11.",
+        "A frase incorreta aparece 146 vezes na seção linha-a-linha. A fonte integral e a cardinalidade 407/407 são exatas, portanto a falha é semântica, não de contagem."
+      ]
+    },
+    {
+      "id": "174-PRI-002",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia apresenta 174-001, 174-002 e 174-003 como OPEN, enquanto os três requests já estão ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia.md linhas 63, 71 e 79 usam headings OPEN para 174-001/002/003.",
+        "docs/biblia/.state/174.json registra 174-001=ACCEPTED, 174-002=ACCEPTED e 174-003=ACCEPTED, cada um com audit_finding e recomendação persistidos.",
+        "As três lacunas continuam sustentadas pela implementação real de attachment.js (reconsulta de editor, evidenceReady com busy/progress e filtragem/prioridade de file inputs); o erro é o lifecycle documental stale."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:42:00Z"
+}

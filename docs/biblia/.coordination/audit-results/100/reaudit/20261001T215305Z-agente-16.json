@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "index": 100,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 16",
+  "file": "tests/helpers/load-background-module.js",
+  "bible": "docs/biblia/tests/helpers/load-background-module.js/Bíblia.md",
+  "source_sha": "b1a20544a10b3b1410f4b3e9c2be6f53b7ac3113",
+  "bible_sha": "08fb210fd0dd2d74186070b997970e337e359186",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "100-REA-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "area": "AUDIT_REQUEST_LIFECYCLE",
+      "title": "A Bíblia apresenta 100-001..004 como OPEN, mas o state canônico registra as quatro como ACCEPTED",
+      "evidence": [
+        "Bíblia seção 8: os quatro headings 100-001, 100-002, 100-003 e 100-004 terminam em OPEN.",
+        "Bíblia seção 12: a autoauditoria afirma em tempo presente que 'Solicitações 100-001..004 permanecem OPEN no processo de auditoria separado'.",
+        "docs/biblia/.state/100.json atual: 100-001, 100-002, 100-003 e 100-004 possuem status ACCEPTED, com audited_by/audited_at_utc/audit_finding persistidos.",
+        "O documento não rotula os OPEN como snapshot histórico. A interpretação de snapshot aparece apenas na aprovação legada externa em docs/biblia/AUDITORIA.md, não na Bíblia auditada.",
+        "document_quality.external_audit_requests_open no state atual é 0, reforçando que OPEN não representa o lifecycle canônico vigente."
+      ],
+      "refutation_attempt": "A hipótese de que OPEN fosse um snapshot histórico foi testada contra a própria seção 8, a autoauditoria e o state. Ela falha porque a Bíblia usa 'permanecem OPEN' sem qualificador histórico.",
+      "required_change": "Sincronizar os quatro statuses documentais para ACCEPTED, ou marcar inequivocamente o estado antigo como histórico e apresentar o status canônico atual; manter as lacunas técnicas como dívida externa não bloqueante."
+    },
+    {
+      "id": "100-REA-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "area": "EVIDENCE_CLASSIFICATION_AND_SEMANTICS",
+      "title": "test_bg59 não prova que o parâmetro lexical fetch injetado no runner é usado",
+      "claim_in_bible": "Seção 6: 'fetch injetado é usado' — test_bg59.test.js verifica global.fetch após carregar o helper — classificado como PROVADO DIRETAMENTE.",
+      "evidence": [
+        "tests/helpers/load-background-module.js declara o parâmetro 'fetch' do new Function e passa global.fetch ao runner; isso prova que o binding é fornecido ao corpo instrumentado.",
+        "extension/background.js SHA 667c05eb2d7adfca16a79d3e706c39a1e9398b72 não contém uso do identificador fetch no corpo executável; as únicas ocorrências textuais de 'fetch' são nomes de arquivos em importScripts/require.",
+        "No branch CommonJS, extension/background.js requer ./background/actions/calculate-visual-fingerprint.js; esse módulo separado usa bare fetch(url, ...) em seu próprio wrapper CommonJS, fora do escopo lexical do new Function.",
+        "test_bg59.test.js configura global.fetch antes de loadBackgroundModule e depois exige expect(global.fetch).toHaveBeenCalledWith(...). A assertion prova o fetch global do módulo requerido, não consumo do parâmetro lexical fetch do runner.",
+        "Contraprova adversarial: remover o parâmetro lexical fetch do runner, preservando global.fetch para os módulos CommonJS requeridos, não é especificamente detectado pela assertion citada. Logo a classificação direta do mecanismo de injeção/uso é mais forte que a evidência."
+      ],
+      "required_change": "Trocar a claim por uma formulação factual: o loader fornece global.fetch como parâmetro ao runner, mas o background atual não demonstra consumo desse binding; classificar test_bg59 como prova do caminho global.fetch da action requerida. Se o binding lexical for contrato relevante, adicionar prova focal que realmente o consuma."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "positional_coverage": "CONFIRMADO_3X_121_DE_121",
+    "line_semantics": "CONFIRMADO_3X",
+    "background_dependency": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X_11_CONSUMERS",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONTRADITO",
+    "phase_independence": "CONFIRMADA_AGENTE_16_VS_ADVERSARIAL_AGENTE_20",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "source_text_lines": 120,
+    "source_final_newline": true,
+    "documented_positions": "121/121",
+    "position_gaps": 0,
+    "position_overlaps": 0,
+    "line_content_mismatches": 0,
+    "embedded_source_exact": true,
+    "background_sha": "667c05eb2d7adfca16a79d3e706c39a1e9398b72",
+    "primary_legacy": "APPROVED por AGENTE 6 em docs/biblia/AUDITORIA.md",
+    "adversarial_current": "CHANGES_REQUIRED por AGENTE 20, mesma revisão source+bible",
+    "formal_refutation": "A reprovação se sustenta independentemente por lifecycle documental stale e overclaim do binding fetch."
+  },
+  "completed_at_utc": "2026-10-01T21:53:05.783Z"
+}

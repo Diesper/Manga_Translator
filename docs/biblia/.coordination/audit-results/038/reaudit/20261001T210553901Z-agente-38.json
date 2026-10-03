@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 38,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 38",
+  "file": "extension/content/content_gemini.js",
+  "bible": "docs/biblia/extension/content/content_gemini.js/Bíblia.md",
+  "source_sha": "55bc83afe31a10c53f39799717f2f221b6919029",
+  "bible_sha": "4df0caacf54a19540052caa19a936255059804d1",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "038-REAUDIT-001",
+      "severity": "BLOCKING",
+      "type": "ACCEPTED_AUDIT_REQUEST_INCOMPLETELY_REPRESENTED",
+      "summary": "A Bíblia superestima o contrato/prova de deleting_urls: documenta o guard como bloqueio seguro e só registra a lacuna do fallback por item inválido, mas omite que um valor truthy não-array no storage lança em deletingUrls.some antes desse fallback; esse risco já está ACCEPTED no state como 038-004.",
+      "evidence": [
+        "Source linhas 346-347: `const deletingUrls = data.deleting_urls || [];` seguido de `deletingUrls.some(...)`; string/objeto truthy sem método `.some` pode lançar antes do callback.",
+        "State 038-004 (ACCEPTED) registra explicitamente que processGeminiJob assume Array.prototype.some quando deleting_urls é truthy e que storage corrompido/não-array não possui contrato/prova focal.",
+        "Bíblia seção 14 registra apenas `deleting_urls inválida cair em includes(path)`, que descreve o catch dentro do callback para um valor individual e não o shape não-array da coleção.",
+        "Bíblia seções 9 e 15 e invariante 9 afirmam categoricamente que deleting_urls impede/bloqueia RPA na conversa; a auditoria final também marca deleting_urls ligado a provas reais sem qualificar o shape aceito.",
+        "CG-14 usa `deleting_urls: ['https://gemini.test/app/chat-1']` e prova somente o caminho de array válido; não exercita valor truthy não-array.",
+        "A Bíblia já reconhece separadamente que o auto-start chama processGeminiJob() sem `.catch()` externo; portanto a exceção de shape omitida pode também resultar em rejection não tratada no auto-start."
+      ]
+    }
+  ],
+  "reviewed_adversarial_findings": [
+    {
+      "id": "038-ADV-001",
+      "disposition": "REJECTED",
+      "reason": "O extrator canônico `extractIntegralSource()` de scripts/validation/bible-coordination.js usa o newline antes do fence como delimitador estrutural. Pelo mesmo algoritmo, o conteúdo integral extraído coincide com o source atual; não há byte extra material no conteúdo auditado."
+    },
+    {
+      "id": "038-ADV-002",
+      "disposition": "CONFIRMED",
+      "reason": "Confirmado independentemente por source, state 038-004, Bíblia e assertion CG-14."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:05:53.901Z"
+}

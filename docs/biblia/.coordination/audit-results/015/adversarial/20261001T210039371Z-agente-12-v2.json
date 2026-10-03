@@ -1,0 +1,68 @@
+{
+  "schema_version": 2,
+  "index": 15,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 12",
+  "file": "extension/background/actions/get-tab-id.js",
+  "bible": "docs/biblia/extension/background/actions/get-tab-id.js/Bíblia.md",
+  "source_sha": "2f3b26304ac12a671927b1abefc2a914d7eaa372",
+  "bible_sha": "211ac0303a497a55dd48be166053ff787b7b8aa5",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "015-ADV-V2-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "UNDISCLOSED_ADVERSARIAL_TEST_GAP",
+      "finding": "A Bíblia afirma corretamente que a action ignora o request e estabelece como invariante 'Nunca aceitar tabId vindo do request', mas não registra que não existe prova focal contra um payload GET_TAB_ID contendo um tabId conflitante. Todos os testes localizados que exercitam a implementação real enviam somente {action:'GET_TAB_ID'}.",
+      "evidence": [
+        "O source atual usa execute(_request, context), nunca lê _request e devolve exclusivamente sender.tab.id quando sender.tab existe.",
+        "tests/unit/background/actions-low-risk.test.js exercita a action real com request {action:'GET_TAB_ID'} e sender.tab.id=41; não inclui tabId no request.",
+        "tests/unit/background/routed-actions-legacy.test.js exercita a action real via background com request {action:'GET_TAB_ID'} e sender.tab.id=72; não inclui tabId no request.",
+        "tests/unit/background/message-handlers-real.test.js exercita a action real com request {action:'GET_TAB_ID'} e sender de manga; não inclui tabId no request.",
+        "tests/unit/background/gtc-runtime-bridge.test.js exercita background/action reais com request {action:'GET_TAB_ID'} e sender.tab=null; não inclui tabId no request.",
+        "A enumeração independente de ocorrências de GET_TAB_ID encontrou outros testes de content_gemini/content_manga que mockam a resposta do runtime, não a autoridade da action.",
+        "Mutação adversarial demonstrável: preferir request.tabId somente quando inteiro e manter o fallback atual para sender preserva exatamente os casos atuais 41/72/manga/null, mas quebra o invariante quando request.tabId=999 e sender.tab.id=41. Portanto a regressão plausível pode ficar verde."
+      ],
+      "required_change": "Registrar explicitamente nas lacunas que não há teste probatório focal para rejeitar/ignorar um tabId arbitrário enviado no payload, ou adicionar em alteração separada um teste da action real com request.tabId conflitante e sender.tab.id diferente, exigindo que o retorno continue sendo o sender.tab.id. Não é necessário alterar o source para corrigir a Bíblia."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics_main": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONTRADITO_POR_LACUNA_NAO_DECLARADA",
+    "evidence_classification": "CONTRADITO_POR_LACUNA_NAO_DECLARADA",
+    "audit_requests": "CONFIRMADO_3X_NENHUMA",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "previous_revision_findings": "Os findings históricos sobre sender.tab=null e source popup foram corrigidos na revisão documental atual e resistiram à revalidação.",
+    "primary_current": "AGENTE 14 / APPROVED / schema v2 / mesmo SOURCE_SHA e BIBLE_SHA",
+    "embedded_source_exact": true,
+    "documented_positions": "18/18",
+    "source_text_lines": 17,
+    "final_newline_position": 18,
+    "production_consumers_confirmed": [
+      "extension/content/content_gemini.js — fallback legado após CLAIM_GEMINI_JOB não suportado",
+      "extension/content/content_manga.js — tabId para telemetria de áudio"
+    ],
+    "router_background_wiring_confirmed": [
+      "extension/background/router.js — alias GET_TAB_ID, identifySource e allowedSources",
+      "extension/background.js — carrega get-tab-id.js e remove ok:true para resposta legada"
+    ],
+    "triple_check": {
+      "integrity": "SIM",
+      "veracity": "SIM",
+      "honesty": "NAO — lacuna adversarial do invariante 1 não é declarada"
+    }
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:00:39.371Z"
+}

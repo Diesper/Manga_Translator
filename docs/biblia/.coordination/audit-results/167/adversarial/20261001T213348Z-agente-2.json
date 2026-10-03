@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "index": 167,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 2",
+  "file": "tests/unit/background/single-image-context-menu.test.js",
+  "bible": "docs/biblia/tests/unit/background/single-image-context-menu.test.js/Bíblia.md",
+  "source_sha": "c4e122e3fd2a5298b255e647dbc804c903ed17f5",
+  "bible_sha": "baaa4bac11eeb178b8b23269586428cfb87f456b",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "167-ADV3-001",
+      "severity": "BLOCKING",
+      "category": "SEMANTIC_LINE_MAPPING",
+      "finding": "A fonte integral é byte-a-byte exata e o mapa possui 172/172 headings mais a posição 173 do newline, porém a auditoria linha a linha ainda contém descrições substantivas semanticamente erradas ou tautológicas. A correção declarada no fim da Bíblia não eliminou esses problemas.",
+      "evidence": [
+        "Linha 030: `if (index >= 0) clickListeners.splice(index, 1);` remove o listener, mas a função documental diz `Mantém listeners onClicked registrados pelo background.`",
+        "Linhas 125 e 162 invocam `contextMenus.clickListeners[0](...)`, mas a função documental também diz que apenas mantém listeners.",
+        "Linhas substantivas como 064-065, 096-097, 126-130, 134-135 e 163-167 ainda usam a descrição tautológica `Executa a instrução específica desta linha...`, sem explicar binding de API, valores contratuais ou composição do evento/payload.",
+        "A varredura determinística da revisão atual encontrou 34 entradas que ainda casam com templates genéricos/suspeitos (`Executa a instrução...`, `Invoca a operação indicada...`, `Executa e aguarda...` ou `Mantém listeners...`).",
+        "A seção final afirma que 67 descrições genéricas foram substituídas por função específica; a permanência das entradas acima contradiz materialmente essa alegação."
+      ],
+      "requested_document_change": "Reescrever todas as descrições substantivas genéricas ou semanticamente incorretas para expressar a operação real da linha; manter descrições estruturais genéricas apenas onde forem de fato estruturais e ajustar a nota de correção para não alegar completude antes de ela ser verdadeira."
+    },
+    {
+      "id": "167-ADV3-002",
+      "severity": "BLOCKING",
+      "category": "CONSUMER_AND_GATE_OMISSION",
+      "finding": "A Bíblia documenta um run histórico e o consumer funcional de TRANSLATE_CONTEXT_IMAGE, mas omite o encadeamento estático atual que descobre e executa esta própria suíte nos gates Jest/CI. Para uma Bíblia de arquivo de teste, esse wiring é consumer/gate relevante e a omissão impede reconstruir como a prova entra na CI atual.",
+      "evidence": [
+        "jest.config.js: projeto `background`, testMatch `<rootDir>/tests/unit/background/**/*.test.js`, descobre diretamente esta suíte.",
+        "scripts/ci/run-jest-ci.js: `unitProjects` inclui `background` e usa `jest.config.js`.",
+        "package.json: `test:ci` executa `node scripts/ci/run-jest-ci.js`; `test:unit` e `test:unit:background` também incluem o projeto background.",
+        ".github/workflows/ci.yml: job `unit-and-integration` roda em Node 20.x/22.x e executa `npm run test:ci`; o CI Gate depende desse job.",
+        "A Bíblia atual não contém referências a `jest.config.js`, `scripts/ci/run-jest-ci.js`, `package.json`, `.github/workflows/ci.yml` ou `test:ci`; o run 36521561968 é evidência histórica de execução, não documentação do wiring estático atual."
+      ],
+      "requested_document_change": "Adicionar a cadeia atual de descoberta/execução/gate da suíte (jest.config.js → run-jest-ci.js/package.json → workflow unit-and-integration/CI Gate), separando explicitamente prova estrutural atual de evidência histórica de run."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:33:48Z"
+}

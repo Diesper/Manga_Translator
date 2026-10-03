@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 125,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 44",
+  "file": "tests/smoke/smoke-03-chapter-persistence.js",
+  "bible": "docs/biblia/tests/smoke/smoke-03-chapter-persistence.js/Bíblia.md",
+  "source_sha": "63f904d8ad55e114d130fa2cba395310a997be42",
+  "bible_sha": "dc921253895b425a2aee15036fe35d1a89e768cb",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "125-ADV-001",
+      "severity": "BLOCKING",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "As linhas-fonte 74–75 do callback de rejeição são classificadas como ✅ PROVADO DIRETAMENTE com base em uma execução CI verde que não percorreu esse callback.",
+      "evidence": [
+        "Bíblia.md, cobertura das linhas 74 e 75, atribui PROVADO DIRETAMENTE a console.error(...) e process.exit(1).",
+        "tests/smoke/smoke-03-chapter-persistence.js:73-76 executa o corpo do catch somente se run() rejeitar.",
+        "GitHub Actions run 36577447500 / job 109437162201 concluiu o step Rodar testes de fumaça com success e o log mostra '✅ smoke-03-chapter-persistence passou com sucesso.', sem a mensagem '❌ Falha em smoke-03-chapter-persistence'.",
+        "O blob executado nessa run é exatamente 63f904d8ad55e114d130fa2cba395310a997be42, portanto a execução verde prova o caminho de sucesso do mesmo source, não o ramo de erro.",
+        "run-smoke.js apenas observa status não-zero do processo filho; não há teste negativo focal encontrado que force a rejeição deste smoke e valide stderr/exit 1."
+      ],
+      "requested_document_change": "Reclassificar as linhas 74–75 para evidência estática/sem prova específica, ou citar um teste negativo real que force a rejeição e observe stderr + exit code 1."
+    },
+    {
+      "id": "125-ADV-002",
+      "severity": "BLOCKING",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A seção de solicitações da Bíblia marca 125-001 e 125-002 como OPEN, mas o state canônico registra ambos como ACCEPTED.",
+      "evidence": [
+        "Bíblia.md linhas 86–87 contém '125-001 ... OPEN' e '125-002 ... OPEN'.",
+        "docs/biblia/.state/125.json registra 125-001.status=ACCEPTED e 125-002.status=ACCEPTED.",
+        "O conteúdo técnico dos dois requests continua representado honestamente; o bloqueio é a inconsistência objetiva de lifecycle documental."
+      ],
+      "requested_document_change": "Sincronizar os estados das solicitações na Bíblia com o state canônico sem apagar as lacunas técnicas documentadas."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:08:27Z"
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "id": "a2d59699-995a-4912-94f3-81114288f40c",
+  "index": 181,
+  "at_utc": "2026-10-03T09:32:57.178Z",
+  "action": "REFRESH_REVISION_FOR_AUDIT",
+  "expected_state_sha": "48b18ba1022167264fada65d935fe6f07b361b0e",
+  "phase": "intent"
+}

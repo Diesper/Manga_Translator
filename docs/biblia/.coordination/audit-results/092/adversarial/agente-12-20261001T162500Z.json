@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "index": 92,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 12",
+  "file": "tests/e2e/cache-and-storage.spec.js",
+  "bible": "docs/biblia/tests/e2e/cache-and-storage.spec.js/Bíblia.md",
+  "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "092-ADV-001",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "severity": "BLOCKING",
+      "claim": "A Bíblia apresenta 092-001, 092-002 e 092-003 como OPEN e conclui que as três solicitações permanecem abertas.",
+      "evidence": "O state canônico atual docs/biblia/.state/092.json registra 092-001, 092-002 e 092-003 como ACCEPTED. Os conteúdos técnicos das lacunas continuam coerentes, mas o lifecycle documentado na Bíblia está stale e contradiz o estado atual.",
+      "required_change": "Atualizar os headings e a conclusão da Bíblia para refletir ACCEPTED (ou o lifecycle canônico vigente no momento da correção), preservando a descrição honesta das lacunas; revisar também qualquer metadado textual que ainda contabilize essas requests como OPEN."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:25:00Z"
+}

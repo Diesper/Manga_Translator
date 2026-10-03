@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "index": 181,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 21",
+  "file": "tests/unit/content-gemini/job-runner.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
+  "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
+  "bible_sha": "238c4980cb83a72a292d20459d36c66042d9fdc9",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A21-181-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_CLASSIFICATION_OVERCLAIM",
+      "finding": "A Bíblia afirma que o listener MAIN-world de MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE é testado separadamente por inject-anti-hibernation.test.js e usa essa suposta prova para não registrar a lacuna de consumo. A suíte citada declara explicitamente que não carrega inject.js, usa implementações espelho e, para esse contrato, faz apenas gates estáticos de texto. RUN-07 executa o emissor real do JobRunner, mas instala um listener próprio no JSDOM; não executa o listener real de extension/content/inject.js.",
+      "evidence": [
+        "Bíblia atual, linha 30: 'O listener MAIN-world do evento anti-throttle é testado separadamente em inject-anti-hibernation.test.js; por isso esta Bíblia não abre duplicação para consumo do evento.'",
+        "Bíblia atual, linha 68: 'política e evento anti-throttle | RUN-06/07/07A | ✅ PROVADO DIRETAMENTE'; RUN-07 prova a emissão/normalização pelo JobRunner, não o consumo pelo listener real de inject.js.",
+        "tests/unit/inject/inject-anti-hibernation.test.js linhas 17-18: a própria suíte declara testar a lógica 'sem carregar o inject.js' e usar 'implementações espelho verificáveis'.",
+        "tests/unit/inject/inject-anti-hibernation.test.js linhas 215-217: as assertions relevantes são source.toContain(...) para os modos, antiThrottleMode e o nome MANGA_TRANSLATOR_ANTI_THROTTLE_SET_MODE.",
+        "tests/unit/content-gemini/job-runner.test.js RUN-07 linhas 355-371: o teste instala seu próprio window.addEventListener, chama runner.setAntiThrottleMode(...) e verifica received=['balanced','legacy','minimal']; isso prova o emissor/event.detail do runner.",
+        "extension/content/inject.js linhas 112-115: o consumidor real registra window.addEventListener(...), lê event.detail.mode e chama setAntiThrottleMode(requestedMode); esse callback não é executado pelos testes citados.",
+        "docs/biblia/.state/050.json request 050-001 está ACCEPTED e registra exatamente a ausência de prova automatizada que execute a implementação real de inject.js no MAIN world.",
+        "Contraexemplo adversarial: alterar o callback real de inject.js para ignorar event.detail.mode (mantendo o literal do nome do evento) deixaria o gate estático de inject-anti-hibernation e o RUN-07 com listener próprio verdes, embora o consumo MAIN-world estivesse quebrado."
+      ],
+      "requested_documentation_fix": "Rebaixar a suposta prova do listener MAIN-world para GATE_ESTATICO/SEM_PROVA_ESPECIFICA conforme aplicável. Distinguir explicitamente que RUN-07 prova o emissor do JobRunner; o consumo pelo inject.js real permanece sem prova direta e deve referenciar a lacuna canônica 050-001, sem necessidade de duplicar a request.",
+      "relation_to_primary": "Confirma de forma independente A20-181-01 após tentativa formal de refutação da PRIMARY."
+    }
+  ],
+  "confidence_matrix": {
+    "sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "line_mapping": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONTRADITO",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "ci_evidence": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_20_VS_AGENTE_21",
+    "phase_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 757,
+    "documented_positions": "758/758",
+    "line_mapping": "757/757 seções Linha contêm a linha-fonte correspondente; posição 758 documenta newline final",
+    "ci_run": 36521561968,
+    "ci_head_sha": "e720890cf34dc9437ee91f3b8172953497d69870",
+    "ci_test_blob_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
+    "ci_runner_blob_sha": "1b16fd656e82e64ef2d26977e061f87e469aa3ff",
+    "nonblocking_requests": [
+      "181-002",
+      "181-004"
+    ],
+    "superseded_requests": [
+      "181-001 -> 045-001",
+      "181-003 -> 045-005"
+    ],
+    "formal_refutation_attempt": "A hipótese de que inject-anti-hibernation.test.js pudesse fornecer prova comportamental do consumidor MAIN-world foi refutada pela própria suíte, que declara não carregar inject.js e usa gates estáticos/espelhos."
+  },
+  "passages_executed": "0-15",
+  "completed_at_utc": "2026-10-01T21:00:49.476Z"
+}

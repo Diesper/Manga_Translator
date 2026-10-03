@@ -1,0 +1,237 @@
+# Checklist — Bíblias técnicas
+
+> [x] preserva a conclusão histórica. Ressalvas mostram a revisão pendente; o gate final exige aprovação válida da revisão atual.
+
+- [x] 001 — `extension/manifest.json` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 002 — `extension/background.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 003 — `extension/background/actions/calculate-visual-fingerprint.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED, IN_PROGRESS
+- [x] 004 — `extension/background/actions/check-extraction-tab.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 005 — `extension/background/actions/claim-gemini-job.js` — COMPLETED — com ressalvas: WAITING_ADVERSARIAL
+- [x] 006 — `extension/background/actions/commit-result.js` — COMPLETED — com ressalvas: WAITING_ADVERSARIAL
+- [x] 007 — `extension/background/actions/deliver-result-from-tab.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 008 — `extension/background/actions/deliver-result-url.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 009 — `extension/background/actions/deliver-result.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 010 — `extension/background/actions/download-chapter.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 011 — `extension/background/actions/download-image.js` — COMPLETED
+- [x] 012 — `extension/background/actions/export-all.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 013 — `extension/background/actions/fetch-image-base64.js` — COMPLETED
+- [x] 014 — `extension/background/actions/force-send-activation.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 015 — `extension/background/actions/get-tab-id.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 016 — `extension/background/actions/log-entry.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 017 — `extension/background/actions/open-existing-folder.js` — COMPLETED
+- [x] 018 — `extension/background/actions/open-manga-root.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 019 — `extension/background/actions/refresh-job-watchdog.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 020 — `extension/background/actions/relay-progress.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 021 — `extension/background/actions/report-error.js` — COMPLETED
+- [x] 022 — `extension/background/actions/request-image-data.js` — COMPLETED
+- [x] 023 — `extension/background/actions/set-debug-mode.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 024 — `extension/background/actions/start-batch.js` — COMPLETED
+- [x] 025 — `extension/background/actions/stop-batch.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 026 — `extension/background/jobs-dom-ack.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 027 — `extension/background/jobs-lifecycle.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 028 — `extension/background/jobs-reconciliation.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 029 — `extension/background/jobs-watchdog.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 030 — `extension/background/log.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 031 — `extension/background/router.js` — COMPLETED
+- [x] 032 — `extension/background/state.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 033 — `extension/background/tab-identity.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 034 — `extension/content/cm-auto-restore.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 035 — `extension/content/cm-chapter.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 036 — `extension/content/cm-dom-replace.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 037 — `extension/content/cm-gtc-client.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 038 — `extension/content/content_gemini.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 039 — `extension/content/content_manga.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 040 — `extension/content/gemini/attachment.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 041 — `extension/content/gemini/deletion.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 042 — `extension/content/gemini/dom.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 043 — `extension/content/gemini/editor.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 044 — `extension/content/gemini/image-quarantine.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 045 — `extension/content/gemini/job-runner.js` — COMPLETED — com ressalvas: WAITING_PRIMARY, CHANGES_REQUIRED
+- [x] 046 — `extension/content/gemini/observer.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 047 — `extension/content/gemini/result-extractor.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 048 — `extension/content/gemini/selectors.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 049 — `extension/content/gemini/temporary-chat.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 050 — `extension/content/inject.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 051 — `extension/options/options.html` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 052 — `extension/options/options.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 053 — `extension/popup/popup.html` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 054 — `extension/popup/popup.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 055 — `extension/reader/reader.html` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 056 — `extension/reader/reader.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 057 — `extension/shared/gtc-fingerprint.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 058 — `extension/shared/gtc-indexeddb.js` — COMPLETED
+- [x] 059 — `extension/shared/shared-ui.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 060 — `extension/shared/storage-manager.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 061 — `.gitignore` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 062 — `jest.config.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED, CHANGES_REQUIRED
+- [x] 063 — `package.json` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 064 — `playwright.config.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 065 — `.github/workflows/ci.yml` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 066 — `.github/workflows/publish.yml` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 067 — `.github/workflows/recover-cancelled-ci.yml` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 068 — `scripts/ci/data/e2e-shard-plan.json` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 069 — `scripts/ci/data/regression-matrix.json` — COMPLETED
+- [x] 070 — `scripts/ci/data/test-baseline.json` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 071 — `scripts/ci/jest-worker-warning.js` — COMPLETED
+- [x] 072 — `scripts/ci/playwright-gate-reporter.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 073 — `scripts/ci/playwright-merge.config.js` — COMPLETED
+- [x] 074 — `scripts/ci/run-e2e-group.js` — COMPLETED
+- [x] 075 — `scripts/ci/run-jest-ci.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 076 — `scripts/maintenance/diagnose-background-leak.js` — COMPLETED — com ressalvas: WAITING_ADVERSARIAL
+- [x] 077 — `scripts/maintenance/diagnose-jest-workers.js` — COMPLETED — com ressalvas: WAITING_ADVERSARIAL
+- [x] 078 — `scripts/release/sync-version.js` — COMPLETED — com ressalvas: WAITING_ADVERSARIAL
+- [x] 079 — `scripts/validation/check-js-syntax.js` — COMPLETED — com ressalvas: WAITING_ADVERSARIAL
+- [x] 080 — `scripts/validation/playwright-gate-reporter-selftest.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 081 — `scripts/validation/validate-manifest.js` — COMPLETED
+- [x] 082 — `scripts/validation/verify-ci-contract-selftest.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 083 — `scripts/validation/verify-ci-contract.js` — COMPLETED
+- [x] 084 — `scripts/validation/verify-coverage-selftest.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 085 — `scripts/validation/verify-coverage.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 086 — `scripts/validation/verify-e2e-shard-plan.js` — COMPLETED
+- [x] 087 — `scripts/validation/verify-jest-worker-warning-selftest.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 088 — `scripts/validation/verify-publish-contract.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [ ] 089 — `scripts/validation/verify-repository-structure.js` — READY_FOR_AUDIT
+- [x] 090 — `scripts/validation/verify-test-policy-selftest.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 091 — `scripts/validation/verify-test-policy.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 092 — `tests/e2e/cache-and-storage.spec.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 093 — `tests/e2e/reader-offline.spec.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 094 — `tests/e2e/translation-flow.spec.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 095 — `tests/fixtures/gemini-mock-server.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 096 — `tests/fixtures/manga-images.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 097 — `tests/fixtures/manga-page.html` — COMPLETED
+- [x] 098 — `tests/helpers/background-test-utils.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 099 — `tests/helpers/extracted-functions.js` — COMPLETED
+- [x] 100 — `tests/helpers/load-background-module.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 101 — `tests/helpers/load-content-gemini-module.js` — COMPLETED
+- [ ] 102 — `tests/helpers/load-content-script.js` — CHANGES_REQUIRED
+- [ ] 103 — `tests/helpers/load-extension-page.js` — CHANGES_REQUIRED
+- [ ] 104 — `tests/helpers/repo-root.js` — CHANGES_REQUIRED
+- [x] 105 — `tests/helpers/track-background-delay-timers.js` — COMPLETED
+- [ ] 106 — `tests/integration/banned-images-flow.test.js` — CHANGES_REQUIRED
+- [ ] 107 — `tests/integration/chapter-dedup.test.js` — CHANGES_REQUIRED
+- [x] 108 — `tests/integration/gtc-end-to-end.test.js` — COMPLETED
+- [ ] 109 — `tests/integration/ipc/gemini-cors-fallback.test.js` — CHANGES_REQUIRED
+- [ ] 110 — `tests/integration/ipc/gtc-cache-flow.test.js` — CHANGES_REQUIRED
+- [ ] 111 — `tests/integration/ipc/gtc-indexeddb-deep.test.js` — CHANGES_REQUIRED
+- [ ] 112 — `tests/integration/ipc/image-translation-routing.test.js` — CHANGES_REQUIRED
+- [ ] 113 — `tests/integration/options.ui.test.js` — CHANGES_REQUIRED
+- [ ] 114 — `tests/integration/performance.test.js` — READY_FOR_AUDIT
+- [ ] 115 — `tests/integration/popup-translated-thumbnails.test.js` — CHANGES_REQUIRED
+- [ ] 116 — `tests/integration/popup.advanced.ui.test.js` — CHANGES_REQUIRED
+- [x] 117 — `tests/integration/popup.ui.test.js` — COMPLETED
+- [x] 118 — `tests/integration/reader.ui.test.js` — COMPLETED
+- [x] 119 — `tests/mocks/chrome-api.mock.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [ ] 120 — `tests/mocks/dom-environment.js` — CHANGES_REQUIRED
+- [x] 121 — `tests/setup/create-test-images.js` — COMPLETED
+- [ ] 122 — `tests/smoke/run-smoke.js` — CHANGES_REQUIRED
+- [x] 123 — `tests/smoke/smoke-01-batch-lifecycle.js` — COMPLETED
+- [ ] 124 — `tests/smoke/smoke-02-uuid-and-reconcile.js` — READY_FOR_AUDIT
+- [ ] 125 — `tests/smoke/smoke-03-chapter-persistence.js` — CHANGES_REQUIRED
+- [ ] 126 — `tests/smoke/smoke-04-storage-manager.js` — READY_FOR_AUDIT
+- [ ] 127 — `tests/smoke/smoke-05-perceptual-queries.js` — CHANGES_REQUIRED
+- [ ] 128 — `tests/smoke/smoke-06-sm-message-routing.js` — CHANGES_REQUIRED
+- [ ] 129 — `tests/unit/background/actions-low-risk.test.js` — CHANGES_REQUIRED
+- [ ] 130 — `tests/unit/background/background-strict-load.test.js` — READY_FOR_AUDIT
+- [ ] 131 — `tests/unit/background/batch-actions.test.js` — CHANGES_REQUIRED
+- [ ] 132 — `tests/unit/background/batch-lifecycle-real.test.js` — READY_FOR_AUDIT
+- [ ] 133 — `tests/unit/background/calculate-visual-fingerprint-action.test.js` — READY_FOR_AUDIT
+- [ ] 134 — `tests/unit/background/chrome-runtime-mock-lifecycle.test.js` — READY_FOR_AUDIT
+- [x] 135 — `tests/unit/background/claim-gemini-job-action.test.js` — COMPLETED
+- [ ] 136 — `tests/unit/background/commit-result-action.test.js` — CHANGES_REQUIRED
+- [ ] 137 — `tests/unit/background/deliver-result-action.test.js` — READY_FOR_AUDIT
+- [ ] 138 — `tests/unit/background/deliver-result-from-tab-action.test.js` — READY_FOR_AUDIT
+- [ ] 139 — `tests/unit/background/deliver-result-url-action.test.js` — CHANGES_REQUIRED
+- [ ] 140 — `tests/unit/background/download-chapter-action.test.js` — CHANGES_REQUIRED
+- [ ] 141 — `tests/unit/background/download-image-action.test.js` — CHANGES_REQUIRED
+- [ ] 142 — `tests/unit/background/download-wait.test.js` — READY_FOR_AUDIT
+- [ ] 143 — `tests/unit/background/export-all-action.test.js` — CHANGES_REQUIRED
+- [ ] 144 — `tests/unit/background/export-guard.test.js` — CHANGES_REQUIRED
+- [ ] 145 — `tests/unit/background/fetch-image-base64-action.test.js` — CHANGES_REQUIRED
+- [ ] 146 — `tests/unit/background/force-send-activation-action.test.js` — CHANGES_REQUIRED
+- [ ] 147 — `tests/unit/background/gtc-runtime-bridge.test.js` — CHANGES_REQUIRED
+- [ ] 148 — `tests/unit/background/handlers-extra-real.test.js` — READY_FOR_AUDIT
+- [ ] 149 — `tests/unit/background/helpers-real.test.js` — READY_FOR_AUDIT
+- [ ] 150 — `tests/unit/background/jobs-dom-ack-staging.test.js` — READY_FOR_AUDIT
+- [ ] 151 — `tests/unit/background/jobs-lifecycle-batch-status.test.js` — READY_FOR_AUDIT
+- [ ] 152 — `tests/unit/background/jobs-reconciliation-batch-queue.test.js` — READY_FOR_AUDIT
+- [x] 153 — `tests/unit/background/jobs-watchdog-ordering.test.js` — COMPLETED — com ressalvas: WAITING_ADVERSARIAL
+- [ ] 154 — `tests/unit/background/lifecycle-alarms-real.test.js` — READY_FOR_AUDIT
+- [ ] 155 — `tests/unit/background/marker-anchor-real.test.js` — READY_FOR_AUDIT
+- [ ] 156 — `tests/unit/background/message-handlers-real.test.js` — READY_FOR_AUDIT
+- [ ] 157 — `tests/unit/background/open-existing-folder-action.test.js` — READY_FOR_AUDIT
+- [ ] 158 — `tests/unit/background/open-manga-root-action.test.js` — READY_FOR_AUDIT
+- [ ] 159 — `tests/unit/background/plan-missing-handlers-real.test.js` — READY_FOR_AUDIT
+- [ ] 160 — `tests/unit/background/process-finalize-real.test.js` — READY_FOR_AUDIT
+- [ ] 161 — `tests/unit/background/refresh-job-watchdog-action.test.js` — CHANGES_REQUIRED
+- [ ] 162 — `tests/unit/background/regex-escape.test.js` — CHANGES_REQUIRED
+- [ ] 163 — `tests/unit/background/report-error-action.test.js` — CHANGES_REQUIRED
+- [x] 164 — `tests/unit/background/request-image-data-action.test.js` — COMPLETED
+- [ ] 165 — `tests/unit/background/routed-actions-legacy.test.js` — CHANGES_REQUIRED
+- [ ] 166 — `tests/unit/background/router.test.js` — CHANGES_REQUIRED
+- [ ] 167 — `tests/unit/background/single-image-context-menu.test.js` — CHANGES_REQUIRED
+- [ ] 168 — `tests/unit/background/startup-recovery.test.js` — CHANGES_REQUIRED
+- [ ] 169 — `tests/unit/background/state-api.test.js` — CHANGES_REQUIRED
+- [ ] 170 — `tests/unit/background/tab-identity.test.js` — CHANGES_REQUIRED
+- [ ] 171 — `tests/unit/background/tab-replacement-observability.test.js` — CHANGES_REQUIRED
+- [ ] 172 — `tests/unit/background/test_bg59.test.js` — CHANGES_REQUIRED
+- [ ] 173 — `tests/unit/background/version-sync.test.js` — CHANGES_REQUIRED
+- [ ] 174 — `tests/unit/content-gemini/attachment.test.js` — CHANGES_REQUIRED
+- [ ] 175 — `tests/unit/content-gemini/claim-bootstrap-keepalive.test.js` — CHANGES_REQUIRED
+- [ ] 176 — `tests/unit/content-gemini/deletion.test.js` — CHANGES_REQUIRED
+- [ ] 177 — `tests/unit/content-gemini/dom-modules.test.js` — CHANGES_REQUIRED
+- [ ] 178 — `tests/unit/content-gemini/editor-submit.test.js` — CHANGES_REQUIRED
+- [ ] 179 — `tests/unit/content-gemini/helpers-and-regressions-real.test.js` — CHANGES_REQUIRED
+- [ ] 180 — `tests/unit/content-gemini/image-quarantine.test.js` — CHANGES_REQUIRED
+- [ ] 181 — `tests/unit/content-gemini/job-runner.test.js` — CHANGES_REQUIRED
+- [ ] 182 — `tests/unit/content-gemini/manual-assist-hud.test.js` — CHANGES_REQUIRED
+- [ ] 183 — `tests/unit/content-gemini/observer.test.js` — CHANGES_REQUIRED
+- [ ] 184 — `tests/unit/content-gemini/plan-rpa-edge-cases.test.js` — CHANGES_REQUIRED
+- [ ] 185 — `tests/unit/content-gemini/resolution-elevation.test.js` — CHANGES_REQUIRED
+- [ ] 186 — `tests/unit/content-gemini/result-extractor.test.js` — CHANGES_REQUIRED
+- [ ] 187 — `tests/unit/content-gemini/rpa-flow.test.js` — CHANGES_REQUIRED
+- [ ] 188 — `tests/unit/content-gemini/safe-background-delete.test.js` — CHANGES_REQUIRED
+- [ ] 189 — `tests/unit/content-gemini/temp-chat-activator.test.js` — CHANGES_REQUIRED
+- [x] 190 — `tests/unit/content-gemini/temporary-chat-v2.test.js` — COMPLETED
+- [x] 191 — `tests/unit/content-manga/audio-synthesis-full.test.js` — COMPLETED
+- [x] 192 — `tests/unit/content-manga/audio-synthesis.test.js` — COMPLETED
+- [x] 193 — `tests/unit/content-manga/auto-restore-system.test.js` — COMPLETED
+- [x] 194 — `tests/unit/content-manga/auto-restorer-real.test.js` — COMPLETED
+- [x] 195 — `tests/unit/content-manga/button-ui-real.test.js` — COMPLETED
+- [ ] 196 — `tests/unit/content-manga/canonical-title-full.test.js` — READY_FOR_AUDIT
+- [ ] 197 — `tests/unit/content-manga/canonical-title.test.js` — CHANGES_REQUIRED
+- [ ] 198 — `tests/unit/content-manga/chapter-id-cache.test.js` — CHANGES_REQUIRED
+- [ ] 199 — `tests/unit/content-manga/chapter-id-rejection.test.js` — CHANGES_REQUIRED
+- [ ] 200 — `tests/unit/content-manga/close-interval.test.js` — CHANGES_REQUIRED
+- [ ] 201 — `tests/unit/content-manga/drawer-real.test.js` — CHANGES_REQUIRED
+- [ ] 202 — `tests/unit/content-manga/extract-flow-real.test.js` — CHANGES_REQUIRED
+- [ ] 203 — `tests/unit/content-manga/extraction-and-handlers-real.test.js` — CHANGES_REQUIRED
+- [ ] 204 — `tests/unit/content-manga/floating-button-guard-and-single-click.test.js` — READY_FOR_AUDIT
+- [ ] 205 — `tests/unit/content-manga/get-clean-url.test.js` — CHANGES_REQUIRED
+- [ ] 206 — `tests/unit/content-manga/get-page-images-filter.test.js` — CHANGES_REQUIRED
+- [ ] 207 — `tests/unit/content-manga/image-filtering.test.js` — CHANGES_REQUIRED
+- [ ] 208 — `tests/unit/content-manga/image-fingerprint.test.js` — CHANGES_REQUIRED
+- [ ] 209 — `tests/unit/content-manga/replacement-and-completion-real.test.js` — READY_FOR_AUDIT
+- [ ] 210 — `tests/unit/content-manga/twin-backdrop-sync.test.js` — CHANGES_REQUIRED
+- [ ] 211 — `tests/unit/gtc/fingerprint.test.js` — CHANGES_REQUIRED
+- [ ] 212 — `tests/unit/gtc/indexeddb.test.js` — CHANGES_REQUIRED
+- [ ] 213 — `tests/unit/inject/inject-anti-hibernation.test.js` — CHANGES_REQUIRED
+- [ ] 214 — `tests/unit/inject/raf-replacement.test.js` — CHANGES_REQUIRED
+- [ ] 215 — `tests/unit/inject/visibility-spoof.test.js` — CHANGES_REQUIRED
+- [ ] 216 — `tests/unit/manifest/surface-reduction.test.js` — READY_FOR_AUDIT
+- [ ] 217 — `tests/unit/popup/dynamic-button.test.js` — READY_FOR_AUDIT
+- [ ] 218 — `tests/unit/popup/log-exporter.test.js` — READY_FOR_AUDIT
+- [ ] 219 — `tests/unit/popup/progress-panel.test.js` — READY_FOR_AUDIT
+- [ ] 220 — `tests/unit/popup/resize-and-tabs.test.js` — CHANGES_REQUIRED
+- [ ] 221 — `tests/unit/popup/version-ui.test.js` — READY_FOR_AUDIT
+- [ ] 222 — `tests/unit/reader/keyboard-nav.test.js` — READY_FOR_AUDIT
+- [ ] 223 — `tests/unit/reader/page-counter.test.js` — CHANGES_REQUIRED
+- [x] 224 — `tests/unit/shared-ui/redo-confirmation.test.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [ ] 225 — `tests/visual/background-fingerprint.visual.js` — READY_FOR_AUDIT
+- [ ] 226 — `tests/visual/content-manga-pipeline.visual.js` — CHANGES_REQUIRED
+- [ ] 227 — `tests/visual/crop.visual.js` — CHANGES_REQUIRED
+- [ ] 228 — `tests/visual/gtc-fingerprint.visual.js` — READY_FOR_AUDIT
+- [ ] 229 — `tests/visual/gtc-indexeddb.visual.js` — READY_FOR_AUDIT
+- [ ] 230 — `tests/visual/helpers.js` — READY_FOR_AUDIT
+- [ ] 231 — `tests/visual/integration.visual.js` — READY_FOR_AUDIT
+- [ ] 232 — `tests/visual/run-all.js` — READY_FOR_AUDIT
+- [ ] 233 — `tests/visual/runner.js` — READY_FOR_AUDIT

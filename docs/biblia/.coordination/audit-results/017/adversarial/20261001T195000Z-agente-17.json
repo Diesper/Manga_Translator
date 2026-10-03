@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "index": 17,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 17",
+  "file": "extension/background/actions/open-existing-folder.js",
+  "bible": "docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md",
+  "source_sha": "59ef82cbf960e360eb404fbd969067f017021607",
+  "bible_sha": "096f77d1ca0b3f9f7f9fd325632a988109c81e0c",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA"
+  },
+  "audit_notes": {
+    "source_blob_sha": "59ef82cbf960e360eb404fbd969067f017021607",
+    "bible_blob_sha": "096f77d1ca0b3f9f7f9fd325632a988109c81e0c",
+    "embedded_source_exact": true,
+    "source_text_lines": 38,
+    "documented_positions": "39/39 contiguous",
+    "current_primary": "20261001T181443185Z-agente-08.json / APPROVED",
+    "stale_prior_adversarial": "20261001T162205Z-agente16.json / bible_sha ddbc17b21bc150c76ba0b1f74223e905b677e6a2",
+    "stale_prior_reaudit": "20261001T165230Z-agente14.json / schema v1 pre-correction revision",
+    "verified_wiring": [
+      "extension/manifest.json -> extension/background.js service worker",
+      "extension/background.js -> importScripts/require open-existing-folder.js",
+      "extension/background/router.js -> SHOW_EXISTING_FOLDER alias and dispatcher",
+      "extension/popup/popup.js -> production emitter"
+    ],
+    "evidence_blobs": {
+      "direct_action_test": "49b6cd110ebae43d7a4ed5a29b5a8e8430e5efb3",
+      "regex_background_test": "3707482c013734dd2fd0e6a3989eee30c5f5406e",
+      "handlers_background_test": "2089f42642fc3b16856b0d39ea4f824e6e8dec08",
+      "integrated_background_test": "1c2815cd1f2fecba58a07c568f24d69af0367af3",
+      "marker_helper_test": "6a6c977a1a2bad89a49813153039e17a93945017"
+    },
+    "nonblocking_requests": [
+      "017-001 ACCEPTED"
+    ],
+    "adversarial_attack_result": "Os findings 017-ADV-001 e 017-REA-001/002 antigos foram corrigidos na revisão atual; nenhuma nova objeção documental material sobreviveu à releitura independente."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T19:50:00Z"
+}

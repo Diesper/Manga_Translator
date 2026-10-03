@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "index": 28,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 28",
+  "file": "extension/background/jobs-reconciliation.js",
+  "bible": "docs/biblia/extension/background/jobs-reconciliation.js/Bíblia.md",
+  "source_sha": "f0f2370ba6b7523caebf028c9188cebd7189d650",
+  "bible_sha": "ced4202bf4a23da41abe4cb0cf223624a8466c88",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "028-ADV-001",
+      "category": "SEMANTIC_TRACEABILITY",
+      "severity": "BLOCKING",
+      "summary": "A rastreabilidade 112/112 contém papéis locais semanticamente falsos em linhas críticas.",
+      "evidence": [
+        "Posições 029, 030, 034 e 035 descrevem resolução/seleção/migração de tab canônica como 'Captura tabId originalmente persistido'.",
+        "Posições 041 e 045 descrevem chamadas a recoverPendingFinalization/recoverPersistedResult como 'Produz versão da entrada apontando para tab canônica'.",
+        "Posições 052, 053, 056, 057, 064 e 065 repetem a mesma descrição de canonicalização para predicado de foreign batch, inclusão em foreign/dropped e classificação tabExists."
+      ],
+      "impact": "O mapa linha-a-linha pode induzir um leitor a entender incorretamente recovery, isolamento de batches e classificação alive/dropped, apesar de a narrativa de alto nível estar majoritariamente correta.",
+      "requested_fix": "Corrigir os papéis locais dessas posições (e revisar linhas vizinhas geradas por template) para que cada posição descreva o efeito real do source."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:52:29Z"
+}

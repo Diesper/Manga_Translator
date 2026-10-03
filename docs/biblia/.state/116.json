@@ -1,0 +1,155 @@
+{
+  "index": 116,
+  "file": "tests/integration/popup.advanced.ui.test.js",
+  "bible": "docs/biblia/tests/integration/popup.advanced.ui.test.js/Bíblia.md",
+  "status": "CHANGES_REQUIRED",
+  "agent": null,
+  "source_sha": "a92750646ee1f0b7ff21ee0d83a1ed2c55304402",
+  "started_at_utc": null,
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "116-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/popup.advanced.ui.test.js",
+      "found_while_auditing": "tests/integration/popup.advanced.ui.test.js",
+      "finding": "O cenário da aba Traduzidas semeia chap_1_paths e a implementação real envia folderPath em SHOW_EXISTING_FOLDER, mas a expectation valida apenas action, anchorId e safeTitle via objectContaining.",
+      "current_evidence": "Linhas 192-196 semeiam paths/dlId; linhas 223-227 exigem action SHOW_EXISTING_FOLDER, anchorId 77 e safeTitle Chapter_10. No popup.js, a mensagem inclui também folderPath derivado do path salvo.",
+      "missing_evidence": "Assertion de que folderPath seja exatamente /home/user/Downloads/MangaTranslator/Chapter_10 no cenário POSIX semeado; idealmente também caso Windows se esse formato fizer parte do contrato.",
+      "why_needed": "Uma regressão na remoção do filename, escolha de separador ou inclusão do caminho pode manter as assertions atuais verdes enquanto o background recebe diretório incorreto.",
+      "requested_action": "Fortalecer a expectation em mudança separada para incluir folderPath correto e avaliar um caso Windows com separador de barra invertida.",
+      "expected_evidence": "Spy de runtime.sendMessage exigindo o folderPath derivado esperado junto de action, anchorId e safeTitle.",
+      "expected_auditor_action": "Confirmar o contrato de path para SHOW_EXISTING_FOLDER e adicionar cobertura focal sem alterar a documentação para fingir evidência inexistente.",
+      "possible_regression": "Botão Abrir pasta continua enviando ação e âncora válidas, mas aponta para diretório errado.",
+      "impact": "Abertura da pasta de capítulo traduzido pelo popup.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:49:00Z",
+      "audit_finding": "ACCEPTED. `popup.js` envia `folderPath` em SHOW_EXISTING_FOLDER, mas a expectation da suíte exige apenas action, anchorId e safeTitle. Uma regressão na derivação do diretório pode continuar verde.",
+      "auditor_recommended_action": "Assertar folderPath exato no cenário POSIX semeado e adicionar variante Windows se o formato fizer parte do contrato suportado.",
+      "repair_progress": "REGRESSION_IMPLEMENTED; PRODUCT_BUG_EXPOSED_IN_054; POST_FIX_VALIDATION_PENDING"
+    },
+    {
+      "id": "116-002",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/popup.advanced.ui.test.js",
+      "found_while_auditing": "tests/integration/popup.advanced.ui.test.js",
+      "finding": "O popup possui radio popup-gemini-mode-minimized e lógica explícita para geminiExecutionMode=minimized_window, mas a suíte cobre apenas background_delete e temp_chat no controle do popup.",
+      "current_evidence": "Linhas 279-307 provam background_delete -> temp_chat -> background_delete. Outras suítes do repositório exercitam minimized_window em outras camadas, mas não provam este radio específico do popup.",
+      "missing_evidence": "Seed minimized_window que marque popup-gemini-mode-minimized e evento change que persista minimized_window por esta UI.",
+      "why_needed": "O modo pode funcionar em background/content enquanto o controle específico do popup deixa de restaurar ou salvar esse valor.",
+      "requested_action": "Adicionar caso focal ou ampliar o cenário de configuração para validar restauração e persistência de minimized_window no popup.",
+      "expected_evidence": "Assertions de checked===true para popup-gemini-mode-minimized após load e geminiExecutionMode===minimized_window após change.",
+      "expected_auditor_action": "Verificar se o terceiro radio faz parte do contrato suportado do popup e, se sim, adicionar cobertura específica em mudança separada.",
+      "possible_regression": "Usuário perde a capacidade de selecionar/restaurar Janela Minimizada no popup sem falha nos testes atuais.",
+      "impact": "Configuração do modo de execução Gemini na UI do popup.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:49:00Z",
+      "audit_finding": "ACCEPTED. O popup possui radio `minimized_window`, mas a suíte avançada cobre apenas background_delete e temp_chat nesse controle. Restauração/persistência do terceiro modo não têm prova focal nessa UI.",
+      "auditor_recommended_action": "Adicionar seed/load/change para minimized_window, verificando radio checked e `geminiExecutionMode` persistido.",
+      "repair_progress": "REGRESSION_IMPLEMENTED; EXECUTABLE_VALIDATION_PENDING"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED_PARTIAL",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "480/480",
+    "source_text_lines": 360,
+    "external_audit_requests_open": 0,
+    "accepted_requests_pending_validation": 2,
+    "note": "Regressions materialized. Windows folderPath case exposes popup.js separator bug; #116 released while #054 is corrected, then must be reacquired for final validation."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-02T21:19:02Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T13:36:23.079Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "dd15edcefd5963fea83a72801b1d3c00b7e37453",
+      "auditor": "AGENTE 6",
+      "reason": "Falha documental material: requests 116-001 e 116-002 permanecem rotuladas OPEN na Bíblia, enquanto o state canônico registra ambas como ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T13:38:07Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "dd15edcefd5963fea83a72801b1d3c00b7e37453",
+      "agent": "AGENTE 23",
+      "reason": "Alinhar lifecycle documental 116-001..002 com o state canônico ACCEPTED sem alterar source/testes."
+    },
+    {
+      "at_utc": "2026-10-01T13:38:36Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "dd15edcefd5963fea83a72801b1d3c00b7e37453",
+      "agent": "AGENTE 23",
+      "reason": "Bíblia #116 corrigida conforme auditoria independente: 116-001..002 agora ACCEPTED e conclusão alinhada ao lifecycle canônico."
+    },
+    {
+      "at_utc": "2026-10-02T01:28:00Z",
+      "type": "HYBRID_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "dd15edcefd5963fea83a72801b1d3c00b7e37453",
+      "bible_sha": "a0b98ad040e5adfa87a59ea41751e9267665e6da",
+      "agent": "AGENTE 30",
+      "reason": "REAUDIT CHANGES_REQUIRED line-278 semantic mismatch plus accepted 116-001 folderPath and 116-002 minimized_window test gaps."
+    },
+    {
+      "at_utc": "2026-10-02T01:33:00Z",
+      "type": "DEPENDENCY_BUG_EXPOSED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "CHANGES_REQUIRED",
+      "previous_source_sha": "dd15edcefd5963fea83a72801b1d3c00b7e37453",
+      "current_source_sha": "4f1a3fc9c734713124de1719cacd91a56aa500ec",
+      "bible_sha": "aa524e4a2f4cce93003210ca67885d5aa20992b4",
+      "agent": "AGENTE 30",
+      "dependency_unit": 54,
+      "reason": "Windows SHOW_EXISTING_FOLDER regression proves popup.js checks/splits two consecutive backslashes; product fix required before 116-001 can close. minimized_window regression also added."
+    },
+    {
+      "at_utc": "2026-10-02T21:19:02Z",
+      "type": "MAINTAINER_DOCUMENTATION_SYNC",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "4f1a3fc9c734713124de1719cacd91a56aa500ec",
+      "source_sha": "a92750646ee1f0b7ff21ee0d83a1ed2c55304402",
+      "bible_sha": "35af5b035b49b2c9b7ba7e2440c0d35ae283beb4",
+      "reason": "Sincronização mecânica da Bíblia #116 com a revisão atual; CHANGES_REQUIRED e findings permanecem sem promoção automática."
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "dd15edcefd5963fea83a72801b1d3c00b7e37453",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 6",
+      "at_utc": "2026-10-01T13:36:23.079Z",
+      "note": "Passagens 0–15 executadas. SHA/fonte integral/cobertura/CI/wiring/semântica/assertions passam; lifecycle documental das requests falha. Requests 116-001/116-002 permanecem ACCEPTED como dívida externa."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "dd15edcefd5963fea83a72801b1d3c00b7e37453",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T13:38:36Z",
+      "note": "Source permaneceu inalterado; somente lifecycle textual dos requests e conclusão documental foram corrigidos. Reauditoria independente necessária."
+    },
+    {
+      "type": "STATIC_PRODUCT_BUG",
+      "at_utc": "2026-10-02T01:33:00Z",
+      "source_sha": "4f1a3fc9c734713124de1719cacd91a56aa500ec",
+      "finding": "popup.js derives sep with includes('\\\\\\\\')/split('\\\\\\\\'), while chap paths originate from chrome.downloads.search().filename and normal Windows separators are single backslashes.",
+      "validation_pr": 70,
+      "pre_fix_ci_status": "PENDING"
+    }
+  ],
+  "bible_sha": "35af5b035b49b2c9b7ba7e2440c0d35ae283beb4"
+}

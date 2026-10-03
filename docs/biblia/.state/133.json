@@ -1,0 +1,56 @@
+{
+  "index": 133,
+  "file": "tests/unit/background/calculate-visual-fingerprint-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/calculate-visual-fingerprint-action.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "f51a0b629ac17be3eda349333192b9480494a07e",
+  "started_at_utc": "2026-09-30T06:33:49.841Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "133-001",
+      "status": "SUPERSEDED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/calculate-visual-fingerprint-action.test.js",
+      "found_while_auditing": "tests/unit/background/calculate-visual-fingerprint-action.test.js",
+      "finding": "A suíte prova diretamente o caminho visual-v4, a rejeição de protocolos proibidos e o cleanup após falha de hash, mas não possui casos focais para vários branches reais da action: falha de parsing de URL, HTTP não-ok, rejeição de fetch/blob/createImageBitmap, API de fingerprint ausente/parcial e imagem quadrada sem center-crop.",
+      "current_evidence": "O teste carrega router.js e calculate-visual-fingerprint.js reais. O blob f51a0b629ac17be3eda349333192b9480494a07e passa nos jobs Node 20, Node 22, Coverage e Windows do run 36577447500. Success visual-v4, data/chrome-extension inválidos e exceção durante calculateWHash possuem assertions específicas.",
+      "missing_evidence": "Assertions específicas de response, logging, cleanup e chamadas/ausência de chamadas para os branches não exercitados.",
+      "why_needed": "Os pontos de falha ocorrem em estágios diferentes do pipeline e possuem obrigações diferentes de cleanup/observabilidade; um catch genérico testado somente após bitmap existir não prova os demais estágios.",
+      "requested_action": "Adicionar casos focais usando a implementação real já carregada pela suíte, variando somente os mocks das fronteiras de plataforma e sem duplicar a lógica da action.",
+      "expected_evidence": "Casos controlados para URL malformada, resp.ok=false, fetch/blob/createImageBitmap rejeitados, fpApi ausente/parcial e bitmap quadrado, com assertions de resposta, log, close e crop.",
+      "expected_auditor_action": "Confirmar a lacuna e adicionar cobertura focal em alteração de teste separada se exigida.",
+      "possible_regression": "Falhas HTTP/decode/plataforma ou alterações na lógica de dimensões podem produzir resposta, logging ou cleanup incorretos sem quebrar a suíte atual.",
+      "impact": "Robustez e diagnóstico do fallback visual no Service Worker.",
+      "severity": "NORMAL",
+      "superseded_by": "003-001",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:05:00Z",
+      "audit_finding": "SUPERSEDED por 003-001. O achado é um subconjunto da lacuna já auditada e aceita no request canônico correspondente da action de produção.",
+      "auditor_recommended_action": "Centralizar a correção e a cobertura no request 003-001, evitando duas filas para o mesmo branch."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "205/205",
+    "source_text_lines": 204,
+    "bible_lines": 788,
+    "external_audit_requests_open": 1,
+    "evidence_run": 36577447500,
+    "evidence_jobs": [
+      109437162616,
+      109437162754,
+      109437162502,
+      109437162789
+    ],
+    "note": "Bíblia concluída usando router/action reais; fronteiras de plataforma foram mockadas e lacunas de branches foram registradas sem alterar o teste."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
+}

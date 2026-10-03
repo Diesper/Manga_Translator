@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "index": 46,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 45",
+  "file": "extension/content/gemini/observer.js",
+  "bible": "docs/biblia/extension/content/gemini/observer.js/Bíblia.md",
+  "source_sha": "59c5335e1b4fd6b2877988cde9816f1c0b290b35",
+  "bible_sha": "35d0663bd90e98a5c193584745e88ad6d675ff95",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "R45-046-01",
+      "severity": "BLOCKING",
+      "category": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A classificação `PROVADO DIRETAMENTE` para coalescing é mais forte que a assertion real do teste citado.",
+      "evidence": [
+        "Bíblia #046 linha 86: `coalescing de mutations | teste coalescing | ✅ PROVADO DIRETAMENTE`.",
+        "Source observer.js linhas 451-459: `scheduleInspect()` depende da guarda `state.inspectionScheduled` e de `queueMicrotaskFn` para coalescer agendamentos.",
+        "observer.test.js linhas 287-301: o cenário executa múltiplas mutations, porém a única assertion focal é `inspectCount <= before + 2`.",
+        "A regressão de remover/neutralizar a guarda `inspectionScheduled` pode escapar desse oráculo porque MutationObserver já pode agrupar mutations síncronas e o teste aceita até duas inspeções adicionais.",
+        "A Bíblia do próprio teste #183, no SHA atual, limita corretamente a prova a `inspectCount <= before + 2` e declara que cardinalidade exata de uma inspeção não é provada."
+      ],
+      "required_change": "Rebaixar/qualificar a evidência em #046 para o bound realmente observado, explicitando que a cardinalidade exata e a guarda `inspectionScheduled` não têm prova focal; manter a semântica do source separada da força da evidência."
+    },
+    {
+      "id": "R45-046-02",
+      "severity": "MINOR",
+      "category": "SELF_AUDIT_COUNT_MISMATCH",
+      "summary": "A autoauditoria registra 21 cenários em observer.test.js, mas o arquivo atual contém 22 testes.",
+      "evidence": [
+        "Bíblia #046 linha 5934: `observer.test.js lido até as assertions dos 21 cenários`.",
+        "observer.test.js atual contém 22 `test()`: OBS-01..20, `coalescing` e PR6."
+      ],
+      "required_change": "Corrigir a contagem para 22 ou qualificar explicitamente qual subconjunto de 21 está sendo contado."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:11:15Z"
+}

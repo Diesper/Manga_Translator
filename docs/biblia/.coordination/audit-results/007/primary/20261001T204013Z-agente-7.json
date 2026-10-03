@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "index": 7,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 7",
+  "file": "extension/background/actions/deliver-result-from-tab.js",
+  "bible": "docs/biblia/extension/background/actions/deliver-result-from-tab.js/Bíblia.md",
+  "source_sha": "59543c1359669ced02a1d05c251b272abaad6709",
+  "bible_sha": "39d4fc3e04954d4ea338fdca969412c2197cfc69",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "007-PRI-001",
+      "severity": "MATERIAL",
+      "category": "AUDIT_REQUEST_GAP_AND_ASYNC_LIFECYCLE_OMISSION",
+      "location": "Bíblia.md — §§7/U04 e request 007-003",
+      "problem": "A Bíblia atual não representa integralmente a request ACCEPTED 007-003: a action converte assertJobOwnership callback-based em Promise sem timeout local. Se o callback nunca for invocado, execute permanece pendente indefinidamente. A Bíblia registra ownership negativo/rejeições, syncState/finalizeJob, mas não registra callback ausente/timeout de ownership.",
+      "evidence": [
+        "Source linhas 33–37: `const ownership = await new Promise(resolve => { context.assertJobOwnership(... callback ... resolve(...)); });` sem timer/timeout/cancelamento local.",
+        "State 007 request 007-003 (ACCEPTED) exige explicitamente evidência para `callback ausente` e registra que `assertJobOwnership depende de callback sem timeout`.",
+        "Bíblia atual não contém `007-003`, `callback ... timeout` nem limitação equivalente; U04 só diz que o callback é convertido para Promise e lista ownership negativo/rejeição/erro.",
+        "O teste focal `deliver-result-from-tab-action.test.js` sempre invoca o callback de ownership sincronicamente; não há caso de callback omitido."
+      ],
+      "required_change": "Documentar explicitamente o risco de callback não invocado/Promise pendente e a ausência de timeout/teste, preservando 007-003 como lacuna não resolvida; não confundir rejeição com callback ausente."
+    },
+    {
+      "id": "007-PRI-002",
+      "severity": "MATERIAL",
+      "category": "EVIDENCE_OVERCLASSIFICATION_AND_ACK_SEMANTICS",
+      "location": "Bíblia.md — §4, matriz de evidência e §8 item 5",
+      "problem": "A Bíblia chama o helper de ACK de `garantia efetiva de persistência` e descreve `dom_applied/resultPersisted` como persistência provada, mas o helper não exige resposta positiva explícita e não garante que o update de estado do job persista. Sem runtime.lastError, qualquer callback que não tenha `response.ok === false` entra em sucesso; `response === undefined` produz `persisted: true` porque apenas `response?.persisted !== false` é exigido. Além disso, falha de `updateJobState` em `dom_applied/resultPersisted` é capturada e ignorada.",
+      "evidence": [
+        "`extension/background/jobs-dom-ack.js` linhas 73–76: ausência de `response.ok === false` cai em `settle(true, 'ack', response)`; isso inclui response undefined quando não há runtime.lastError.",
+        "Linhas 40–45: `persisted: ok && response?.persisted !== false`; com ok=true e response undefined, o campo resulta true.",
+        "Linhas 20–27: `updateJobState(... dom_applied/resultPersisted ...)` está em try/catch vazio; falha de persistência desse estado não converte o ACK em falha.",
+        "`jobs-dom-ack-staging.test.js` usa `updateJobState` mockado resolvendo e não cobre callback undefined sem lastError nem rejeição de updateJobState.",
+        "Bíblia §8 afirma: `O helper de ACK é a garantia efetiva de persistência`; essa formulação é mais forte que o contrato e as assertions atuais."
+      ],
+      "required_change": "Rebaixar a afirmação para o comportamento exato do helper: ele deriva `persisted` do ACK segundo a regra atual e tenta atualizar o job state, mas essas duas condições não equivalem a uma garantia absoluta. Registrar explicitamente o caso response ausente/sem erro e a falha engolida de updateJobState como limitações/evidência faltante, ou fornecer prova/contrato que as elimine."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:40:13Z"
+}

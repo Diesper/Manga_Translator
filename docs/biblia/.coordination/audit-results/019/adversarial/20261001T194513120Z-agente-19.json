@@ -1,0 +1,84 @@
+{
+  "schema_version": 2,
+  "index": 19,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 19",
+  "file": "extension/background/actions/refresh-job-watchdog.js",
+  "bible": "docs/biblia/extension/background/actions/refresh-job-watchdog.js/Bíblia.md",
+  "source_sha": "25f86a8dba57c25a11a234c8f1ded0c3871d2aaa",
+  "bible_sha": "bd8c42b9a33ff9c78371738af09d79f44680d02c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A19-019-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION_FALSE_POSITIVE",
+      "summary": "A Bíblia classifica como PROVADO DIRETAMENTE que os IDs usados em armWatchdog vêm do jobIndex, mas o teste nominal usa no payload exatamente os mesmos mangaTabId/index/geminiTabId do jobIndex e não distingue a origem dos valores.",
+      "evidence": [
+        "Bíblia §Evidência: `refresh-job-watchdog-action.test.js` é rotulado `✅ PROVADO DIRETAMENTE` para `dados vindos do jobIndex`.",
+        "WATCHDOG-REFRESH-01 configura jobIndex={geminiTabId:321,mangaTabId:77,index:4} e envia request com geminiTabId=321,mangaTabId=77,index=4.",
+        "A única assertion focal é `expect(armWatchdog).toHaveBeenCalledWith(77, 4, 321, 'job-1')`; ela não identifica se 77/4/321 vieram do state ou do request.",
+        "Contraexemplo adversarial: trocar apenas a chamada final para usar request.mangaTabId/request.index/request.geminiTabId manteria WATCHDOG-REFRESH-01 verde; WATCHDOG-REFRESH-02 não alcança armWatchdog porque falha antes por ownership.",
+        "O teste também injeta `resolveCanonicalTabId`, porém não exige chamadas nem usa aliases físicos distintos; uma comparação raw sender/indexed continuaria verde nos dois cenários existentes."
+      ],
+      "relation_to_primary": "Refuta a força probatória implícita na aprovação legada sem refutar o comportamento atual do source, que de fato usa jobIndex e canonicalização.",
+      "requested_documentation_fix": "Remover/downgrade a alegação de prova direta de proveniência/canonicalização ou registrar explicitamente a lacuna; idealmente criar evidência focal com payload conflitante e alias old/new antes de promover novamente a classificação."
+    },
+    {
+      "id": "A19-019-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "RELEVANT_CONSUMER_WIRING_OMITTED",
+      "summary": "A Bíblia omite o host/consumer `extension/background.js`, que carrega a action e injeta justamente as dependências usadas pelo executor.",
+      "evidence": [
+        "`extension/background.js` importa `background/actions/refresh-job-watchdog.js` tanto no caminho importScripts quanto no caminho require.",
+        "`routeRegisteredAction()` cria o router com contextFactory que injeta `state`, `ensureInitialized`, `tabIdentity: initializeTabIdentity()` e `armWatchdog`.",
+        "`armWatchdog()` em background.js delega para `jobsWatchdog.arm(...)`, e `initializeJobsModules()` liga o watchdog ao resolver canônico de TabIdentity.",
+        "A Bíblia detalha job-runner, jobs-watchdog e tab-identity, mas não identifica `background.js` como o wiring runtime que torna essas dependências disponíveis."
+      ],
+      "relation_to_primary": "Consumer relevante ausente não foi capturado pela aprovação legada.",
+      "requested_documentation_fix": "Adicionar `extension/background.js` à arquitetura/evidência como wiring runtime, descrevendo carregamento da action e injeção do contexto real sem inflar isso para teste comportamental."
+    },
+    {
+      "id": "A19-019-03",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "summary": "A rastreabilidade é numericamente 87/87, mas ao menos duas posições têm papel local semanticamente deslocado.",
+      "evidence": [
+        "Posição 057 contém `if (String(canonicalSender) !== String(canonicalIndexed)) {`, mas o papel local diz `Resolve a aba remetente para id canônico`; a resolução ocorre na posição 055, enquanto 057 compara os dois ids canônicos.",
+        "Posição 064 contém apenas o argumento `canonicalIndexed,` passado a `armWatchdog`, mas o papel local diz `Resolve a aba Gemini do jobIndex para id canônico`; a resolução ocorre na posição 056.",
+        "As posições 055/056 já documentam corretamente as duas resoluções, confirmando que 057/064 são descrições duplicadas/deslocadas e não simples abreviações."
+      ],
+      "relation_to_primary": "A fonte integral e a sequência das posições estão corretas; o erro está no mapeamento posição→semântica.",
+      "requested_documentation_fix": "Corrigir os papéis locais de 057 e 064 e revalidar a tabela 87/87 semanticamente, não apenas por contagem."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONTRADITO",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "INCERTO_PARA_NOVA_LACUNA_DE_PROVENIENCIA",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_PROTOCOLARMENTE_COM_PRIMARY_LEGADO",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "87/87",
+    "source_text_lines": 86,
+    "direct_test_blob_sha": "d2acd697b78872400a16bfdac3a4866446d2239f",
+    "existing_requests": [
+      "019-001 ACCEPTED",
+      "019-002 ACCEPTED"
+    ],
+    "primary_source": "docs/biblia/AUDITORIA.md (legacy PRIMARY APPROVED, baseline-bound)"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T19:45:13.120Z"
+}

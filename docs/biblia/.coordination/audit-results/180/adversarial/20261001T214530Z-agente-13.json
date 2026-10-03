@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "index": 180,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 13",
+  "file": "tests/unit/content-gemini/image-quarantine.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/image-quarantine.test.js/Bíblia.md",
+  "source_sha": "b2c73b79c8824e5507e436a75ec9abc663919c6b",
+  "bible_sha": "4d291d6e1946b57fb49895d0127860c5e427581c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A13-180-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A matriz afirma que preview/composer/user turn são 'bloqueados' com prova direta, mas QUA-05 prova somente classificação estrutural.",
+      "evidence": [
+        "QUA-05 executa apenas classifyStructuralInput(image) e isStructurallyInput(image), exigindo reason e true.",
+        "QUA-05 não chama assessExtractedResult({ element: image, ... }) e não exige quarantined:true.",
+        "O bloqueio efetivo existe no módulo real em assessExtractedResult quando structuralReason é truthy, e nos consumers job-runner/observer que rejeitam imagens estruturais.",
+        "Uma regressão que quebrasse o branch de bloqueio de assessExtractedResult ou o wiring downstream poderia manter todas as assertions QUA-05 verdes."
+      ],
+      "requested_documentation_fix": "Trocar o claim direto para 'preview/composer/user turn são classificados como input estrutural'. Se quiser afirmar bloqueio diretamente provado, adicionar assertion focal em assessExtractedResult e/ou consumer real; caso contrário classificar o bloqueio como prova de consumer/indireta."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONTRADITO",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_18_VS_AGENTE_13",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "source_text_lines": 139,
+    "source_positions": "140/140 incluindo newline final",
+    "embedded_source_exact": true,
+    "map_exact": "linhas 1-139 cobertas exatamente uma vez; posição 140 = newline final",
+    "current_primary": "AGENTE 18 / CHANGES_REQUIRED / mesma revisão",
+    "prior_adversarial_stale": "AGENTE 8 / bible_sha ec1f513271011f8b9a8b6aab91174d9d93afde3c",
+    "primary_finding_A18_180_01": "Não necessário para este veredito. QUA-04 prova que similar:true não bloqueia e a Bíblia declara separadamente que evaluator lançando não tem teste específico; o termo 'fail-open perceptual' é ambíguo, mas não foi usado como bloqueio independente.",
+    "consumers_verified": [
+      "extension/content/gemini/job-runner.js",
+      "extension/content/gemini/observer.js",
+      "extension/content/content_gemini.js"
+    ],
+    "supersession_targets_verified": [
+      "044-001",
+      "044-003"
+    ]
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:45:30Z"
+}

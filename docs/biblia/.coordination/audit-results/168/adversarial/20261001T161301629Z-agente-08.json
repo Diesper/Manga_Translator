@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "index": 168,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "tests/unit/background/startup-recovery.test.js",
+  "bible": "docs/biblia/tests/unit/background/startup-recovery.test.js/Bíblia.md",
+  "source_sha": "649829ac36bb9428c9458c615365970349b741a1",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-168-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_LINE_MAPPING_ERRORS_IMPORTS",
+      "summary": "A auditoria linha-a-linha desloca a semântica do bloco de imports e também descreve incorretamente a linha 29.",
+      "evidence": [
+        "Source/Bíblia linha 24: `const path = require('path');`, mas a Função diz `Importa fs, mas não há uso`.",
+        "Linha 25 importa `fs`, mas a Função diz que importa `findRepoRoot`.",
+        "Linha 26 importa `findRepoRoot`, mas a Função diz que calcula `ROOT`.",
+        "Linha 27 calcula `ROOT`, mas recebe descrição genérica que não registra esse efeito.",
+        "Linha 29 apenas importa/desestrutura `getStorageMock` e `getRuntimeMock`; a Bíblia diz `Obtém storage simulado`, omitindo ainda que `getRuntimeMock` é import morto."
+      ],
+      "relation_to_primary": "Confirma 168-PRI-001 e amplia o problema para a linha 29.",
+      "requested_documentation_fix": "Realinhar as funções 24–29 ao source exato e registrar corretamente os imports mortos (`fs` e `getRuntimeMock`)."
+    },
+    {
+      "id": "A8-168-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_LINE_MAPPING_ERRORS_LOCAL_STATE",
+      "summary": "Descrições copiadas para objetos locais atribuem storage/jobQueue inexistentes ou contexto incompatível.",
+      "evidence": [
+        "Linha 73 cria apenas `const incompleteReset = { isProcessing: true, activeJobsCount: 0 };`, mas a Bíblia afirma `snapshot armazenado`; esse teste não faz I/O de storage.",
+        "Linha 76 cria `completeReset` sem `jobQueue`, mas a Bíblia diz que `false` contradiz startup real `quando jobQueue permanece não vazia`.",
+        "Linha 87 está dentro do cenário com `jobQueue: []` e grava `isProcessing:false`, porém reutiliza a mesma alegação de contradição com fila não vazia."
+      ],
+      "relation_to_primary": "Confirma 168-PRI-002 e encontra duas ocorrências adicionais (76 e 87).",
+      "requested_documentation_fix": "Descrever 73/76 como literais JavaScript locais e 87 como fixture de fila vazia, sem importar contexto de outro cenário."
+    },
+    {
+      "id": "A8-168-03",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "As três solicitações aparecem como OPEN, enquanto o state canônico registra 168-001, 168-002 e 168-003 como ACCEPTED.",
+      "evidence": [
+        "Bíblia linhas 67, 77 e 85: 168-001/002/003 rotuladas `OPEN`.",
+        "`.state/168.json`: as três requests têm `status: ACCEPTED`."
+      ],
+      "relation_to_primary": "Confirma 168-PRI-003.",
+      "requested_documentation_fix": "Atualizar os rótulos para ACCEPTED ou explicitar que são snapshot histórico; o state atual deve prevalecer."
+    },
+    {
+      "id": "A8-168-04",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_SCOPE_OVERCLASSIFICATION",
+      "summary": "O run verde do blob é real, mas a Bíblia o converte repetidamente em evidência `EXECUTADO INDIRETAMENTE` por posição/linha sem prova de cobertura posicional ou de todos os branches.",
+      "evidence": [
+        "Run 36521561968 foi revalidado: jobs 109255348388 (Node 20), 109255348406 (Node 22) e 109256050280 (CI Gate) concluíram com success; logs mostram a suíte passando e 109/109 suítes, 851/851 testes.",
+        "O commit e720890cf34dc9437ee91f3b8172953497d69870 contém exatamente o blob 649829ac36bb9428c9458c615365970349b741a1.",
+        "Mesmo assim, entradas como linha 23 (linha vazia) e muitas estruturas recebem `EXECUTADO INDIRETAMENTE — linha verde no CI`; o run prova execução da suíte, não execução semântica de comentários/blank lines nem cobertura de todos os branches.",
+        "O próprio princípio do documento distingue CI verde de prova do background real, mas a granularidade linha-a-linha volta a promover o run para uma força que ele não demonstra."
+      ],
+      "requested_documentation_fix": "Limitar a evidência do run à execução da suíte/blob; usar GATE/ESTRUTURAL para posições não executáveis e prova/assertion específica apenas onde o fluxo/assertion correspondente realmente demonstra a linha/branch."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_1_VS_AGENTE_8",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T16:13:01.629Z"
+}

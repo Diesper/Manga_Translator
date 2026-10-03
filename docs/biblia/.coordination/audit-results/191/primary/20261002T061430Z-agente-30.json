@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "index": 191,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 30",
+  "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+  "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "191-030",
+      "severity": "HIGH",
+      "type": "GTC_FALLBACK_CLEANUP_ERROR_SILENCED",
+      "summary": "Legacy fallback cleanup after successful modern save ignores storage.local.remove errors.",
+      "evidence": [
+        "cm-gtc-client.js line 184 wraps chrome.storage.local.remove(legacyKey, resolve) and never inspects chrome.runtime.lastError.",
+        "saveGlobalTranslationCacheEntry returns true immediately after that callback path.",
+        "queryGlobalTranslationCache may later serve gtc_<hash> when the modern request fails, so failed cleanup can resurrect stale data."
+      ],
+      "requested_action": "Make cleanup error-aware and add fault-injection regression, coordinated with the 191-029 marker/raw precedence fix.",
+      "correction_authorized": false,
+      "reason_correction_not_authorized": "Distinct ADVERSARIAL decision is still required for the same protected binding."
+    }
+  ],
+  "score": {
+    "functional_correctness": "22/25",
+    "adversarial_robustness": "15/20",
+    "coverage_tests": "17/20",
+    "regressions_compatibility": "15/15",
+    "error_handling": "7/10",
+    "structural_quality": "5/5",
+    "documentation_coherence": "5/5",
+    "total": "86/100"
+  },
+  "completed_at_utc": "2026-10-02T06:14:30Z"
+}

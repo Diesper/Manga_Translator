@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "index": 61,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 61",
+  "file": ".gitignore",
+  "bible": "docs/biblia/.gitignore/Bíblia.md",
+  "source_sha": "e48fc70b1acc14aabb245f0db1820bc6c7a2849e",
+  "bible_sha": "2db183f664af8a13feb626b6f05e03073751cc05",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "061-ADV-001",
+      "severity": "BLOCKING",
+      "category": "SEMANTICS_EVIDENCE_CLASSIFICATION",
+      "summary": "A Bíblia descreve incorretamente a seleção de reporters do Playwright como 'blob no CI' e 'reporter customizado local'.",
+      "evidence": [
+        "Bíblia linhas 27, 48, 62 e 313 generaliza o reporter blob para CI; a linha 48 afirma ainda 'reporter customizado local'.",
+        "playwright.config.js:5 define isShardRun = process.env.MANGA_E2E_SHARD === '1'; linhas 23-26 selecionam blob apenas quando isCi && isShardRun; quando isCi && !isShardRun selecionam ./scripts/ci/playwright-gate-reporter.js; fora de CI selecionam [['list']].",
+        ".github/workflows/ci.yml:221 ativa MANGA_E2E_SHARD='1' especificamente no job sharded e a linha 222 inicia o upload do blob report do shard.",
+        "Execução independente da expressão confirmou: local => list; CI sem shard => line + playwright-gate-reporter.js; CI com shard => line + blob."
+      ],
+      "required_change": "Qualificar as afirmações para 'runs sharded da CI'; registrar que o reporter customizado é usado em CI não-sharded e que execução local usa reporter list."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:20:15Z"
+}

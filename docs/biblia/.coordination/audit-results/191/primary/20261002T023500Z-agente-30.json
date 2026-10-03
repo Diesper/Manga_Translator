@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "index": 191,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 30",
+  "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+  "source_sha": "0a2fa6dd4024d64e21225a4dc329f0915abd4bdb",
+  "bible_sha": "2a5740694904d68da14994aa501a3bb8d8f77e37",
+  "verdict": "APPROVED",
+  "findings": [],
+  "audit_scope": {
+    "source_read_full": true,
+    "bible_binding_verified": true,
+    "regression_diff_against_main": true,
+    "tests_reviewed": true,
+    "runtime_dependency_reviewed": true,
+    "adversarial_spot_checks": [
+      "repeated error context cardinality",
+      "suspended/resume",
+      "resume rejection/incomplete",
+      "closed context",
+      "AudioContext unavailable",
+      "webkit fallback",
+      "constructor failure",
+      "oscillator scheduling failure",
+      "user-gesture unlock"
+    ]
+  },
+  "evidence": {
+    "source_positions": "807/807",
+    "embedded_source_exact": true,
+    "test_count": 17,
+    "skips_only_xit_xdescribe_todo_fixme": 0,
+    "production_dependency_sha": "3601efd9a66f8408b724b42d008dc43d518dabe6",
+    "final_validation_pr": 76,
+    "workflow_run_id": 36955506902,
+    "node20_job_id": 110677469400,
+    "node22_job_id": 110677469562,
+    "full_content_job_id": 110677469527,
+    "node20": "PASS 2/2 suites, 26/26 tests",
+    "node22": "PASS 2/2 suites, 26/26 tests",
+    "full_content": "PASS 40/40 suites, 445/445 tests with --runInBand --detectOpenHandles",
+    "audio_focal": "17/17 PASS",
+    "red_green_191_005": "pre-fix PR #72 failed context cardinality on Node20/22; final PR #76 passes",
+    "red_green_191_006": "pre-fix PR #74 failed exactly 2 error-observability cases on Node20/22; final PR #76 passes"
+  },
+  "score_breakdown": {
+    "functional_correctness": "25/25",
+    "adversarial_robustness": "20/20",
+    "coverage_tests": "20/20",
+    "regressions_compatibility": "15/15",
+    "error_handling": "10/10",
+    "structural_quality": "5/5",
+    "documentation_coherence": "5/5",
+    "total": "100/100"
+  },
+  "completed_at_utc": "2026-10-02T02:35:00Z"
+}

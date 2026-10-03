@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "index": 17,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 14",
+  "file": "extension/background/actions/open-existing-folder.js",
+  "bible": "docs/biblia/extension/background/actions/open-existing-folder.js/Bíblia.md",
+  "source_sha": "59ef82cbf960e360eb404fbd969067f017021607",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "017-REA-001",
+      "severity": "BLOCKING",
+      "type": "SEMANTIC_TRACEABILITY_CONTRADICTION",
+      "bible_location": "Bíblia.md — Rastreabilidade posição 025",
+      "finding": "O source da posição 025 é `if (results?.length > 0 && results[0].exists) {`, portanto o ramo anchorId exige explicitamente `results[0].exists`. A Bíblia descreve a mesma posição como `Considera sucesso quando há ao menos um resultado; neste ramo não verifica exists/state.` Isso é falso para `exists` e contradiz as próprias seções Ramo 1, Assimetria importante, Invariante 2 e U04, que corretamente dizem que anchorId exige exists:true. A descrição da posição 025 aparenta ter sido copiada semanticamente do ramo folderPath (posição 014), que de fato não verifica exists/state.",
+      "required_change": "Corrigir a posição 025 para registrar que o ramo exige resultado e exists:true; se desejar registrar a lacuna restante, dizer apenas que não valida state/completude."
+    },
+    {
+      "id": "017-REA-002",
+      "severity": "NORMAL",
+      "type": "DEPENDENCY_LOAD_CHAIN_OMISSION",
+      "bible_location": "Papel arquitetural / consumidores e dependências",
+      "finding": "A Bíblia identifica corretamente o popup como emissor real, mas omite o wiring que torna a action ativa: manifest.json declara background.js como service worker; background.js carrega open-existing-folder.js via importScripts em produção (e require no harness Node), cria o router registrado, fornece handleMarkerAndShow no contextFactory e encaminha chrome.runtime.onMessage por routeRegisteredAction. Esses elos são consumidores/dependências reais necessários para interpretar o wiring e as provas de integração citadas.",
+      "required_change": "Documentar a cadeia manifest.json -> background.js -> open-existing-folder.js/router e separar claramente emissor (popup) de loader/dispatcher (background)."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:52:30Z"
+}

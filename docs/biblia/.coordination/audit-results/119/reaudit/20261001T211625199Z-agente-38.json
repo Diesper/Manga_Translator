@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "index": 119,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 38",
+  "file": "tests/mocks/chrome-api.mock.js",
+  "bible": "docs/biblia/tests/mocks/chrome-api.mock.js/Bíblia.md",
+  "source_sha": "c1d9a056b7777183bfd3f540c49811335f410425",
+  "bible_sha": "f9626bf8d8f0095129006a259a9303d8f1955992",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "119-REAUDIT-001",
+      "severity": "BLOCKING",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 119-001/002/003 com status OPEN e afirma que ainda aguardam auditoria separada, mas o state canônico atual registra as três como ACCEPTED após auditoria independente; a dívida técnica permanece válida e não bloqueante, porém o lifecycle documental está objetivamente stale.",
+      "evidence": [
+        "Bíblia linhas 243, 267 e 287: os headings de 119-001, 119-002 e 119-003 terminam em `OPEN`.",
+        "Bíblia linha 1031: afirma que as três solicitações `permanecem abertas para auditoria separada`.",
+        "State 119: 119-001, 119-002 e 119-003 estão `ACCEPTED`, todas com `audited_by: AGENTE 23` e `audited_at_utc: 2026-09-30T19:01:00Z`.",
+        "State 119 document_quality registra `external_audit_requests_open: 0` e a nota diz que 119-001..003 permanecem ACCEPTED.",
+        "A Bíblia não rotula os headings OPEN como snapshot histórico nem registra data de corte para esses estados; sua própria conclusão apresenta o status como atual e como trabalho ainda não auditado.",
+        "As limitações técnicas subjacentes são descritas de forma conservadora e continuam dívida externa não bloqueante; o finding não exige resolver essas dívidas, apenas alinhar o status documental ao lifecycle canônico."
+      ]
+    }
+  ],
+  "reviewed_adversarial_findings": [
+    {
+      "id": "119-ADV39-R1-001",
+      "disposition": "CONFIRMED",
+      "reason": "Confirmado independentemente pela Bíblia atual, pelo state canônico e pelo histórico de auditoria das requests; a hipótese PRIMARY de que OPEN seria mero snapshot não possui qualificação correspondente dentro da Bíblia e contradiz a frase final de que ainda aguardam auditoria separada."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:16:25.199Z"
+}

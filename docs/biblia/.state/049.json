@@ -1,0 +1,133 @@
+{
+  "index": 49,
+  "file": "extension/content/gemini/temporary-chat.js",
+  "bible": "docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "40fbc8dc6acf6ae21dc5854aae3f14bfc029e3bc",
+  "started_at_utc": "2026-09-30T13:22:00Z",
+  "completed_at_utc": "2026-10-01T20:35:00Z",
+  "audit_requests": [
+    {
+      "id": "049-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/temporary-chat-v2.test.js",
+      "found_while_auditing": "extension/content/gemini/temporary-chat.js",
+      "finding": "As suítes cobrem estados principais, mas não AbortSignal, control_not_actionable, travessia por ShadowRoot, closest em descendente semântico, falha de element.click nem root customizado inválido.",
+      "current_evidence": "already_active, activated_verified, state_not_verified, unavailable, detecção PT/EN e click único têm assertions diretas do módulo real.",
+      "missing_evidence": "Branches defensivos e semânticos restantes.",
+      "why_needed": "Esses ramos diferenciam indisponibilidade, cancelamento e controle encontrado porém não acionável.",
+      "requested_action": "Adicionar casos focais ao módulo real, especialmente aborted, control_not_actionable e Shadow DOM.",
+      "expected_evidence": "Cada status/reason e fallback semântico recebe assertion específica.",
+      "expected_auditor_action": "Completar cobertura em alteração separada.",
+      "possible_regression": "Falhas de interação ou cancelamento podem ser classificadas incorretamente sem gate.",
+      "impact": "Ativação verificável de Temporary Chat.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED. `temporary-chat-v2.test.js` cobre already_active, activated_verified, state_not_verified e unavailable, mas não AbortSignal (`reason:'aborted'`), `control_not_actionable`, travessia ShadowRoot, resolução por `closest` de descendente semântico, `element.click()` lançando nem root customizado inválido.",
+      "auditor_recommended_action": "Adicionar casos focais contra `temporary-chat.js` real para cada status/reason e fallback semântico."
+    },
+    {
+      "id": "049-002",
+      "status": "ACCEPTED",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "extension/content/gemini/job-runner.js",
+      "found_while_auditing": "extension/content/gemini/temporary-chat.js",
+      "finding": "job-runner reduz verification_failed ao status, não preserva tempStatus.reason e continua o job; aborted/control_not_actionable/state_not_verified geram o mesmo aviso genérico.",
+      "current_evidence": "job-runner linhas atuais 901-950 tratam success por status e logam GEMINI_TEMP_CHAT_VERIFY_FAILED sem reason.",
+      "missing_evidence": "Decisão explícita sobre quais reasons devem bloquear, cancelar ou apenas avisar.",
+      "why_needed": "Abortamento solicitado e falha real de acionamento podem merecer políticas distintas.",
+      "requested_action": "Auditar contrato entre TemporaryChat e JobRunner; se reasons tiverem semântica operacional diferente, propagá-los/logá-los e testar em mudança separada.",
+      "expected_evidence": "Política explícita por reason com testes de integração.",
+      "expected_auditor_action": "Revisar integração sem alterar esta Bíblia.",
+      "possible_regression": "Job pode continuar após cancelamento/falha de controle sem diagnóstico granular.",
+      "impact": "Lifecycle e observabilidade do job Gemini.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:55:00Z",
+      "audit_finding": "ACCEPTED. `job-runner.js` reduz o retorno de TemporaryChat a flags/status e descarta `tempStatus.reason`; qualquer `verification_failed` gera o mesmo warning e o job continua. Assim `aborted`, `control_not_actionable` e `state_not_verified` perdem semântica operacional.",
+      "auditor_recommended_action": "Definir política por reason (continuar, cancelar ou bloquear), preservar/logar reason e adicionar integração entre TemporaryChat e JobRunner."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "214/214",
+    "source_text_lines": 213,
+    "external_audit_requests_open": 2,
+    "note": "Duas suítes executam diretamente o módulo real; lacunas restantes são branches defensivos e contrato com job-runner."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T20:35:00Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "40fbc8dc6acf6ae21dc5854aae3f14bfc029e3bc",
+      "bible_sha": "baba250e6345fd2cd6013bbeec9bb646537fa7e5",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "2f7e4f03912bfed09e555b64d6ccf5a9e2010aa251ec34c3501cb96e03aa01be",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "162fcc1e53e1dde4043d2c3ad33acb5b2170014354f12889cc5d652ad474ef45"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:40.036Z",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "COMPLETED",
+      "from_review_status": "CHANGES_REQUIRED",
+      "to_review_status": "CHANGES_REQUIRED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "162fcc1e53e1dde4043d2c3ad33acb5b2170014354f12889cc5d652ad474ef45",
+      "event_hash": "f3ae0eebd600e9ddeb7c4b02b0c584bd5fb06df2706e15630cf26b45d01526ea"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "CHANGES_REQUIRED",
+      "to_review_status": "CHANGES_REQUIRED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "f3ae0eebd600e9ddeb7c4b02b0c584bd5fb06df2706e15630cf26b45d01526ea",
+      "event_hash": "9727e84125c53ab60257c3b04c5eb83cd45bb8319c2fef7dfc22f2a44d3dd632"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "40fbc8dc6acf6ae21dc5854aae3f14bfc029e3bc",
+  "bible_sha": null,
+  "revision_id": "2f7e4f03912bfed09e555b64d6ccf5a9e2010aa251ec34c3501cb96e03aa01be",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.",
+  "review_status": "CHANGES_REQUIRED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T20:35:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "CHANGES_REQUIRED"
+    ]
+  }
+}

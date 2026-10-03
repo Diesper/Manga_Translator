@@ -1,0 +1,20 @@
+{
+  "schema_version": 3,
+  "index": 193,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 24",
+  "file": "tests/unit/content-manga/auto-restore-system.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/auto-restore-system.test.js/Bíblia.md",
+  "source_sha": "3aa7a39030aba4577f530f575869a6d535d1c3a3",
+  "bible_sha": "6da4b5b416320f0fb9e92e6f840a1baf69befb11",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-03T06:19:06Z",
+  "completed_order_id": null,
+  "production_sha": null,
+  "test_sha": "3aa7a39030aba4577f530f575869a6d535d1c3a3",
+  "audit_epoch": 1,
+  "handoff_id": "193-e1-3a9d9c3f3613",
+  "revision_id": "040bf05ea65fa16dc940a0b2edbfe613bd0138fa78ace2b97eb66d8496336b9f",
+  "human_approval_id": null
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "index": 175,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 15",
+  "file": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/claim-bootstrap-keepalive.test.js/Bíblia.md",
+  "source_sha": "6e6adc2747b0974feec368fedb3652da79dc49b5",
+  "bible_sha": "87717da4bd69b7f3ce8f9cee607aebedd4e1d04c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A15-175-P01",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "EVIDENCE_CLASSIFICATION",
+      "summary": "A Bíblia superestima a prova do último caso ao afirmar associação ao jobId esperado como diretamente provada.",
+      "evidence": [
+        "Bíblia §6 afirma: o caso prova retry até sucesso e associação ao jobId esperado; a matriz classifica 'jobId esperado faz retry até job aparecer' como PROVADO DIRETAMENTE.",
+        "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js:181-200 faz o responder olhar apenas message.action e claimCalls; não verifica message.jobId.",
+        "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js:204-208 só exige o objeto retornado com jobId/geminiTabId e claimCalls===3.",
+        "extension/content/content_gemini.js:273-276 envia expectedJobId no payload, mas 278-280 aceita response.job diretamente; uma regressão que alterasse/omitisse o jobId do payload poderia manter este teste verde porque o responder o ignora."
+      ],
+      "required_change": "Separar o que é realmente provado: retry até a terceira resposta e retorno do job são diretos; associação do payload ao expectedJobId não possui assertion focal neste teste. Reclassificar essa parte como SEM_PROVA_ESPECIFICA/execução indireta, ou acrescentar prova específica em trabalho de teste separado."
+    },
+    {
+      "id": "A15-175-P02",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "AUDIT_REQUEST_LIFECYCLE",
+      "summary": "A Bíblia apresenta 175-001..004 como OPEN, mas o state atual registra as quatro requests como ACCEPTED.",
+      "evidence": [
+        "Bíblia §12 rotula 175-001, 175-002, 175-003 e 175-004 como OPEN.",
+        "A conclusão documental afirma que 'as quatro solicitações OPEN' delimitam as lacunas.",
+        "docs/biblia/.state/175.json registra status ACCEPTED para 175-001, 175-002, 175-003 e 175-004."
+      ],
+      "required_change": "Sincronizar a Bíblia com o lifecycle atual das requests, preservando as lacunas técnicas e deixando claro que ACCEPTED é não bloqueante quando a limitação está representada honestamente."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:45:00Z"
+}

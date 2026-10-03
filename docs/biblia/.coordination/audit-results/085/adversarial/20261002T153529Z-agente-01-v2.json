@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "index": 85,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 1",
+  "file": "scripts/validation/verify-coverage.js",
+  "bible": "docs/biblia/scripts/validation/verify-coverage.js/Bíblia.md",
+  "source_sha": "45f920bd2db5ba3a1273438b1814b29aeafc3be4",
+  "bible_sha": "3c260cc8496d20c8f470d2694676957285ebe26f",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "085-A1-ADV2-001",
+      "severity": "MATERIAL",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A Bíblia ainda classifica como execução/prova branches que nenhuma das seis fixtures atuais entra.",
+      "evidence": [
+        "verify-coverage-selftest.js sempre cria dois arquivos .js físicos; portanto o ramo `sourceFiles.length === 0` não entra e a linha source 102 não executa, embora a Bíblia a classifique como `🟨 EXECUTADO INDIRETAMENTE`.",
+        "No caso `threshold crítico abaixo do mínimo`, o pct é 75 (finito): a condição da linha source 170 é falsa e a linha 171 (`percentual inválido`) não executa. Mesmo assim a Bíblia, em Bíblia.md linha documental 1696, marca essa linha como `✅ PROVADO DIRETAMENTE para threshold crítico abaixo do mínimo`.",
+        "O caso `arquivo crítico ausente` usa `criticalMinimum: {}`; o caso de threshold crítico possui summaryKey válido. Logo source 165-166 (`criticalMinimum` sem summaryKey) não é executado, apesar de estar marcado como `🟨 EXECUTADO INDIRETAMENTE`.",
+        "Todas as fixtures usam `minInstrumentedFiles: 2` e produzem dois summaryFiles; source 183-185 (diagnóstico de piso insuficiente) não executa, embora a Bíblia as classifique como `🟨 EXECUTADO INDIRETAMENTE`.",
+        "A request canônica 084-002, ACCEPTED e sucessora de 085-001, registra explicitamente como missing_evidence: extension sem JS, pct inválido, minInstrumentedFiles e criticalMinimum sem summaryKey."
+      ],
+      "required_change": "Reclassificar as linhas/branches não exercitados para `SEM TESTE/SEM PROVA ESPECÍFICA` (distinguindo avaliação de predicate de entrada no branch), ou adicionar em alteração separada fixtures focais que realmente entrem nesses branches; não usar uma prova de threshold finito como prova do diagnóstico de pct inválido."
+    },
+    {
+      "id": "085-A1-ADV2-002",
+      "severity": "MATERIAL",
+      "type": "CLI_FAILURE_EVIDENCE_OVERCLAIM",
+      "summary": "A Bíblia promove o comportamento de falha do CLI a gate estático + execução indireta, mas as evidências citadas provam o wiring do comando, não `process.exit(1)` quando `ok:false`.",
+      "evidence": [
+        "Bíblia.md matriz de evidência afirma `CLI usa este arquivo e bloqueia jobs` como `🟦 GATE ESTÁTICO ESPECÍFICO + 🟨 EXECUTADO INDIRETAMENTE`; a mesma classificação é repetida nas linhas source 209-217, incluindo source 214 `process.exit(1)`.",
+        "verify-coverage-selftest.js faz `require('./verify-coverage')` e chama `verifyCoverage`; portanto `require.main === module` é falso e o entry point CLI 209-217 não é exercitado pelo self-test.",
+        "package.json e ci.yml provam que o comando é ligado aos jobs; verify-ci-contract.js fixa o npm script/workflow e procura alguns literais do verificador, mas não verifica o `process.exit(1)` de verify-coverage.js. A ocorrência `process.exit(1)` em verify-ci-contract.js é o exit do próprio verifier de contrato.",
+        "Mutação adversarial: trocar apenas verify-coverage.js source 214 de `process.exit(1)` para `process.exit(0)` mantém o self-test importado, o gate estático citado e uma execução CI saudável verdes, embora o CLI deixe de bloquear uma violação retornada como `ok:false`."
+      ],
+      "required_change": "Separar `wiring do CLI/job` (gate estático comprovado) da semântica negativa `ok:false -> exit 1` (sem prova focal atual), ou adicionar teste de subprocesso/mutation que force `ok:false` e exija exit code 1."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T15:35:29Z"
+}

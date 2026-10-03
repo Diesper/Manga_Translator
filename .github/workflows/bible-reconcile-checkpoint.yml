@@ -2,6 +2,14 @@ name: Bible Reconciliation Checkpoint
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - docs/project-bible
+    paths:
+      - '.github/workflows/bible-reconcile-checkpoint.yml'
+  pull_request:
+    types:
+      - labeled
 
 permissions:
   contents: write
@@ -13,7 +21,10 @@ concurrency:
 jobs:
   reconcile:
     name: Reconcile Distributed Bible State
-    if: github.ref == 'refs/heads/docs/project-bible'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/docs/project-bible') ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'docs/project-bible' && github.event.label.name == 'bible-reconcile')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout exact branch head
@@ -27,13 +38,41 @@ jobs:
         with:
           node-version: 20.x
 
-      - name: Remember observed head
-        id: observed
+      - name: Remember protocol-validated head
+        id: validated
         shell: bash
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Validate canonical protocol infrastructure before mutation
         run: npm run test:bible-protocol:infra
+
+      - name: Refresh dynamic branch head after protocol validation
+        id: observed
+        env:
+          VALIDATED_SHA: ${{ steps.validated.outputs.sha }}
+        shell: bash
+        run: |
+          git fetch origin docs/project-bible
+          REMOTE_SHA="$(git rev-parse origin/docs/project-bible)"
+          if [ "$REMOTE_SHA" != "$VALIDATED_SHA" ]; then
+            PROTOCOL_CHANGED="$(
+              git diff --name-only "$VALIDATED_SHA" "$REMOTE_SHA" |
+              grep -E '^(package\.json|\.github/workflows/bible-.*\.yml|scripts/bible/.*\.js|tests/infra/bible/.*\.js|scripts/validation/.*\.js)$' || true
+            )"
+            if [ -n "$PROTOCOL_CHANGED" ]; then
+              echo "::error::Protocol infrastructure changed after validation; rerun checkpoint on the newer protocol revision."
+              echo "$PROTOCOL_CHANGED"
+              exit 1
+            fi
+            git reset --hard "$REMOTE_SHA"
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Validate refreshed live head before mutation
+        run: |
+          node scripts/validation/verify-bible-protocol-governance.js
+          npm run bible:lifecycle:verify
+          npm run bible:audit:append-only
 
       - name: Prove published audit results are immutable
         run: npm run bible:audit:append-only

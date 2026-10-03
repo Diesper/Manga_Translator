@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "index": 112,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 32",
+  "file": "tests/integration/ipc/image-translation-routing.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/image-translation-routing.test.js/Bíblia.md",
+  "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
+  "bible_sha": "23beceb2560542d578fd665ad0ac10c8264054f7",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A32-112-01",
+      "severity": "BLOCKING",
+      "category": "STALE_LIFECYCLE_STATUS",
+      "summary": "O cabeçalho da Bíblia declara 'CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA', mas o próprio reparo final afirma que o item retornou a READY_FOR_AUDIT e exige nova auditoria independente; o state canônico também está READY_FOR_AUDIT.",
+      "evidence": [
+        "Bíblia linha 3: `Estado: ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA`.",
+        "Bíblia linha 1344: `o item retorna a READY_FOR_AUDIT e exige nova auditoria independente antes de COMPLETED`.",
+        "docs/biblia/.state/112.json atual: status READY_FOR_AUDIT após EDITOR_REPAIR_COMPLETED."
+      ],
+      "required_change": "Remover/atualizar a aprovação stale do cabeçalho e manter o estado documental coerente com o lifecycle canônico até a auditoria distribuída concluir."
+    },
+    {
+      "id": "A32-112-02",
+      "severity": "BLOCKING",
+      "category": "FINAL_NEWLINE_TRACEABILITY",
+      "summary": "A posição documental 138 é declarada como o newline final, mas sua seção de rastreabilidade a descreve como uma linha vazia separadora e ainda a classifica como 'EXECUTADO INDIRETAMENTE'; o source possui 137 linhas textuais terminadas por LF, não uma 138ª linha de setup/ação executada.",
+      "evidence": [
+        "Bíblia linha 8: `Posições documentais: 138, contando o newline final`.",
+        "Source real: 137 linhas textuais e `endsWith('\\n') === true`; a fonte integral da Bíblia é byte/textualmente exata.",
+        "Bíblia seção `### Linha 138`: fonte `␠ [linha vazia]`, função `Separa ... do próximo bloco iniciado por ```, e evidência `EXECUTADO INDIRETAMENTE`.",
+        "Não existe bloco seguinte no source; a posição 138 representa apenas o terminador LF editorial."
+      ],
+      "required_change": "Representar a posição 138 explicitamente como newline terminal e classificá-la como posição editorial/não executável, sem atribuir execução indireta ou separação para bloco inexistente."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:03:03Z"
+}

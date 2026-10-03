@@ -1,0 +1,120 @@
+{
+  "schema_version": 2,
+  "index": 53,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 53",
+  "file": "extension/popup/popup.html",
+  "bible": "docs/biblia/extension/popup/popup.html/Bíblia.md",
+  "source_sha": "05972d0fa1161a5182e0b11185a390582a720f90",
+  "bible_sha": "72c461afdbe5057b59dca312d804fb7737bd2c5e",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A53-053-001",
+      "severity": "BLOCKING",
+      "category": "SEMANTIC_LINE_MAPPING",
+      "summary": "A linha 7 da cobertura descreve uma regra CSS executável como comentário e afirma que ela não entra na cascata.",
+      "evidence": {
+        "source_line": 7,
+        "source": "        * { box-sizing: border-box; margin: 0; padding: 0; }",
+        "bible_coverage_row": "| 7 | U01 | <code>        * { box-sizing: border-box; margin: 0; padding: 0; }</code> | Comentário de manutenção: registra a intenção/regressão visual desta regra; não entra na cascata CSS. |",
+        "actual_semantics": "É uma regra do seletor universal que aplica box-sizing, margin e padding e participa da cascata CSS."
+      },
+      "impact": "A fonte integral e a posição estão corretas, mas a explicação semântica é o oposto do comportamento real; um leitor da Bíblia entenderia incorretamente o baseline CSS global.",
+      "requested_action": "Corrigir a explicação da linha 7 para descrever a regra universal e revalidar as descrições CSS geradas."
+    },
+    {
+      "id": "A53-053-002",
+      "severity": "BLOCKING",
+      "category": "DOM_ELEMENT_IDENTITY",
+      "summary": "Nove linhas atribuem IDs ao tipo de elemento DOM errado, inclusive controles cujo tipo é funcionalmente relevante para popup.js.",
+      "evidence": {
+        "mismatches": [
+          {
+            "line": 294,
+            "claimed": "div#selection-count",
+            "actual": "span#selection-count"
+          },
+          {
+            "line": 318,
+            "claimed": "div#banned-selection-count",
+            "actual": "span#banned-selection-count"
+          },
+          {
+            "line": 417,
+            "claimed": "label#popup-gemini-mode-temp",
+            "actual": "input#popup-gemini-mode-temp"
+          },
+          {
+            "line": 418,
+            "claimed": "label#popup-gemini-mode-minimized",
+            "actual": "input#popup-gemini-mode-minimized"
+          },
+          {
+            "line": 419,
+            "claimed": "label#popup-gemini-mode-delete",
+            "actual": "input#popup-gemini-mode-delete"
+          },
+          {
+            "line": 436,
+            "claimed": "label#settings-image-min-width",
+            "actual": "input#settings-image-min-width"
+          },
+          {
+            "line": 437,
+            "claimed": "label#settings-image-min-height",
+            "actual": "input#settings-image-min-height"
+          },
+          {
+            "line": 444,
+            "claimed": "div#settings-image-min-width-range",
+            "actual": "input#settings-image-min-width-range"
+          },
+          {
+            "line": 477,
+            "claimed": "label#log-autoscroll",
+            "actual": "input#log-autoscroll"
+          }
+        ],
+        "controller_examples": [
+          "popup.js obtém os três IDs popup-gemini-mode-* e usa propriedades .checked e .value de radio inputs.",
+          "popup.js obtém settings-image-min-width/height e os ranges como controles de entrada para sincronização/persistência."
+        ]
+      },
+      "impact": "A Bíblia afirma que IDs são contratos de API interna, mas documenta tipos DOM incorretos para esses próprios contratos; isso altera a interface que um mantenedor inferiria.",
+      "requested_action": "Corrigir o tipo DOM de cada ID listado e revalidar todas as linhas que usam o padrão `tag#id` contra o elemento que realmente possui o atributo id."
+    },
+    {
+      "id": "A53-053-003",
+      "severity": "BLOCKING",
+      "category": "CONSUMER_AND_EVIDENCE_OMISSION",
+      "summary": "A seção de consumidores/evidência omite consumidores e um gate estrutural atuais que referenciam diretamente popup.html.",
+      "evidence": {
+        "omitted": [
+          {
+            "path": "scripts/validation/verify-repository-structure.js",
+            "role": "Gate estrutural: exige extension/popup/popup.html, default_popup e presença de ../shared/shared-ui.js + popup.js.",
+            "execution": "package.json expõe validate:structure e .github/workflows/ci.yml executa o verificador."
+          },
+          {
+            "path": "tests/integration/performance.test.js",
+            "role": "Carrega extension/popup/popup.html + popup.js e interage com a tab Traduzidas em teste de performance."
+          },
+          {
+            "path": "tests/e2e/translation-flow.spec.js",
+            "role": "Navega para chrome-extension://<id>/popup/popup.html em navegador real para acordar/interagir com a extensão; isso é consumer E2E, embora não prove toda a semântica do DOM."
+          }
+        ],
+        "bible_mentions": {
+          "scripts/validation/verify-repository-structure.js": 0,
+          "tests/integration/performance.test.js": 0,
+          "tests/e2e/translation-flow.spec.js": 0
+        },
+        "classification_issue": "A tabela chama a entrada do manifest de GATE ESTÁTICO ESPECÍFICO, mas não identifica o verificador/CI que de fato materializam esse gate."
+      },
+      "impact": "A reconstrução arquitetural e a classificação de evidência ficam incompletas; consumidores reais e a origem do gate são omitidos.",
+      "requested_action": "Adicionar esses consumidores/gates com classificação conservadora: verificador como gate estático; performance como integração; translation-flow como consumer E2E limitado ao que suas assertions realmente verificam."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:14:19Z"
+}

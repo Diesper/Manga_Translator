@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "index": 49,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 48",
+  "file": "extension/content/gemini/temporary-chat.js",
+  "bible": "docs/biblia/extension/content/gemini/temporary-chat.js/Bíblia.md",
+  "source_sha": "40fbc8dc6acf6ae21dc5854aae3f14bfc029e3bc",
+  "bible_sha": "baba250e6345fd2cd6013bbeec9bb646537fa7e5",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A48-049-R01",
+      "severity": "BLOCKING",
+      "category": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A ausência atual do fallback geométrico é confirmável no source, porém a Bíblia a classifica incorretamente como PROVADO DIRETAMENTE pelas assertions citadas.",
+      "evidence": [
+        "Bíblia §4 atribui a TEMP-05 e ao caso `não existe mais fallback posicional` a prova de que o mecanismo legado não existe; §9 classifica `fallback geométrico legado não existe` como `✅ PROVADO DIRETAMENTE`.",
+        "Source `temporary-chat.js`: `findTempChatButton` usa semântica, testids e DFS/Shadow DOM; não há ramo de seleção por coordenadas. Isso prova o estado atual por inspeção de source.",
+        "`temporary-chat-v2.test.js` TEMP-05 configura `getBoundingClientRect` num botão genérico, mas chama `ensureActive({ timeoutMs: 0 })`; o `while` não executa, portanto o botão e sua geometria não participam da decisão. A assertion estrutural relevante é apenas `api.findButtonByPosition === undefined`.",
+        "`temp-chat-activator.test.js` verifica que `findButtonByPosition` e `createLegacyAdapter` não são exports e testa controles genéricos sem uma fixture que faça `getBoundingClientRect` reproduzir a região antiga.",
+        "Contraexemplo de mutation testing: um fallback geométrico poderia ser reintroduzido dentro de `findTempChatButton` com outro nome, sem exportar `findButtonByPosition/createLegacyAdapter`; as assertions estruturais citadas continuariam verdes e TEMP-05 continuaria sem entrar no loop."
+      ],
+      "required_change": "Reclassificar a alegação como inspeção estática/source + teste estrutural parcial, ou adicionar/citar assertion que execute a implementação real com botão não semântico colocado na geometria legada e prove que ele continua rejeitado."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:35:00Z"
+}

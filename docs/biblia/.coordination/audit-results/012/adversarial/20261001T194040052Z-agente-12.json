@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "index": 12,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 12",
+  "file": "extension/background/actions/export-all.js",
+  "bible": "docs/biblia/extension/background/actions/export-all.js/Bíblia.md",
+  "source_sha": "6160a220094dd14b3fef760570dec8ae37a32244",
+  "bible_sha": "325023c03655f2b7c87d9d71c3f04ef0dfbdb848",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "012-ADV-V2-001",
+      "type": "RELEVANT_RUNTIME_WIRING_OMITTED",
+      "severity": "BLOCKING",
+      "claim": "A Bíblia apresenta a arquitetura/consumidor de export-all.js citando apenas popup.js, sem documentar o wiring de produção que torna a action registrável, roteável e fornece context.waitForDownload.",
+      "evidence": [
+        "Bíblia §2 ('Consumidor') cita popup.js, mas não contém background/router.js, extension/background.js, contextFactory ou routeRegisteredAction.",
+        "extension/background/router.js mapeia EXPORT_ALL_AND_SHOW -> export-all; o createContext padrão do router não fornece waitForDownload.",
+        "extension/background.js é o service worker carregado pelo manifest, importa/requer background/actions/export-all.js e cria o router com contextFactory que injeta waitForDownload.",
+        "extension/background/actions/export-all.js chama scope.MangaTranslatorRouter.registerAction(...) e context.waitForDownload(...); sem esse wiring, a dependência de runtime descrita implicitamente não está disponível.",
+        "manifest.json aponta background.service_worker para background.js, confirmando que esse caminho é produção e não apenas harness de teste."
+      ],
+      "required_change": "Documentar o wiring de produção relevante: manifest -> background.js -> router/action registry, o alias EXPORT_ALL_AND_SHOW -> export-all e a injeção de waitForDownload via contextFactory; distinguir caller de UI (popup.js), loader/consumer do módulo (background.js) e dependência de roteamento (background/router.js)."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics_main": "CONFIRMADO_3X",
+    "dependencies": "CONTRADITO",
+    "consumers": "CONTRADITO",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONTRADITO",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "41/41",
+    "source_text_lines": 40,
+    "current_primary": "AGENTE 8 / APPROVED / schema v2 / bible_sha 325023c03655f2b7c87d9d71c3f04ef0dfbdb848",
+    "prior_adversarial_and_reaudit": "schema v1 records are historical because baseline bible_sha ddb8160af56191c17b28e81ac802fdd365d388a2 differs from current bible_sha",
+    "nonblocking_requests": [
+      "012-001 ACCEPTED",
+      "012-002 ACCEPTED"
+    ],
+    "nonblocking_coordination_anomaly": "state.document_quality.external_audit_requests_open=2 is stale relative to the two canonical audit_requests, both ACCEPTED; this was not used as the documentary blocker.",
+    "omitted_additional_evidence": "plan-missing-handlers-real.test.js also executes the real background path for the empty-list guard; omission from the evidence table was not treated as blocking because the documented proof remains conservative."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T19:40:40.052Z"
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "index": 72,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 37",
+  "file": "scripts/ci/playwright-gate-reporter.js",
+  "bible": "docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md",
+  "source_sha": "71fb92c1215a86cdb309f4599ea8d0b422e9b02e",
+  "bible_sha": "610ce171116d2f802faab5fac32d199c4e5fc29f",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "072-ADV-001",
+      "severity": "BLOCKING",
+      "category": "SEMANTICS_AND_EVIDENCE_OVERCLAIM",
+      "summary": "A Bíblia atribui efeito funcional ao metadata retry que o classificador flaky atual não possui.",
+      "evidence": [
+        "Source linha 40: retried = attempts.length > 1 || attempts.some(attempt => attempt.retry > 0).",
+        "Source linhas 41-45: hadNonPassingAttempt só é true se attempts.slice(0,-1) contiver status != passed; isso exige pelo menos duas tentativas.",
+        "Logo, sempre que hadNonPassingAttempt=true, attempts.length > 1 já é true e o operando retry > 0 não pode alterar o resultado final retried && hadNonPassingAttempt.",
+        "Bíblia linha 20 afirma que o contador retry permite detectar retry e que ignorá-lo reduziria defesa contra histórico incompleto; isso é falso sob a lógica atual.",
+        "Bíblia linha 40 afirma que a redundância length || retry reduz chance de perder retry; porém, nos self-tests de duas tentativas, length > 1 curto-circuita o || e a expressão attempts.some(retry > 0) nem é executada.",
+        "A classificação '✅ PROVADO DIRETAMENTE' para o papel funcional de retry=1 é forte demais: os testes continuariam com o mesmo veredito se o valor armazenado de retry fosse sempre 0."
+      ],
+      "required_correction": "Reescrever a semântica/evidência das linhas 20 e 40 e as seções correlatas para deixar claro que, no algoritmo atual, retry metadata é armazenado mas é redundante para a classificação flaky enquanto hadNonPassingAttempt exigir uma tentativa anterior. Não classificar o papel de retry>0 como diretamente provado pelos cenários atuais; revisar também a caracterização de retry malformado/NaN."
+    }
+  ],
+  "passed_checks": [
+    "SOURCE_SHA/state/source blob coincidem.",
+    "Fonte integral reproduz exatamente as 82 linhas textuais; newline final documentado como posição 83.",
+    "83 headings Linha 1..83 sequenciais; cobertura integral sem gaps.",
+    "Consumers playwright.config.js, playwright-merge.config.js, workflow, self-test e verify-ci-contract.js reconfirmados.",
+    "Happy path, skipped, minTests, flaky por histórico e estados terminais possuem assertions reais compatíveis com a Bíblia.",
+    "Lacuna attemptsById.size < total está honestamente declarada e 072-001 está corretamente SUPERSEDED por 080-001.",
+    "072-002 sobre ausência de validação estrutural de e2e.maxSkipped foi reconfirmada.",
+    "Assunções de test.id/ordem e demais limites estão explicitadas."
+  ],
+  "failed_checks": [
+    "Semântica principal do papel de result.retry/retry metadata.",
+    "Classificação de evidência da condição retry > 0 como prova direta.",
+    "Honestidade da justificativa 'redundância defensiva' / histórico incompleto."
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONTRADITO_PARCIALMENTE_NA_CLASSIFICACAO_DE_RETRY",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X_COM_072_003_PARCIALMENTE_SUPERESTIMANDO_RETRY",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_37_VS_AUDITOR_LEGADO_AGENTE_9",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_requests_nonblocking": [
+    "072-001 SUPERSEDED por 080-001 — lacuna de missing-results confirmada.",
+    "072-002 ACCEPTED — falta validação estrutural de e2e.maxSkipped, confirmada.",
+    "072-003 ACCEPTED — pressupostos de ID/ordem são reais; a parte sobre retry malformado deve ser reavaliada porque retry metadata é redundante no classificador atual."
+  ],
+  "audit_notes": {
+    "source_text_lines": 82,
+    "source_final_newline": true,
+    "documented_positions": "83/83",
+    "embedded_source_exact": true,
+    "formal_refutation_attempt": "A hipótese de aprovação falhou ao decompor a expressão flaky: o contador retry não contribui ao resultado quando a condição hadNonPassingAttempt pode ser verdadeira.",
+    "independent_check_1": "Leitura algébrica do source: hadNonPassingAttempt=>attempts.length>1=>retried=true sem consultar retry.",
+    "independent_check_2": "Leitura das assertions: casos failed/timedOut→passed possuem duas tentativas; o primeiro operando do || já é true e curto-circuita attempts.some(retry>0).",
+    "independent_check_3": "Contrafactual determinístico: substituir o valor retry armazenado por 0 ou simplificar retried para attempts.length>1 não altera nenhum cenário do self-test nem a classificação flaky atual.",
+    "final_head_before_publish": "6742fefe4630f93e546a5e53dc85b29abbd34faa"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-02T16:13:22.308Z"
+}

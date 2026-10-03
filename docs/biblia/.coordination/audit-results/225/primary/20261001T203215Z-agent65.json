@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "index": 225,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 65",
+  "file": "tests/visual/background-fingerprint.visual.js",
+  "bible": "docs/biblia/tests/visual/background-fingerprint.visual.js/Bíblia.md",
+  "source_sha": "91f5cf4d9ed4d9f4386184931f93ab32f33c95ca",
+  "bible_sha": "9fbc74672aa73b9931cf81ef5f3d3354cabfb8ee",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "225-PRI65-001",
+      "category": "AUDIT_REQUEST_STATUS_STALE",
+      "severity": "BLOCKING",
+      "summary": "A Bíblia preserva corretamente as três lacunas, mas registra como OPEN requests que o state canônico já auditou e aceitou.",
+      "evidence": [
+        "Bíblia linhas 166, 183 e 196 marca 225-001/002/003 como `OPEN`; a conclusão na linha 1115 afirma explicitamente que as três `permanecem OPEN`.",
+        "State #225 registra 225-001, 225-002 e 225-003 como `ACCEPTED`, cada uma com `audited_by: AGENTE 23`, evidência e ação recomendada.",
+        "A validação independente confirmou o mérito das três requests: o arquivo usa simulador visual-v3 em vez da action visual-v4, o título de pixelSample diz 256 chars apesar da assertion de 512, e `it`/`beforeEach`/`brightnessShifted`/`fpApiMock` permanecem sem uso.",
+        "A própria Bíblia representa essas lacunas honestamente; o erro bloqueante é o estado documental stale, não a existência das lacunas."
+      ],
+      "required_change": "Atualizar 225-001, 225-002 e 225-003 para ACCEPTED e a conclusão correspondente, preservando-as como requests externas não bloqueantes para a fidelidade documental. Não alegar que continuam OPEN."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:32:15Z"
+}

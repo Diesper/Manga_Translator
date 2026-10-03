@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "index": 45,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 43",
+  "file": "extension/content/gemini/job-runner.js",
+  "bible": "docs/biblia/extension/content/gemini/job-runner.js/Bíblia.md",
+  "source_sha": "1b16fd656e82e64ef2d26977e061f87e469aa3ff",
+  "bible_sha": "02fef821345ee2fafdb33a721bdbbbd7a16eaffa",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "045-REA-001",
+      "severity": "BLOCKING",
+      "type": "SEMANTIC_OVERCLAIM_ACK",
+      "summary": "A Bíblia generaliza que mensagens críticas retornam ACK, mas GEMINI_ERROR é enviado fire-and-forget pelo runner.",
+      "evidence": [
+        "Bíblia.md linha 49 afirma: `mensagens críticas retornam ACK e commit é repetível`.",
+        "job-runner.js linhas 706-739: deliverWithSecureDeletion usa runtime.sendMessage(delivery) sem callback/await nos caminhos de GEMINI_ERROR.",
+        "job-runner.js linhas 1401-1408: catch geral envia GEMINI_ERROR via runtime.sendMessage({...}) sem observar resposta.",
+        "report-error-action.test.js prova resposta {ok:true} no background, porém RUN-03/CG-16/CG-27/CG-36 apenas provam emissão de GEMINI_ERROR; não provam ACK observado pelo runner.",
+        "RUN-12/13/14 provam especificamente staging+commit com ACK/retry, portanto não sustentam a generalização."
+      ],
+      "required_change": "Restringir a afirmação de ACK aos fluxos que realmente aguardam resposta e declarar GEMINI_ERROR como fire-and-forget no runner."
+    },
+    {
+      "id": "045-REA-002",
+      "severity": "BLOCKING",
+      "type": "EMBEDDED_SOURCE_NOT_EXACT",
+      "summary": "O bloco de fonte integral contém um newline adicional e não corresponde exatamente ao source auditado.",
+      "evidence": [
+        "Source atual termina em `globalThis);\\n` e o conteúdo textual recuperado tem 54479 caracteres.",
+        "O fence de fonte integral termina em `globalThis);\\n\\n`, tem 54480 caracteres e o primeiro desvio ocorre somente após todo o conteúdo real do source.",
+        "A Bíblia afirma que o bloco corresponde ao blob 1b16fd656e82e64ef2d26977e061f87e469aa3ff e contabiliza somente o newline final como posição 1472.",
+        "O mapa documental por heading/Fonte permanece 1472/1472, sem gaps/duplicatas; a falha é a integridade literal do bloco integral."
+      ],
+      "required_change": "Remover o newline excedente do bloco de fonte integral e revalidar a correspondência exata sem alterar o source."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:14:41.915Z"
+}

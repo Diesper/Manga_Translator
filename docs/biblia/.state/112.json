@@ -1,0 +1,165 @@
+{
+  "index": 112,
+  "file": "tests/integration/ipc/image-translation-routing.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/image-translation-routing.test.js/Bíblia.md",
+  "status": "CHANGES_REQUIRED",
+  "agent": null,
+  "source_sha": "6c47003aae5207d711c667bc805fb71373ae788f",
+  "started_at_utc": null,
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "112-001",
+      "status": "RESOLVED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/ipc/image-translation-routing.test.js",
+      "found_while_auditing": "tests/integration/ipc/image-translation-routing.test.js",
+      "finding": "A suíte cobre 100% miss, 100% hit e filtro de imagem pequena, mas não executa o branch real de cache parcial usando content_manga.js.",
+      "current_evidence": "O arquivo auditado usa loadContentScript para carregar a implementação real e possui assertions diretas nos três cenários atuais. tests/integration/ipc/gtc-cache-flow.test.js possui cenário de hits parciais, porém por função simulateExtractWithGTC própria, não pelo content_manga.js real.",
+      "missing_evidence": "Não há assertion integrada mostrando simultaneamente uma imagem substituída do cache e apenas as misses restantes em START_BATCH.images no mesmo lote real.",
+      "why_needed": "O branch GTC_PARTIAL_HIT do content_manga.js combina dois efeitos no mesmo lote; provar hits e misses apenas em cenários separados não garante a composição.",
+      "requested_action": "Adicionar, em mudança separada, um cenário com pelo menos duas imagens no teste de roteamento real, devolver entriesByHash somente para uma e verificar substituição da hit e START_BATCH contendo somente o índice miss.",
+      "expected_evidence": "Assertions diretas sobre src/data-translated da hit, ausência do índice hit em START_BATCH e presença exclusiva do índice miss.",
+      "possible_regression": "Uma regressão pode reenviar hits ao Gemini ou deixar misses fora do lote sem quebrar os cenários 100% hit/100% miss existentes.",
+      "impact": "Cobertura do roteamento híbrido cache + Gemini no content script real.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:45:00Z",
+      "audit_finding": "ACCEPTED. A suíte real cobre 100% miss, 100% hit e filtro de imagem pequena, mas não combina cache hit e miss no mesmo lote real. O branch híbrido precisa provar simultaneamente substituição da hit e START_BATCH contendo somente as misses.",
+      "auditor_recommended_action": "Adicionar cenário com pelo menos duas imagens e resposta GTC parcial, assertando DOM/data-translated da hit e payload START_BATCH exclusivo das misses.",
+      "repair_progress": "RESOLVED_WITH_EXECUTABLE_VALIDATION",
+      "resolution": "Adicionado cenário integrado real com duas imagens: primeira resolvida pelo GTC, segunda enviada sozinha em START_BATCH; assertions verificam DOM da hit, ausência do hit no batch e presença exclusiva da miss.",
+      "resolved_by": "AGENTE 30",
+      "resolved_at_utc": "2026-10-02T01:11:50Z",
+      "validation": {
+        "source_sha": "6c47003aae5207d711c667bc805fb71373ae788f",
+        "bible_sha": "c7cede0b4bcd107f4bf4136691dac82aef7fb88b",
+        "run_id": 36949474407,
+        "node20_job_id": 110658968522,
+        "node22_job_id": 110658968523,
+        "focal": "PASS 4/4 in Node 20 and Node 22",
+        "external_failure": "Overall Unit+Integration jobs red only because tests/integration/performance.test.js PERF-09 failed in storage-manager path; unit #114 is reserved by another agent."
+      }
+    }
+  ],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-02T15:56:30Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T05:47:06.186Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
+      "auditor": "AGENTE 5",
+      "reason": "Falhas documentais materiais: cobertura da linha 118 inverte a semântica da assertion que exige ausência de START_BATCH; linha 18 chama delay de síncrono embora retorne Promise e seja aguardado; Bíblia mantém 112-001 como OPEN enquanto o state canônico está ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T05:50:13Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
+      "agent": "AGENTE 23",
+      "reason": "Corrigir findings documentais #112: delay assíncrono, semântica da assertion de ausência de START_BATCH e lifecycle da request."
+    },
+    {
+      "at_utc": "2026-10-01T05:54:13Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
+      "agent": "AGENTE 23",
+      "reason": "Bíblia #112 corrigida conforme auditoria independente: delay assíncrono, ausência de START_BATCH na linha 118 e lifecycle 112-001 alinhado a ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-02T01:05:30Z",
+      "type": "HYBRID_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
+      "bible_sha": "23beceb2560542d578fd665ad0ac10c8264054f7",
+      "agent": "AGENTE 30",
+      "reason": "PRIMARY and ADVERSARIAL both CHANGES_REQUIRED: stale approved header, final-newline traceability error, plus accepted partial-cache integration gap 112-001."
+    },
+    {
+      "at_utc": "2026-10-02T01:11:50Z",
+      "type": "HYBRID_CORRECTION_VALIDATED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "6c47003aae5207d711c667bc805fb71373ae788f",
+      "bible_sha": "c7cede0b4bcd107f4bf4136691dac82aef7fb88b",
+      "agent": "AGENTE 30",
+      "reason": "Partial-cache routing test added; Bible lifecycle/newline corrected; focal suite passed 4/4 on Node 20 and Node 22. Global failure is external PERF-09/unit 114."
+    },
+    {
+      "at_utc": "2026-10-02T15:56:30Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "6c47003aae5207d711c667bc805fb71373ae788f",
+      "bible_sha": "c7cede0b4bcd107f4bf4136691dac82aef7fb88b",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "ab8e2b41a005d8cffafb88f36137cf39e81d87c8c2803159bbb9984e213048ca",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "be0dd5f79cfeb3f01ab7d48a3fbd7013b896654a25948ad96e9ca248a8716ecc",
+      "event_hash": "2c9064d8278fe0876aa42cd8b5f84b0a64a3bfe8da16b66f7854e2ebe4dfdd0d"
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 5",
+      "at_utc": "2026-10-01T05:47:06.186Z",
+      "note": "Passagens 0–15 executadas. SHA, fonte integral e cobertura posicional passam; semântica/honestidade documental falham nos findings registrados em AUDITORIA.md. Request 112-001 permanece ACCEPTED e não bloqueante como lacuna real de cache parcial."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "4f1674c12311a48215b97faabb0415011a6cba87",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T05:54:13Z",
+      "note": "Fonte permaneceu inalterada; três findings documentais do AGENTE 5 foram corrigidos. Reauditoria independente necessária."
+    },
+    {
+      "type": "EXECUTABLE_VALIDATION",
+      "at_utc": "2026-10-02T01:11:50Z",
+      "source_sha": "6c47003aae5207d711c667bc805fb71373ae788f",
+      "bible_sha": "c7cede0b4bcd107f4bf4136691dac82aef7fb88b",
+      "workflow_run_id": 36949474407,
+      "node20_job_id": 110658968522,
+      "node22_job_id": 110658968523,
+      "focal_result": "PASS_4_OF_4_BOTH_NODES",
+      "external_failure": "tests/integration/performance.test.js PERF-09; outside #112 and reserved under unit 114"
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "173/173",
+    "source_text_lines": 172,
+    "external_audit_requests_open": 0,
+    "accepted_requests_pending_validation": 0,
+    "note": "Lifecycle stale and LF-terminal findings corrected. Partial-cache real routing added and passed 4/4 in Node 20 and Node 22. Overall Jest red only for unrelated PERF-09/unit 114."
+  },
+  "bible_sha": "c7cede0b4bcd107f4bf4136691dac82aef7fb88b",
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "6c47003aae5207d711c667bc805fb71373ae788f",
+  "revision_id": "ab8e2b41a005d8cffafb88f36137cf39e81d87c8c2803159bbb9984e213048ca",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
+}

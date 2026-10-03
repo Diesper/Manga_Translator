@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "index": 186,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "tests/unit/content-gemini/result-extractor.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/result-extractor.test.js/Bíblia.md",
+  "source_sha": "611df28380a88aa8c0b468e7300ee3a17aca0f70",
+  "bible_sha": "4aab63da8f730f02827f4d1e7e53df9c2b60d30a",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-186-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 186-001, 186-002 e 186-003 como OPEN, embora as três requests já estejam ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia §7: headings OPEN para 186-001/002/003.",
+        "`.state/186.json`: 186-001, 186-002 e 186-003 possuem `status: ACCEPTED`.",
+        "As lacunas técnicas continuam reais; o erro é o lifecycle documental stale."
+      ],
+      "relation_to_primary": "Confirma 186-PRI-001.",
+      "requested_documentation_fix": "Atualizar os três headings para ACCEPTED e ajustar a conclusão que ainda os trata como requests OPEN."
+    },
+    {
+      "id": "A8-186-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A Bíblia afirma que EXT-07 verifica RETRY_ALL, DIAGNOSTIC e AUXILIARY_FALLBACK `em ordem coerente`, mas a assertion só fixa AUXILIARY_FALLBACK depois de RETRY_ALL; DIAGNOSTIC é verificado apenas por presença.",
+      "evidence": [
+        "Bíblia §3: `Também verifica logs RETRY_ALL, DIAGNOSTIC e AUXILIARY_FALLBACK em ordem coerente.`",
+        "Teste EXT-07 usa `expect(logs.map(...)).toEqual(expect.arrayContaining([...]))`, que só prova presença dos três actions.",
+        "A única assertion de ordem exige `index(AUXILIARY_FALLBACK) > index(RETRY_ALL)`.",
+        "Não há assertion de `DIAGNOSTIC > RETRY_ALL` nem de `AUXILIARY_FALLBACK > DIAGNOSTIC`.",
+        "A implementação real atualmente emite RETRY_ALL antes do retry e, após falha total, DIAGNOSTIC antes de AUXILIARY_FALLBACK; essa ordem existe no source, mas não é congelada integralmente pelo teste."
+      ],
+      "adversarial_mutation": "Mover GEMINI_EXTRACT_DIAGNOSTIC para depois de GEMINI_AUXILIARY_FALLBACK manteria as assertions EXT-07 verdes, contradizendo o claim de ordem completa.",
+      "requested_documentation_fix": "Restringir o texto ao que é realmente provado (presença dos três + auxiliary depois de retry) ou adicionar assertions explícitas para RETRY_ALL < DIAGNOSTIC < AUXILIARY_FALLBACK."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONTRADITO",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "ci_evidence": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_11_VS_AGENTE_8",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "491/491",
+    "ci_run": 36521561968,
+    "ci_blob_sha": "611df28380a88aa8c0b468e7300ee3a17aca0f70"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T19:18:04.436Z"
+}

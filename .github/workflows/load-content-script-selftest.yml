@@ -1,0 +1,55 @@
+name: Load Content Script Selftest
+
+on:
+  pull_request:
+    paths:
+      - 'tests/helpers/load-content-script.js'
+      - 'extension/manifest.json'
+      - 'jest.config.js'
+      - 'tests/infra/bible/load-content-script-selftest.test.js'
+      - '.github/workflows/load-content-script-selftest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  helper-selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build focal config from canonical content-scripts project
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const rootConfig = require('./jest.config.js');
+          const project = rootConfig.projects.find(entry => entry.displayName === 'content-scripts');
+          if (!project) throw new Error('Projeto Jest content-scripts não encontrado');
+          const focal = {
+            ...project,
+            rootDir: process.cwd(),
+            testMatch: ['<rootDir>/tests/infra/bible/load-content-script-selftest.test.js'],
+            transform: {},
+          };
+          fs.writeFileSync(
+            '/tmp/load-content-script-selftest.config.cjs',
+            'module.exports = ' + JSON.stringify(focal, null, 2) + ';' + String.fromCharCode(10)
+          );
+          NODE
+
+      - name: Run helper selftest with open-handle detection
+        run: npx jest --config /tmp/load-content-script-selftest.config.cjs --runInBand --detectOpenHandles
+
+      - name: Run related content-script unit suite
+        run: npm run test:unit:content -- --runInBand

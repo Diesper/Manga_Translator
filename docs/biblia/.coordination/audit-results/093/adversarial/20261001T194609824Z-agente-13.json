@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "index": 93,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 13",
+  "file": "tests/e2e/reader-offline.spec.js",
+  "bible": "docs/biblia/tests/e2e/reader-offline.spec.js/Bíblia.md",
+  "source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
+  "bible_sha": "e2a402a7eb1f49057b52ecace03780319923fd9e",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "documented_positions": "277/277",
+    "embedded_source_exact": true,
+    "ci_run": 36577447500,
+    "ci_job": 109437162728,
+    "ci_summary": "E2E Shard (fast) executou os três casos nominalmente e terminou 9 passed (22.0s).",
+    "run_dependency_blobs_match_current": [
+      "tests/e2e/reader-offline.spec.js",
+      "extension/reader/reader.js",
+      "extension/background.js",
+      "extension/shared/storage-manager.js",
+      "extension/reader/reader.html",
+      "extension/shared/shared-ui.js",
+      "tests/helpers/repo-root.js",
+      "playwright.config.js",
+      "scripts/ci/run-e2e-group.js",
+      "scripts/ci/data/e2e-shard-plan.json"
+    ],
+    "nonblocking_requests": [
+      "093-001 ACCEPTED — reset IndexedDB fail-open em erro",
+      "093-002 ACCEPTED — UI não isola migração nova de fallback legado",
+      "093-003 ACCEPTED — userDataDir sem cleanup explícito comprovado"
+    ]
+  },
+  "completed_at_utc": "2026-10-01T19:46:09.824Z"
+}

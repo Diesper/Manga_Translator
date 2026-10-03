@@ -1,0 +1,93 @@
+{
+  "schema_version": 2,
+  "index": 90,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 9",
+  "file": "scripts/validation/verify-test-policy-selftest.js",
+  "bible": "docs/biblia/scripts/validation/verify-test-policy-selftest.js/Bíblia.md",
+  "source_sha": "ac0318e4d90c5014180eb3d3a6ac4784cc70a24a",
+  "bible_sha": "2b53f1a2232e30b5eb1ef0f0ee2f3365433f0ed1",
+  "verdict": "CHANGES_REQUIRED",
+  "resolution": {
+    "primary": {
+      "type": "LEGACY",
+      "auditor": "AGENTE 23",
+      "verdict": "APPROVED",
+      "source": "docs/biblia/AUDITORIA.md"
+    },
+    "adversarial": {
+      "auditor": "AGENTE 10",
+      "verdict": "CHANGES_REQUIRED",
+      "result": "docs/biblia/.coordination/audit-results/090/adversarial/20261001T160547130Z-agente-10.json"
+    },
+    "conclusion": "ADVERSARIAL_UPHELD"
+  },
+  "findings": [
+    {
+      "id": "090-REA-001",
+      "severity": "MATERIAL",
+      "category": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "finding": "A Bíblia registra 090-001 e 090-002 como OPEN, mas o state canônico atual registra 090-001=ACCEPTED e 090-002=SUPERSEDED por 083-002.",
+      "evidence": [
+        "Bíblia seção 7: `090-001 — TEST_REQUIRED — OPEN` e `090-002 — CONTRACT_REVIEW — OPEN`.",
+        "docs/biblia/.state/090.json: 090-001.status=ACCEPTED; 090-002.status=SUPERSEDED; superseded_by=083-002.",
+        "docs/biblia/.state/083.json: 083-002 existe e permanece ACCEPTED, confirmando a supersessão.",
+        "AUDITORIA.md do PRIMARY legado já descreve 090-001 como ACCEPTED e 090-002 como SUPERSEDED, incompatível com o texto atual da própria Bíblia."
+      ],
+      "required_change": "Atualizar a seção 7 e qualquer síntese associada para o lifecycle canônico atual, mantendo 090-001 como lacuna aceita e 090-002 como superseded por 083-002."
+    },
+    {
+      "id": "090-REA-002",
+      "severity": "MATERIAL",
+      "category": "EVIDENCE_OVERCLASSIFICATION",
+      "finding": "As posições documentais 8 e 9 classificam root/verifierRel como GATE ESTÁTICO ESPECÍFICO protegido por verify-ci-contract.js, mas o meta-gate não verifica esses detalhes internos do self-test.",
+      "evidence": [
+        "Bíblia Linha 8 e Linha 9 usam `🟦 GATE ESTÁTICO ESPECÍFICO — verify-ci-contract.js protege o wiring/marcador correspondente`.",
+        "verify-ci-contract.js checa o wiring do workflow, o comando exato package.json#test:test-policy:infra e apenas três marcadores no conteúdo do self-test: test.skip, --forceExit em script npm e teste mascarado com || true.",
+        "As únicas referências condicionais a testPolicySelfTest são leituras do arquivo e `testPolicySelfTest.includes(marker)` para esses três marcadores; não existe check de `verifierRel` e o literal de root pertence ao próprio meta-gate, não a uma validação do self-test.",
+        "A própria seção 4 da Bíblia descreve corretamente o alcance do gate como wiring + três marcadores, contradizendo a classificação mais forte das linhas 8 e 9."
+      ],
+      "required_change": "Reclassificar as linhas 8 e 9 como execução indireta/sem gate estático específico, ou adicionar um gate que realmente valide esses detalhes internos."
+    },
+    {
+      "id": "090-REA-003",
+      "severity": "MATERIAL",
+      "category": "CLEANUP_SEMANTIC_OVERSTATEMENT",
+      "finding": "A Bíblia promete cleanup em sucesso e exceção de forma absoluta, mas createSandbox() é invocado antes do try/finally; uma falha durante a criação após mkdtemp deixa o diretório temporário fora do cleanup.",
+      "evidence": [
+        "Source linhas 47 e 60: `const sandbox = createSandbox();` ocorre antes do `try` em expectBaselinePasses() e expectFailure().",
+        "Source linhas 12-35: createSandbox() cria o diretório em mkdtempSync e executa várias operações que podem lançar, sem try/finally interno.",
+        "Bíblia seção 2 diz `remove cada sandbox em finally`; fluxo item 7 diz `Cada sandbox é removido em finally`; Invariante 8 diz `Cleanup deve ocorrer em sucesso e exceção`.",
+        "Execução adversarial sobre os blobs exatos (git hash-object ac0318e4... para o self-test e 4a821403... para o verifier), injetando falha em fs.copyFileSync após mkdtempSync, terminou status=1 e deixou um novo `/tmp/manga-test-policy-*`; o diretório foi removido apenas pelo harness externo da auditoria."
+      ],
+      "required_change": "Qualificar o cleanup para exceções ocorridas depois de createSandbox() retornar com sucesso, ou proteger a própria criação/cleanup parcial dentro de createSandbox()."
+    }
+  ],
+  "passed_points": [
+    "SOURCE_SHA confirmado no state, no blob Git do source e no cabeçalho/registro legado.",
+    "BIBLE_SHA atual coincide com a baseline de migração e com o lease desta REAUDIT.",
+    "Fonte integral embutida é byte-a-byte exata: 109 linhas textuais + newline final = 110 posições.",
+    "Cobertura possui exatamente 110 headings `Linha N`, sequenciais de 1 a 110, sem gaps, duplicatas ou extras.",
+    "Execução local dos blobs exatos do self-test e do verifier passou baseline, test.skip, --forceExit em script npm e workflow `|| true`.",
+    "package.json, workflow ci-contract e verify-ci-contract.js confirmam o wiring principal descrito pela Bíblia.",
+    "090-001 continua sendo uma lacuna real de cobertura negativa e pode permanecer não bloqueante quando descrita honestamente."
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_2X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-02T15:42:11.188Z"
+}

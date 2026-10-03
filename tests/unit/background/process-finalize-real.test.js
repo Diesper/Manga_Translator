@@ -684,4 +684,186 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
         expect(storageMock._getStore().deleting_urls).toEqual([]);
     });
 
+
+    test('BG-31d: finalização de janela minimizada fecha a janela dedicada inteira', async () => {
+        const removeWindow = jest.fn((_windowId, callback) => callback?.());
+        global.chrome.windows = { remove: removeWindow };
+        const removeTab = jest.spyOn(tabsMock, 'remove');
+
+        await storageMock.set({
+            debugMode: false,
+            geminiExecutionMode: 'minimized_window',
+            gemini_job_1851: {
+                geminiTabId: 1851,
+                executionMode: 'minimized_window',
+                dedicatedWindow: true,
+            },
+            wd_data_1851: { mangaTabId: 60, index: 5, geminiTabId: 1851 },
+        });
+        tabsMock._tabs.set(1851, {
+            id: 1851,
+            windowId: 74,
+            url: 'https://gemini.google.com/',
+            active: false,
+            status: 'complete',
+            title: '',
+        });
+
+        backgroundModule.__setState({ activeJobsCount: 1, completedJobs: 0 });
+        await backgroundModule.finalizeJob(1851, 60, true);
+        await flush(8);
+
+        expect(removeWindow).toHaveBeenCalledTimes(1);
+        expect(removeWindow).toHaveBeenCalledWith(74, expect.any(Function));
+        expect(removeTab).not.toHaveBeenCalled();
+    });
+
+    test('BG-16b: reidratação do índice impede BATCH_COMPLETE com contador transitório zerado', async () => {
+        const mangaTab = await tabsMock.create({ url: 'https://reader.test/chapter-guard', active: true });
+        const forwardedMessages = [];
+        tabsMock._registerMessageHandler(mangaTab.id, (message, _sender, sendResponse) => {
+            forwardedMessages.push(message);
+            sendResponse({ ok: true });
+        });
+        backgroundModule.__setState({
+            jobQueue: [],
+            isProcessing: true,
+            stopRequested: false,
+            activeMangaTabId: mangaTab.id,
+            currentBatchId: 'batch-still-indexed',
+            completionClaimedBatchId: null,
+            extractionTabs: {},
+            totalJobs: 1,
+            completedJobs: 0,
+            activeJobsCount: 0,
+            jobIndex: [{ geminiTabId: 1950, batchId: 'batch-still-indexed', jobId: 'job-still-open' }],
+        });
+
+        await backgroundModule.processNextJob();
+        await flush(6);
+
+        expect(backgroundModule.__getState().activeJobsCount).toBe(1);
+        expect((await storageMock.get('mt_state')).mt_state.activeJobsCount).toBe(1);
+        expect(forwardedMessages).not.toContainEqual(expect.objectContaining({ action: 'BATCH_COMPLETE' }));
+        expect(backgroundModule.__getState().jobIndex).toHaveLength(1);
+    });
+
+    test.each(['after_job_persist', 'after_tab_identity', 'after_watchdog_arm'])(
+        'BG-76c: substituição do lote limpa lançamento cancelado em %s sem tocar na contabilidade do novo lote',
+        async phase => {
+            await storageMock.set({
+                geminiBaseUrl: 'https://example.com/mock',
+                geminiExecutionMode: 'temp_chat',
+            });
+            const gateEntered = (() => {
+                let resolve;
+                const promise = new Promise(done => { resolve = done; });
+                return { promise, resolve };
+            })();
+            const gateReleased = (() => {
+                let resolve;
+                const promise = new Promise(done => { resolve = done; });
+                return { promise, resolve };
+            })();
+            const originalSet = storageMock.set.bind(storageMock);
+            const originalGet = storageMock.get.bind(storageMock);
+            let gated = false;
+            let indexedAliasReads = 0;
+            const shouldGate = (keys, value) => {
+                if (gated) return false;
+                if (phase === 'after_job_persist') {
+                    return Boolean(value?.mt_state?.jobIndex?.some(entry => entry.batchId === 'batch-A'));
+                }
+                const requested = Array.isArray(keys) ? keys : [keys];
+                const isAliasRead = requested.some(key =>
+                    typeof key === 'string' && key.startsWith('gemini_tab_alias_'));
+                const isIndexedLaunch = backgroundModule.__getState().jobIndex
+                    .some(entry => entry.batchId === 'batch-A');
+                if (!isAliasRead || !isIndexedLaunch) return false;
+                indexedAliasReads += 1;
+                // Após indexação, a primeira leitura pertence ao recheck de
+                // identidade; a quarta é a confirmação final de armWatchdog,
+                // depois de o alarme e o payload durável já existirem.
+                return phase === 'after_tab_identity'
+                    ? indexedAliasReads === 1
+                    : indexedAliasReads === 4;
+            };
+            storageMock.set = async (value, callback) => {
+                const result = await originalSet(value, callback);
+                if (shouldGate(null, value)) {
+                    gated = true;
+                    gateEntered.resolve();
+                    await gateReleased.promise;
+                }
+                return result;
+            };
+            storageMock.get = async (keys, callback) => {
+                if (shouldGate(keys, null)) {
+                    gated = true;
+                    gateEntered.resolve();
+                    await gateReleased.promise;
+                }
+                return originalGet(keys, callback);
+            };
+
+            backgroundModule.__setState({
+                jobQueue: [{ mangaTabId: 55, index: 1, prompt: 'A', batchId: 'batch-A' }],
+                isProcessing: true,
+                stopRequested: false,
+                activeMangaTabId: 55,
+                currentBatchId: 'batch-A',
+                completionClaimedBatchId: null,
+                pendingBatches: [],
+                jobIndex: [],
+                activeJobsCount: 0,
+                completedJobs: 0,
+                totalJobs: 1,
+                _cachedMaxCon: 1,
+            });
+
+            const launch = backgroundModule.processNextJob();
+            try {
+                await waitFor(() => gated || null);
+                await gateEntered.promise;
+                expect(backgroundModule.__getState().jobIndex.some(entry => entry.batchId === 'batch-A')).toBe(true);
+                if (phase === 'after_watchdog_arm') {
+                    expect((await alarmsMock.getAll()).some(alarm => alarm.name.startsWith('watchdog_'))).toBe(true);
+                    expect(Object.keys(await storageMock.get(null)).some(key => key.startsWith('wd_data_'))).toBe(true);
+                }
+
+                // Simula a promoção concorrente de B enquanto o lançamento de A
+                // está parado exatamente antes do checkpoint selecionado.
+                backgroundModule.__setState({
+                    currentBatchId: 'batch-B',
+                    activeMangaTabId: 56,
+                    activeJobsCount: 1,
+                    totalJobs: 3,
+                    completedJobs: 2,
+                });
+                gateReleased.resolve();
+                await launch;
+                await flush(10);
+
+                const state = backgroundModule.__getState();
+                const stored = await storageMock.get(null);
+                const launchedTabIds = Array.from(tabsMock._tabs.keys()).filter(id => id >= 1000);
+                expect(state).toEqual(expect.objectContaining({
+                    currentBatchId: 'batch-B',
+                    activeMangaTabId: 56,
+                    activeJobsCount: 1,
+                    totalJobs: 3,
+                    completedJobs: 2,
+                    jobIndex: [],
+                }));
+                expect(Object.keys(stored).filter(key => key.startsWith('gemini_job_'))).toEqual([]);
+                expect(Object.keys(stored).filter(key => key.startsWith('wd_data_'))).toEqual([]);
+                expect(await alarmsMock.getAll()).toEqual([]);
+                expect(launchedTabIds.every(id => !tabsMock._tabs.has(id))).toBe(true);
+            } finally {
+                gateReleased.resolve();
+                storageMock.set = originalSet;
+                storageMock.get = originalGet;
+            }
+        }
+    );
 });

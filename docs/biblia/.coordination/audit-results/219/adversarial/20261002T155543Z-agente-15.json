@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 219,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 15",
+  "file": "tests/unit/popup/progress-panel.test.js",
+  "bible": "docs/biblia/tests/unit/popup/progress-panel.test.js/Bíblia.md",
+  "source_sha": "d93235bdd142f5c29a8e4663e25b097953655061",
+  "bible_sha": "a7a99194792d6018909e2bce5cc2a30f1b3fe063",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "219-A15-001",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "DEPENDENCY_SHA_STALE",
+      "summary": "A Bíblia vincula a implementação correlata extension/popup/popup.js ao SHA 300cfe9a..., mas o arquivo realmente carregado por loadExtensionPage no HEAD auditado é o blob 2b49ae1a....",
+      "evidence": [
+        "Bíblia.md seção 2 declara `extension/popup/popup.js` — SHA `300cfe9a9c81814443c9d52a17915d851408748b`.",
+        "No HEAD final da auditoria, `extension/popup/popup.js` possui blob SHA `2b49ae1aaf94ed6aac1ff93437bea177d9a53644`.",
+        "tests/helpers/load-extension-page.js resolve `scriptPath` contra ROOT e executa `require(path.join(ROOT, scriptPath))`; portanto a suíte aponta para a implementação atual, não para o blob histórico declarado.",
+        "A revisão não é puramente nominal: entre os blobs, `sendMessageToTab` passou de `currentTabId` para `getOwnedTabId()`/`ownedTabId`, embora os branches de progresso/stop citados continuem presentes."
+      ],
+      "required_change": "Atualizar o SHA da implementação correlata para o blob realmente vigente no momento da correção e revalidar as descrições semânticas contra essa versão, especialmente ownership/destino de sendMessageToTab."
+    },
+    {
+      "id": "219-A15-002",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "AUDIT_REQUEST_METADATA_STALE",
+      "summary": "A seção 8 e a autoauditoria representam incorretamente o lifecycle atual dos audit requests e atribuem metadados incompatíveis ao 219-003.",
+      "evidence": [
+        "Bíblia.md marca 219-001, 219-002, 219-003 e 219-004 como OPEN e termina afirmando `quatro solicitações externas abertas`.",
+        ".state/219.json registra os quatro requests como ACCEPTED.",
+        "Para 219-003, a Bíblia usa tipo BUG_REVIEW e severidade HIGH; o state atual registra TEST_REQUIRED e severidade NORMAL.",
+        "O achado de polling congelado após STOP falho é sustentado pelo popup.js atual (clearInterval antes do request e retorno em falha sem reiniciar polling), mas não pode reutilizar o ID 219-003 com lifecycle/tipo/severidade divergentes sem reconciliação canônica."
+      ],
+      "required_change": "Sincronizar a seção 8 e a autoauditoria com os audit_requests canônicos. Para o polling congelado, reconciliar formalmente o 219-003 ou registrar finding/request distinto conforme o protocolo, em vez de apresentar metadados divergentes sob o mesmo ID."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T15:55:43Z"
+}
