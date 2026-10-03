@@ -4,7 +4,7 @@
   "bible": "docs/biblia/package.json/Bíblia.md",
   "status": "COMPLETED",
   "agent": null,
-  "source_sha": "049fa67c2d7a52782f244b130c7d00d664f9e3ee",
+  "source_sha": "ec3fb5c66cf49e34108eba1ef995eaf3dce1b304",
   "started_at_utc": "2026-09-30T14:10:00Z",
   "completed_at_utc": "2026-10-01T02:36:00Z",
   "audit_requests": [
@@ -73,18 +73,18 @@
     }
   ],
   "document_quality": {
-    "self_audit": "APPROVED",
+    "self_audit": "PENDING_INDEPENDENT_AUDIT",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "87/87",
-    "source_text_lines": 86,
+    "documented_positions": "121/121",
+    "source_text_lines": 120,
     "external_audit_requests_open": 0,
-    "note": "Revisão 2026-10-02 sincronizada ao package.json atual; nova auditoria distribuída obrigatória.",
-    "bible_lines": 179
+    "note": "Revisão sharding CI vinculada a SOURCE_SHA/BIBLE_SHA atuais; decisão independente pertence aos novos resultados PRIMARY/ADVERSARIAL, sem reaproveitar aprovação antiga.",
+    "bible_lines": 312
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "updated_at_utc": "2026-10-03T07:46:22.788Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -196,6 +196,58 @@
       "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
       "previous_event_hash": "871875379fc91df9e82f7ff7fce47b49d2b2d42233332555ca8e8dd089342f16",
       "event_hash": "28e54fcfe4d2cad2d29d4810bc86c735596979541472cff045273f896e499c4a"
+    },
+    {
+      "type": "COMPLETED_WORK_ORDER_OPENED",
+      "at_utc": "2026-10-03T07:43:06.001Z",
+      "approval_id": "063-human-2ce3b78e701f97c3",
+      "origin_revision_id": "c757729b078c15fc127d2abb9f45940b73ef1c939e4aa5e787e29efad213cf9a",
+      "origin_audit_epoch": 2,
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "previous_event_hash": "28e54fcfe4d2cad2d29d4810bc86c735596979541472cff045273f896e499c4a",
+      "event_hash": "4769869a30b655a71dd2421f3287ceeeeb020a0df266bfb4b2c0475ee61954bf"
+    },
+    {
+      "at_utc": "2026-10-03T07:43:06.001Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "actor": "ci-sharding-implementer",
+      "previous_source_sha": "049fa67c2d7a52782f244b130c7d00d664f9e3ee",
+      "previous_bible_sha": "51d8b0168279eabf594e0698ecb66375c8194393",
+      "previous_production_sha": "9811f34e891822cd218050be4bcfb5e52783999d",
+      "previous_revision_id": "c757729b078c15fc127d2abb9f45940b73ef1c939e4aa5e787e29efad213cf9a",
+      "source_sha": "ec3fb5c66cf49e34108eba1ef995eaf3dce1b304",
+      "test_sha": "ec3fb5c66cf49e34108eba1ef995eaf3dce1b304",
+      "bible_sha": "71580d6fb4546f27faafc57eb05ecb907fdf2bd4",
+      "production_sha": "60a2595e3c7713a80f43a74e125a207f33bdc2af",
+      "revision_id": "39382beb81dee8c700b061ad59d3a6e357d94fab43da08ee952a91edb93b8d7d",
+      "correction_cycle": 0,
+      "audit_epoch": 3,
+      "handoff_id": "063-e3-6bc35eb2436d",
+      "reason": "Ordem explícita do usuário: aliases granulares/sharding CI; fonte integral e cobertura documental sincronizadas. Auditorias anteriores não são reutilizadas.",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "previous_event_hash": "4769869a30b655a71dd2421f3287ceeeeb020a0df266bfb4b2c0475ee61954bf",
+      "event_hash": "a8717282e29433937774df8cf021ba937dce12c58918b789cd3679af731808be"
+    },
+    {
+      "type": "DOCUMENT_QUALITY_METADATA_SYNCHRONIZED",
+      "at_utc": "2026-10-03T07:46:22.788Z",
+      "actor": "ci-sharding-implementer",
+      "source_sha": "ec3fb5c66cf49e34108eba1ef995eaf3dce1b304",
+      "bible_sha": "71580d6fb4546f27faafc57eb05ecb907fdf2bd4",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "documented_positions": "121/121",
+      "reason": "Metadados factuais derivados de fonte/documento atuais; nenhuma concessão de aprovação.",
+      "previous_event_hash": "a8717282e29433937774df8cf021ba937dce12c58918b789cd3679af731808be",
+      "event_hash": "8d92d89ab4c946bd560982569167a9afa50f36b9b3cc06bff3afc1a39c523161"
     }
   ],
   "evidence": [
@@ -208,17 +260,17 @@
       "note": "Passagens 0–15 concluídas. Integridade, veracidade e honestidade confirmadas 3x para a Bíblia #63 no SHA atual."
     }
   ],
-  "test_sha": "049fa67c2d7a52782f244b130c7d00d664f9e3ee",
-  "bible_sha": "51d8b0168279eabf594e0698ecb66375c8194393",
-  "production_sha": "9811f34e891822cd218050be4bcfb5e52783999d",
-  "revision_id": "c757729b078c15fc127d2abb9f45940b73ef1c939e4aa5e787e29efad213cf9a",
+  "test_sha": "ec3fb5c66cf49e34108eba1ef995eaf3dce1b304",
+  "bible_sha": "71580d6fb4546f27faafc57eb05ecb907fdf2bd4",
+  "production_sha": "60a2595e3c7713a80f43a74e125a207f33bdc2af",
+  "revision_id": "39382beb81dee8c700b061ad59d3a6e357d94fab43da08ee952a91edb93b8d7d",
   "correction_cycle": 0,
   "lifetime_correction_cycles": 0,
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 2,
-  "handoff_id": "063-e2-91c2b89c742b",
+  "audit_epoch": 3,
+  "handoff_id": "063-e3-6bc35eb2436d",
   "review_status": "READY_FOR_AUDIT",
   "completion": {
     "achieved": true,
@@ -228,7 +280,7 @@
   "completion_quality": {
     "status": "WITH_CAVEATS",
     "caveats": [
-      "WAITING_PRIMARY"
+      "REVALIDATION_REQUIRED"
     ]
   }
 }

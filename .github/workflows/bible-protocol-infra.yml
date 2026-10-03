@@ -72,6 +72,8 @@ on:
       - 'scripts/validation/verify-bible-merge-readiness.js'
       - 'package.json'
       - '.github/workflows/bible-protocol-infra.yml'
+      - 'scripts/validation/bible-ci-sharding-contract.js'
+      - 'scripts/ci/data/bible-ci-sharding-baseline.json'
       - '.github/workflows/bible-handoff-guard.yml'
 
 concurrency:
@@ -83,16 +85,47 @@ concurrency:
 
 jobs:
   protocol-infra:
-    name: Distributed Bible Protocol Infra (${{ matrix.os }})
+    name: Distributed Bible Protocol Infra (${{ matrix.os }} / ${{ matrix.shard.id }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+        shard:
+          - id: syntax
+            command: "node --check scripts/bible/core/audit-core.js && node --check scripts/bible/commands/audit-result.js && node --check tests/infra/bible/audit-core-git-selftest.js && node --check scripts/bible/commands/audit-protocol.js && node --check scripts/bible/commands/reconcile-audit-results.js && node --check scripts/bible/commands/audit-lease-gc.js && node --check scripts/bible/commands/audit-summary.js && node --check scripts/bible/commands/handoff-guard.js && node --check scripts/bible/commands/bible-correction-work-plan.js && node --check scripts/bible/core/lifecycle-core.js && node --check scripts/bible/core/human-gate.js && node --check scripts/bible/commands/human-approval.js && node --check scripts/bible/storage/human-review.js && node --check scripts/bible/storage/unverified-findings.js && node --check scripts/bible/storage/unverified-finding-events.js && node --check scripts/bible/commands/unverified-finding-transition.js && node --check scripts/bible/commands/unit-transition.js && node --check tests/infra/bible/anti-loop-integration-selftest.js && node --check tests/infra/bible/anti-loop-adversarial-selftest.js && node --check scripts/validation/verify-human-protected-diff.js && node --check scripts/validation/verify-lifecycle-artifacts-append-only.js && node --check scripts/validation/verify-lifecycle-artifacts-append-only-selftest.js && node --check scripts/validation/verify-human-protected-diff-selftest.js && node --check scripts/validation/verify-bible-state-history-append-only.js && node --check scripts/validation/verify-bible-state-history-append-only-selftest.js && node --check scripts/validation/verify-unverified-findings-append-only.js && node --check scripts/validation/verify-unverified-findings-append-only-selftest.js && node --check scripts/validation/bible-lifecycle-metrics.js && node --check scripts/validation/bible-lifecycle-metrics-selftest.js && node --check scripts/validation/bible-anti-loop-adversarial-selftest.js && node --check scripts/validation/verify-bible-protocol-governance.js && node --check scripts/validation/verify-bible-protocol-governance-selftest.js && node --check scripts/validation/verify-bible-lifecycle.js && node --check scripts/validation/verify-bible-audit-results-append-only.js && node --check scripts/validation/verify-bible-audit-results-append-only-selftest.js && node --check scripts/validation/bible-audit-pipeline.js && node --check scripts/validation/bible-audit-work-plan.js && node --check scripts/validation/bible-coordination.js && node --check scripts/validation/verify-bible-merge-readiness.js"
+          - id: audit-history-git
+            command: "npm run test:bible-protocol:audit-history && npm run test:bible-protocol:audit-core-git"
+          - id: protocol-engine
+            command: "npm run test:bible-protocol:engine"
+          - id: pipeline-scheduler
+            command: "npm run test:bible-protocol:pipeline && npm run test:bible-protocol:shards"
+          - id: reconciliation
+            command: "npm run test:bible-protocol:reconcile"
+          - id: correction-coordination
+            command: "npm run test:bible-protocol:correction-plan && npm run test:bible-protocol:coordination"
+          - id: lifecycle-core-human
+            command: "npm run test:bible-lifecycle:core && npm run test:bible-lifecycle:human-gate && npm run test:bible-lifecycle:human-review"
+          - id: findings-events
+            command: "npm run test:bible-lifecycle:findings && npm run test:bible-lifecycle:finding-events"
+          - id: transition-publish
+            command: "npm run test:bible-lifecycle:transition && npm run test:bible-lifecycle:audit-result"
+          - id: anti-loop
+            command: "npm run test:bible-lifecycle:anti-loop-integration && npm run test:bible-lifecycle:anti-loop-adversarial && npm run test:bible-lifecycle:anti-loop-bible"
+          - id: lifecycle-authority
+            command: "npm run test:bible-lifecycle:authority-artifacts && npm run test:bible-lifecycle:authority-state && npm run test:bible-lifecycle:authority-findings && npm run test:bible-lifecycle:governance && npm run test:bible-lifecycle:metrics && node scripts/validation/verify-human-protected-diff-selftest.js && node scripts/validation/verify-bible-protocol-governance.js"
+          - id: completion-state
+            command: "npm run test:bible-completion:monotonic && npm run test:bible-completion:human-freeze"
+          - id: completion-storage
+            command: "npm run test:bible-completion:sha-progress && npm run test:bible-completion:storage"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -100,73 +133,29 @@ jobs:
         with:
           node-version: 20.x
 
-      - name: Syntax check coordination modules
-        run: |
-          node --check scripts/bible/core/audit-core.js
-          node --check scripts/bible/commands/audit-result.js
-          node --check tests/infra/bible/audit-core-git-selftest.js
-          node --check scripts/bible/commands/audit-protocol.js
-          node --check scripts/bible/commands/reconcile-audit-results.js
-          node --check scripts/bible/commands/audit-lease-gc.js
-          node --check scripts/bible/commands/audit-summary.js
-          node --check scripts/bible/commands/handoff-guard.js
-          node --check scripts/bible/commands/bible-correction-work-plan.js
-          node --check scripts/bible/core/lifecycle-core.js
-          node --check scripts/bible/core/human-gate.js
-          node --check scripts/bible/commands/human-approval.js
-          node --check scripts/bible/storage/human-review.js
-          node --check scripts/bible/storage/unverified-findings.js
-          node --check scripts/bible/storage/unverified-finding-events.js
-          node --check scripts/bible/commands/unverified-finding-transition.js
-          node --check scripts/bible/commands/unit-transition.js
-          node --check tests/infra/bible/anti-loop-integration-selftest.js
-          node --check tests/infra/bible/anti-loop-adversarial-selftest.js
-          node --check scripts/validation/verify-human-protected-diff.js
-          node --check scripts/validation/verify-lifecycle-artifacts-append-only.js
-          node --check scripts/validation/verify-lifecycle-artifacts-append-only-selftest.js
-          node --check scripts/validation/verify-human-protected-diff-selftest.js
-          node --check scripts/validation/verify-bible-state-history-append-only.js
-          node --check scripts/validation/verify-bible-state-history-append-only-selftest.js
-          node --check scripts/validation/verify-unverified-findings-append-only.js
-          node --check scripts/validation/verify-unverified-findings-append-only-selftest.js
-          node --check scripts/validation/bible-lifecycle-metrics.js
-          node --check scripts/validation/bible-lifecycle-metrics-selftest.js
-          node --check scripts/validation/bible-anti-loop-adversarial-selftest.js
-          node --check scripts/validation/verify-bible-protocol-governance.js
-          node --check scripts/validation/verify-bible-protocol-governance-selftest.js
-          node --check scripts/validation/verify-bible-lifecycle.js
-          node --check scripts/validation/verify-bible-audit-results-append-only.js
-          node --check scripts/validation/verify-bible-audit-results-append-only-selftest.js
-          node --check scripts/validation/bible-audit-pipeline.js
-          node --check scripts/validation/bible-audit-work-plan.js
-          node --check scripts/validation/bible-coordination.js
-          node --check scripts/validation/verify-bible-merge-readiness.js
+      - name: Run mandatory shard
+        run: ${{ matrix.shard.command }}
 
-      - name: Canonical protocol self-tests
-        run: npm run test:bible-protocol:infra
+  protocol-post-gates:
+    name: Protocol live post-gates (${{ matrix.os }})
+    needs: [protocol-infra]
+    if: ${{ always() && !cancelled() }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
 
-      - name: Anti-loop lifecycle self-tests
-        run: |
-          node tests/infra/bible/lifecycle-core-selftest.js
-          node tests/infra/bible/human-gate-selftest.js
-          node tests/infra/bible/unverified-findings-selftest.js
-          node tests/infra/bible/unverified-finding-events-selftest.js
-          node tests/infra/bible/unit-transition-selftest.js
-          node tests/infra/bible/anti-loop-integration-selftest.js
-          node tests/infra/bible/anti-loop-adversarial-selftest.js
-          node tests/infra/bible/human-review-selftest.js
-          node tests/infra/bible/audit-result-selftest.js
-          node scripts/validation/verify-lifecycle-artifacts-append-only-selftest.js
-          node scripts/validation/verify-human-protected-diff-selftest.js
-          node scripts/validation/verify-bible-state-history-append-only-selftest.js
-          node scripts/validation/verify-unverified-findings-append-only-selftest.js
-          node scripts/validation/bible-lifecycle-metrics-selftest.js
-          node scripts/validation/bible-anti-loop-adversarial-selftest.js
-          node scripts/validation/verify-bible-protocol-governance.js
-          node scripts/validation/verify-bible-protocol-governance-selftest.js
-
-      - name: Permanent completion, human freeze, SHA progress and atomic storage self-tests
-        run: npm run test:bible-completion:infra
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
 
       - name: Validate anti-loop lifecycle
         run: npm run bible:lifecycle:verify
@@ -210,3 +199,14 @@ jobs:
       - name: Summarize live distributed model
         if: ${{ always() }}
         run: node scripts/bible/commands/audit-summary.js
+
+  protocol-infra-gate:
+    name: protocol-infra-gate
+    needs: [protocol-infra, protocol-post-gates]
+    if: ${{ always() && !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every dependency to succeed
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: node -e 'const jobs=JSON.parse(process.env.NEEDS_JSON); if(Object.values(jobs).some(job=>job.result!=="success")) process.exit(1);'
