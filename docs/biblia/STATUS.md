@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **40**
-- CHANGES_REQUIRED: **76**
+- READY_FOR_AUDIT: **39**
+- CHANGES_REQUIRED: **77**
 - HUMAN_LOCKED: **0**
 - BLOCKED: **0**
 - COMPLETED: **117**
@@ -202,7 +202,7 @@
 | 176 | tests/unit/content-gemini/deletion.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | c570bbdc340761412746a1347f297c352e2ff1a4 | 3 |
 | 177 | tests/unit/content-gemini/dom-modules.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 32441920c27f69aef629f33fc6175ff5b48b0859 | 3 |
 | 178 | tests/unit/content-gemini/editor-submit.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | ccfa4c881543111b13d0bd8f8198f402039b2233 | 3 |
-| 179 | tests/unit/content-gemini/helpers-and-regressions-real.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | 4fd9efcb7d63fedfdc9843af1205cd9a805024a7 | 4 |
+| 179 | tests/unit/content-gemini/helpers-and-regressions-real.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 4fd9efcb7d63fedfdc9843af1205cd9a805024a7 | 4 |
 | 180 | tests/unit/content-gemini/image-quarantine.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | b2c73b79c8824e5507e436a75ec9abc663919c6b | 3 |
 | 181 | tests/unit/content-gemini/job-runner.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | b0daca4ce839d8a5114c8c94e116fa155c721f7b | 4 |
 | 182 | tests/unit/content-gemini/manual-assist-hud.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f | 3 |

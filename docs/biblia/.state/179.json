@@ -2,7 +2,7 @@
   "index": 179,
   "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "4fd9efcb7d63fedfdc9843af1205cd9a805024a7",
   "started_at_utc": "2026-09-30T15:40:00Z",
@@ -128,7 +128,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T08:56:38.590Z",
+  "updated_at_utc": "2026-10-03T09:05:59Z",
   "history": [
     {
       "at_utc": "2026-10-01T18:52:55.822Z",
@@ -269,6 +269,24 @@
       "reason": "Correções 179-001..004 aplicadas e testadas; revisão PRIMARY independente solicitada.",
       "previous_event_hash": "e621cedff615277b851603f881a4ce9c2365184ce323b674a1ec2e197ac60759",
       "event_hash": "fbd3102060095debd58bfef26a442c781d733b3802b0e33f07e8aea42ac3341e"
+    },
+    {
+      "at_utc": "2026-10-03T09:05:59Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "4fd9efcb7d63fedfdc9843af1205cd9a805024a7",
+      "bible_sha": "43c4f723e46d32c43de98a85b601a4d38e490476",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "8bf07e0cf6ee6bcf5df6dbb34cb9ef3468baedc4bb08e3b361cee5f6bbc65258",
+      "audit_epoch": 2,
+      "handoff_id": "179-e2-c70e2ab6a872",
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "fbd3102060095debd58bfef26a442c781d733b3802b0e33f07e8aea42ac3341e",
+      "event_hash": "204f05800b41c704cf38e8e73a986e55d44b339278cab9e6a44ea6cb62ca26ba"
     }
   ],
   "evidence": [],
