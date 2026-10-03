@@ -1,0 +1,12 @@
+AGENTE: AGENTE HÍBRIDO 3
+ARQUIVO: scripts/validation/verify-repository-structure.js
+BIBLIA: docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md
+SHA_DO_FONTE_AO_RESERVAR: e80da68ff70c2a26eeada261cd4e5d8cce2649b3
+RESERVADO_EM_UTC: 2026-10-03T08:24:16.871Z
+ATUALIZADO_EM_UTC: 2026-10-03T08:24:16.871Z
+PR: #66
+BRANCH: docs/project-bible
+ESTADO: ACTIVE
+CORRECTION_TOKEN_ID: corr-089-01c799c0c43ca0125c91
+REVISION_ID: b5151f6b2b88fcc30a3e090387b21eb8cbc5b888e890d5d02113b554e70d0061
+CORRECTION_CYCLE: 0
