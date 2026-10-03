@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "token_id": "corr-089-01c799c0c43ca0125c91",
+  "index": 89,
+  "authorization_type": "CORRECTION",
+  "decision": "CHANGES_REQUIRED",
+  "correction_cycle": 0,
+  "audit_epoch": 2,
+  "handoff_id": "089-e2-e832b23aa261",
+  "production_sha": null,
+  "test_sha": "e80da68ff70c2a26eeada261cd4e5d8cce2649b3",
+  "bible_sha": "04b406e6b0a4e5d0d58a0d50fb64715419643913",
+  "revision_id": "b5151f6b2b88fcc30a3e090387b21eb8cbc5b888e890d5d02113b554e70d0061",
+  "decision_id": "0c4975c607f367d93c3efca22886e6db3d137b73a8171acf3e460ee6c76f7ce6",
+  "actor": "AGENTE HÍBRIDO 3",
+  "issued_at_utc": "2026-10-03T08:23:38Z",
+  "human_approval_id": null
+}
