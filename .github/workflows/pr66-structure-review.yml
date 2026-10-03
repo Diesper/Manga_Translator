@@ -8,6 +8,8 @@ on:
       - '.github/workflows/bible-reconcile-checkpoint.yml'
       - 'scripts/validation/verify-bible-protocol-governance*.js'
       - 'scripts/validation/verify-reconcile-refresh-selftest.js'
+      - 'scripts/validation/generate-bible-projections.js'
+      - 'scripts/validation/verify-bible-projection-context-selftest.js'
       - 'docs/biblia/.coordination/PR66_STRUCTURE_REVIEW.md'
 
 permissions:
@@ -36,6 +38,7 @@ jobs:
         run: |
           node scripts/validation/verify-bible-protocol-governance.js
           node scripts/validation/verify-bible-protocol-governance-selftest.js
+          node scripts/validation/verify-bible-projection-context-selftest.js
 
   workflow-lint:
     name: Isolated Workflow Syntax

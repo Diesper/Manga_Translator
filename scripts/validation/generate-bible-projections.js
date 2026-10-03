@@ -36,7 +36,10 @@ if (distributed.problems.length) {
   for (const problem of distributed.problems) console.error('- ' + problem);
   process.exit(1);
 }
-const pipelines = evaluateAuditPipelines(states, distributed.records, audits);
+const pipelines = evaluateAuditPipelines(states, distributed.records, audits, {
+  root,
+  baseline: distributed.baseline,
+});
 if (pipelines.problems.length) {
   console.error('Bible audit pipeline invalid:');
   for (const problem of pipelines.problems) console.error('- ' + problem);
