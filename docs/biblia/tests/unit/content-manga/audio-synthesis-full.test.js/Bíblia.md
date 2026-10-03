@@ -19,9 +19,9 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 
 - `extension/content/content_manga.js`: `4aaf2ba49807ed8ad780437039aa374d6ff9d4ad`.
 - `extension/content/cm-gtc-client.js`: `69a7d3ea456ca9f85c3864ed22f3c4244842c02b`.
-- `extension/shared/gtc-indexeddb.js`: `1b1975ee5381ca361d48ef022adf95dc617ea2c4`.
+- `extension/shared/gtc-indexeddb.js`: `72ddee933f637a34372f00516f9fea0ad0e8b0d0`.
 - `tests/unit/content-manga/replacement-and-completion-real.test.js`: `34d467fe19e65f8ef654d26c5d1371b94d3a89ae`.
-- `tests/unit/gtc/legacy-fallback-coordination.test.js`: `b924aa12cfa4544cd2108fe6c29a36081bdcf6e7`.
+- `tests/unit/gtc/legacy-fallback-coordination.test.js`: `8a21ff294e7f8b7805cb68d1704eee1516d74692`.
 - `tests/integration/ipc/gtc-cache-flow.test.js`: `da033713d6d647a08287bb35a24c5a09d701e455`.
 - `tests/integration/ipc/gtc-indexeddb-deep.test.js`: `84c006347dfedac8a62e858261b26c76cb2ceeb5`.
 - `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
@@ -526,7 +526,7 @@ Validação suplementar: no workflow **GTC Cache Flow Selftest** run `3696859295
 
 ## 31. Evidência executável
 
-### Revisão experimental atual — PR #83
+### Revisão experimental validada em CI — PR #83
 
 Commit de produção e testes: `1f106a30a44910cb6d30052e10230b37a509608c`.
 
@@ -552,6 +552,14 @@ Commit de produção e testes: `1f106a30a44910cb6d30052e10230b37a509608c`.
 - Read legacy com erro: a resposta alterava a chave solicitada `PRESENT` para `present` antes da correção.
 
 O conjunto atual de regressões mantém testes anteriores; não acrescenta skips nem relaxa assertions. As evidências acima correspondem ao branch experimental. A Bíblia e o source da revisão canônica ainda não foram alterados por essas correções.
+
+### Reauditoria suplementar — API remove indisponível
+
+A ausência de `storage.local.remove` com o storage legacy presente era tratada como sucesso, deixando payload stale sem invalidação. A nova regressão falhou antes do fix (1 falha, 15 passes) e passou após persistir o marker de invalidação. O teste recria o handler e torna o read moderno indisponível, exigindo que nenhum valor antigo seja retornado.
+
+- `npx jest --config jest.config.js --selectProjects gtc --runInBand --detectOpenHandles`: 3/3 suítes e 70/70 testes.
+- Regressões IPC cache flow e IndexedDB deep junto com coordenação legacy: 3/3 suítes e 25/25 testes.
+- Compatibilidade com o repositório em ambiente sem Chrome preservada pelo teste existente de handlers válidos.
 
 ### Revisão histórica 191-027
 

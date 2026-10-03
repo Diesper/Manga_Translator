@@ -306,6 +306,29 @@ describe('GTC legacy fallback coordination', () => {
         expect(await storage.get(null)).toEqual({ unrelated_setting: 'preserved' });
     });
 
+    test('missing remove API invalidates legacy payload before a later modern outage', async () => {
+        const repository = createInMemoryRepository(() => 400);
+        await storage.set({ gtc_hash: 'stale-legacy' });
+        const originalRemove = storage.remove;
+        storage.remove = undefined;
+        const handler = createGtcRuntimeHandler({ repository, logger });
+        const saved = await invoke(handler, {
+            action: 'GTC_SAVE', hash: 'hash', translatedDataUrl: 'current', operationAt: 400,
+        });
+        storage.remove = originalRemove;
+        repository.getManyEntries = jest.fn().mockRejectedValue(new Error('modern unavailable'));
+        const restarted = createGtcRuntimeHandler({ repository, logger });
+        const query = await invoke(restarted, { action: 'GTC_QUERY_MANY', hashes: ['hash'] });
+
+        expect(saved).toEqual(expect.objectContaining({
+            ok: true, legacyCleanupError: 'storage.local.remove unavailable',
+        }));
+        expect(query).toEqual(expect.objectContaining({ ok: false, error: 'modern unavailable' }));
+        expect(query.entriesByHash).toBeUndefined();
+        expect((await storage.get('gtc_meta_hash')).gtc_meta_hash)
+            .toEqual(expect.objectContaining({ invalidated: true }));
+    });
+
     test('deletes a marked legacy fallback by its clean URL when the modern save had failed', async () => {
         const repository = createInMemoryRepository();
         repository.put = async () => { throw new Error('IndexedDB unavailable'); };

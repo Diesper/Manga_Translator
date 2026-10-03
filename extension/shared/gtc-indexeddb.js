@@ -1020,7 +1020,8 @@
         function legacyRemove(keys) {
             if (!keys || (Array.isArray(keys) && keys.length === 0)) return Promise.resolve();
             const storage = legacyStorage();
-            if (!storage || typeof storage.remove !== 'function') return Promise.resolve();
+            if (!storage) return Promise.resolve();
+            if (typeof storage.remove !== 'function') return Promise.reject(new Error('storage.local.remove unavailable'));
             return new Promise((resolve, reject) => storage.remove(keys, () => {
                 const error = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError;
                 if (error) reject(new Error(error.message || 'storage.local.remove failed'));
