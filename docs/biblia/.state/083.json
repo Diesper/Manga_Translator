@@ -218,7 +218,7 @@
       "handoff_id": "083-e4-d82b92fb765d",
       "reason": "Corrige a validação de dependências do CI Gate para exigir itens exatos em needs:; mantém a unidade 083 em READY_FOR_AUDIT para revisão independente.",
       "previous_event_hash": "ef34aac02d0a73e1273538a0a0b3c6f43fbc6dcabfbcb44eb48c7caa5f9ae5dc",
-      "event_hash": "a27eb5bd5939598b8c72e42dced0ec2294609be4e0f6099b3e2151ebac45f0d5"
+      "event_hash": "db25b7ee61ad9ba6227b5449c1cf894227a9ef431d4f9dc1b837248d1ff82a78"
     }
   ],
   "evidence": [
