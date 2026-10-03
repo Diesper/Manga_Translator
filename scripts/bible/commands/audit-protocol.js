@@ -230,6 +230,16 @@ function leaseRevisionProblems({ state, bibleSha, currentBibleSha, baseline, rel
   return problems;
 }
 
+function primaryLeaseStatusProblem(state, humanAuditAllowed, humanApprovals = []) {
+  const reviewStatus = completion.reviewStatus(state);
+  const completedWorkAllowed = completion.hasCompleted(state)
+    && Boolean(completedAccess.orderFor(state, humanApprovals));
+  if (reviewStatus === 'READY_FOR_AUDIT'
+    || (reviewStatus === 'HUMAN_LOCKED' && humanAuditAllowed)
+    || completedWorkAllowed) return null;
+  return 'lease PRIMARY incompatível com status: #' + state.index + '/' + reviewStatus;
+}
+
 function validateClaims(states, options = {}) {
   const baseline = options.baseline || core.loadBibleBaseline(repoRoot);
   const stateByIndex = new Map(states.map((state) => [state.index, state]));
@@ -358,10 +368,13 @@ function validateClaims(states, options = {}) {
         )
         : null;
       const humanAuditAllowed = Boolean(lifecycle?.human_locked && humanAuditApproval);
-      if (pathPhase === 'PRIMARY'
-        && completion.reviewStatus(state) !== 'READY_FOR_AUDIT'
-        && !(completion.reviewStatus(state) === 'HUMAN_LOCKED' && humanAuditAllowed)) {
-        problems.push('lease PRIMARY incompatível com status: #' + index + '/' + completion.reviewStatus(state));
+      if (pathPhase === 'PRIMARY') {
+        const statusProblem = primaryLeaseStatusProblem(
+          state,
+          humanAuditAllowed,
+          options.humanApprovals || []
+        );
+        if (statusProblem) problems.push(statusProblem);
       }
       if ((pathPhase === 'ADVERSARIAL' || pathPhase === 'REAUDIT')
         && !['READY_FOR_AUDIT', 'COMPLETED', 'CHANGES_REQUIRED'].includes(completion.reviewStatus(state))
@@ -598,6 +611,7 @@ module.exports = {
   commonClaimProblems,
   duplicateIndexProblem,
   leaseRevisionProblems,
+  primaryLeaseStatusProblem,
   validateClaims,
   strictOwnershipProblems,
   loadResults,
