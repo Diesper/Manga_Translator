@@ -19,6 +19,9 @@ on:
       - 'tests/unit/**'
       - 'docs/biblia/.state/**'
 
+  push:
+    branches: [docs/project-bible]
+
 permissions:
   contents: read
 
