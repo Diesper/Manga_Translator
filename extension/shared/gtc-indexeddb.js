@@ -1006,7 +1006,7 @@
             return new Promise((resolve, reject) => storage.get(keys, result => {
                 const error = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError;
                 if (error) reject(new Error(error.message || 'storage.local.get failed'));
-                else if (!result || typeof result !== 'object') reject(new Error('storage.local.get returned unavailable data'));
+                else if (!result || typeof result !== 'object' || Array.isArray(result)) reject(new Error('storage.local.get returned unavailable data'));
                 else resolve(result);
             }));
         }

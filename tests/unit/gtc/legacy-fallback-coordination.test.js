@@ -9,9 +9,9 @@ const {
     getStorageMock,
 } = require('../../mocks/chrome-api.mock.js');
 
-function invoke(handler, request) {
+function invoke(handler, request, sender = {}) {
     return new Promise((resolve) => {
-        const keepAlive = handler(request, {}, resolve);
+        const keepAlive = handler(request, sender, resolve);
         if (keepAlive !== true) resolve(undefined);
     });
 }
@@ -195,22 +195,30 @@ describe('GTC legacy fallback coordination', () => {
         });
     });
 
-    test('rejects an older save message that reaches the background after a newer modern commit', async () => {
-        const repository = createInMemoryRepository(() => 200);
-        await repository.put({ hash: 'race-late', translatedDataUrl: 'new-payload', updatedAt: 200 });
+    test('rejects an older save from another tab after the newer commit', async () => {
+        const repository = createInMemoryRepository();
         const put = jest.spyOn(repository, 'put');
         const handler = createGtcRuntimeHandler({ repository, logger });
 
+        const newResponse = await invoke(handler, {
+            action: 'GTC_SAVE',
+            hash: 'race-late',
+            translatedDataUrl: 'new-payload',
+            operationAt: 200,
+        }, { tab: { id: 2 } });
         const delayedOldResponse = await invoke(handler, {
             action: 'GTC_SAVE',
             hash: 'race-late',
             translatedDataUrl: 'old-payload',
             operationAt: 100,
-        });
+        }, { tab: { id: 1 } });
         const finalQuery = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['race-late'] });
 
+        expect(newResponse).toEqual(expect.objectContaining({ ok: true }));
         expect(delayedOldResponse).toEqual(expect.objectContaining({ ok: true, superseded: true }));
-        expect(put).not.toHaveBeenCalled();
+        expect(put).toHaveBeenCalledTimes(1);
+        expect(put).toHaveBeenCalledWith(expect.objectContaining({ translatedDataUrl: 'new-payload' }));
+        expect(put).not.toHaveBeenCalledWith(expect.objectContaining({ translatedDataUrl: 'old-payload' }));
         expect(finalQuery.entriesByHash).toEqual({ 'race-late': 'new-payload' });
         expect(await storage.get(['gtc_race-late', 'gtc_meta_race-late'])).toEqual({
             'gtc_race-late': undefined,
@@ -330,6 +338,7 @@ describe('GTC legacy fallback coordination', () => {
     test.each([
         ['missing get API', undefined, 'storage.local.get unavailable'],
         ['unavailable callback data', (_keys, callback) => callback(undefined), 'storage.local.get returned unavailable data'],
+        ['array callback data', (_keys, callback) => callback([]), 'storage.local.get returned unavailable data'],
     ])('%s reports read failure and preserves cache state during a save', async (_label, get, error) => {
         const repository = createInMemoryRepository(() => 50);
         await repository.put({ hash: 'hash', translatedDataUrl: 'modern' });
