@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "index": 84,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 4",
+  "file": "scripts/validation/verify-coverage-selftest.js",
+  "bible": "docs/biblia/scripts/validation/verify-coverage-selftest.js/Bíblia.md",
+  "source_sha": "ac08dd661f2d2410a56a7fd685cd9b55e85901f9",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "084-ADV-001",
+      "severity": "MATERIAL",
+      "category": "EVIDENCE_OVERCLAIM_AND_INTERNAL_CONTRADICTION",
+      "bible_location": "Seção 7 — 'Cobertos por cenário focal' / coverage zero",
+      "finding": "A Bíblia classifica a rejeição de métricas em zero como branch coberto por cenário focal, mas o cenário 'coverage 0%' não isola a guarda específica de coverage zero.",
+      "evidence": [
+        "verify-coverage-selftest.js usa threshold=10 por default e zero=true apenas força pct=0.",
+        "O baseline sintético aplica esse threshold=10 a statements, branches, functions e lines.",
+        "verify-coverage.js reprova pct<=0, mas também reprova qualquer métrica pct<threshold; portanto, com pct=0, remover a guarda explícita de coverage zero ainda deixa o cenário ok=false por 0<10.",
+        "A própria Bíblia reconhece em outros trechos que os casos negativos verificam apenas result.ok e não provam causalmente o branch/motivo; chamar este branch de 'cenário focal' contradiz essa limitação."
+      ],
+      "required_change": "Reclassificar o caso 'coverage 0%' como prova apenas da rejeição global da fixture combinada, ou tornar a fixture realmente focal (por exemplo, desativando/zerando o threshold global nesse cenário) antes de afirmar cobertura da guarda específica."
+    },
+    {
+      "id": "084-ADV-002",
+      "severity": "DOCUMENTAL",
+      "category": "STALE_AUDIT_REQUEST_STATUS",
+      "bible_location": "Seção 11 — Solicitações ao auditor",
+      "finding": "A Bíblia rotula 084-001, 084-002, 084-003 e 084-004 como OPEN, enquanto o state canônico atual registra todas como ACCEPTED.",
+      "evidence": [
+        "docs/biblia/.state/084.json: 084-001=ACCEPTED, 084-002=ACCEPTED, 084-003=ACCEPTED, 084-004=ACCEPTED.",
+        "A seção 11 da Bíblia ainda usa os cabeçalhos '— OPEN' para as quatro requests."
+      ],
+      "required_change": "Sincronizar os status documentais com o state canônico ou marcar explicitamente os rótulos como snapshot histórico, evitando apresentar OPEN como estado atual."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T15:57:00Z"
+}

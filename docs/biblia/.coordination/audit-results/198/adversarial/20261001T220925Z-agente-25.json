@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "index": 198,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 25",
+  "file": "tests/unit/content-manga/chapter-id-cache.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/chapter-id-cache.test.js/Bíblia.md",
+  "source_sha": "7bc23a456be69aaac252e7acea2b498d61a07520",
+  "bible_sha": "efef53eb2fd5924cfe37ad3da5c07925a6f95e78",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "ADV25-198-01",
+      "severity": "BLOCKING",
+      "type": "SEMANTIC_COVERAGE_RANGE_MISMATCH",
+      "summary": "O mapa integral é numericamente 84/84, mas suas fronteiras semânticas atribuem as declarações dos três testes ao bloco anterior.",
+      "evidence": [
+        "A faixa 37–60 é rotulada 'mirror createSystem', porém a linha 60 já é test('cria novo capítulo na primeira chamada', ...).",
+        "A faixa 61–66 é rotulada 'criação inicial', porém a linha 66 já declara test('reutiliza Promise cacheada em chamadas subsequentes', ...).",
+        "A faixa 67–73 é rotulada 'reutilização por resultado', porém a linha 73 já declara test('chamadas paralelas não criam capítulos duplicados', ...).",
+        "As fronteiras reais são: mirror 37–59; teste 1 60–65; teste 2 66–72; teste 3 73–83; linha 84 fecha describe; posição 85 é o newline final.",
+        "A fonte integral embutida é byte-a-byte exata; portanto o defeito é de posição↔responsabilidade, não de conteúdo integral."
+      ],
+      "required_change": "Corrigir as faixas semânticas para 37–59, 60–65, 66–72 e 73–83, preservando linha 84 e posição 85."
+    },
+    {
+      "id": "ADV25-198-02",
+      "severity": "BLOCKING",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 198-001, 198-002 e 198-003 como OPEN, embora o state canônico registre as três requests como ACCEPTED.",
+      "evidence": [
+        "Bíblia headings nas linhas 145, 161 e 177 usam respectivamente '198-001 ... OPEN', '198-002 ... OPEN' e '198-003 ... OPEN'.",
+        "docs/biblia/.state/198.json registra 198-001=ACCEPTED, 198-002=ACCEPTED e 198-003=ACCEPTED.",
+        "198-001 permanece tecnicamente factual: o arquivo executa createSystem() local e não importa createChapterManager()/getOrCreateChapterId() real.",
+        "198-002 permanece factual: cm-chapter.js real invalida chapterIdPromise por mudança de window.location.href, limpa cache após rejection e trata chrome.runtime.lastError; o mirror v3.0 não modela isso.",
+        "198-003 permanece factual: o teste nominal 'reutiliza Promise cacheada' faz await sequencial e compara apenas IDs resolvidos, não identidade da Promise antes da resolução."
+      ],
+      "required_change": "Sincronizar os três headings/trechos da Bíblia para ACCEPTED sem apagar as limitações técnicas documentadas."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "numeric_coverage": "CONFIRMADO_3X",
+    "semantic_coverage": "CONTRADITO",
+    "semantics": "CONTRADITO_POR_MAPA_E_LIFECYCLE",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO_NO_STATUS_DOCUMENTAL",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_11_VS_AGENTE_25",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 84,
+    "source_has_final_newline": true,
+    "documented_positions": "85/85 numericamente, mas mapa semântico deslocado",
+    "requests_technical_truth": "198-001/002/003 reconfirmadas contra source do teste e extension/content/cm-chapter.js atual.",
+    "production_sha": "44b621d570b6492ef08982ec4e093ffcfe6d24f8",
+    "primary_binding": "PRIMARY schema v1 do AGENTE 11 é compatível com a revisão atual via audit-bible-baseline.json, cujo bible_sha de #198 é efef53eb2fd5924cfe37ad3da5c07925a6f95e78.",
+    "nonblocking_coordination_anomaly": "state.document_quality.external_audit_requests_open=3 está stale frente aos três statuses canônicos ACCEPTED; lifecycle deve seguir audit_requests[].status.",
+    "timestamp_note": "O PRIMARY legado registra completed_at_utc 2026-10-01T22:40:00Z, posterior ao relógio observado durante esta auditoria; não foi usado como blocker documental e o binding foi validado por source SHA + baseline Bible SHA.",
+    "formal_refutation_attempt": "Sustentadas duas objeções materiais após atacar fonte, cobertura, semântica, dependências, assertions, requests e histórico.",
+    "final_head_before_publish": "5c949e4ca5b4a550decc0367db0af263fc0404da"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T22:09:25.935Z"
+}

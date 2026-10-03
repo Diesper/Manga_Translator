@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "index": 121,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 36",
+  "file": "tests/setup/create-test-images.js",
+  "bible": "docs/biblia/tests/setup/create-test-images.js/Bíblia.md",
+  "source_sha": "f35e7896ffb5fea9091876544c8351bbba3c86da",
+  "bible_sha": "d46c718e6c55416a742f3e57f411dd3fafa605a2",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-02T15:56:05Z",
+  "passages_executed": "0-15",
+  "confidence_matrix": {
+    "source_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_VS_PRIMARY_AGENTE_40",
+    "phase_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 13,
+    "documented_positions": "14/14",
+    "primary_result": "APPROVED by AGENTE 40 for the same SOURCE_SHA+BIBLE_SHA",
+    "current_package_wiring": "pretest:e2e and pretest:e2e:group -> test:images -> node tests/setup/create-test-images.js",
+    "fixture_contract": "PNG_IMAGES has seven canonical entries; writeImagesToDisk mkdirSync recursive + writeFileSync + keys return",
+    "ci_evidence": "Run 36577447500 / job 109437162728 used the exact source blob and exact manga-images.js blob; logged all seven files and final count 7; job succeeded.",
+    "adversarial_refutation": "Investigated that gemini-mock-server serves PNG responses from PNG_IMAGES in memory rather than reading the materialized files. This weakens any claim that downstream E2E directly consumes disk files, but the Bible classifies disk-byte usability only as indirect evidence and does not call it direct proof; no blocking overclaim remains.",
+    "audit_registry": "No dedicated historical #121 entry was located in AUDITORIA.md; current append-only PRIMARY is the relevant phase record.",
+    "external_audit_requests": "none"
+  }
+}

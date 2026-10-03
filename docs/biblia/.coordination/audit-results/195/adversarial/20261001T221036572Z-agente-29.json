@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "index": 195,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 29",
+  "file": "tests/unit/content-manga/button-ui-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/button-ui-real.test.js/Bíblia.md",
+  "source_sha": "a82baea685c1b325e8b21a9a914ef405a142ef97",
+  "bible_sha": "0859d455835a4a735a18bb151067f6d84b640446",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "195-ADV-NEW-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "POSITIONAL_COVERAGE_GAP",
+      "summary": "O mapa integral declara/documenta 441/441 posições, mas a união das faixas omite a linha textual 440 do source.",
+      "evidence": [
+        "O source atual possui 440 linhas textuais e termina com LF, totalizando 441 posições documentais; a fonte integral embutida é byte-a-byte idêntica ao source.",
+        "No final do source, linha 439 é `    });`, linha 440 é `});` (fechamento do describe principal) e a posição 441 é apenas o newline terminal.",
+        "O mapa da Bíblia termina a última faixa textual em `391–439 | resize sul e sudeste` e depois salta diretamente para `441 | newline final do arquivo`.",
+        "A união matemática das faixas do mapa cobre todas as posições 1..441 exceto 440; não há overlaps nem posições fora do arquivo.",
+        "docs/biblia/.state/195.json ainda declara document_quality.documented_positions = `441/441`, portanto a alegação de cobertura exaustiva é falsa nesta revisão."
+      ],
+      "required_change": "Incluir explicitamente a linha textual 440 no mapa, alinhando-a ao fechamento estrutural do describe principal, preservando 441 exclusivamente como LF terminal; recalcular/revalidar a união para cobrir exatamente 1..441 sem gaps ou overlaps."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "positional_coverage": "CONTRADITO_LINHA_440_AUSENTE",
+    "semantics": "CONFIRMADO_3X_FORA_DO_GAP_ESTRUTURAL",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers_wiring": "CONFIRMADO_3X",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X_ACCEPTED",
+    "history_state": "CONFIRMADO_3X_COM_METADATA_BIBLE_LINES_AUXILIAR_STALE_NAO_BLOQUEANTE",
+    "phase_independence": "CONFIRMADA_AGENTE_29_VS_PRIMARY_AGENTE_23",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "head_observed_before_publish": "5e1c475d13958a41f7e93cf2fb98dd344f343db5",
+    "source_text_lines": 440,
+    "source_final_newline": true,
+    "documented_positions_expected": 441,
+    "embedded_source_exact": true,
+    "primary_current": "APPROVED por AGENTE 23 para a mesma revisão SOURCE_SHA+BIBLE_SHA; este ADVERSARIAL é independente.",
+    "historical_results": "O ADVERSARIAL anterior de AGENTE 35 está ligado ao BIBLE_SHA histórico 7734dc456c39a2d5ff854bc73f46f22c1eeaa215 e não vale para a revisão atual.",
+    "prior_findings_revalidated": [
+      "195-001, 195-002 e 195-003 agora aparecem como ACCEPTED na Bíblia e no state canônico.",
+      "Rendering/layout/hit-testing de Chromium real agora estão explicitamente classificados como NÃO PROVADOS pela suíte JSDOM."
+    ],
+    "evidence_strength": [
+      "PROVA_DIRETA: 11 cenários executam content_manga.js real por loadContentScript e possuem 29 assertions sobre criação/estado, mensagens, drag, persistência e resize e/w/s/se.",
+      "GATE_ESTATICO + EXECUCAO_INDIRETA: jest.config.js inclui tests/unit/content-manga no projeto content-scripts JSDOM; run-jest-ci inventaria os testes; package test:ci usa o runner; workflow unit-and-integration executa test:ci.",
+      "EXECUCAO_INDIRETA: run 36577447500 e jobs Node 20/22 passaram no commit b6ad13f..., cujo blob de button-ui-real.test.js é exatamente a82baea685c1b325e8b21a9a914ef405a142ef97.",
+      "SEM_PROVA_ESPECIFICA: resize n/ne/nw/sw, ENABLE_PAGE ausente→presente e rendering Chromium permanecem corretamente limitados/documentados."
+    ],
+    "audit_requests_revalidated": [
+      "195-001 permanece factual: implementação tem branches direcionais n/s/e/w, enquanto a suíte interage diretamente apenas com e/w/s/se.",
+      "195-002 permanece factual: ENABLE_PAGE real chama createTranslatorButton quando habilitado, mas a suíte #195 testa apenas idempotência com botão já presente; a suíte de guard não cobre ENABLE_PAGE.",
+      "195-003 permanece factual: CM-29..CM-50 aparecem agregados no título sem rastreabilidade granular marker→assertion."
+    ],
+    "formal_refutation": "A hipótese de APPROVED foi testada após confirmar que os blockers anteriores foram corrigidos, o wiring é real e as limitações estão honestamente descritas. Ela falha porque uma Bíblia que afirma cobertura posicional integral 441/441 não cobre a posição textual 440; o contraexemplo é matemático e sobrevive à releitura independente do source e do mapa."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T22:10:36.572Z"
+}

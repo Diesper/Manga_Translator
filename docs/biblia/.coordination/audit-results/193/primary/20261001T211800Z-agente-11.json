@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "index": 193,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-manga/auto-restore-system.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/auto-restore-system.test.js/Bíblia.md",
+  "source_sha": "3aa7a39030aba4577f530f575869a6d535d1c3a3",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "193-PRI-001",
+      "severity": "HIGH",
+      "type": "SEMANTIC_COVERAGE_RANGE_MISMATCH",
+      "summary": "O Mapa integral por faixas omite posições e desloca responsabilidades entre helpers, testes e persistência.",
+      "evidence": [
+        "As linhas 22 e 240 ficam sem qualquer faixa no mapa.",
+        "A faixa `74–83 factory de imagem fake` inclui o describe principal e já entra no primeiro teste de applyAutoRestore.",
+        "A faixa `84–155 testes do mirror applyAutoRestore` começa dentro do primeiro teste e termina dentro do primeiro teste de persistência cross-session.",
+        "A faixa `156–200 persistência cross-session simulada` começa no meio do primeiro teste de persistência e já invade o primeiro teste de debounce.",
+        "A faixa `201–239 debounce local` começa no meio do primeiro teste de debounce e termina dentro do teste de pseudo-UPDATE_IMAGE.",
+        "A fonte integral embutida é byte-equivalente ao arquivo e o SHA coincide; o defeito é do mapa posição↔responsabilidade."
+      ]
+    },
+    {
+      "id": "193-PRI-002",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 193-001/002/003 como OPEN, embora os três requests já estejam ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia.md linhas 143, 159 e 175 usam headings OPEN.",
+        "docs/biblia/.state/193.json registra 193-001=ACCEPTED, 193-002=ACCEPTED e 193-003=ACCEPTED.",
+        "193-001 é factual: o arquivo define `createAutoRestoreSystem()` local e não executa o auto-restorer real.",
+        "193-002 é factual: não existe `new MutationObserver(...)` na suíte; o bloco correspondente testa apenas debounce local por setTimeout.",
+        "193-003 é factual: o caso UPDATE_IMAGE não envia mensagem/handler de produção e chama diretamente `storageMock.set(toSet)`.",
+        "O mesmo blob passou em Node 20/22; a suíte real #194 também aparece verde, mas isso não transforma o mirror #193 em prova do runtime."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:18:00Z"
+}

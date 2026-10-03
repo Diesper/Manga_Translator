@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "index": 99,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 16",
+  "file": "tests/helpers/extracted-functions.js",
+  "bible": "docs/biblia/tests/helpers/extracted-functions.js/Bíblia.md",
+  "source_sha": "ccbf20485608a223c723adf638860cb7151c8886",
+  "bible_sha": "71be5ac59a3bcdd69f4d972ab1e33739cfe91b74",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "099-ADV-001",
+      "severity": "BLOCKING",
+      "area": "AUDIT_REQUESTS_STATE",
+      "title": "A Bíblia rotula 099-001, 099-002 e 099-003 como OPEN, mas o state canônico atual é ACCEPTED / SUPERSEDED / ACCEPTED",
+      "bible_location": "Bíblia.md seção 8 — Solicitações ao auditor",
+      "claim_in_bible": "Os cabeçalhos declaram 099-001=OPEN, 099-002=OPEN e 099-003=OPEN sem qualificá-los como estado histórico.",
+      "evidence": [
+        "docs/biblia/.state/099.json registra 099-001=ACCEPTED, 099-002=SUPERSEDED por 191-001 e 099-003=ACCEPTED.",
+        "docs/biblia/AUDITORIA.md reconfirma explicitamente 099-001 como ACCEPTED, 099-002 como SUPERSEDED por 191-001 e 099-003 como ACCEPTED.",
+        "A Bíblia mantém os três rótulos OPEN em linguagem operacional presente; OPEN, ACCEPTED e SUPERSEDED são estados distintos e 099-002 já foi centralizada em outra request."
+      ],
+      "why_blocking": "A análise técnica dos mirrors é fiel e conservadora, mas a metadata operacional das audit_requests está stale. Em especial, manter 099-002 como OPEN sugere trabalho ainda ativo que o estado canônico já marcou como SUPERSEDED, podendo induzir correção duplicada.",
+      "required_change": "Atualizar os três rótulos para ACCEPTED / SUPERSEDED por 191-001 / ACCEPTED, ou marcar explicitamente OPEN apenas como estado histórico de criação e declarar os estados canônicos atuais."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:49:11Z"
+}

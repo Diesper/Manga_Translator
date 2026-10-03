@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "index": 195,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 23",
+  "file": "tests/unit/content-manga/button-ui-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/button-ui-real.test.js/Bíblia.md",
+  "source_sha": "a82baea685c1b325e8b21a9a914ef405a142ef97",
+  "bible_sha": "0859d455835a4a735a18bb151067f6d84b640446",
+  "verdict": "APPROVED",
+  "findings": [
+    {
+      "id": "PRI-195-NB-01",
+      "severity": "LOW",
+      "type": "STATE_METADATA_STALE_NONBLOCKING",
+      "summary": "O metadado auxiliar document_quality.bible_lines no state registra 919, enquanto a Bíblia atual possui 920 linhas textuais.",
+      "evidence": [
+        "docs/biblia/.state/195.json: document_quality.bible_lines = 919.",
+        "Bíblia atual SHA 0859d455835a4a735a18bb151067f6d84b640446 possui 920 linhas textuais e newline final.",
+        "SOURCE_SHA, BIBLE_SHA, fonte integral, cobertura 441/441, lifecycle das requests e semântica documental permanecem coerentes; bible_lines não participa do binding da revisão nem da decisão distribuída."
+      ],
+      "required_change": "Sincronizar o metadado auxiliar em reconciliação futura do state; não exige alteração da Bíblia e não bloqueia esta revisão."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X_441_DE_441_SEM_GAPS_OVERLAPS",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers_wiring": "CONFIRMADO_3X",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X_ACCEPTED",
+    "history_state": "CONFIRMADO_3X",
+    "limitations": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passages": "0-15 concluídas",
+    "embedded_source": "O bloco fenced reproduz todos os 440 textos; a newline final é documentada separadamente como posição 441 e embedded + LF coincide byte a byte com o source.",
+    "execution_evidence": "Job 109437162616 passou button-ui-real.test.js; 109/109 suítes e 851/851 testes, skipped=0, todo=0.",
+    "environment": "JSDOM; métricas de layout sintéticas; chrome.runtime/storage mocks. A Bíblia não trata isso como rendering Chromium.",
+    "historical_results": "Resultados anteriores pertencem à baseline BIBLE_SHA 7734dc456c39a2d5ff854bc73f46f22c1eeaa215 ou schema v1 compatível apenas com essa baseline; não são válidos para a revisão atual 0859d455835a4a735a18bb151067f6d84b640446."
+  },
+  "completed_at_utc": "2026-10-01T22:02:04.493Z"
+}

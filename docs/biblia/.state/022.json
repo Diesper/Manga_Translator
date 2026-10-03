@@ -1,0 +1,127 @@
+{
+  "index": 22,
+  "file": "extension/background/actions/request-image-data.js",
+  "bible": "docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "2491262323966a256d61d741e9c23420acccee2f",
+  "started_at_utc": "2026-09-30T12:05:00Z",
+  "completed_at_utc": "2026-10-01T21:55:55.367Z",
+  "audit_requests": [
+    {
+      "id": "022-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/request-image-data-action.test.js",
+      "found_while_auditing": "extension/background/actions/request-image-data.js",
+      "finding": "A action não possui validate() para mangaTabId/index e não há assertions focais para tipos/valores inválidos nesses campos.",
+      "current_evidence": "Teste direto prova forwarding correto, preservação da resposta e conversão de chrome.runtime.lastError em {error}.",
+      "missing_evidence": "Casos com mangaTabId ausente/não-numérico e index ausente/não-numérico.",
+      "why_needed": "Payload inválido é encaminhado diretamente para chrome.tabs.sendMessage/content script sem gate local.",
+      "requested_action": "Adicionar testes parametrizados contra a action real e decidir se validação explícita deve ser contrato.",
+      "expected_evidence": "Comportamento definido e assertado para payload inválido sem depender de falha incidental da Chrome API.",
+      "expected_auditor_action": "Revisar contrato de payload e fortalecer testes em alteração separada.",
+      "possible_regression": "Mensagens podem ser enviadas à aba/índice incorretos ou falhar de forma não determinística.",
+      "impact": "Aquisição da imagem de origem pelo fluxo Gemini.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:55:00Z",
+      "audit_finding": "ACCEPTED. `request-image-data.js` não possui `validate()` e encaminha `request.mangaTabId`/`request.index` diretamente a `chrome.tabs.sendMessage`. A suíte cobre forwarding nominal e `runtime.lastError`, mas nenhum payload inválido.",
+      "auditor_recommended_action": "Adicionar matriz de mangaTabId/index ausentes, não-numéricos e valores anômalos; decidir se o contrato exige INVALID_PAYLOAD antes da Chrome API."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "33/33",
+    "source_text_lines": 32,
+    "external_audit_requests_open": 1,
+    "note": "Bíblia concorrente validada; bloco fonte normalizado para equivalência física exata."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T20:02:02.539Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "2491262323966a256d61d741e9c23420acccee2f",
+      "reason": "022-REAUDIT-001: corrigir semântica da posição 023."
+    },
+    {
+      "at_utc": "2026-10-01T20:02:02.539Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "2491262323966a256d61d741e9c23420acccee2f",
+      "bible_sha": "82c8a928c7858aaee9e35e69a56440a68969123e",
+      "reason": "022-REAUDIT-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T21:55:55.367Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "2491262323966a256d61d741e9c23420acccee2f",
+      "bible_sha": "82c8a928c7858aaee9e35e69a56440a68969123e",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "e527ed6a4368c2f3b6725f3c22f72f4789b4c642b77e4a49e6cae2f1e777b99a",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "previous_event_hash": "edfeddbaf5607bc44725cbfb8ede075e697f677e5f1468c9b5da6c1b4f9b155e",
+      "event_hash": "a098e45f7f08cc99a3f8edf95e6581dc71b84c2dc89e85d63af916a334e35665"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:39.469Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "a098e45f7f08cc99a3f8edf95e6581dc71b84c2dc89e85d63af916a334e35665",
+      "event_hash": "f2356cb7e644ac036477bc3ac78dc5bc1f3f6598109fe99a533a83466f8fea2a"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "f2356cb7e644ac036477bc3ac78dc5bc1f3f6598109fe99a533a83466f8fea2a",
+      "event_hash": "c997425e5e9b975c595f9024b79cb583839692639f6e8d301b34565b453654c1"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "2491262323966a256d61d741e9c23420acccee2f",
+  "bible_sha": null,
+  "revision_id": "e527ed6a4368c2f3b6725f3c22f72f4789b4c642b77e4a49e6cae2f1e777b99a",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual.",
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T21:55:55.367Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "VERIFIED",
+    "caveats": []
+  }
+}

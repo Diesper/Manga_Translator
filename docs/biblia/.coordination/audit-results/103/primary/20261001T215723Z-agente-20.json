@@ -1,0 +1,78 @@
+{
+  "schema_version": 2,
+  "index": 103,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 20",
+  "file": "tests/helpers/load-extension-page.js",
+  "bible": "docs/biblia/tests/helpers/load-extension-page.js/Bíblia.md",
+  "source_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
+  "bible_sha": "4eb965dab8d3545d7aaabb07b792a73affa28ea1",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "P20-103-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "INTERNAL_SEMANTIC_CONTRADICTION",
+      "finding": "A matriz de evidência formula como contrato positivo que a semântica do listener sintético equivale ao browser, mas o source, a seção de riscos e a request 103-002 registram divergências conhecidas do EventTarget real.",
+      "evidence": [
+        "Bíblia §4: `semântica do listener sintético equivale ao browser | nenhuma prova focal | SEM TESTE PROBATÓRIO ESPECÍFICO`.",
+        "load-extension-page.js invoca cada callback diretamente com `await listener(new Event('DOMContentLoaded', { bubbles: true }))` em vez de usar `dispatchEvent`.",
+        "Bíblia §6 declara literalmente `Dispatch sintético não é idêntico ao browser` e enumera diferenças de `this`, handleEvent, once/signal e timing de Promises.",
+        "A request 103-002 permanece ACCEPTED porque a fidelidade ao EventTarget real não está definida/provada."
+      ],
+      "adversarial_mutation": "Um maintainer pode interpretar a matriz como garantia de equivalência e escrever código dependente de semânticas que o harness não reproduz, mantendo falsos verdes.",
+      "required_change": "Reescrever o contrato da matriz como fidelidade parcial/simplificada, com divergências conhecidas e sem equivalência garantida."
+    },
+    {
+      "id": "P20-103-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_BRANCH_MISATTRIBUTION",
+      "finding": "A matriz afirma que opções/popup/reader usam `fireDOMContentLoaded:true`, mas `tests/integration/reader.ui.test.js` não fornece a flag e portanto executa o ramo default `false`; a própria Bíblia reconhece isso na documentação da posição 70.",
+      "evidence": [
+        "Bíblia §4: `caminho fireDOMContentLoaded: true permite bootstraps reais | opções/popup/reader usam a flag`.",
+        "Em reader.ui.test.js, as chamadas a loadExtensionPage passam htmlPath/scriptPath/url e não passam fireDOMContentLoaded, cujo default no helper é false.",
+        "options.ui.test.js e popup.ui.test.js passam explicitamente fireDOMContentLoaded:true.",
+        "A própria descrição da posição 70 afirma corretamente que reader.ui.test.js usa o default false, contradizendo a matriz."
+      ],
+      "required_change": "Restringir a evidência do ramo true aos consumers que realmente passam a flag (por exemplo options/popup) e manter reader.ui.test.js como evidência do ramo false."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage_86_86": "CONFIRMADO_3X",
+    "dependencies_html_order": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "branch_true_evidence": "CONTRADITO",
+    "branch_false_evidence": "CONFIRMADO_3X",
+    "synthetic_dispatch_semantics": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state_revision": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 85,
+    "final_newline": true,
+    "documented_positions": "86/86",
+    "html_dependencies": {
+      "reader": [
+        "../shared/shared-ui.js",
+        "reader.js"
+      ],
+      "options": [
+        "../shared/shared-ui.js",
+        "options.js"
+      ],
+      "popup": [
+        "../shared/shared-ui.js",
+        "popup.js"
+      ]
+    },
+    "current_adversarial": "AGENTE 1 / CHANGES_REQUIRED / mesma revisão",
+    "formal_rejection": "Sustentada por P20-103-01 e P20-103-02."
+  },
+  "passages_executed": "0-15",
+  "completed_at_utc": "2026-10-01T21:57:23Z"
+}

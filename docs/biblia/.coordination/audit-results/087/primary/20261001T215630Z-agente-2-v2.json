@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 87,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 2",
+  "file": "scripts/validation/verify-jest-worker-warning-selftest.js",
+  "bible": "docs/biblia/scripts/validation/verify-jest-worker-warning-selftest.js/Bíblia.md",
+  "source_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
+  "bible_sha": "14c5374a15b047e58a4ef675131bfe15f031b333",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X_11_DE_11",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies_consumers": "CONFIRMADO_3X",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "prior_reaudit_fix": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "source_text_lines": 10,
+    "documented_positions": "11/11",
+    "embedded_source_exact": true,
+    "consumers": [
+      "scripts/ci/run-jest-ci.js",
+      "scripts/maintenance/diagnose-jest-workers.js",
+      "scripts/maintenance/diagnose-background-leak.js"
+    ],
+    "prior_fix": "087-REA-001 resolvido: lifecycle 087-001 sincronizado como ACCEPTED.",
+    "remaining_limit": "087-001 permanece ACCEPTED: o caso positivo reutiliza FORCED_WORKER_EXIT e prova consistência interna, não fidelidade independente ao literal externo do Jest."
+  },
+  "completed_at_utc": "2026-10-01T21:56:30Z"
+}

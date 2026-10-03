@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "index": 130,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 50",
+  "file": "tests/unit/background/background-strict-load.test.js",
+  "bible": "docs/biblia/tests/unit/background/background-strict-load.test.js/Bíblia.md",
+  "source_sha": "25a663f527f7d3303c51751b4bf3440ea3424b9f",
+  "bible_sha": "016130ac2b04bc4d78f86b25b8110b141bdfdebb",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-01T20:19:30.000Z"
+}

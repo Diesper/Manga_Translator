@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 106,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 26",
+  "file": "tests/integration/banned-images-flow.test.js",
+  "bible": "docs/biblia/tests/integration/banned-images-flow.test.js/Bíblia.md",
+  "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+  "bible_sha": "b6c7e474dd8dcd54b4c9ca156fadbd7abae88a01",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "PRI-106-01",
+      "severity": "BLOCKING",
+      "category": "STALE_EVIDENCE_BINDING",
+      "location": "Bíblia.md — §3.2 package.json (linha 74)",
+      "finding": "A Bíblia afirma ter observado `package.json` no blob `51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48`, porém o `package.json` atual do branch é `5b5c328f6139eeff920dc65a78014a6c5b6db3a6`. O wiring citado (`test:integration` e `test:ci`) continua semanticamente igual, mas o binding criptográfico explícito da evidência está stale.",
+      "evidence": [
+        "Bíblia §3.2: `package.json` observado no SHA `51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48`.",
+        "Blob atual de `package.json`: `5b5c328f6139eeff920dc65a78014a6c5b6db3a6`.",
+        "Comparação entre os dois blobs confirma mudança real de conteúdo; os scripts focais `test:integration` e `test:ci` permaneceram iguais."
+      ],
+      "requested_document_change": "Revalidar `package.json` atual e atualizar o SHA observado para o blob vigente, preservando a descrição apenas após reconfirmar os scripts citados."
+    },
+    {
+      "id": "PRI-106-02",
+      "severity": "BLOCKING",
+      "category": "STALE_EVIDENCE_BINDING",
+      "location": "Bíblia.md — §3.3 GitHub Actions (linha 82)",
+      "finding": "A Bíblia afirma ter observado `.github/workflows/ci.yml` no blob `ebee75820db9bfab618bf3c3016065c5bc857ed7`, porém o workflow atual do branch é `9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a`. O wiring focal continua presente, mas a referência criptográfica declarada já não identifica o arquivo atual.",
+      "evidence": [
+        "Bíblia §3.3: `.github/workflows/ci.yml` observado no SHA `ebee75820db9bfab618bf3c3016065c5bc857ed7`.",
+        "Blob atual de `.github/workflows/ci.yml`: `9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a`.",
+        "Comparação entre os blobs confirma alteração do workflow; `unit-and-integration` com Node 20.x/22.x, `npm run test:ci` e a etapa explícita `npm run test:integration` continuam presentes."
+      ],
+      "requested_document_change": "Revalidar o workflow atual e atualizar o SHA observado para o blob vigente antes de reutilizar a seção como evidência atual."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:56:41.860Z"
+}

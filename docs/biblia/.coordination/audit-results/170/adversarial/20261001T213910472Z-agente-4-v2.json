@@ -1,0 +1,71 @@
+{
+  "schema_version": 2,
+  "index": 170,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 4",
+  "file": "tests/unit/background/tab-identity.test.js",
+  "bible": "docs/biblia/tests/unit/background/tab-identity.test.js/Bíblia.md",
+  "source_sha": "1f2dd52513037f061613d04453a961fbaeddef84",
+  "bible_sha": "527f64b211c32f75fe743dede11b984ca72eb0e9",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "170-A4-ADV-001",
+      "severity": "MATERIAL",
+      "category": "KNOWN_EVIDENCE_GAPS_OMITTED",
+      "location": "Bíblia.md §§8, 10, 11 e 14",
+      "problem": "A revisão atual enumera apenas três branches sem prova focal (033-001/002/004 via 170-001/002/003), mas o state canônico de extension/background/tab-identity.js mantém outras três requests ACCEPTED cujo target_file é exatamente esta suíte: 033-003, 033-005 e 033-006.",
+      "evidence": [
+        "033-003: moveAlarm não possui prova para alarme ausente nem scheduledTime passado/inválido; a implementação usa fallback delayInMinutes=0.01.",
+        "033-005: addIndexValue/removeIndexValue/cleanupExpiredAliases fazem read-modify-write sem serialização; não há cenário concorrente nesta suíte.",
+        "033-006: migrationKey usa jobId quando fornecido e a request registra risco de reuso de journal em rekeys sucessivos; TAB-03 usa recordReplacement sem jobId e não cobre esse caso.",
+        "A Bíblia não contém 033-003, 033-005 ou 033-006 e apresenta §§8/10 como inventário de branches/limites de evidência."
+      ],
+      "required_change": "Adicionar explicitamente 033-003/005/006 às limitações/matriz de evidência (ou referência canônica completa e inequívoca), preservando a classificação como lacunas e sem promovê-las a prova existente."
+    },
+    {
+      "id": "170-A4-ADV-002",
+      "severity": "MATERIAL",
+      "category": "SUPERSEDED_REQUEST_SCOPE_TRUNCATED",
+      "location": "Bíblia.md §11 — 170-002→033-001 e 170-003→033-004",
+      "problem": "Os links de supersede estão corretos, mas os resumos mantêm apenas o escopo estreito das requests 170 e não representam partes materiais das requests canônicas 033 para as quais remetem.",
+      "evidence": [
+        "033-001 inclui, além de MAX_ALIAS_HOPS, guards de tabId negativo, fracionário, string e IDs iguais; a suíte atual usa IDs inteiros válidos e não documenta essa parte do gap.",
+        "033-004 inclui, além dos guards de recoverPendingMigrations, os fallbacks de migrateReferences via state.mutate, state.patch e atribuição direta; TAB-01 usa state.js real com replaceGeminiTabReferences e não exerce esses fallbacks.",
+        "A implementação atual contém esses branches em resolveCanonicalTabId/recordReplacement e migrateReferences, enquanto as seções 8/10/11 da Bíblia não os enumeram."
+      ],
+      "required_change": "Ao remeter às requests canônicas, representar seu escopo integral ou declarar explicitamente que o resumo local é parcial e apontar de forma inequívoca para todos os subcasos canônicos."
+    },
+    {
+      "id": "170-A4-ADV-003",
+      "severity": "NORMAL",
+      "category": "SEMANTIC_LINE_FUNCTION_AMBIGUITY",
+      "location": "Bíblia.md §13 — múltiplas assertions negativas",
+      "problem": "Várias descrições de Função não registram a semântica negativa da assertion e, em alguns casos, sugerem criação/presença quando o código prova ausência/remoção.",
+      "evidence": [
+        "Linha 100 `expect(data.gemini_job_100).toBeUndefined()` é descrita como `Prepara ou verifica registro persistido do job na tab antiga 100`, em vez de explicitar remoção/ausência da chave antiga.",
+        "Linhas 108/110/112 e 136/199/322 repetem o mesmo padrão `Prepara ou verifica` para assertions toBeUndefined.",
+        "Linha 122 `expect(await alarms.get('watchdog_100')).toBeNull()` e linha 124 `...finalization_marker_100...toBeNull()` são descritas como `Cria/verifica alarm...`, embora provem que o alarm antigo foi removido."
+      ],
+      "required_change": "Reescrever as Funções dessas assertions para declarar explicitamente ausência/remoção da chave/alarm antigo e presença do destino quando aplicável, evitando verbos que sugiram criação no ponto em que há uma assertion negativa."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage_335_positions": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies_real_modules": "CONFIRMADO_3X",
+    "consumers_and_runtime_wiring": "CONFIRMADO_3X",
+    "test_count_and_no_skip": "CONFIRMADO_3X",
+    "assertions_for_documented_nine_scenarios": "CONFIRMADO_3X",
+    "evidence_ci_run": "CONFIRMADO_3X",
+    "evidence_gap_completeness": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "primary_independence": "CONFIRMADA_AGENTE_6_VS_AGENTE_4",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:39:10.472Z"
+}

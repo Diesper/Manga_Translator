@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "index": 15,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 15",
+  "file": "extension/background/actions/get-tab-id.js",
+  "bible": "docs/biblia/extension/background/actions/get-tab-id.js/Bíblia.md",
+  "source_sha": "2f3b26304ac12a671927b1abefc2a914d7eaa372",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A15-015-01",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "EVIDENCE_CLASSIFICATION",
+      "summary": "A Bíblia afirma não existir teste probatório específico para sender sem tab, mas existe um teste integrado real que prova exatamente esse caso.",
+      "evidence": [
+        "tests/unit/background/gtc-runtime-bridge.test.js:67-72 envia GET_TAB_ID e exige { tabId: null }.",
+        "tests/mocks/chrome-api.mock.js:334 fornece ao listener sender={id:this.id, tab:null}.",
+        "extension/background.js:106-116 carrega via require a implementação real extension/background/actions/get-tab-id.js no caminho Node usado pelo teste."
+      ],
+      "required_change": "Reescrever a lacuna para reconhecer a cobertura integrada de sender com tab:null; manter como não cobertos apenas os casos realmente sem prova específica (por exemplo context/sender totalmente ausentes, se continuarem sem teste)."
+    },
+    {
+      "id": "A15-015-02",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "EVIDENCE_CLASSIFICATION",
+      "summary": "A Bíblia afirma não existir teste probatório específico para origem popup/external, porém o mesmo teste integrado exercita a action real com uma origem classificada como popup.",
+      "evidence": [
+        "tests/mocks/chrome-api.mock.js:334 usa sender.id igual ao chrome.runtime.id do mock e tab:null.",
+        "extension/background/router.js:56 classifica sender.id===chrome.runtime.id como 'popup'.",
+        "extension/background/actions/get-tab-id.js declara allowedSources:['any']; o teste gtc-runtime-bridge obtém {tabId:null}, demonstrando que popup atravessa o roteador real.",
+        "jest.config.js inclui tests/unit/background/**/*.test.js no projeto background."
+      ],
+      "required_change": "Distinguir popup (coberto pelo teste integrado) de external (sem prova específica localizada nesta auditoria), em vez de declarar ambos como não testados."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:07:33Z"
+}

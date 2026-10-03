@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "index": 200,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-manga/close-interval.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/close-interval.test.js/Bíblia.md",
+  "source_sha": "e9bcb9c9267176fab8ec8229c66514c21ebbc814",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "200-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 200-001 como OPEN, embora o request já esteja ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia.md linha 170 usa `200-001 — TEST_INTEGRITY_REVIEW — OPEN`.",
+        "docs/biblia/.state/200.json registra 200-001=ACCEPTED com finding e recomendação persistidos.",
+        "A divergência técnica descrita continua correta e foi reconfirmada: o mirror chama onTick(0) e modela `FECHANDO EM 0S`; content_manga.js trata zero no branch terminal e só atualiza `FECHANDO EM N S` quando o contador permanece positivo.",
+        "Os SHAs externos citados pela Bíblia permanecem atuais: content_manga.js=a8b3698019f6f22027f09f544f15c0563a9f6515 e drawer-real.test.js=eeebbd56fe1a1c788a81b43e222be06309b90f32.",
+        "A fonte integral do próprio #200 e a cobertura posição-a-posição 169/169 foram reconfirmadas; não foi sustentado outro finding documental."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:18:00Z"
+}

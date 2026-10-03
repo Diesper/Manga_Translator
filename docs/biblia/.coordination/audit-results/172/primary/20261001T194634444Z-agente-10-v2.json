@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "index": 172,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 10",
+  "file": "tests/unit/background/test_bg59.test.js",
+  "bible": "docs/biblia/tests/unit/background/test_bg59.test.js/Bíblia.md",
+  "source_sha": "ae96b142717418e4071fd160b6c521412da03090",
+  "bible_sha": "917509356c509e647fb4b9148b64a71d44eaf13c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "172-PRI-V2-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION_AND_INTERNAL_CONTRADICTION",
+      "finding": "A revisão rebaixou corretamente a geometria do center-crop na matriz de evidência, mas §8 e a conclusão ainda afirmam que o teste prova center-crop. As assertions não ligam causalmente wHashCrop/pHashCrop aos pixels do crop nem fixam a ordem posicional dos argumentos de drawImage.",
+      "evidence": [
+        "Bíblia §5 classifica a geometria como `FATO DO SOURCE` e admite que `arrayContaining` não prova a ordem posicional completa.",
+        "Bíblia §8 afirma em seguida: `Isso prova que hashes crop usam a região quadrada central`; a conclusão afirma que #172 prova diretamente `center-crop`.",
+        "test_bg59.test.js captura drawImage com `args: expect.arrayContaining([0, 200, 800, 800, 0, 0, 32, 32])`, matcher que não fixa posições/ordem.",
+        "MockOffscreenCanvas.getImageData fabrica bytes apenas de `width * height * 4`; os dois canvases 32×32 (full-frame e crop) produzem o mesmo padrão de bytes.",
+        "calculateWHash/PHash são mocks com `mockReturnValueOnce`, sem assertions sobre os arrays recebidos. Uma regressão que desenhe o crop mas calcule o segundo hash sobre os pixels full-frame pode manter todas as assertions verdes.",
+        "calculate-visual-fingerprint-action.test.js usa o mesmo `arrayContaining` para a geometria e não fornece um oráculo independente de ordem/ligação dos pixels."
+      ],
+      "required_change": "Manter a geometria como fato confirmado por leitura do source, mas remover linguagem de prova direta de center-crop; ou fortalecer o teste com assertion posicional exata de drawImage e dados distinguíveis para canvas full-frame/crop, assertando que as chamadas de hash recebem o buffer correspondente ao crop."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "163/163",
+    "source_text_lines": 162,
+    "current_bible_corrections_confirmed": [
+      "172-001 agora ACCEPTED",
+      "consumers cm-gtc-client.js e content_manga.js documentados",
+      "matriz §5 rebaixou matcher do crop"
+    ],
+    "consumer_validation": [
+      "cm-gtc-client.js envia CALCULATE_VISUAL_FINGERPRINT em fallback CORS e consome pixelSample/dHash/wHash/pHash/wHashCrop/pHashCrop/regionalHashes",
+      "content_manga.js faz o mesmo no pipeline legado/principal"
+    ],
+    "harness_validation": [
+      "loadBackgroundModule executa background.js real instrumentado e usa createRequire do path real",
+      "dispatchToBackground exige exatamente um runtime listener e captura keepAlive/response",
+      "jest background project inclui tests/unit/background/**/*.test.js; CI executa test:ci"
+    ],
+    "nonblocking_requests": [
+      "172-001 ACCEPTED / CONTRACT_NAMING_REVIEW / LOW"
+    ],
+    "no_runtime_execution_claim": "Nenhuma run nova foi usada como prova desta fase; assertions e wiring foram auditados diretamente no source."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T19:46:34.444Z"
+}

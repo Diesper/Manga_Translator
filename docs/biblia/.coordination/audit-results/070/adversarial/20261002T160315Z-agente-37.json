@@ -1,0 +1,46 @@
+{
+  "schema_version": 2,
+  "index": 70,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 37",
+  "file": "scripts/ci/data/test-baseline.json",
+  "bible": "docs/biblia/scripts/ci/data/test-baseline.json/Bíblia.md",
+  "source_sha": "52a4b3c1500dca615b6e2ca3d0d7b140ffdb9a3e",
+  "bible_sha": "d9a808635669012b393d8fa7bf50226014adaed6",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_37_VS_AUDITOR_LEGADO_DOCUMENTADO_COMO_AGENTE_7",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_requests_nonblocking": [
+    "070-001 ACCEPTED — ausência de schema obrigatório para coverage.minimum/criticalMinimum está explicitamente documentada como fail-open.",
+    "070-002 ACCEPTED — thresholds inválidos/NaN podem desativar comparações e a Bíblia registra a limitação sem promovê-la a prova.",
+    "070-003 ACCEPTED — baseline pode ser relaxado no mesmo PR sem gate anti-enfraquecimento; risco documentado.",
+    "070-004 ACCEPTED — coverage.measuredBaseline não possui consumidor automatizado localizado; Bíblia o trata como snapshot informativo."
+  ],
+  "audit_notes": {
+    "source_text_lines": 67,
+    "source_final_newline": true,
+    "documented_positions": "68/68",
+    "embedded_source_exact": true,
+    "line_source_mapping": "67/67 linhas Fonte: iguais ao source + posição 68 LF",
+    "direct_evidence": "playwright-gate-reporter-selftest.js isola e reprova total E2E 20, um skipped e retry flaky, sustentando minTests=21/maxSkipped=0/maxFlaky=0.",
+    "indirect_evidence": "Jest/visual/smoke/coverage usam o baseline real, mas a Bíblia não promove o simples consumo a pinagem dos valores exatos.",
+    "formal_refutation_attempt": "Tentativas de sustentar SHA stale, fonte divergente, gap/overlap, consumer omitido, prova direta tautológica, request ocultada e contradição interna não resistiram à revalidação.",
+    "final_head_before_publish": "7f94b679a2550bc51d2558ee5eba0843b7c1c356"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-02T16:03:15.349Z"
+}

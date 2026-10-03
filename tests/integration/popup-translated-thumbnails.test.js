@@ -158,16 +158,17 @@ describe('popup Traduzidas — miniaturas por capítulo/site com lazy loading', 
         expect(chapterB.querySelector('.chapter-thumb-card[data-page-index="0"] img').src).toContain(Buffer.from('asset-b0').toString('base64'));
     });
 
-    test('com IntersectionObserver o blob só é solicitado quando a miniatura entra na área visível', async () => {
+    test('com IntersectionObserver carrega o card correto uma única vez e desconecta o observer', async () => {
         class FakeIntersectionObserver {
             static instances = [];
             constructor(callback) {
                 this.callback = callback;
                 this.target = null;
+                this.disconnectCalls = 0;
                 FakeIntersectionObserver.instances.push(this);
             }
             observe(target) { this.target = target; }
-            disconnect() {}
+            disconnect() { this.disconnectCalls += 1; }
             trigger() {
                 this.callback([{ target: this.target, isIntersecting: true }], this);
             }
@@ -181,26 +182,59 @@ describe('popup Traduzidas — miniaturas por capítulo/site com lazy loading', 
         expect(assetCallsBefore).toHaveLength(0);
         expect(FakeIntersectionObserver.instances.length).toBe(3);
 
-        FakeIntersectionObserver.instances[0].trigger();
+        const firstObserver = FakeIntersectionObserver.instances[0];
+        expect(firstObserver.target.dataset.pageIndex).toBe('0');
+
+        firstObserver.trigger();
         await flushAsyncTasks(8);
 
         const assetCallsAfter = sendSpy.mock.calls.filter(([message]) => message.action === 'SM_GET_ASSET');
         expect(assetCallsAfter).toHaveLength(1);
+        expect(assetCallsAfter[0][0]).toEqual(expect.objectContaining({
+            action: 'SM_GET_ASSET',
+            assetId: 'asset-a0',
+        }));
+        expect(firstObserver.disconnectCalls).toBe(1);
+        expect(firstObserver.target.querySelector('img').src)
+            .toContain(Buffer.from('asset-a0').toString('base64'));
+
+        firstObserver.trigger();
+        await flushAsyncTasks(8);
+
+        const assetCallsAfterRetrigger = sendSpy.mock.calls.filter(([message]) => message.action === 'SM_GET_ASSET');
+        expect(assetCallsAfterRetrigger).toHaveLength(1);
+        expect(firstObserver.disconnectCalls).toBe(2);
     });
 
-    test('falha ao buscar asset mantém a caixa e marca somente a miniatura afetada', async () => {
+    test('falha seletiva marca só a miniatura quebrada e preserva a irmã saudável', async () => {
         global.IntersectionObserver = undefined;
         window.IntersectionObserver = undefined;
         sendSpy.mockImplementation((message, callback) => {
             if (message.action === 'SM_CHAPTERS_STATS') {
-                if (callback) setTimeout(() => callback({ ok: true, stats: { chap_a: { pageCount: 1, indices: [0] } } }), 0);
+                if (callback) setTimeout(() => callback({
+                    ok: true,
+                    stats: { chap_a: { pageCount: 2, indices: [0, 1] } },
+                }), 0);
                 return;
             }
             if (message.action === 'SM_PAGE_INDEX') {
-                if (callback) setTimeout(() => callback({ ok: true, pages: [{ pageIndex: 0, assetId: 'broken' }] }), 0);
+                if (callback) setTimeout(() => callback({
+                    ok: true,
+                    pages: [
+                        { pageIndex: 0, assetId: 'broken' },
+                        { pageIndex: 1, assetId: 'healthy' },
+                    ],
+                }), 0);
                 return;
             }
-            if (message.action === 'SM_GET_ASSET' || message.action === 'SM_GET_PAGE') {
+            if (message.action === 'SM_GET_ASSET') {
+                const response = message.assetId === 'broken'
+                    ? { ok: false }
+                    : { ok: true, dataUrl: dataUrl('healthy') };
+                if (callback) setTimeout(() => callback(response), 0);
+                return;
+            }
+            if (message.action === 'SM_GET_PAGE') {
                 if (callback) setTimeout(() => callback({ ok: false }), 0);
                 return;
             }
@@ -226,12 +260,23 @@ describe('popup Traduzidas — miniaturas por capítulo/site com lazy loading', 
         });
         await flushAsyncTasks(8);
         document.querySelector('.tab-btn[data-target="translated-tab"]').click();
-        await flushAsyncTasks(18);
+        await flushAsyncTasks(24);
 
-        const card = document.querySelector('.chapter-thumb-card');
-        expect(card).not.toBeNull();
-        expect(card.classList.contains('failed')).toBe(true);
-        expect(card.textContent).toContain('Falha');
+        const brokenCard = document.querySelector('.chapter-thumb-card[data-page-index="0"]');
+        const healthyCard = document.querySelector('.chapter-thumb-card[data-page-index="1"]');
+
+        expect(brokenCard).not.toBeNull();
+        expect(healthyCard).not.toBeNull();
+        expect(brokenCard.classList.contains('failed')).toBe(true);
+        expect(brokenCard.textContent).toContain('Falha');
+        expect(brokenCard.querySelector('img')).toBeNull();
+
+        expect(healthyCard.classList.contains('failed')).toBe(false);
+        expect(healthyCard.textContent).not.toContain('Falha');
+        expect(healthyCard.querySelector('img')).not.toBeNull();
+        expect(healthyCard.querySelector('img').src)
+            .toContain(Buffer.from('healthy').toString('base64'));
+
         expect(document.querySelector('.chapter-item')).not.toBeNull();
     });
 

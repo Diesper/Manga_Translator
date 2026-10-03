@@ -24,7 +24,7 @@ on:
         required: true
         type: string
       token_id:
-        description: 'Correction token id for START_CORRECTION'
+        description: 'Correction token id for START_CORRECTION; leave blank to auto-issue canonically'
         required: false
         type: string
       approval_id:
@@ -141,7 +141,7 @@ jobs:
           if [ "$OPERATION" = "ISSUE_TOKEN" ]; then
             EXTRA=()
             if [ -n "$APPROVAL_ID" ]; then EXTRA+=(--approval-id "$APPROVAL_ID"); fi
-            node docs/biblia/.coordination/unit-transition.js issue-token \
+            node scripts/bible/commands/unit-transition.js issue-token \
               --index "$INDEX" \
               --actor "$ACTOR" \
               --at "$AT" \
@@ -151,6 +151,22 @@ jobs:
               --expected-cycle "$EXPECTED_CYCLE" \
               "${EXTRA[@]}"
           else
+            if [ "$OPERATION" = "START_CORRECTION" ] && [ -z "$TOKEN_ID" ]; then
+              EXTRA=()
+              if [ -n "$APPROVAL_ID" ]; then EXTRA+=(--approval-id "$APPROVAL_ID"); fi
+              AUTO_TOKEN_PATH="$(node scripts/bible/commands/unit-transition.js issue-token \
+                --index "$INDEX" \
+                --actor "$ACTOR" \
+                --at "$AT" \
+                --expected-status "$EXPECTED_STATUS" \
+                --expected-state-sha "$EXPECTED_STATE_SHA" \
+                --expected-revision-id "$EXPECTED_REVISION_ID" \
+                --expected-cycle "$EXPECTED_CYCLE" \
+                "${EXTRA[@]}")"
+              TOKEN_ID="$(node -e 'const fs=require("fs");const p=process.argv[1];const t=JSON.parse(fs.readFileSync(p,"utf8"));if(!t.token_id)throw new Error("AUTO_TOKEN_ID_MISSING");process.stdout.write(t.token_id);' "$AUTO_TOKEN_PATH")"
+              export TOKEN_ID
+              echo "Auto-issued correction token for START_CORRECTION: $TOKEN_ID"
+            fi
             node - <<'NODE'
           const fs = require('fs');
           const operation = process.env.OPERATION;
@@ -194,7 +210,7 @@ jobs:
           }
           fs.writeFileSync('.bible-transition-request.json', JSON.stringify(request, null, 2) + '\n');
           NODE
-            node docs/biblia/.coordination/unit-transition.js apply --request .bible-transition-request.json
+            node scripts/bible/commands/unit-transition.js apply --request .bible-transition-request.json
             rm .bible-transition-request.json
           fi
 
@@ -205,7 +221,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A docs/biblia/.state/ docs/biblia/.reservas/ docs/biblia/.coordination/correction-authorizations/ docs/biblia/.coordination/human-review/
+          git add -A docs/biblia/.state/ docs/biblia/.reservas/ docs/biblia/.coordination/correction-authorizations/ docs/biblia/.coordination/human-review/ docs/biblia/.coordination/write-journal/
           if git diff --cached --quiet; then
             echo "No transition changes"
             exit 1

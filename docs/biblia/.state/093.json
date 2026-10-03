@@ -1,0 +1,229 @@
+{
+  "index": 93,
+  "file": "tests/e2e/reader-offline.spec.js",
+  "bible": "docs/biblia/tests/e2e/reader-offline.spec.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "2837775deacca5123fa99232633b4652774abf96",
+  "started_at_utc": null,
+  "completed_at_utc": "2026-10-01T04:30:20Z",
+  "audit_requests": [
+    {
+      "id": "093-001",
+      "status": "ACCEPTED",
+      "type": "TEST_SETUP_ROBUSTNESS",
+      "target_file": "tests/e2e/reader-offline.spec.js",
+      "found_while_auditing": "tests/e2e/reader-offline.spec.js",
+      "finding": "resetExtensionState trata tx.onerror como resolução e também engole exceções do reset IndexedDB, permitindo que a suíte continue após falha de limpeza.",
+      "current_evidence": "O CI run 36577447500/job 109437162728 prova o caminho normal verde, mas não exercita erro da transação nem verifica stores vazios como pós-condição.",
+      "missing_evidence": "Cenário que force falha de limpeza e demonstre que o setup falha explicitamente, ou assertion direta de que os stores relevantes estão vazios antes da semeadura.",
+      "why_needed": "Estado residual pode produzir falso positivo, interferência entre casos ou flakiness sem causa aparente.",
+      "requested_action": "Avaliar e, se apropriado, tornar o reset fail-closed em mudança separada, rejeitando tx.onerror/exceções e/ou afirmando pós-condição de storage vazio.",
+      "expected_evidence": "Teste ou assertion específica demonstrando caminho normal verde e falha de limpeza tornando a suíte vermelha.",
+      "expected_auditor_action": "Confirmar a lacuna e decidir a política de erro do setup antes de qualquer alteração externa.",
+      "possible_regression": "Um teste pode passar consumindo páginas ou metadata deixadas por execução anterior.",
+      "impact": "Confiabilidade do E2E e isolamento entre casos.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED — mesmo padrão fail-open do reset. Erro de transaction no IndexedDB resolve a Promise e exceções são engolidas, permitindo reader E2E iniciar com estado residual.",
+      "auditor_recommended_action": "Propagar falha de cleanup ou verificar estado limpo antes do seed; adicionar cenário de erro de IndexedDB."
+    },
+    {
+      "id": "093-002",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/e2e/reader-offline.spec.js",
+      "found_while_auditing": "tests/e2e/reader-offline.spec.js",
+      "finding": "O cenário semeia storage legado e valida somente a UI final; reader.js pode produzir a mesma UI usando fallback legado quando migração/índice IndexedDB falha.",
+      "current_evidence": "O E2E prova 15 páginas, idx-0, idx-200, título e contador com a implementação real.",
+      "missing_evidence": "Assertion de que as páginas foram realmente materializadas no storage novo e/ou de que a chave legado foi removida/flag de migração foi gravada.",
+      "why_needed": "A prova atual não distingue migração bem-sucedida de fallback compatível.",
+      "requested_action": "Adicionar prova separada da migração real via service worker/StorageManager, preservando também cobertura explícita do fallback legado.",
+      "expected_evidence": "Page index/count no IndexedDB com os índices esperados e política de remoção/flag legado afirmada diretamente.",
+      "expected_auditor_action": "Confirmar que a migração é um contrato desejado e adicionar cobertura específica em mudança autorizada separada.",
+      "possible_regression": "A migração/IndexedDB pode quebrar e o E2E continuar verde enquanto dados legados ainda existirem.",
+      "impact": "Compatibilidade futura e confiança no caminho de storage novo.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:55:00Z",
+      "audit_finding": "ACCEPTED — a assertion final não isola a migração. O teste semeia dados e abre `reader.js`; a mesma UI pode ser montada pelo fallback legado se o índice/migração IndexedDB falhar. Não há assertion de que o caminho novo foi usado.",
+      "auditor_recommended_action": "Após seed/migração, verificar storage-manager/IndexedDB e ausência/uso controlado do legado, além da UI."
+    },
+    {
+      "id": "093-003",
+      "status": "ACCEPTED",
+      "type": "RESOURCE_CLEANUP",
+      "target_file": "tests/e2e/reader-offline.spec.js",
+      "found_while_auditing": "tests/e2e/reader-offline.spec.js",
+      "finding": "beforeAll cria userDataDir em os.tmpdir(), afterAll fecha o contexto mas não remove explicitamente o profile; fs é importado e não utilizado.",
+      "current_evidence": "O caminho verde fecha browserContext; não há código de remoção do diretório nem assertion de cleanup.",
+      "missing_evidence": "Verificação do comportamento do Playwright para diretório persistente fornecido explicitamente e, se necessário, teardown que comprove sua remoção.",
+      "why_needed": "Execuções locais repetidas podem acumular profiles ou resíduos se o diretório não for removido automaticamente.",
+      "requested_action": "Investigar a política de lifecycle do persistent context; se cleanup não for automático, armazenar o path e removê-lo robustamente em afterAll.",
+      "expected_evidence": "Diretório ausente após teardown ou contrato documentado justificando retenção.",
+      "expected_auditor_action": "Confirmar o comportamento real antes de alterar o teste e decidir se o import fs deve ser usado ou removido.",
+      "possible_regression": "Acúmulo de diretórios temporários e possível estado residual em ambientes não efêmeros.",
+      "impact": "Higiene de recursos e repetibilidade local.",
+      "severity": "LOW",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:18:00Z",
+      "audit_finding": "ACCEPTED. `reader-offline.spec.js` cria `userDataDir` em `os.tmpdir()` e fecha apenas o persistent context em `afterAll`; não remove explicitamente o diretório nem comprova cleanup automático do path fornecido. Em execuções locais repetidas pode haver resíduos.",
+      "auditor_recommended_action": "Verificar lifecycle real do Playwright para `launchPersistentContext(userDataDir)`; se o diretório persistir, armazenar o path e removê-lo robustamente no teardown. Remover/importar `fs` conforme necessário."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "PAUSED_FOR_HIGHER_PRIORITY_191",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "423/423",
+    "bible_lines": 1191,
+    "external_audit_requests_open": 0,
+    "evidence_run": 36577447500,
+    "evidence_job": 109437162728,
+    "evidence_summary": "Mesmo blob 1ab953d... executado no shard fast; os três casos aparecem nominalmente e o shard terminou 9 passed.",
+    "source_text_lines": 422,
+    "evidence_note": " Revisão pós-REAUDIT sincronizou 093-001/002/003 como ACCEPTED.",
+    "note": "Fonte integral e cobertura 423/423 sincronizadas; revisão devolvida para auditoria independente."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T04:30:20Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
+      "auditor": "AGENTE 23",
+      "reason": "Auditoria independente SHA-bound confirmou 277/277 posições, fonte integral exata e execução runtime do mesmo blob para os três testes de reader offline."
+    },
+    {
+      "at_utc": "2026-10-01T16:44:58.439Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
+      "reason": "REAUDIT 093-REA-001 confirmou lifecycle documental stale: 093-001/002/003 são ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T16:45:35.043Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
+      "bible_sha": "e2a402a7eb1f49057b52ecace03780319923fd9e",
+      "reason": "Correção de 093-REA-001 concluída; source inalterado. Nova revisão documental exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-02T01:04:15Z",
+      "type": "HYBRID_CORRECTIVE_REAUDIT_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "Dois findings HIGH confirmados: reset IndexedDB fail-open e E2E de reader não distingue migração real de fallback legado. Também será fechado o cleanup do persistent profile 093-003."
+    },
+    {
+      "at_utc": "2026-10-02T01:09:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_HYBRID_CORRECTION",
+      "previous_source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
+      "current_source_sha": "ff0758efb2ce1bcdd3fcedf88fcdcfb820df3f7e",
+      "reason": "Reader E2E agora falha fechado no reset chrome.storage/IndexedDB, verifica pós-condição de stores vazios, prova migração via page index/count + flag + remoção legado e remove persistent profile no teardown."
+    },
+    {
+      "at_utc": "2026-10-02T01:13:00Z",
+      "type": "SOURCE_SHA_REFRESH_DURING_ADVERSARIAL_HARDENING",
+      "previous_source_sha": "ff0758efb2ce1bcdd3fcedf88fcdcfb820df3f7e",
+      "current_source_sha": "2837775deacca5123fa99232633b4652774abf96",
+      "reason": "Cenário fail-closed agora aborta uma transação IndexedDB real e valida tx.onerror/tx.onabort, em vez de lançar antes da transação."
+    },
+    {
+      "at_utc": "2026-10-02T04:00:00Z",
+      "type": "EDITORIAL_PREEMPTION_FOR_PRIORITY_191",
+      "from_status": "IN_PROGRESS",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "2837775deacca5123fa99232633b4652774abf96",
+      "agent": "AGENTE HÍBRIDO",
+      "reason": "User explicitly prioritized #191. #093 is paused without claiming correction complete or audit approval; editorial reservation will be released."
+    },
+    {
+      "at_utc": "2026-10-02T20:11:39Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "AGENTE HÍBRIDO",
+      "previous_source_sha": "2837775deacca5123fa99232633b4652774abf96",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "d2979cde156fe0d7e5b9f1a273ecc08363d20b5c93c9a52f9f60e2183620b7b6",
+      "source_sha": "2837775deacca5123fa99232633b4652774abf96",
+      "test_sha": "2837775deacca5123fa99232633b4652774abf96",
+      "bible_sha": "beca4d49ddb2b130658a1580796e8a4d379c5d0b",
+      "production_sha": null,
+      "revision_id": "9f3f4e1ed4118ebc149420dfbe542b8d0f75d178fe8388acecca4c56e0a5e096",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "093-e1-21d126f5bf7c",
+      "reason": "Sincroniza a Bíblia #093 com a revisão atual; auditorias antigas não são reutilizadas.",
+      "previous_event_hash": "94b33d332a7586977be96e366e639df37a923aafab7e88c84a3719a89ae1a559",
+      "event_hash": "750a71f68bfd138e426bc5e21a518bdb261d71a9a8209cdc5c2af4956ae6197d"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:41.056Z",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "750a71f68bfd138e426bc5e21a518bdb261d71a9a8209cdc5c2af4956ae6197d",
+      "event_hash": "a81b662340ad7d3f262b97552583c773df246b8e3f2660c04569c89cab8f5f18"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "a81b662340ad7d3f262b97552583c773df246b8e3f2660c04569c89cab8f5f18",
+      "event_hash": "f808c06bdae7cd018139e5c43fd16447fd0376567e6fb4fb18121f6b5bbb768d"
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "1ab953d0a031f77cb458befd31650e9ba9c4c052",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 23",
+      "at_utc": "2026-10-01T04:30:20Z",
+      "note": "Run 36577447500 / job 109437162728 executou o mesmo blob e terminou 9 passed; 093-001..003 permanecem ACCEPTED."
+    }
+  ],
+  "test_sha": "2837775deacca5123fa99232633b4652774abf96",
+  "bible_sha": "beca4d49ddb2b130658a1580796e8a4d379c5d0b",
+  "production_sha": null,
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 1,
+  "handoff_id": "093-e1-21d126f5bf7c",
+  "revision_id": "9f3f4e1ed4118ebc149420dfbe542b8d0f75d178fe8388acecca4c56e0a5e096",
+  "review_status": "READY_FOR_AUDIT",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T04:30:20Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_PRIMARY"
+    ]
+  }
+}

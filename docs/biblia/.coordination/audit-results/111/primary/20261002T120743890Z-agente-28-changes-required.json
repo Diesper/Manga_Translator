@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "index": 111,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 28",
+  "file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/gtc-indexeddb-deep.test.js/Bíblia.md",
+  "source_sha": "b2210cb75cc03b447399b35d71813b7b4c6463a2",
+  "bible_sha": "437d8e73efddd1f7fcb9b4199790ed74e61c35dc",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "111-A28-001",
+      "severity": "HIGH",
+      "type": "STALE_DEPENDENCY_REVISION_EVIDENCE",
+      "summary": "A Bíblia apresenta uma lista de dependências como `revalidadas`, mas três blobs críticos já divergem do HEAD atual; por isso os SHAs documentados e a evidência CI relacionada não descrevem integralmente a revisão executada hoje.",
+      "evidence": [
+        "Bíblia linha 19 introduz `Dependências revalidadas`.",
+        "Bíblia linha 23 declara `extension/content/cm-gtc-client.js` SHA `95d062f41b9f1bd789a576c3a5c5d903b705fa55`; HEAD atual possui `b7bb841499a9e677f9709f0c634c648ac6a0f65b`.",
+        "Bíblia linha 24 declara `extension/content/content_manga.js` SHA `a8b3698019f6f22027f09f544f15c0563a9f6515`; HEAD atual possui `893a03442cddb9e32487d7c7599be13ba8dc349c`.",
+        "Bíblia linha 28 declara `package.json` SHA `5b5c328f6139eeff920dc65a78014a6c5b6db3a6`; HEAD atual possui `848d2bf4bae7d7a948b3fea1a6d62afe2d9c987d`.",
+        "O run final histórico 36946537160/job 110649842266 fez checkout do head `f121cb89a2049707465598238dea78c22d4fab85`; desde então `cm-gtc-client.js` recebeu 56 mudanças de linhas, `content_manga.js` 339 e `package.json` 13.",
+        "No HEAD atual, run 37000976281/job 110818349820 confirmou o focal atual três vezes: 4/4 testes em cada execução, com o guard de 750 ms em 504 ms, 505 ms e 514 ms.",
+        "O mesmo run atual terminou a regressão integration em 8/13 suítes e 56/83 testes, com falhas externas como `ReferenceError: Cannot access 'storageGet' before initialization`; portanto o claim histórico de `13/13, 81/81` não é evidência corrente do HEAD.",
+        "Fonte integral, mapa 318/318 e lifecycle 111-001..003 estão corretos; o bloqueio é a fidelidade temporal dos claims de dependências/evidência externa."
+      ],
+      "requested_documentation_fix": "Atualizar os SHAs das dependências para o HEAD realmente auditado, registrar o selftest focal atual 3×4/4 como evidência corrente e rotular 13/13,81/81 como evidência histórica do run antigo — não como gate relacionado atualmente verde enquanto a regressão do HEAD permanecer falhando."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T12:07:43.890Z"
+}

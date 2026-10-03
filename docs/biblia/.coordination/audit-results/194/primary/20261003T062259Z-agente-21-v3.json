@@ -1,0 +1,20 @@
+{
+  "schema_version": 3,
+  "index": 194,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 21",
+  "file": "tests/unit/content-manga/auto-restorer-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/auto-restorer-real.test.js/Bíblia.md",
+  "source_sha": "cf792733e62f4b787073f1f7257e2701d29547a6",
+  "bible_sha": "b437b4dc246e62744cea6e7d1717e5f1943f9cda",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-03T06:22:59Z",
+  "completed_order_id": null,
+  "production_sha": null,
+  "test_sha": "cf792733e62f4b787073f1f7257e2701d29547a6",
+  "audit_epoch": 1,
+  "handoff_id": "194-e1-d1d50b8d04be",
+  "revision_id": "dc31f89fde23e5b4723e9151bc697823f3547caeee4c8f3dab28fc6e3a20dcdd",
+  "human_approval_id": null
+}

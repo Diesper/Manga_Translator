@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "index": 171,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/background/tab-replacement-observability.test.js",
+  "bible": "docs/biblia/tests/unit/background/tab-replacement-observability.test.js/Bíblia.md",
+  "source_sha": "b5aeb216f48ef28e471233aaa074c86a15561f01",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "171-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 171-001, 171-002 e 171-003 como OPEN, enquanto o state canônico registra os dois primeiros como ACCEPTED e o terceiro como SUPERSEDED por 002-005.",
+      "evidence": [
+        "Bíblia.md linhas 132, 146 e 160 usam os headings `171-001 — TEST_REQUIRED — OPEN — NORMAL`, `171-002 — TEST_REQUIRED — OPEN — NORMAL` e `171-003 — INTEGRATION_TEST_REQUIRED — OPEN — HIGH`.",
+        "docs/biblia/.state/171.json registra 171-001=ACCEPTED, 171-002=ACCEPTED e 171-003=SUPERSEDED com superseded_by=002-005.",
+        "docs/biblia/.state/002.json contém 002-005=ACCEPTED para a mesma lacuna de wiring produtivo `background.js`/`tabs.onReplaced`/`recordReplacement`, confirmando que o supersede de 171-003 é real e não apenas metadado órfão."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:20:00Z"
+}

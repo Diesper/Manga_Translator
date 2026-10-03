@@ -1,0 +1,45 @@
+{
+  "schema_version": 2,
+  "index": 89,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 6",
+  "file": "scripts/validation/verify-repository-structure.js",
+  "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
+  "source_sha": "04d0337a168e14994bd855a455f11dd61fcabcb6",
+  "bible_sha": "c42c9f668d7646a6a80df6663638f508b13e7a16",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "089-ADV3-001",
+      "severity": "MATERIAL",
+      "category": "ARCHITECTURE_BOUNDARY_OVERCLAIM",
+      "summary": "A Bíblia atribui a `bible-coordination.js` a validação canônica exclusiva de state/lock/Bíblia/auditoria e engloba locks/claims do subsistema, mas os leases distribuídos atuais são validados separadamente por `audit-protocol.js`.",
+      "evidence": [
+        "Bíblia linha 19: `bible-coordination.js` é descrito como `o único validador canônico de state/lock/Bíblia/auditoria`.",
+        "Bíblia linha 42 delega `state/lifecycle/locks/claims/SHA/fonte/cobertura` ao `bible-coordination.js`/checker de projeções.",
+        "`scripts/validation/bible-coordination.js` define `auditClaimRoot` em `.coordination/audit-claims` e percorre esse root; não percorre `.coordination/audit-leases`.",
+        "`docs/biblia/.coordination/audit-protocol.js` define `leaseRoot` em `audit-leases`, percorre leases por fase e valida SOURCE_SHA, BIBLE_SHA, fase, expiração, conflitos e independência.",
+        "`audit-protocol-selftest.js` contém regressões explícitas para lease BIBLE_SHA stale/atual, leases duplicados e independência PRIMARY/ADVERSARIAL/REAUDIT.",
+        "`verify-repository-structure.js` chama `validateBibleCoordination` nas linhas 91-92 e não chama `audit-protocol.js`.",
+        "`package.json#bible:final-readiness` executa `bible:audit:verify` separadamente, confirmando que o gate distribuído não está contido em `validate:structure`."
+      ],
+      "requested_change": "Qualificar a arquitetura documental: `bible-coordination.js` valida states, reservas editoriais, claims legados/compatíveis, fonte/cobertura/resultados que carrega; `audit-protocol.js` valida os leases distribuídos atuais e os bindings BIBLE_SHA/fase/expiração. Remover a exclusividade e o alcance total de locks/claims atribuídos ao primeiro módulo."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "completed_at_utc": "2026-10-01T20:49:00Z"
+}

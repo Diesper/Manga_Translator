@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "id": "dcb8a499-df35-4b3c-a450-839804ce0e03",
+  "index": 179,
+  "at_utc": "2026-10-03T09:24:56.536Z",
+  "action": "SAFE_ABORT",
+  "expected_state_sha": "dc3f7e639f53c276f2b0d77c22f950630384d77b",
+  "phase": "intent"
+}

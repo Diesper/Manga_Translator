@@ -16,6 +16,22 @@ const unitProjects = ['background', 'gtc', 'content-scripts', 'popup', 'reader',
 const integrationProjects = ['integration'];
 const pkg = JSON.parse(fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8'));
 
+if (coverageRequested && require.main === module) {
+  const shardedCoverage = spawnSync(process.execPath, [
+    path.join(__dirname, 'run-jest-coverage.js'),
+  ], {
+    cwd: repoRoot,
+    stdio: 'inherit',
+    env: { ...process.env },
+  });
+  if (shardedCoverage.error) {
+    console.error('Falha ao iniciar cobertura sharded: ' + shardedCoverage.error.message);
+    process.exitCode = 1;
+  } else {
+    process.exitCode = Number.isInteger(shardedCoverage.status) ? shardedCoverage.status : 1;
+  }
+} else {
+
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -93,7 +109,7 @@ if (coverageRequested) {
   args.push('--coverage');
   // V8 coverage aumenta significativamente CPU/memória por worker. Limitar a
   // concorrência torna o gate determinístico sem aumentar timeouts funcionais.
-  args.push('--maxWorkers=2');
+  args.push('--runInBand');
 }
 
 const run = spawnSync(process.execPath, args, {
@@ -225,4 +241,6 @@ if (problems.length) {
   process.exitCode = 1;
 } else {
   console.log('Gate de inventário do Jest aprovado usando ' + jestConfig + '.');
+}
+
 }

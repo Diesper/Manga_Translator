@@ -1,0 +1,80 @@
+{
+  "schema_version": 2,
+  "index": 14,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 12",
+  "file": "extension/background/actions/force-send-activation.js",
+  "bible": "docs/biblia/extension/background/actions/force-send-activation.js/Bíblia.md",
+  "source_sha": "cbeea5768301008e363a087a1daf636deabb9076",
+  "bible_sha": "f8cba40cef6330849635ae667de51b58c9da0190",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "014-REA-V2-003",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION_CHROME_API_MOCKS",
+      "finding": "A Bíblia classifica force-send-activation-action.test.js como PROVADO DIRETAMENTE para os fluxos, DO_SEND_NOW e 'estado restaurado', mas a suíte executa a action real sobre chrome.storage/tabs/windows substituídos por jest.fn. Ela prova diretamente a orquestração da implementação focal contra mocks (chamadas, payloads e callback/timer wiring), não foco/ativação/entrega/estado reais do navegador.",
+      "evidence": [
+        "beforeEach substitui chrome.storage.local.get, chrome.tabs.get/sendMessage/update e chrome.windows.update por jest.fn que invocam callbacks simulados.",
+        "As assertions usam toHaveBeenCalledWith e advanceTimersByTime; não há Chromium/Chrome real nem observação de focused/active ou entrega real da mensagem.",
+        "A própria Bíblia usa o rótulo 'PROVADO DIRETAMENTE COM ESCOPO TEMPORAL' e descreve 'estado restaurado', sem classificar os efeitos externos como MOCK_OU_SIMULACAO.",
+        "A correção anterior sobre 250 ms está adequada: o literal 250 vem do source e o teste só prova que as chamadas de restauração já ocorreram após o fake clock avançar 250 ms."
+      ],
+      "required_change": "Reclassificar a evidência externa do teste como MOCK_OU_SIMULACAO (ou formulação equivalente) e limitar a prova direta ao comportamento interno observável da action sob mocks: chamadas/payloads, seleção de branch e agendamento/callbacks. Reservar afirmações de foco/ativação/entrega/estado reais para evidência de browser/E2E."
+    },
+    {
+      "id": "014-REA-V2-004",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "ASYNC_LASTERROR_POLICY_OVERGENERALIZED",
+      "finding": "A frase 'Os callbacks também consomem chrome.runtime.lastError sem propagá-lo' generaliza uma política que o source não aplica uniformemente. Vários callbacks relevantes não consultam runtime.lastError; outros o leem e descartam.",
+      "evidence": [
+        "O callback inicial de chrome.windows.update(windowId,{focused:true},...) não lê runtime.lastError.",
+        "O callback inicial de chrome.tabs.update(geminiTabId,{active:true},...) não lê runtime.lastError.",
+        "O callback de chrome.tabs.get(mangaTabId,...) e o callback de chrome.storage.local.get(...) também não inspecionam runtime.lastError.",
+        "Os callbacks de chrome.tabs.sendMessage e das chamadas de restauração/minimização explicitamente executam `if (chrome.runtime.lastError) {}`.",
+        "A audit request 014-002 permanece ACCEPTED e já pede cobertura da política de falhas/lastError; ela é não bloqueante para a documentação somente se a Bíblia distinguir corretamente erro ignorado de erro não inspecionado."
+      ],
+      "required_change": "Qualificar a política por chamada/callback, separando (a) callbacks que leem e descartam lastError, (b) callbacks que não o inspecionam e (c) a consequência comum de que a resposta síncrona {ok:true} já foi enviada antes dos efeitos assíncronos."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics_main": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "embedded_source_exact": true,
+    "documented_positions": "71/71",
+    "source_text_lines": 70,
+    "source_final_newline": true,
+    "direct_test_blob": "cab687a5e5d5dd849b6986aeeca5ac642e5b5a6a",
+    "current_primary": "AGENTE 13 / APPROVED / schema v2 / bible_sha f8cba40cef6330849635ae667de51b58c9da0190",
+    "current_adversarial": "AGENTE 8 / CHANGES_REQUIRED / schema v2 / bible_sha f8cba40cef6330849635ae667de51b58c9da0190",
+    "stale_prior_reaudit": "AGENTE 13 / CHANGES_REQUIRED / schema v2 / bible_sha 4f971911148562bb6aaf2c600aaafe7b3e67bb2e",
+    "nonblocking_requests": [
+      "014-001 ACCEPTED",
+      "014-002 ACCEPTED"
+    ],
+    "wiring_confirmed": [
+      "manifest.json -> background.js service worker",
+      "background.js importScripts force-send-activation.js",
+      "router ACTION_MAP FORCE_SEND_ACTIVATION -> force-send-activation",
+      "background.js routeRegisteredAction -> createMessageRouter",
+      "content_gemini.js recebe DO_SEND_NOW"
+    ],
+    "legacy_registry_note": "AUDITORIA.md contém aprovação de compatibilidade/histórica; não supera a divergência distribuída da revisão atual."
+  },
+  "completed_at_utc": "2026-10-02T15:37:05.376Z"
+}

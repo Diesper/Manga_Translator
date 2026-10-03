@@ -136,8 +136,10 @@ class ChromeTabsMock {
   get(tabId, callback) {
     const tab = this._tabs.get(tabId) || null;
     if (!tab && callback) {
-      global.chrome.runtime.lastError = { message: `No tab with id: ${tabId}` };
-      this._schedule(() => { callback(null); global.chrome.runtime.lastError = null; }, 0);
+      this._schedule(() => {
+        global.chrome.runtime.lastError = { message: `No tab with id: ${tabId}` };
+        try { callback(null); } finally { global.chrome.runtime.lastError = null; }
+      }, 0);
     } else if (callback) {
       this._schedule(() => callback(tab), 0);
     }
@@ -146,15 +148,23 @@ class ChromeTabsMock {
 
   remove(tabId, callback) {
     const tabIds = Array.isArray(tabId) ? tabId : [tabId];
+    const missing = [];
     tabIds.forEach(id => {
       if (this._tabs.has(id)) {
         this._tabs.delete(id);
         this._onRemovedListeners.forEach(fn => fn(id, { isWindowClosing: false }));
       } else {
-        global.chrome.runtime.lastError = { message: `No tab with id: ${id}` };
+        missing.push(id);
       }
     });
-    if (callback) this._schedule(() => { callback(); global.chrome.runtime.lastError = null; }, 0);
+    if (callback) {
+      this._schedule(() => {
+        global.chrome.runtime.lastError = missing.length
+          ? { message: `No tab with id: ${missing[0]}` }
+          : null;
+        try { callback(); } finally { global.chrome.runtime.lastError = null; }
+      }, 0);
+    }
     return Promise.resolve();
   }
 
@@ -170,8 +180,12 @@ class ChromeTabsMock {
   sendMessage(tabId, message, callback) {
     const handlers = this._messageHandlers.get(tabId) || [];
     if (handlers.length === 0) {
-      global.chrome.runtime.lastError = { message: 'Could not establish connection.' };
-      if (callback) this._schedule(() => { callback(undefined); global.chrome.runtime.lastError = null; }, 0);
+      if (callback) {
+        this._schedule(() => {
+          global.chrome.runtime.lastError = { message: 'Could not establish connection.' };
+          try { callback(undefined); } finally { global.chrome.runtime.lastError = null; }
+        }, 0);
+      }
       return;
     }
     handlers.forEach(handler => {
@@ -339,10 +353,9 @@ class ChromeRuntimeMock {
 
     if (!responded && callback) {
       if (this._messageListeners.length === 0) {
-        this.lastError = { message: 'Could not establish connection. Receiving end does not exist.' };
         this._scheduleMessageCallback(() => {
-          callback(undefined);
-          this.lastError = null;
+          this.lastError = { message: 'Could not establish connection. Receiving end does not exist.' };
+          try { callback(undefined); } finally { this.lastError = null; }
         }, 0);
       } else {
         responseTimeoutId = this._scheduleMessageCallback(() => {

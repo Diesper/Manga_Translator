@@ -1,0 +1,168 @@
+{
+  "index": 96,
+  "file": "tests/fixtures/manga-images.js",
+  "bible": "docs/biblia/tests/fixtures/manga-images.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b",
+  "started_at_utc": "2026-09-30T06:19:00Z",
+  "completed_at_utc": "2026-10-01T05:06:20Z",
+  "audit_requests": [
+    {
+      "id": "096-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/fixtures/manga-images.test.js",
+      "found_while_auditing": "tests/fixtures/manga-images.js",
+      "finding": "Os E2E exercitam PNGs reais e provam propriedades integradas importantes, mas não existe suíte focal para crc32/chunk/IHDR/pixels nem para writeImagesToDisk.",
+      "current_evidence": "tests/e2e/translation-flow.spec.js:184-190 exige duas page_* decodificáveis no Chromium acima de 300x400; linhas 219-233 exigem data URLs PNG traduzidas distintas e avatar/banner não traduzidos; o mock importa e serve PNG_IMAGES.",
+      "missing_evidence": "Vetores CRC-32, layout length/type/data/CRC, dimensões exatas das sete imagens, pixels/fronteiras das paletas, conjunto/ordem do Map, bytes gravados em diretório temporário e lista retornada pelo writer.",
+      "why_needed": "Regressões de baixo nível podem alterar bytes, dimensões, cores ou persistência sem afetar imediatamente as assertions funcionais atuais.",
+      "requested_action": "Adicionar teste separado que importe a implementação real, use diretório temporário e valide estrutura/dimensões/pixels-chave/paridade Map↔disco sem copiar a lógica como prova.",
+      "expected_evidence": "Assertions diretas sobre CRC/chunks/IHDR, dimensões e pixels canônicos, sete chaves/ordem, bytes gravados e retorno de writeImagesToDisk.",
+      "expected_auditor_action": "Confirmar o escopo útil da cobertura focal e criar a alteração de testes fora desta Bíblia.",
+      "possible_regression": "Fixtures aparentemente presentes podem mudar silenciosamente e alterar filtros ou roteamento E2E.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. Os E2E provam que as fixtures PNG funcionam no navegador, mas não há suíte focal para CRC/chunks/IHDR/pixels, ordem/chaves do Map nem `writeImagesToDisk`.",
+      "auditor_recommended_action": "Adicionar teste unitário da implementação real em diretório temporário, validando estrutura PNG, dimensões/pixels canônicos, Map e bytes gravados."
+    },
+    {
+      "id": "096-002",
+      "status": "ACCEPTED",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "tests/fixtures/manga-images.js",
+      "found_while_auditing": "tests/fixtures/manga-images.js",
+      "finding": "buildPng e buildPanelPng são exportados, mas não validam dimensões, canais RGB nem shape de palette; nenhum consumidor externo desses builders foi localizado.",
+      "current_evidence": "Linhas 49-85 aceitam argumentos diretamente; linhas 133-134 exportam os builders; os chamadores atuais usam somente constantes internas válidas.",
+      "missing_evidence": "Contrato explícito dizendo se os builders são helpers internos confiáveis ou API reutilizável com domínio de entrada validado.",
+      "why_needed": "Novos testes podem reutilizar os exports e depender de coerções ou RangeErrors internos do Buffer sem contrato estável.",
+      "requested_action": "Decidir o contrato; se forem API suportada, adicionar validação e regressões em mudança separada; se forem internal-only, documentar a restrição e cobrir inputs canônicos.",
+      "expected_evidence": "Teste ou contrato explícito para width, height, RGB e palette.",
+      "expected_auditor_action": "Classificar como contrato interno confiável ou solicitar robustez adicional.",
+      "possible_regression": "Entradas anômalas podem gerar erro de baixo nível, pixels coagidos ou consumo de memória inesperado.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. `buildPng`/`buildPanelPng` são exportados e aceitam dimensões/palette diretamente, sem validação de domínio; consumidores atuais usam apenas entradas válidas.",
+      "auditor_recommended_action": "Decidir se são API suportada ou helpers internos. Se suportados, validar width/height/RGB/palette e testar inputs inválidos; se internos, documentar restrição."
+    },
+    {
+      "id": "096-003",
+      "status": "ACCEPTED",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "tests/fixtures/manga-images.js",
+      "found_while_auditing": "tests/fixtures/manga-images.js",
+      "finding": "writeImagesToDisk escreve sete arquivos sequencialmente, não remove stale files e não possui rollback/rename de conjunto.",
+      "current_evidence": "Linhas 123-128 implementam mkdir + writeFileSync em loop; o servidor normal serve o Map em memória e não prova consistência do diretório materializado.",
+      "missing_evidence": "Teste de falha intermediária, decisão sobre limpeza de arquivos extras e prova de que consumidores de disco nunca enumeram fixtures stale.",
+      "why_needed": "Um diretório persistente pode ficar parcial ou conter artefatos antigos enquanto parte do E2E segue verde por usar buffers em memória.",
+      "requested_action": "Confirmar se overwrite best-effort é suficiente; se não, implementar limpeza/estratégia atômica em mudança separada com regressão.",
+      "expected_evidence": "Cenário controlado com stale file e/ou falha de escrita, validando a política decidida.",
+      "expected_auditor_action": "Aceitar formalmente o risco ou abrir correção funcional separada.",
+      "possible_regression": "Consumidores futuros de disco podem observar conjunto diferente do Map canônico.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:38:00Z",
+      "audit_finding": "ACCEPTED. `writeImagesToDisk` faz mkdir + writeFileSync sequencial, sem limpar stale files nem rollback/rename de conjunto. Diretório persistente pode ficar parcial ou conter artefatos antigos.",
+      "auditor_recommended_action": "Definir política para stale/falha intermediária; se consistência forte for necessária, usar staging/limpeza/rename e adicionar regressão controlada."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "137/137",
+    "bible_lines": 672,
+    "external_audit_requests_open": 3
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T05:06:20Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b",
+      "auditor": "AGENTE 4",
+      "reason": "Auditoria adversarial confirmou SHA/fonte integral/cobertura 137/137, semântica, wiring/consumers e classificação conservadora da evidência; 096-001..003 permanecem ACCEPTED não bloqueantes."
+    },
+    {
+      "at_utc": "2026-10-02T15:47:00Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b",
+      "bible_sha": "308b958db04992331b24adc551cd7e3610e1d40e",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "3a004252777d8a160452398289eafddd472bf67f3365ada0350997070d71ed14",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "daaf17e75147af8e32bdfbe61bfe1f45af8d1e26b66924c3a8dc42a36d76b602",
+      "event_hash": "663041f11ef7c6a108caf9689a9211726d9f908e79d512f63cfe26c07a4dc847"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:41.107Z",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "COMPLETED",
+      "from_review_status": "CHANGES_REQUIRED",
+      "to_review_status": "CHANGES_REQUIRED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "663041f11ef7c6a108caf9689a9211726d9f908e79d512f63cfe26c07a4dc847",
+      "event_hash": "68664e5cbf717058711756d85c13d9fc7ff6fa7ed07d7dfcf2568dbfa9568b63"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "CHANGES_REQUIRED",
+      "to_review_status": "CHANGES_REQUIRED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "68664e5cbf717058711756d85c13d9fc7ff6fa7ed07d7dfcf2568dbfa9568b63",
+      "event_hash": "53e191fa65bbfe439f65021fc1353db6be3561f91e903f8bbbd1ae5fa634c62a"
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 4",
+      "at_utc": "2026-10-01T05:06:20Z",
+      "note": "096-001, 096-002 e 096-003 permanecem ACCEPTED e não bloqueiam a fidelidade documental."
+    }
+  ],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "cc4b67fe92fc3b44d812d1d13b3a771f29fdf11b",
+  "bible_sha": null,
+  "revision_id": "3a004252777d8a160452398289eafddd472bf67f3365ada0350997070d71ed14",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.",
+  "review_status": "CHANGES_REQUIRED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T05:06:20Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "CHANGES_REQUIRED"
+    ]
+  }
+}

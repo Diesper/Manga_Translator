@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "index": 122,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 42",
+  "file": "tests/smoke/run-smoke.js",
+  "bible": "docs/biblia/tests/smoke/run-smoke.js/Bíblia.md",
+  "source_sha": "ea6fa903f7a68272a769804a29a97ae967bc1088",
+  "bible_sha": "914ba9cb78133c8e461438cc81093b7689475f6d",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "122-PRI-001",
+      "severity": "BLOCKING",
+      "category": "STALE_AUDIT_REQUEST_STATUS",
+      "finding": "A Bíblia registra 122-001 e 122-002 como OPEN e afirma ao final que ambas 'permanecem OPEN', mas o state canônico atual registra as duas como ACCEPTED após auditoria externa.",
+      "evidence": "docs/biblia/.state/122.json contém status ACCEPTED para 122-001 e 122-002, com audited_by='AGENTE 23' e audited_at_utc='2026-09-30T21:30:00Z'. A Bíblia, seção 10, usa os títulos '122-001 — ... — OPEN' e '122-002 — ... — OPEN', e a autoauditoria final afirma que ambas 'permanecem OPEN'. OPEN e ACCEPTED são estados canônicos distintos no protocolo.",
+      "requested_action": "Atualizar apenas a documentação para refletir o status ACCEPTED e a decisão já registrada, preservando as lacunas técnicas e sem alterar source/testes para fabricar evidência."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:12:28Z"
+}

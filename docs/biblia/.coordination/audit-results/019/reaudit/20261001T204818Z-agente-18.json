@@ -1,0 +1,88 @@
+{
+  "schema_version": 2,
+  "index": 19,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 18",
+  "file": "extension/background/actions/refresh-job-watchdog.js",
+  "bible": "docs/biblia/extension/background/actions/refresh-job-watchdog.js/Bíblia.md",
+  "source_sha": "25f86a8dba57c25a11a234c8f1ded0c3871d2aaa",
+  "bible_sha": "bd8c42b9a33ff9c78371738af09d79f44680d02c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A18-019-R1",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION_FALSE_POSITIVE",
+      "summary": "A tabela de evidência atribui ao teste direto prova de que mangaTabId/index/geminiTabId usados no rearme vêm do jobIndex, mas WATCHDOG-REFRESH-01 usa no request exatamente os mesmos valores do jobIndex e não distingue a proveniência.",
+      "evidence": [
+        "Bíblia: `refresh-job-watchdog-action.test.js` é classificado como `✅ PROVADO DIRETAMENTE` para `dados vindos do jobIndex`.",
+        "WATCHDOG-REFRESH-01 fixa jobIndex com geminiTabId=321, mangaTabId=77, index=4 e envia request com geminiTabId=321, mangaTabId=77, index=4.",
+        "A assertion `expect(armWatchdog).toHaveBeenCalledWith(77, 4, 321, 'job-1')` prova os valores finais, não de qual objeto eles foram lidos.",
+        "Mutação adversarial: substituir os argumentos indexed.mangaTabId/indexed.index/canonicalIndexed por request.mangaTabId/request.index/request.geminiTabId mantém WATCHDOG-REFRESH-01 verde; WATCHDOG-REFRESH-02 falha antes do rearme por ownership."
+      ],
+      "resolution": "Rebaixar a classificação probatória de proveniência ou adicionar caso com payload conflitante em relação ao jobIndex; a leitura do source pode sustentar o comportamento atual, mas o teste citado não o prova diretamente."
+    },
+    {
+      "id": "A18-019-R2",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "RUNTIME_WIRING_DEPENDENCY_OMITTED",
+      "summary": "A arquitetura omite `extension/background.js`, host runtime que carrega a action e injeta as dependências que tornam o executor funcional.",
+      "evidence": [
+        "`extension/background.js` carrega `background/actions/refresh-job-watchdog.js` tanto via importScripts quanto via require.",
+        "`routeRegisteredAction()` cria o router com contextFactory que injeta `state`, `ensureInitialized`, `tabIdentity: initializeTabIdentity()` e `armWatchdog`.",
+        "`armWatchdog()` no host inicializa os módulos e delega para `jobsWatchdog.arm(...)`.",
+        "A Bíblia descreve job-runner, jobs-watchdog e tab-identity, mas não menciona `extension/background.js` nem `routeRegisteredAction` como wiring runtime."
+      ],
+      "resolution": "Documentar `extension/background.js` como host/wiring real da action e separar claramente prova de carregamento/injeção de prova comportamental."
+    },
+    {
+      "id": "A18-019-R3",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "TRACEABILITY_SEMANTIC_MISMATCH",
+      "summary": "A cobertura numérica 87/87 é completa, porém múltiplas posições têm unidade ou papel local incompatível com a linha real.",
+      "evidence": [
+        "Posição 033 contém apenas `}` que fecha o guard de armWatchdog iniciado em 031, mas é rotulada U05 e diz `Fecha estrutura sintática da unidade U05`; U05 só passa a tratar sender/jobIndex a partir de 035.",
+        "Posição 057 é a comparação `if (String(canonicalSender) !== String(canonicalIndexed))`, mas o papel local diz `Resolve a aba remetente para id canônico`; a resolução ocorreu em 055.",
+        "Posição 061 inicia `context.armWatchdog(` e já descreve rearme, mas continua classificada em U06 embora U07 seja definida como Rearmamento.",
+        "Posição 064 é apenas o argumento `canonicalIndexed,`, mas o papel local diz `Resolve a aba Gemini do jobIndex para id canônico`; a resolução ocorreu em 056.",
+        "Posição 068 inicia `context.log?.(`, porém ainda está em U07 embora U08 seja Telemetria e resposta.",
+        "Posição 083 fecha o objeto de retorno `};`, mas é colocada em U09 (Fechamento do executor/action/IIFE), enquanto faz parte da resposta de U08."
+      ],
+      "resolution": "Revalidar semanticamente a tabela 87/87 e corrigir unidade/papel local das posições deslocadas, não apenas a contagem."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONTRADITO",
+    "consumers": "CONTRADITO",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_PRIMARY_LEGADO_VS_AGENTE_19_VS_AGENTE_18",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "documented_positions": "87/87",
+    "source_text_lines": 86,
+    "direct_test_blob_sha": "d2acd697b78872400a16bfdac3a4866446d2239f",
+    "runtime_host_blob_sha": "667c05eb2d7adfca16a79d3e706c39a1e9398b72",
+    "router_blob_sha": "d9278e9e58e4e9583a30c16227bfd833e7203d89",
+    "job_runner_blob_sha": "1b16fd656e82e64ef2d26977e061f87e469aa3ff",
+    "accepted_non_blocking_requests": [
+      "019-001",
+      "019-002"
+    ],
+    "primary": "legacy APPROVED in docs/biblia/AUDITORIA.md, source prefix 25f86a8dba57 and baseline Bible SHA current",
+    "adversarial": "AGENTE 19 CHANGES_REQUIRED, schema v2, same source_sha+bible_sha",
+    "formal_refutation": "Sustentada por classificação probatória falsa, wiring runtime omitido e rastreabilidade semanticamente incorreta."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T20:48:18Z"
+}

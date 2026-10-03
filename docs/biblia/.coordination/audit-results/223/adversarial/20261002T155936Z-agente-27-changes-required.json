@@ -1,0 +1,117 @@
+{
+  "schema_version": 2,
+  "index": 223,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 27",
+  "file": "tests/unit/reader/page-counter.test.js",
+  "bible": "docs/biblia/tests/unit/reader/page-counter.test.js/Bíblia.md",
+  "source_sha": "cec252ffefc25ee643b0227926ec6780a59ac272",
+  "bible_sha": "0c45a2a22aac808e78904b0cde54138e46b01583",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "223-A27-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "COVERAGE_GAPS",
+      "summary": "O mapa declarado integral não cobre as posições 6 e 9 da fonte, apesar de a Bíblia declarar 170 posições documentais.",
+      "evidence": [
+        "Source #223 possui 169 linhas textuais e LF final, totalizando 170 posições.",
+        "Bíblia linha 8 declara `Posições documentais: 170, contando newline final`.",
+        "Mapa §12 cobre 1–5 e depois 7–8, deixando a posição 6 (linha vazia) sem cobertura.",
+        "Mapa §12 cobre 7–8 e depois 10–30, deixando a posição 9 (linha vazia) sem cobertura.",
+        "A posição 170 está explicitamente registrada como newline final; a união válida do mapa cobre 168/170 posições, sem overlaps."
+      ],
+      "requested_documentation_fix": "Cobrir explicitamente as posições 6 e 9 ou realinhar faixas contíguas para que a união seja exatamente 1–170."
+    },
+    {
+      "id": "223-A27-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_COVERAGE_RANGE_MISMATCH",
+      "summary": "A fronteira entre o teste de empate e o teste de persistência global está deslocada: a posição 113 fecha o teste de empate, mas é atribuída ao bloco seguinte.",
+      "evidence": [
+        "Source linha 112: `expect(counterEl.textContent).toBe('1 / 2');`.",
+        "Source linha 113: `    });`, fechamento do teste de empate.",
+        "Source linha 115 inicia `test('mantem a pagina globalmente mais visivel...')`.",
+        "Bíblia §12 mapeia 84–112 como `empate` e 113–148 como `persistência global entre callbacks`."
+      ],
+      "requested_documentation_fix": "Incluir a linha 113 no bloco de empate e iniciar a unidade seguinte no limite semântico correto, revalidando todas as fronteiras."
+    },
+    {
+      "id": "223-A27-003",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia mantém 223-001, 223-002 e 223-003 como OPEN, mas o state canônico registra as três requests como ACCEPTED.",
+      "evidence": [
+        "Bíblia linhas 140, 156 e 172 rotulam 223-001/002/003 como OPEN.",
+        ".state/223.json registra 223-001=ACCEPTED, 223-002=ACCEPTED e 223-003=ACCEPTED.",
+        "As três lacunas técnicas continuam factuais: não há teste focal controlado do caminho viewport/RAF, não há isIntersecting:false focal e o caso vazio não asserta a barra.",
+        "O E2E reader-offline exerce scroll/contador em Chromium, mas não isola o caminho viewport do IntersectionObserver; é execução indireta, não justificativa para manter request OPEN."
+      ],
+      "requested_documentation_fix": "Sincronizar as três requests para ACCEPTED (ou referenciar o state canônico sem duplicar status mutável), preservando as lacunas e severidades."
+    },
+    {
+      "id": "223-A27-004",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "LIFECYCLE_STATUS_CONTRADICTION",
+      "summary": "O cabeçalho declara `Estado documental: ✅ CONCLUÍDA`, enquanto o state da mesma revisão está READY_FOR_AUDIT e completed_at_utc é null.",
+      "evidence": [
+        "Bíblia linha 3: `Estado documental: ✅ CONCLUÍDA`.",
+        ".state/223.json: `status: READY_FOR_AUDIT`, `agent: null`, `completed_at_utc: null`.",
+        "A própria revisão ainda está no pipeline distribuído: PRIMARY atual é CHANGES_REQUIRED e ADVERSARIAL era obrigatória."
+      ],
+      "requested_documentation_fix": "Alinhar o cabeçalho ao lifecycle atual e só declarar conclusão quando a decisão distribuída/projeção correspondente tiver sido concluída."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONTRADITO",
+    "main_semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO_NO_LIFECYCLE",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_VS_PRIMARY_AGENTE_63",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_text_exact": true,
+    "embedded_source_plus_terminal_lf_exact": true,
+    "source_text_lines": 169,
+    "source_final_newline": true,
+    "documented_positions_effective": "168/170; gaps exatos 6 e 9; posição 170 explicitamente reservada ao LF final",
+    "tests": 4,
+    "jest_expect_assertions": 14,
+    "focal_evidence": "loadExtensionPage carrega reader.html, dependências anteriores e reader.js reais sob JSDOM; IntersectionObserver é mockado apenas para capturar o callback. Jest reader project inclui tests/unit/reader/**/*.test.js.",
+    "direct_assertions_revalidated": [
+      "N wrappers, contador 1/5 e barra 20%, depois 3/5→60% e 5/5→100%.",
+      "Empate 0.5/0.5 mantém 1/2 e detectaria mudança relevante de `>` para `>=`.",
+      "Callback parcial preserva a razão 0.9 da página 10 quando só a página 9 é atualizada para 0.7.",
+      "Capítulo vazio fixa 0/0 e mensagem, mas não a largura da barra."
+    ],
+    "accepted_gaps_revalidated": [
+      "223-001: viewport-center/scroll/resize/RAF não possui teste focal isolado; E2E é apenas evidência indireta porque IntersectionObserver também está ativo.",
+      "223-002: nenhuma fixture focal envia isIntersecting:false para remover um winner.",
+      "223-003: caso vazio não asserta read-progress-fill."
+    ],
+    "production_cross_checks": [
+      "reader.js atual mantém pageVisibilityRatios por callbacks e zera ratio quando isIntersecting===false.",
+      "reader.js atual possui updateCounterFromViewportCenter/scheduleCounterFromViewport com scroll/resize.",
+      "reader.html atual inicia #read-progress-fill em width:0%."
+    ],
+    "primary_comparison": "A PRIMARY do AGENTE 63 acertou os blockers de coverage e lifecycle das requests; a ADVERSARIAL reconfirmou-os independentemente e acrescentou a contradição explícita `CONCLUÍDA` vs READY_FOR_AUDIT.",
+    "formal_refutation_attempt": "Tentativa de sustentar aprovação falhou. Fonte integral, semântica focal e classificação das lacunas são fortes, mas gaps de cobertura, fronteira semântica e lifecycle documental são materialmente falsos.",
+    "final_head_before_publish": "2bb72b6249a9164cf32fe20852c238a699601a9e",
+    "critical_dependency_shas": {
+      "reader_js": "490bbb1842348e792cd593c37699a822d81f555b",
+      "load_extension_page": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
+      "jest_config": "f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc"
+    }
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-02T15:59:36Z"
+}

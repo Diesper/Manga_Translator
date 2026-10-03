@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 54,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 54",
+  "file": "extension/popup/popup.js",
+  "bible": "docs/biblia/extension/popup/popup.js/Bíblia.md",
+  "source_sha": "300cfe9a9c81814443c9d52a17915d851408748b",
+  "bible_sha": "ced05fe2206751ef80b43976c78516b9eaf3ecc2",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "054-ADV-001",
+      "severity": "BLOCKING",
+      "category": "ARCHITECTURE_DEPENDENCY_MISMATCH",
+      "description": "A Bíblia afirma que operações privilegiadas de filesystem/download/debug são delegadas ao service worker e lista as Chrome APIs diretas como tabs, runtime messaging, storage e downloads, mas o source usa diretamente chrome.scripting.executeScript no reload forçado (linha 437) e chrome.downloads.download no export de logs (linhas 2007-2011). A dependência direta de scripting também está ausente da seção de dependências, embora manifest.json exija a permissão scripting.",
+      "evidence": [
+        "Bíblia §1: \"operações privilegiadas de filesystem/download/debug são delegadas ao service worker\".",
+        "Bíblia §2: \"Chrome APIs: tabs, runtime messaging, storage local/onChanged e downloads\" — scripting não é citado.",
+        "extension/popup/popup.js:437 chama chrome.scripting.executeScript diretamente.",
+        "extension/popup/popup.js:2007-2011 chama chrome.downloads.download diretamente para mangatranslator_log.txt.",
+        "extension/manifest.json inclui permissões scripting e downloads e define popup/popup.html como default_popup."
+      ],
+      "requested_action": "Corrigir a fronteira arquitetural para distinguir operações delegadas das executadas diretamente pelo popup e registrar chrome.scripting como dependência direta relevante."
+    },
+    {
+      "id": "054-ADV-002",
+      "severity": "BLOCKING",
+      "category": "EVIDENCE_OVERCLASSIFICATION",
+      "description": "As posições 437-439 classificam o fluxo de reload forçado como ✅ PROVADO DIRETAMENTE por popup.ui.test.js, porém o teste citado apenas comprova que a UI de reload-required aparece e que #btn-force-reload existe; ele não clica no botão nem contém assertion sobre chrome.scripting.executeScript, o caminho de sucesso, o fallback chrome.tabs.reload({bypassCache:true}) ou window.close().",
+      "evidence": [
+        "Bíblia posições 437-439 usam a classificação \"✅ PROVADO DIRETAMENTE em popup.ui.test.js\".",
+        "tests/integration/popup.ui.test.js:447-474 ativa o site sem imagens e termina com expect(document.getElementById('btn-force-reload')).toBeTruthy().",
+        "No caso citado não há clique em #btn-force-reload nem assertion de executeScript/tabs.reload; o comportamento focal das linhas 437-439 portanto pode regredir sem invalidar essa prova."
+      ],
+      "requested_action": "Rebaixar a classificação das linhas/branches não assertadas para evidência indireta/sem prova específica, ou citar uma assertion focal existente que realmente exercite e verifique os dois caminhos do reload."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:28:00Z"
+}

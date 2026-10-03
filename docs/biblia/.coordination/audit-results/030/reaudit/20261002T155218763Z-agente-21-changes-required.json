@@ -1,0 +1,77 @@
+{
+  "schema_version": 2,
+  "index": 30,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 21",
+  "file": "extension/background/log.js",
+  "bible": "docs/biblia/extension/background/log.js/Bíblia.md",
+  "source_sha": "86d5f2f1229b2c9ae7f980fad1495628a05222ca",
+  "bible_sha": "7e34b422e66e2b8b04e0480112daef0c7b8217fb",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "030-REAUDIT-001",
+      "severity": "MATERIAL",
+      "category": "CONSUMER_OMISSION",
+      "location": "Bíblia.md — Papel arquitetural / Evidência de testes / consumidores",
+      "problem": "A Bíblia lista router.js como consumidor potencial de MangaTranslatorLog, mas omite extension/background/state.js, que é carregado pelo service worker e referencia diretamente self.MangaTranslatorLog.log em reconcileJobs.",
+      "evidence": [
+        "extension/background.js importa background/state.js no bootstrap do service worker.",
+        "extension/background/state.js:184-187 testa self.MangaTranslatorLog e chama self.MangaTranslatorLog.log('warn', 'bg', 'JOB_RECONCILE_DROP', ...).",
+        "A Bíblia não menciona state.js, embora trate explicitamente router.js como consumidor potencial do mesmo namespace global."
+      ],
+      "required_change": "Documentar state.js como consumidor potencial/direto do namespace MangaTranslatorLog, explicando que no runtime atual log.js não é carregado e state.js cai no fallback self.log; manter separada a conexão arquitetural da execução efetiva desta implementação modular."
+    },
+    {
+      "id": "030-REAUDIT-002",
+      "severity": "MATERIAL",
+      "category": "CONCRETE_CONCURRENT_WRITER_OMISSION",
+      "location": "Bíblia.md — Concorrência e read-modify-write / Lacunas e riscos",
+      "problem": "A Bíblia descreve overwrite entre contextos apenas como possibilidade genérica, mas já existe um segundo writer real de translatorLog: o popup limpa o mesmo storage com translatorLog: []. Isso torna concreta a race com o read-modify-write do logger inline atual e com esta implementação caso seja conectada.",
+      "evidence": [
+        "extension/manifest.json define popup/popup.html como default_popup; popup.html carrega popup.js.",
+        "extension/popup/popup.js define storageSet sobre chrome.storage.local.set e, no botão de limpar logs, executa storageSet({ translatorLog: [] }, ...).",
+        "extension/background.js e background/log.js fazem get(translatorLog) seguido de set({translatorLog: entries}) sem CAS/transação.",
+        "Interleaving real: logger lê snapshot E; popup grava []; logger grava E+batch e desfaz a limpeza. Na ordem inversa, o clear do popup pode apagar um batch recém-persistido."
+      ],
+      "required_change": "Registrar popup.js como writer concorrente real e documentar as duas ordens de race (clear perdido/ressurreição de snapshot e batch recém-gravado apagado), sem promover isso a prova direta do módulo modular enquanto ele permanecer desconectado."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "source_semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONTRADITO_POR_OMISSAO_MATERIAL",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X_NAO_BLOQUEANTES",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_21_DIFERENTE_DO_PRIMARY_LEGADO_E_AGENTE_30",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "source_text_lines": 30,
+    "documented_positions": "31/31",
+    "embedded_source_exact": true,
+    "primary_hypothesis": "PRIMARY legado APPROVED",
+    "adversarial_hypothesis": "AGENTE 30 CHANGES_REQUIRED",
+    "divergence_resolution": "Os dois findings ADVERSARIAL foram reproduzidos contra arquivos reais do branch. A fonte integral, cobertura e classificação de testes da Bíblia permanecem corretas; a falha bloqueante é documental/arquitetural por consumers/writers omitidos.",
+    "nonblocking_audit_requests": [
+      "030-001",
+      "030-002",
+      "030-003"
+    ],
+    "evidence_strength": {
+      "PERF-01/PERF-02": "EXECUCAO_INDIRETA da implementação inline em background.js",
+      "handlers-extra-real": "EXECUCAO_INDIRETA da implementação inline em background.js",
+      "actions-low-risk": "MOCK_OU_SIMULACAO para MangaTranslatorLog",
+      "background/log.js": "SEM_PROVA_ESPECIFICA direta"
+    }
+  },
+  "completed_at_utc": "2026-10-02T15:52:18.763Z"
+}

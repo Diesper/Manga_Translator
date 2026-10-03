@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "index": 20,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 20",
+  "file": "extension/background/actions/relay-progress.js",
+  "bible": "docs/biblia/extension/background/actions/relay-progress.js/Bíblia.md",
+  "source_sha": "24e377893c7151ea0579964453bfc63ce0ed77f4",
+  "bible_sha": "d9a5548f04606984dd11308b19cb642812fa6684",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "P20-020-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "CONSUMER_CONTRADICTION_AND_OMISSION",
+      "finding": "A Bíblia primeiro identifica corretamente content_gemini.js::reportProgress() como producer de GEMINI_PROGRESS, mas logo depois o chama de “consumidor real”; ao mesmo tempo, não menciona nenhuma vez o consumidor downstream efetivo de PROGRESS, extension/content/content_manga.js.",
+      "evidence": [
+        "A Bíblia afirma que content_gemini.js::reportProgress() é o producer de GEMINI_PROGRESS e, em seguida, declara “O consumidor real é content_gemini.js::reportProgress()”.",
+        "extension/content/content_manga.js trata request.action === 'PROGRESS' e atualiza floatingButtonViewState.text/showStop/background, estado local/persistido de processamento e o botão visível.",
+        "tests/unit/content-manga/replacement-and-completion-real.test.js executa o consumer real e prova que PROGRESS atualiza texto e fundo do botão.",
+        "A revisão d9a5548f04606984dd11308b19cb642812fa6684 contém zero menções a content_manga.js, embora a auditoria final declare consumers reais verificados."
+      ],
+      "required_change": "Corrigir producer/consumer semântica, documentar content_manga.js como consumer direto de PROGRESS e registrar os side effects/evidência downstream relevantes."
+    },
+    {
+      "id": "P20-020-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_STRENGTH_OVERCLAIM",
+      "finding": "A tabela de evidência usa rótulos de prova direta/integrada sem representar a fronteira simulada de chrome.*. As três suítes citadas executam implementação focal/host real, mas tabs/runtime/storage são mocks; portanto não provam entrega em browser real nem a política real de callback/lastError.",
+      "evidence": [
+        "tests/unit/background/actions-low-risk.test.js importa getStorageMock/getTabsMock de tests/mocks/chrome-api.mock.js.",
+        "tests/unit/background/routed-actions-legacy.test.js usa getRuntimeMock/getStorageMock/getTabsMock e injeta global.chrome antes de carregar background.js real.",
+        "tests/unit/background/message-handlers-real.test.js também usa runtime/storage/tabs mocks e loadBackgroundModule(BACKGROUND_PATH).",
+        "As assertions nominais provam roteamento, payload e mutação contra os mocks, mas a própria Bíblia admite ausência de teste específico para falha de tabs.sendMessage e runtime.lastError/storage."
+      ],
+      "required_change": "Classificar conservadoramente a evidência como execução direta/integrada da implementação com fronteira chrome simulada (MOCK_OU_SIMULACAO onde aplicável) e limitar explicitamente o que ela não prova no browser/runtime real."
+    }
+  ],
+  "confidence_matrix": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage_39_39": "CONFIRMADO_3X",
+    "semantics_local": "CONFIRMADO_3X",
+    "dependencies_host_router": "CONFIRMADO_3X",
+    "consumers": "CONTRADITO",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state_revision": "CONFIRMADO_3X",
+    "phase_verdict": "CONFIRMADO_3X"
+  },
+  "passages_executed": "0-15",
+  "completed_at_utc": "2026-10-01T21:50:40Z"
+}

@@ -1,0 +1,93 @@
+{
+  "index": 25,
+  "file": "extension/background/actions/stop-batch.js",
+  "bible": "docs/biblia/extension/background/actions/stop-batch.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "e552d0a911092c5cd7e457fbe262d366c413f0c1",
+  "started_at_utc": "2026-09-30T13:36:00Z",
+  "completed_at_utc": "2026-09-30T13:41:00Z",
+  "audit_requests": [
+    {
+      "id": "025-001",
+      "status": "ACCEPTED",
+      "type": "INPUT_VALIDATION_REVIEW",
+      "target_file": "extension/background/actions/stop-batch.js",
+      "found_while_auditing": "extension/background/actions/stop-batch.js",
+      "finding": "batchId vazio passa no validator e é tratado como omissão pelo orchestrator; whitespace é aceito como id explícito provavelmente inexistente.",
+      "current_evidence": "batchId string válido, batchId numérico rejeitado, STOP sem batchId do lote atual e STOP de lote pendente específico têm prova automatizada.",
+      "missing_evidence": "Contrato para '', whitespace e strings anômalas.",
+      "why_needed": "Semântica ambígua pode transformar pedido malformado em cancelamento do lote atual ou no-op silencioso.",
+      "requested_action": "Definir se string deve ser trim/non-empty quando presente e adicionar casos focais.",
+      "expected_evidence": "Payload ambíguo é rejeitado ou comportamento intencional fica explicitamente testado.",
+      "expected_auditor_action": "Revisar contrato de entrada.",
+      "possible_regression": "Caller malformado pode cancelar lote diferente do pretendido.",
+      "impact": "Cancelamento de batches.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:55:00Z",
+      "audit_finding": "ACCEPTED. O validator só exige string quando `batchId` está presente; `''` e whitespace passam. Como o orchestrator pode tratar string vazia como omissão, payload malformado pode adquirir semântica de STOP do lote atual ou no-op.",
+      "auditor_recommended_action": "Definir batchId presente como trim/non-empty ou documentar a semântica atual; adicionar casos para `''`, whitespace e strings anômalas."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "19/19",
+    "source_text_lines": 18,
+    "external_audit_requests_open": 1,
+    "note": "Bíblia concorrente revalidada e fonte integral normalizada; omitted batchId também possui cobertura integrada real."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "history": [
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:39.519Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "190861d5f0d82b8e1176baddf7a0a8d14c1515a8e7d84f4e56267f768e99e986"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "190861d5f0d82b8e1176baddf7a0a8d14c1515a8e7d84f4e56267f768e99e986",
+      "event_hash": "20256d449c9b0925fe687c4e1129f1fef40ecccfe8fb9e1ae8660154cc669965"
+    }
+  ],
+  "evidence": [],
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-09-30T13:41:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "REAUDIT_REQUIRED"
+    ]
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "e552d0a911092c5cd7e457fbe262d366c413f0c1",
+  "bible_sha": null,
+  "revision_id": "7c2ee5ac44343ab0323920099fea6c13e3c06fc60db39dd4e50fdbd7ce323a2a"
+}

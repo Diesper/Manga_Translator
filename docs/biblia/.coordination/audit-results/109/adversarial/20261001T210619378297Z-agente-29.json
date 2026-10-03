@@ -1,0 +1,80 @@
+{
+  "schema_version": 2,
+  "index": 109,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 29",
+  "file": "tests/integration/ipc/gemini-cors-fallback.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/gemini-cors-fallback.test.js/Bíblia.md",
+  "source_sha": "1f5a1236139d85640cb5fa24590f434859155c62",
+  "bible_sha": "f62653c5ca892184126647ad8e3041c5c271f173",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "109-ADV-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia registra 109-001 e 109-002 como OPEN e conclui que há solicitações externas abertas, mas o state canônico registra ambas como ACCEPTED.",
+      "evidence": [
+        "Bíblia.md: `### 109-001 — TEST_CORRECTION — OPEN`.",
+        "Bíblia.md: `### 109-002 — TEST_REQUIRED — OPEN`.",
+        "Bíblia.md autoauditoria: `com solicitações externas abertas`.",
+        ".state/109.json: audit_requests 109-001 e 109-002 possuem `status: ACCEPTED`.",
+        ".state/109.json ainda traz `document_quality.external_audit_requests_open: 2`, metadata derivada também stale."
+      ],
+      "requested_documentation_fix": "Sincronizar o lifecycle documental: refletir 109-001=ACCEPTED e 109-002=ACCEPTED e remover a alegação de requests OPEN. Na reconciliação editorial, atualizar a metadata derivada sem reabrir requests já aceitas."
+    },
+    {
+      "id": "109-ADV-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SEMANTIC_TRACEABILITY_BOUNDARY_MISMATCH",
+      "summary": "A união numérica das posições é 316/316, mas as faixas finais atribuem responsabilidades às posições erradas; portanto a rastreabilidade semântica não é integralmente fiel.",
+      "evidence": [
+        "Source posição 288 é `    });`, fechamento do describe anterior `Handler do background`, mas a Bíblia inclui 288–313 sob `cenário com ChromeRuntimeMock`, cuja descrição começa na lógica que só abre na posição 290.",
+        "Source posição 313 é `        });` e fecha o `test` do cenário ChromeRuntimeMock.",
+        "Source posições 314 e 315 fecham, respectivamente, o describe interno e o describe raiz.",
+        "A Bíblia descreve posições 314–315 como fechando `test`, `describe` interno e `describe` raiz, embora o fechamento do test esteja em 313.",
+        "O bloco de fonte integral foi comparado byte a byte e coincide com o source atual; o erro é de mapeamento documental, não de source drift."
+      ],
+      "requested_documentation_fix": "Realinhar as faixas finais e seus papéis locais (incluindo o fechamento em 288 e o fechamento do test em 313) mantendo cobertura 316/316 sem atribuir linhas a responsabilidades de outra unidade."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage_numeric": "CONFIRMADO_3X",
+    "coverage_semantic": "CONTRADITO",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "head_observed_before_publish": "3935b67a4394a0588fa9c9410fb296db5d06c3b7",
+    "embedded_source_exact": true,
+    "documented_positions": "316/316 numericamente; rastreabilidade semântica reprovada nas faixas finais",
+    "primary_current": "CHANGES_REQUIRED por AGENTE 11 para o mesmo SOURCE_SHA/BIBLE_SHA",
+    "adversarial_independence": "AGENTE 29 é diferente de AGENTE 11",
+    "evidence_limits_revalidated": [
+      "O próprio #109 executa mirrors locais e não compõe a cadeia real consumer -> runtime -> router/action -> callback.",
+      "O cenário final usa `_messageListeners` diretamente, não `runtimeMock.sendMessage`.",
+      "A alegação `job não trava` não é provada por este arquivo; a Bíblia reconhece corretamente essa limitação.",
+      "fetch-image-base64-action.test.js carrega router/action reais e prova o contrato dataUrl sob doubles controlados.",
+      "plan-missing-handlers-real.test.js carrega background.js real instrumentado apenas com exports de teste e prova keepAlive + sucesso/erro do handler.",
+      "result-extractor.test.js executa o extractor real e prova FETCH_IMAGE_AS_BASE64 com geminiSession:true."
+    ],
+    "audit_requests": [
+      "109-001 ACCEPTED e tecnicamente confirmada; é lacuna externa não bloqueante por si só.",
+      "109-002 ACCEPTED e tecnicamente confirmada; é lacuna externa não bloqueante por si só.",
+      "O blocker é a Bíblia ainda rotular ambas como OPEN."
+    ]
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:06:19.378297Z"
+}

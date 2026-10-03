@@ -1,0 +1,27 @@
+{
+  "index": 151,
+  "file": "tests/unit/background/jobs-lifecycle-batch-status.test.js",
+  "bible": "docs/biblia/tests/unit/background/jobs-lifecycle-batch-status.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "820f8c87379fe70b236df49d26f78962f5467b83",
+  "started_at_utc": "2026-09-30T07:06:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "1083/1083",
+    "bible_lines": 9851,
+    "external_audit_requests_open": 0,
+    "recovered_from_residual_in_progress": true,
+    "revalidated_by": "AGENTE 12",
+    "note": "Existing complete Bible revalidated against the live source SHA; residual IN_PROGRESS state reconciled without changing external files."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
+}

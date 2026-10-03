@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "index": 23,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 22",
+  "file": "extension/background/actions/set-debug-mode.js",
+  "bible": "docs/biblia/extension/background/actions/set-debug-mode.js/Bíblia.md",
+  "source_sha": "92e4149b1bba2f8d0a4ce3d6881539565801776d",
+  "bible_sha": "9a68b358b605ce8d7b582da5fefefb8f3c698602",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "023-REA-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "RUNTIME_WIRING_OMISSION",
+      "summary": "A Bíblia omite o wiring que torna a action registrável e alcançável no runtime real.",
+      "evidence": [
+        "extension/background.js:50 carrega background/router.js antes das actions no caminho Service Worker; extension/background.js:61 carrega background/actions/set-debug-mode.js via importScripts.",
+        "extension/background.js:109 carrega ./background/router.js antes das actions no caminho Node/Jest; extension/background.js:120 carrega ./background/actions/set-debug-mode.js via require.",
+        "set-debug-mode.js chama scope.MangaTranslatorRouter.registerAction no carregamento e, portanto, depende materialmente do router já estar instalado; a Bíblia atual não menciona background.js, importScripts, require nem a ordem de carga.",
+        "tests/unit/background/routed-actions-legacy.test.js carrega background.js e confirma que a action está registrada e roteada, mostrando que esse wiring é parte do caminho executável, não detalhe incidental."
+      ],
+      "requested_documentation_fix": "Documentar explicitamente o loader de runtime/Node, a ordem router→action e a consequência de registro da action no MangaTranslatorRouter."
+    },
+    {
+      "id": "023-REA-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_INVENTORY_INCOMPLETE",
+      "summary": "O inventário de evidência não é exaustivo para a action e seu consumidor, apesar de existirem provas focais relevantes.",
+      "evidence": [
+        "tests/unit/background/plan-missing-handlers-real.test.js:516-546 carrega o background real via loadBackgroundModule, despacha SET_DEBUG_MODE e verifica keepAlive, response ok, persistência de debugMode e broadcast para duas abas sobre mocks da Chrome API; a suíte não aparece em ## Evidência.",
+        "tests/unit/content-manga/drawer-real.test.js:199-220 executa o content script e prova o consumer DEBUG_MODE_CHANGED nos valores true e false; a tabela cita apenas content_manga.js como CONSUMIDOR REAL e omite essa prova de consumidor.",
+        "A omissão não invalida as assertions já citadas, mas deixa incompleta a força real da evidência e a rastreabilidade de consumers exigida para uma Bíblia exaustiva."
+      ],
+      "requested_documentation_fix": "Adicionar as suítes omitidas com classificação conservadora: execução do background/content reais sobre mocks, sem promovê-las a prova de transporte real do Chromium."
+    }
+  ],
+  "evidence_classification": {
+    "extension/background/actions/set-debug-mode.js": "PROVA_DIRETA",
+    "tests/unit/background/actions-low-risk.test.js": "PROVA_DIRETA_SOBRE_MOCK_OU_SIMULACAO",
+    "tests/unit/background/routed-actions-legacy.test.js": "EXECUCAO_INDIRETA_BACKGROUND_REAL_SOBRE_MOCK_OU_SIMULACAO",
+    "tests/unit/background/handlers-extra-real.test.js": "EXECUCAO_INDIRETA_BACKGROUND_REAL_SOBRE_MOCK_OU_SIMULACAO",
+    "tests/unit/background/plan-missing-handlers-real.test.js": "EXECUCAO_INDIRETA_BACKGROUND_REAL_SOBRE_MOCK_OU_SIMULACAO",
+    "tests/integration/popup.advanced.ui.test.js": "PROVA_DE_CONSUMIDOR_CALLER_SOBRE_MOCK_OU_SIMULACAO",
+    "tests/unit/content-manga/drawer-real.test.js": "PROVA_DE_CONSUMIDOR_SOBRE_MOCK_OU_SIMULACAO",
+    "transporte_real_chromium": "SEM_PROVA_ESPECIFICA"
+  },
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics_of_present_claims": "CONFIRMADO_3X",
+    "dependencies_and_runtime_wiring": "CONTRADITO_POR_OMISSAO",
+    "consumers": "CONTRADITO_POR_EVIDENCIA_INCOMPLETA",
+    "tests_and_assertions": "CONFIRMADO_3X_APOS_LEITURA",
+    "audit_requests": "CONFIRMADO_3X_NENHUMA",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "source_integrity": "Fonte integral embutida é byte-a-byte idêntica ao source atual; 39 linhas textuais + newline final.",
+    "coverage_proof": "40 posições, numeradas 001..040, únicas e sequenciais; sem gap/overlap.",
+    "primary": "APPROVED legado válido para SOURCE_SHA+BIBLE_SHA atuais.",
+    "adversarial": "CHANGES_REQUIRED por AGENTE 23 na mesma revisão; esta REAUDIT é independente e confirma a reprovação.",
+    "adversarial_attempt": "A objeção formal sustentável é que um leitor apenas da Bíblia não consegue reconstruir como set-debug-mode.js entra no service worker/Node nem conhece todo o conjunto focal de evidência existente.",
+    "triple_check": {
+      "A_document_matches_current_source": "SIM",
+      "B_present_claims_true_and_supported": "SIM",
+      "C_limitations_and_wiring_represented_honestly_and_completely": "NAO"
+    }
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:53:16.339Z"
+}

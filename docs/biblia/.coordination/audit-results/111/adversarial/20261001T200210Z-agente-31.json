@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "index": 111,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 31",
+  "file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/gtc-indexeddb-deep.test.js/Bíblia.md",
+  "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
+  "bible_sha": "acb3c503e7d2413925e10d833e6aa5e8687ce972",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-01T20:02:10Z"
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "index": 4,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 3",
+  "file": "extension/background/actions/check-extraction-tab.js",
+  "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
+  "source_sha": "9ee40474d8c52da5e725ab04a2e325dd69830a51",
+  "bible_sha": "15e9739bb511e315b7607cd31e49978f8e9bc49c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "004-A3-ADV-001",
+      "severity": "MATERIAL",
+      "type": "STALE_APPROVAL_STATUS",
+      "summary": "A revisão atual da Bíblia ainda se declara CONCLUÍDA/APROVADA e apta a CONCLUÍDO, embora o state canônico esteja READY_FOR_AUDIT após a correção que criou o BIBLE_SHA atual e registre explicitamente que a nova revisão exige PRIMARY + ADVERSARIAL.",
+      "evidence": [
+        "Bíblia.md linha 3: `Estado: CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA em 2026-09-29`.",
+        "Bíblia.md linha 400: `Arquivo apto a CONCLUÍDO: SIM`.",
+        "docs/biblia/.state/004.json: status READY_FOR_AUDIT; último histórico é DISTRIBUTED_AUDIT_CORRECTION_COMPLETED para BIBLE_SHA 15e9739bb511e315b7607cd31e49978f8e9bc49c, com razão `Nova revisão exige PRIMARY + ADVERSARIAL`.",
+        "audit-bible-baseline.json vincula a revisão histórica de #004 ao BIBLE_SHA e1e74ae3ef3fd72f86885d5e3bd148eb3f2fb85f; os resultados schema v1 anteriores não validam automaticamente a revisão documental atual."
+      ],
+      "required_change": "Tornar o cabeçalho e a conclusão revision-aware: registrar a aprovação de 2026-09-29 apenas como histórica ou indicar revisão pendente, sem afirmar que o BIBLE_SHA atual já está concluído/aprovado antes da decisão distribuída."
+    },
+    {
+      "id": "004-A3-ADV-002",
+      "severity": "MATERIAL",
+      "type": "SEMANTIC_ENVIRONMENT_MISMATCH",
+      "summary": "A explicação das linhas 4/25 associa `globalThis` a Node/Jest, mas o source escolhe `self` sempre que ele existe; o teste direto citado define `global.self = global`, portanto Jest exerce o ramo `self`, não o fallback `globalThis`.",
+      "evidence": [
+        "Source linha 25: `})(typeof self !== 'undefined' ? self : globalThis);`.",
+        "Bíblia.md linha 146: `self no Service Worker ou globalThis em Node/Jest`.",
+        "Bíblia.md linha 340: `self no Service Worker e globalThis no ambiente de teste`.",
+        "Bíblia.md linha 346 reconhece que os testes Jest atribuem `global.self = global`.",
+        "tests/unit/background/actions-low-risk.test.js: `loadActions()` executa `global.self = global` antes de carregar router/actions, logo o teste toma o ramo `self`."
+      ],
+      "required_change": "Descrever literalmente a condição (`self` se definido; caso contrário `globalThis`) e dizer que o teste direto cobre o ramo `self`; não atribuir prova ao fallback `globalThis` sem teste específico."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:38:48.660Z"
+}

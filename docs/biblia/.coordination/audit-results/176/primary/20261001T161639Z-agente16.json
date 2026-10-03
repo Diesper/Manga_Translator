@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "index": 176,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 16",
+  "file": "tests/unit/content-gemini/deletion.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/deletion.test.js/Bíblia.md",
+  "source_sha": "c570bbdc340761412746a1347f297c352e2ff1a4",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "176-PRI-001",
+      "severity": "BLOCKING",
+      "area": "ASSERTIONS_EVIDENCE_CLASSIFICATION",
+      "title": "DEL-09 não prova a ordem saveRecovery → reload que a Bíblia classifica como PROVADO DIRETAMENTE",
+      "claim_in_bible": "A matriz declara '| falha salva marker antes do reload | DEL-09 | ✅ PROVADO DIRETAMENTE |' e a seção 7 afirma que o recovery é persistido antes do reload.",
+      "evidence": [
+        "DEL-09 chama deleteOrScheduleRecovery e só depois da resolução verifica o objeto final, relê o recovery já salvo e exige pageWindow.location.reload chamado uma vez.",
+        "Não existe assertion de ordem (por exemplo invocationCallOrder), nem callback/spy que verifique que o marker já está persistido no instante em que reload é chamado.",
+        "Uma regressão que trocasse a implementação para reload() antes de saveRecovery(), mas concluísse ambas as operações antes de retornar, preservaria todas as assertions atuais de DEL-09."
+      ],
+      "requested_correction": "Rebaixar a alegação para execução/estado final sem prova de ordering, ou adicionar assertion focal que observe a ordem real antes de classificá-la como prova direta."
+    },
+    {
+      "id": "176-PRI-002",
+      "severity": "BLOCKING",
+      "area": "LINE_SEMANTICS",
+      "title": "O mapa linha-a-linha contém descrições semânticas incompatíveis com as assertions reais",
+      "evidence": [
+        "Linha 347 é `expect(sendDelivery).not.toHaveBeenCalled();`, mas a Bíblia descreve sua função como 'Injeta função observável que entrega payload recuperado'. A linha na realidade prova ausência de entrega no DEL-10.",
+        "Linha 175 é `expect(dom.deleteItem.click).toHaveBeenCalledTimes(1);`, mas a descrição diz 'Cria item Excluir dentro do menu'; a criação ocorre no fixture, enquanto esta linha verifica cardinalidade do clique.",
+        "A comparação estrutural confirmou que o texto de código das 349 linhas está reproduzido exatamente; a falha é semântica, não de transcrição."
+      ],
+      "requested_correction": "Corrigir as descrições de função/contexto para refletirem o que cada assertion faz; reauditar os textos genéricos das linhas de assertion para evitar reutilização de descrição de setup."
+    },
+    {
+      "id": "176-PRI-003",
+      "severity": "BLOCKING",
+      "area": "AUDIT_REQUESTS_STATE",
+      "title": "A Bíblia declara três audit_requests OPEN, mas nenhuma está OPEN no state atual",
+      "claim_in_bible": "A seção 12 rotula 176-001, 176-002 e 176-003 como OPEN e a conclusão afirma 'as três solicitações OPEN'.",
+      "evidence": [
+        ".state/176.json registra 176-001 como ACCEPTED.",
+        ".state/176.json registra 176-002 como SUPERSEDED por 041-001.",
+        ".state/176.json registra 176-003 como SUPERSEDED por 041-002.",
+        "As lacunas técnicas permanecem documentadas, mas OPEN, ACCEPTED e SUPERSEDED são estados operacionais distintos."
+      ],
+      "requested_correction": "Atualizar os rótulos/status ou identificá-los explicitamente como estado histórico de criação; para 176-002/003 apontar os requests canônicos 041-001/041-002."
+    },
+    {
+      "id": "176-PRI-004",
+      "severity": "BLOCKING",
+      "area": "ASSERTIONS_EVIDENCE_CLASSIFICATION",
+      "title": "DEL-03 não prova diretamente preservação de uma conversa real em debug",
+      "claim_in_bible": "A matriz declara '| debug preserva conversa e libera lock | DEL-03 | ✅ PROVADO DIRETAMENTE |'.",
+      "evidence": [
+        "DEL-03 usa document vazio; não monta sidebar, link ou conversa a preservar.",
+        "As assertions provam retorno true, mutex liberado e presença do log DEBUG_MODE_SKIP.",
+        "Uma regressão com efeito destrutivo sobre uma conversa real antes do early-return poderia passar este teste porque não existe conversa no fixture nem assertion de ausência de mutação DOM."
+      ],
+      "requested_correction": "Restringir o claim direto a retorno/log/mutex ou montar uma conversa observável e verificar que permanece intacta."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:16:39Z"
+}

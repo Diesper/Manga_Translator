@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "index": 110,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 12",
+  "file": "tests/integration/ipc/gtc-cache-flow.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/gtc-cache-flow.test.js/Bíblia.md",
+  "source_sha": "e6eb5c744499fcaa0309a187a173841c185bbaea",
+  "bible_sha": "fc4573a008f01428feddbf891ba45c606a71736c",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 250,
+    "source_final_newline": true,
+    "documented_positions": "251/251 (linhas 1-250 contíguas, sem gaps/overlaps, + newline final)",
+    "test_cases": 12,
+    "assertions": 22,
+    "primary_current": "AGENTE 30 / APPROVED / schema v2 / mesma revisão",
+    "evidence_scope": "A suíte prova somente simulateExtractWithGTC + ChromeStorageMock/fallback legado; não prova o pipeline GTC real, e a Bíblia explicita essa limitação.",
+    "production_crosscheck": [
+      "content_manga.js usa GTC_QUERY_MANY antes do fallback storage.local gtc_<hash>",
+      "content_manga.js usa GTC_SAVE antes do fallback storage.local",
+      "extract-flow-real.test.js exercita extractAndSendImages/GTC_QUERY_MANY",
+      "extraction-and-handlers-real.test.js despacha UPDATE_IMAGE e afirma GTC_SAVE"
+    ],
+    "harness_crosscheck": [
+      "jest.config.js descobre tests/integration/**/*.test.js no projeto integration com chrome-api.mock.js/dom-environment.js",
+      "package.json#test:integration seleciona o projeto integration",
+      "scripts/ci/run-jest-ci.js inclui integration no inventário e execução",
+      ".github/workflows/ci.yml executa npm run test:ci em Node 20.x e 22.x"
+    ],
+    "audit_requests": [
+      "110-001 ACCEPTED",
+      "110-002 ACCEPTED",
+      "110-003 ACCEPTED",
+      "110-004 ACCEPTED",
+      "110-005 ACCEPTED"
+    ],
+    "prior_blocker_revalidated": "O único blocker documental sustentado na auditoria independente anterior era lifecycle OPEN stale; a revisão atual usa ACCEPTED para 110-001..005.",
+    "formal_refutation": "Regressões no pipeline real, UPDATE_IMAGE/GTC_SAVE, cross-URL real ou eficiência podem permanecer verdes nesta suíte, mas a Bíblia não promove esses cenários a prova de produção e registra as lacunas explicitamente."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:50:49.846Z"
+}

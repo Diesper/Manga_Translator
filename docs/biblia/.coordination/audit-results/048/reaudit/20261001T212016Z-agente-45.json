@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "index": 48,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 45",
+  "file": "extension/content/gemini/selectors.js",
+  "bible": "docs/biblia/extension/content/gemini/selectors.js/Bíblia.md",
+  "source_sha": "0bf8db6e416a880de9f4dd37bd4cc290e5aaba19",
+  "bible_sha": "89a630d869706786cd5edb14910e7895ae1e3fb2",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "R45-048-01",
+      "severity": "BLOCKING",
+      "category": "INTERNAL_CONTRADICTION",
+      "summary": "O documento declara estado concluído/aprovado no cabeçalho e, ao mesmo tempo, afirma no veredito interno que essa promoção ainda depende de uma seção futura.",
+      "evidence": [
+        "Bíblia #048 linha 3: `Estado: ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA`.",
+        "Bíblia #048 linha 2014: `a promoção para ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA depende da futura seção crítica compartilhada`.",
+        "State atual #048 está `COMPLETED`; SOURCE_SHA e BIBLE_SHA permanecem os mesmos. A frase final é stale e contradiz tanto o cabeçalho quanto o lifecycle atual.",
+        "Tentativa de refutação: interpretar a linha final como nota histórica não é sustentado pelo texto, que usa presente (`depende`) e não a qualifica como snapshot passado."
+      ],
+      "required_change": "Remover ou reescrever a conclusão stale para que cabeçalho, veredito interno e lifecycle expressem um único estado documental atual."
+    },
+    {
+      "id": "R45-048-02",
+      "severity": "BLOCKING",
+      "category": "SEMANTIC_OVERSTATEMENT",
+      "summary": "A Bíblia afirma que `RESPONSE` inclui a base `MODEL_RESPONSE_STRICT`, mas as duas listas apenas se sobrepõem; não existe inclusão total.",
+      "evidence": [
+        "Source `selectors.js`: MODEL_RESPONSE_STRICT possui 11 alternativas e contém `[data-turn-role=\"assistant\"]`.",
+        "Source `selectors.js`: RESPONSE possui fallbacks adicionais, mas não contém `[data-turn-role=\"assistant\"]`; contém somente a alternativa mais específica `div[data-turn-role=\"assistant\"]`.",
+        "Comparação estrutural das listas: `[data-turn-role=\"assistant\"]` é elemento de STRICT ausente de RESPONSE; portanto RESPONSE não é superset literal de STRICT.",
+        "Bíblia repete `Inclui a base strict e fallbacks mais genéricos` nas análises linha-a-linha de U08 e na síntese U08.",
+        "`dom.getModelResponseContainer()` tenta `getStrictModelResponseContainer()` primeiro e depois consulta SELECTORS.RESPONSE. Essa ordem preserva comportamento strict-first, mas não altera o conteúdo das listas nem torna a afirmação de inclusão verdadeira.",
+        "O source integral embutido é byte-exato e a cobertura 1..131 é completa; o problema é semântico, não estrutural."
+      ],
+      "required_change": "Descrever STRICT e RESPONSE como listas sobrepostas com papéis distintos e strict-first no consumer; remover a afirmação de inclusão integral e ajustar invariantes/redações que impliquem relação de superset."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:20:16Z"
+}

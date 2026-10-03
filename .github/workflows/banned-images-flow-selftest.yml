@@ -1,0 +1,40 @@
+name: Banned Images Flow Selftest
+
+on:
+  pull_request:
+    paths:
+      - 'tests/integration/banned-images-flow.test.js'
+      - 'tests/helpers/load-extension-page.js'
+      - 'tests/helpers/load-content-script.js'
+      - 'tests/mocks/chrome-api.mock.js'
+      - 'extension/popup/**'
+      - 'extension/content/**'
+      - 'extension/shared/**'
+      - 'extension/manifest.json'
+      - '.github/workflows/banned-images-flow-selftest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  banned-images-flow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run banned-images real integration
+        run: npx jest --config jest.config.js --selectProjects integration --runTestsByPath tests/integration/banned-images-flow.test.js --runInBand --detectOpenHandles
+
+      - name: Run full integration suite
+        run: npm run test:integration -- --runInBand

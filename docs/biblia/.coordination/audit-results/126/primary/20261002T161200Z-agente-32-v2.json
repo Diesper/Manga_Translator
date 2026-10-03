@@ -1,0 +1,51 @@
+{
+  "schema_version": 2,
+  "index": 126,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 32",
+  "file": "tests/smoke/smoke-04-storage-manager.js",
+  "bible": "docs/biblia/tests/smoke/smoke-04-storage-manager.js/Bíblia.md",
+  "source_sha": "500853da2950c31fd5fb4e2a91765a9331c28153",
+  "bible_sha": "4f9166d6d3863580dd650dd1383940b17c70efb0",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "main_semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA — binding atual não possuía PRIMARY válida",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "source_text_lines": 290,
+    "source_final_newline": true,
+    "documented_positions": "291/291 sem gaps/overlaps",
+    "embedded_source_exact": true,
+    "storage_manager_sha": "f4e1e231fa62d22dd50fb20cf0cffbb09da98bee",
+    "validation_run": 36941818303,
+    "validation_job": 110634842323,
+    "validation_head": "d6f6dd5209f437679ac95f5c9357b051885cce47",
+    "exact_validation_blobs": {
+      "smoke": "500853da2950c31fd5fb4e2a91765a9331c28153",
+      "storage_manager": "f4e1e231fa62d22dd50fb20cf0cffbb09da98bee"
+    },
+    "assertion_count": 73,
+    "evidence_scope": "Prova direta em Node/fake-indexeddb para os contratos enumerados; browser real, onblocked/upgrade real, payloads grandes e todas as interleavings permanecem explicitamente limitados pela Bíblia.",
+    "audit_requests": {
+      "126-001": "SUPERSEDED por 060-002; 060-002 continua ACCEPTED, sem falsa resolução documental.",
+      "126-002": "RESOLVED e reconfirmada por assertions de restore/página/asset e multi-capítulo.",
+      "126-003": "RESOLVED e reconfirmada por migração exata, falha parcial/retry e lastError."
+    },
+    "formal_refutation": "As melhores objeções possíveis (cleanup de onversionchange não invocado, apenas uma interleaving de concorrência, falha parcial de migração por dado inválido) estão explicitamente delimitadas e não contradizem as classificações específicas da Bíblia."
+  },
+  "completed_at_utc": "2026-10-02T16:12:00Z"
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "index": 75,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE HÍBRIDO",
+  "file": "scripts/ci/run-jest-ci.js",
+  "bible": "docs/biblia/scripts/ci/run-jest-ci.js/Bíblia.md",
+  "source_sha": "6d2e36a647aadeadb2b875c1b3f92df24cd2f494",
+  "bible_sha": "d16375d9531f5ce8813aa7d37df585496b70933c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "075-AH-001",
+      "severity": "HIGH",
+      "category": "DEPENDENCY_CONTRACT_DRIFT",
+      "problem": "A Bíblia afirma que verify-ci-contract.js protege as contagens atuais do plano E2E, mas o plano atual declara fast.expectedTests=10 enquanto o verificador ainda exige fast.tests=9.",
+      "evidence": [
+        "scripts/ci/data/e2e-shard-plan.json blob 2df6bf7c323d28595d258249a9c6f4bfa25c6b1f: grupo fast expectedTests=10, workers=3.",
+        "scripts/validation/verify-ci-contract.js blob d397389e3e7f5168bbbeca2c6e5ba8c1b07ebb8a: expectedGroups contém ['fast', { tests: 9, workers: 3 }].",
+        "A Bíblia #075 declara que verify-ci-contract.js protege os valores atuais do plano, portanto a descrição de dependência/gate está stale no binding documental atual."
+      ],
+      "requested_action": "Sincronizar o CI Contract com o inventário E2E canônico ou corrigir o plano se 10 for incorreto; depois atualizar/revalidar a Bíblia #075 e executar o CI Contract."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T21:39:00Z"
+}

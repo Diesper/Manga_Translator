@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "index": 205,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 45",
+  "file": "tests/unit/content-manga/get-clean-url.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/get-clean-url.test.js/Bíblia.md",
+  "source_sha": "a04fe1e3552d5b61a91442496a1294e6d8379fbf",
+  "bible_sha": "d974ab38ab394831906ed49b976bafbd244b75a1",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-01T20:18:05Z"
+}

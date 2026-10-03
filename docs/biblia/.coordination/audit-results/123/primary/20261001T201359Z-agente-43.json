@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "index": 123,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 43",
+  "file": "tests/smoke/smoke-01-batch-lifecycle.js",
+  "bible": "docs/biblia/tests/smoke/smoke-01-batch-lifecycle.js/Bíblia.md",
+  "source_sha": "c412ccaac3c01de93b0a6362747525c48d79a765",
+  "bible_sha": "1d140caf676b7628f1ec78c186492a108631ce07",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-01T20:13:59.543Z"
+}

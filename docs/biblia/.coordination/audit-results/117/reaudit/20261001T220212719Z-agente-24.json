@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "index": 117,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 24",
+  "file": "tests/integration/popup.ui.test.js",
+  "bible": "docs/biblia/tests/integration/popup.ui.test.js/Bíblia.md",
+  "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+  "bible_sha": "e34d8654790a2b5e67995b654664d57616df5bd2",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-01T22:02:12.719Z",
+  "passages_executed": "0-15",
+  "confidence_matrix": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_VS_ADVERSARIAL_AGENTE_37",
+    "phase_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "primary_divergence": "PRIMARY legado CHANGES_REQUIRED do AGENTE 6 apontava lifecycle stale; a revisão corrente contém reparo posterior do AGENTE 23.",
+    "repaired_finding_revalidated": "117-001, 117-002 e 117-003 aparecem como ACCEPTED na Bíblia e no state canônico; o documento não os apresenta como dívida OPEN.",
+    "embedded_source_exact": true,
+    "source_text_lines": 631,
+    "documented_positions": "632/632",
+    "line_map": "Faixas 1-631 + posição 632 cobrem exatamente todas as posições, sem gaps/overlaps.",
+    "test_count": 11,
+    "expect_occurrences": 88,
+    "evidence_limit": "A Bíblia não converte o cabeçalho REG/PU em rastreabilidade individual; não afirma preservação de histórico sem assertion e não afirma preservação de restoreMeta/path da entrada keep sem assertion.",
+    "implementation_cross_checks": [
+      "loadExtensionPage carrega scripts anteriores ao alvo; popup.html posiciona shared-ui.js antes de popup.js.",
+      "popup.js remove enabledDomains/autoRestoreDisabledSites/siteMeta ao remover site sem apagar o histórico semeado.",
+      "shared-ui.js remove seletivamente restoreMap, restoreMeta, images e paths da entrada alvo e emite GTC_DELETE_BY_CLEAN_URL."
+    ],
+    "ci_cross_check": "Run 36577447500 contém o mesmo blob e PASS nominal de popup.ui.test.js; job Node 20 reporta 109/109 suítes e 851/851 testes.",
+    "formal_refutation_attempt": "Não foi sustentada objeção material após revalidar integridade, cobertura, semântica, implementação real, mocks, assertions, requests, histórico e limitações."
+  }
+}

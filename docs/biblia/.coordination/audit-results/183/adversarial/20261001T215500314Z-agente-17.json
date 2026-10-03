@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "index": 183,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 17",
+  "file": "tests/unit/content-gemini/observer.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/observer.test.js/Bíblia.md",
+  "source_sha": "0eff259f673c32e44c6d5ccf6f627c0c6d5505cc",
+  "bible_sha": "2d0fffc83d41bfdbc89431ce3f2c9328c9d9a9b2",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A17-183-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "area": "SEMANTIC_LINE_MAPPING",
+      "relation_to_primary": "CONFIRMA 183-PRI2-001 por análise independente",
+      "title": "A cobertura 486/486 é posicionalmente completa, mas dezenas de linhas substantivas recebem descrição semântica genérica",
+      "evidence": [
+        "A fonte integral embutida é byte-a-byte idêntica e existem headings sequenciais Linha 001..485 + posição 486 newline; portanto o defeito não é gap de cobertura.",
+        "A Bíblia contém 104 ocorrências de `Compõe o cenário ... preparando, executando ou verificando o observer real`.",
+        "Linha 035 (`aria-label = Stop generating`) é descrita genericamente e não explica que cria o controle reconhecido pelo seletor de Stop, decisivo para OBS-01/02.",
+        "Linhas 060-061 (`role=alert` + texto) são descritas genericamente e não explicam que constroem o erro visual consumido pelo observer em OBS-07/08.",
+        "Linhas 294-296 produzem três mutations diferentes no caso de coalescing, mas não documentam que existem para provocar múltiplos callbacks/mutations no mesmo turno.",
+        "Linha 399 fixa `data-message-author=model`, condição semântica central do cenário OBS-18, mas recebe apenas a fórmula genérica."
+      ],
+      "requested_correction": "Substituir descrições genéricas nas linhas substantivas por operação, motivo e efeito específicos; reservar texto estrutural/genérico para linhas realmente sintáticas ou de glue."
+    },
+    {
+      "id": "A17-183-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "area": "CONSUMERS_AND_CURRENT_GATES",
+      "relation_to_primary": "CONFIRMA 183-PRI2-002 por reconstrução independente do wiring atual",
+      "title": "A Bíblia traz execução histórica exata, mas omite como a suíte é descoberta e exigida pelos gates atuais",
+      "evidence": [
+        "`jest.config.js` inclui `tests/unit/content-gemini/**/*.test.js` no projeto `content-scripts`, com `testEnvironment: jsdom` e setup de `chrome-api.mock.js` + `dom-environment.js`.",
+        "`scripts/ci/run-jest-ci.js` inclui `content-scripts` em `unitProjects`, executa Jest com `jest.config.js`, usa `--listTests` e confronta o inventário de `.test.js` unit/integration.",
+        "`package.json` liga `test:ci` a `run-jest-ci.js`; `test:unit` e `test:unit:content` também selecionam `content-scripts`.",
+        "`.github/workflows/ci.yml` executa `npm run test:ci` no job `unit-and-integration` em Node 20.x/22.x, e `ci-gate` depende desse job.",
+        "A revisão da Bíblia não contém `jest.config.js`, `run-jest-ci.js`, `test:ci` nem `unit-and-integration`; a seção 8 apresenta somente o run histórico."
+      ],
+      "requested_correction": "Documentar separadamente (a) dependências de ambiente/setup, (b) descoberta pelo projeto Jest, (c) inventário/run-jest-ci/package scripts e (d) dependência do CI Gate, distinguindo gate estrutural atual de execução histórica."
+    },
+    {
+      "id": "A17-183-03",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "area": "EVIDENCE_CLASSIFICATION_AND_INTERNAL_CONTRADICTION",
+      "relation_to_primary": "NOVO",
+      "title": "A auditoria linha-a-linha promove chamadas de teardown `observer.stop()` a prova direta de cleanup completo, contrariando as próprias lacunas declaradas",
+      "evidence": [
+        "Há 23 linhas contendo `observer.stop()`/assertions de stop; somente OBS-09 (linhas 203-204 e assertions de estado subsequentes) prova focalmente idempotência/cleanup interno.",
+        "As 21 invocações fora das assertions focais de OBS-09 recebem a mesma função ampla: `Executa cleanup real, removendo observers/listeners/timers/registry e rejeitando waiters` e classificação `✅ PROVADO DIRETAMENTE`.",
+        "Em exemplos como linhas 092, 103, 116, 131, 149, 166, 178, 195, 245, 260, 284, 301, 320, 339, 358, 384, 415, 439, 468 e 482, `stop()` é teardown depois das assertions do cenário; não há assertion subsequente que fixe cleanup completo, apesar do texto afirmar `assertions subsequentes fixam o efeito`.",
+        "Linha 222 (OBS-10) tem assertions posteriores, mas elas provam apenas que mutations pós-stop não produzem resultado; não provam timers/registry/rejeição de waiters.",
+        "A própria Bíblia §7/§9 e request 183-001 afirmam corretamente que `stop()` rejeitando waiter pendente com `OBSERVER_STOPPED` está SEM TESTE PROBATÓRIO ESPECÍFICO. Isso contradiz as entradas linha-a-linha que dizem que cada `stop()` prova diretamente a rejeição de waiters."
+      ],
+      "requested_correction": "Reclassificar chamadas de teardown sem assertions focais como execução indireta/cleanup de cenário e limitar sua descrição ao fato de invocar `stop()`. Manter PROVA_DIRETA do cleanup apenas onde assertions realmente verificam o efeito; preservar explicitamente a lacuna de waiter pendente."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X_486_DE_486",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONTRADITO_POR_OMISSAO_DE_WIRING",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "primary_independence": "CONFIRMADA_AGENTE_1_VS_AGENTE_17",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "source_text_lines": 485,
+    "final_newline": true,
+    "embedded_source_exact": true,
+    "documented_positions": "486/486; Linha 001..485 sequenciais + posição 486 newline",
+    "primary_verdict_current": "CHANGES_REQUIRED por AGENTE 1 para a mesma revisão",
+    "primary_findings_independently_confirmed": [
+      "183-PRI2-001",
+      "183-PRI2-002"
+    ],
+    "audit_requests": [
+      "183-001 ACCEPTED e ainda válido: timeouts + stop de waiter pendente sem matriz focal",
+      "183-002 ACCEPTED e ainda válido: replacement de mesmo jobId sem prova focal",
+      "183-003 ACCEPTED e ainda válido: transição Stop visível→ausente/evento generation_finished sem prova focal"
+    ],
+    "prior_correction_verified": "Claim de coalescing agora está corretamente limitado a inspectCount <= before + 2; lifecycle dos requests está sincronizado para ACCEPTED.",
+    "formal_rejection": "Sustentada por dois findings confirmatórios e um finding adversarial novo de classificação/contradição interna.",
+    "execution_scope": "Auditoria documental/estática com leitura das assertions e wiring atual; o run histórico documentado foi tratado como evidência histórica, não como substituto do gate estrutural atual."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:55:00.314Z"
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "index": 145,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 36",
+  "file": "tests/unit/background/fetch-image-base64-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/fetch-image-base64-action.test.js/Bíblia.md",
+  "source_sha": "1246da7bd3992499b1a21a4a00dc32b83f9486c3",
+  "bible_sha": "0f7cf9d7a98f1fb9e3ab2167f8c3c24bc43854b0",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "145-A36-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE_AND_REJECTED_GAP_RETAINED",
+      "summary": "A Bíblia mantém 145-001..004 como OPEN e conclui que todas continuam abertas, enquanto o state canônico auditado registra 145-001..003 como ACCEPTED e 145-004 como REJECTED; 145-004 continua apresentada como lacuna ativa apesar de a premissa anômala não representar o contrato do runtime suportado.",
+      "evidence": [
+        "Bíblia seção 7 contém headings `145-001 — TEST_REQUIRED — OPEN`, `145-002 — SECURITY_REVIEW — OPEN`, `145-003 — TEST_REQUIRED — OPEN` e `145-004 — TEST_REQUIRED — OPEN`.",
+        "Bíblia seção 14 afirma explicitamente que `continuam abertas as solicitações 145-001 a 145-004`.",
+        "docs/biblia/.state/145.json registra 145-001=ACCEPTED, 145-002=ACCEPTED, 145-003=ACCEPTED e 145-004=REJECTED, com revisão independente do AGENTE 23.",
+        "A rejeição 145-004 foi revalidada adversarialmente: no contrato padrão, Response.blob() deriva o media type do Content-Type da resposta e readAsDataURL() entrega uma data: URL/string no caminho de sucesso; falhas pertencem ao caminho de erro já separado em 145-001.",
+        "Fonte integral e cobertura não explicam o drift: o code fence é byte-a-byte idêntico ao source atual e o mapa possui exatamente 269/269 posições únicas."
+      ],
+      "required_change": "Sincronizar o lifecycle textual: marcar 145-001..003 como ACCEPTED, registrar 145-004 como REJECTED com justificativa e remover as conclusões que tratam as quatro como OPEN/lacunas ativas, preservando honestamente as três dívidas aceitas."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T16:05:29Z",
+  "passages_executed": "0-15",
+  "confidence_matrix": {
+    "source_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_VS_PRIMARY_AGENTE_65",
+    "phase_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 268,
+    "documented_positions": "269/269",
+    "current_action_sha": "4a4825c36fdbe630e80dd7fba1341bdc7a06aecf",
+    "current_router_sha": "d9278e9e58e4e9583a30c16227bfd833e7203d89",
+    "ci_evidence": "Run 35669398870 / job 106562567286 used the exact test blob and listed all 11 cases as passing.",
+    "accepted_requests_revalidated": [
+      "145-001: FileReader.onerror path remains untested by this suite.",
+      "145-002: geminiSession accepts http/https host validation and can request credentials:'include' for HTTP googleusercontent; policy remains an accepted review.",
+      "145-003: this suite does not focally prove SOURCE_DENIED for popup/external against this specific action."
+    ],
+    "rejected_request_revalidated": "145-004 is not a supported-runtime gap requiring an artificial nonconformant Blob/FileReader success state.",
+    "audit_registry": "No dedicated #145 entry was found in legacy AUDITORIA.md; append-only PRIMARY is the current phase record.",
+    "formal_refutation_attempt": "Tried to invalidate PRIMARY by rechecking source/Bible identity, full source, all 269 coverage positions, production router/action behavior, consumers, exact CI run, platform Blob/FileReader semantics, and request rationale. The lifecycle mismatch remained material."
+  }
+}

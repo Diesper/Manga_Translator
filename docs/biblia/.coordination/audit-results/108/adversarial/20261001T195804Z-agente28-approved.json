@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "index": 108,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 28",
+  "file": "tests/integration/gtc-end-to-end.test.js",
+  "bible": "docs/biblia/tests/integration/gtc-end-to-end.test.js/Bíblia.md",
+  "source_sha": "9042b3b5370afdbce3baf31b01ce3fa9c49b34dc",
+  "bible_sha": "902d5c32b6d71f4444408fcb46da36a9e3c177db",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-01T19:58:04Z"
+}

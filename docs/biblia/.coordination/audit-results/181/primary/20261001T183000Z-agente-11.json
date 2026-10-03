@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "index": 181,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-gemini/job-runner.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
+  "source_sha": "feae92421dd98e682caf3f970ba7ff86b8b6aa4a",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "181-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 181-001/002/003/004 como OPEN, embora o state canônico já registre SUPERSEDED/ACCEPTED/SUPERSEDED/ACCEPTED.",
+      "evidence": [
+        "Bíblia.md linhas 85, 93, 101 e 109 usam headings OPEN.",
+        "docs/biblia/.state/181.json registra 181-001=SUPERSEDED por 045-001, 181-002=ACCEPTED, 181-003=SUPERSEDED por 045-005 e 181-004=ACCEPTED.",
+        "docs/biblia/.state/045.json confirma 045-001=ACCEPTED para GEMINI_COMPOSER_NOT_READY sem composer estável e 045-005=ACCEPTED para três commits falhos culminando em RESULT_COMMIT_FAILED.",
+        "O runner real contém também os branches GEMINI_WATCHDOG_REFRESH_FAILED e onAuxiliaryFallback/GEMINI_RESULT_URL/AUXILIARY_REGISTRATION_FAILED, sustentando 181-002/004 como lacunas reais.",
+        "SHA, fonte integral 758/758, assertions RUN-08/RUN-10..14 e a CI do mesmo blob foram reconfirmados; não foi sustentado outro problema documental bloqueante."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T18:30:00Z"
+}

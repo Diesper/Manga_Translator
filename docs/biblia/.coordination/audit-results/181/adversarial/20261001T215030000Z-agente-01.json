@@ -1,0 +1,71 @@
+{
+  "schema_version": 2,
+  "index": 181,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 1",
+  "file": "tests/unit/content-gemini/job-runner.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
+  "source_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
+  "bible_sha": "c2433449872cf63eedc0569c4057d8e31ff49ae4",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "181-ADV4-001",
+      "severity": "BLOCKING",
+      "category": "COVERAGE_AND_SEMANTIC_LINE_MAP_STALE",
+      "location": "Bíblia.md — seções 14 e 15",
+      "problem": "A fonte integral está exata, mas o mapa linha-a-linha continua na revisão anterior: documenta apenas Linhas 001..757 e chama a posição 758 de newline, enquanto o source atual possui 761 linhas textuais e newline final na posição 762.",
+      "evidence": [
+        "O source atual tem 761 linhas textuais; as linhas 231-233 adicionam o caso DataUrlAtob:null em RUN-01B.",
+        "A Bíblia possui exatamente 757 headings `Linha NNN`, sem 758-761, e apenas `Posição 758 — newline final`.",
+        "A partir da inserção, o conteúdo fica deslocado: a Bíblia documenta Linha 231 como vazia e Linha 232 como abertura de RUN-02, mas no source atual 231 cria `withoutAtobApi`, 232 chama dataURLtoFile e 233 exige `APIs de arquivo indisponíveis`.",
+        "A conclusão ainda declara `757 linhas textuais e a posição 758 do newline final`, contradizendo o cabeçalho 762 posições e o blob atual."
+      ],
+      "required_change": "Regenerar e revalidar integralmente o mapa para Linhas 001..761 + Posição 762, corrigindo Código/Função/Contexto após a inserção e a conclusão."
+    },
+    {
+      "id": "181-ADV4-002",
+      "severity": "BLOCKING",
+      "category": "STALE_CI_EVIDENCE_PROVENANCE",
+      "location": "Bíblia.md — seção 10, matriz de evidência e conclusão",
+      "problem": "A Bíblia afirma que o run 36521561968 no commit e720890c... contém exatamente o blob atual b0daca4c..., mas aquele commit contém o blob anterior feae9242.... A evidência CI citada não executou a nova assertion DataUrlAtob:null.",
+      "evidence": [
+        "A árvore Git do commit e720890cf34dc9437ee91f3b8172953497d69870 registra tests/unit/content-gemini/job-runner.test.js como blob feae92421dd98e682caf3f970ba7ff86b8b6aa4a.",
+        "O blob atual b0daca4ce839d8a5114c8c94e116fa155c721f7b foi criado no commit 0433c4c6e80aa983a99ee37524cf0257851c383c (`test: cover missing DataUrlAtob file API guard`) com +4 linhas.",
+        "Não há workflow run de pull_request associado ao commit 0433c4c6e80aa983a99ee37524cf0257851c383c.",
+        "Portanto os jobs 109255348388/109255348406 e CI Gate 109256050280 provam a revisão antiga, não o novo branch DataUrlAtob:null."
+      ],
+      "required_change": "Substituir a proveniência por execução que contenha o blob atual ou rebaixar explicitamente a revisão atual para evidência ainda não executada; não reutilizar o run antigo como prova do novo source."
+    },
+    {
+      "id": "181-ADV4-003",
+      "severity": "MATERIAL",
+      "category": "CONSUMER_AND_GATE_OMISSION",
+      "location": "Bíblia.md — dependências/consumers e evidência CI",
+      "problem": "A Bíblia não documenta o wiring estático atual que descobre e executa esta suíte, nem o ambiente de teste que fornece DOM/mocks. O run histórico é citado sem reconstruir como a suíte entra no gate.",
+      "evidence": [
+        "jest.config.js inclui `<rootDir>/tests/unit/content-gemini/**/*.test.js` no projeto `content-scripts`, com testEnvironment `jsdom` e setupFilesAfterEnv `tests/mocks/chrome-api.mock.js` + `tests/mocks/dom-environment.js`.",
+        "scripts/ci/run-jest-ci.js inclui `content-scripts` em unitProjects, usa jest.config.js, verifica --listTests e falha se algum .test.js unit/integration não for executado.",
+        "package.json#test:ci executa `node scripts/ci/run-jest-ci.js`; #test:unit e #test:unit:content também selecionam content-scripts.",
+        ".github/workflows/ci.yml executa `npm run test:ci` no job unit-and-integration em Node 20.x/22.x e o CI Gate depende desse job.",
+        "A Bíblia atual não menciona jest.config.js, run-jest-ci.js, test:ci, unit-and-integration ou os setupFilesAfterEnv."
+      ],
+      "required_change": "Adicionar a cadeia de descoberta/execução/gate e as dependências de ambiente, separando prova estrutural atual de evidência histórica de run."
+    },
+    {
+      "id": "181-ADV4-004",
+      "severity": "MATERIAL",
+      "category": "STATE_METADATA_STALE",
+      "location": "docs/biblia/.state/181.json — document_quality",
+      "problem": "O state já aponta para o SOURCE_SHA atual e declara que RUN-01B foi ampliado/sincronizado, mas document_quality permaneceu com métricas e proveniência da revisão anterior.",
+      "evidence": [
+        "state.source_sha é b0daca4ce839d8a5114c8c94e116fa155c721f7b e history registra a implementação concluída às 21:29:40Z.",
+        "document_quality ainda registra `documented_positions: 758/758` e `source_text_lines: 757`, embora o source atual seja 761/762.",
+        "document_quality.evidence_run continua 36521561968 e evidence_summary diz `Mesmo blob executado`, embora esse run contenha feae9242..., não b0daca4c....",
+        "A nota do próprio document_quality diz `Bíblia sincronizada com o novo source`, contradizendo as métricas/evidência stale."
+      ],
+      "required_change": "Atualizar document_quality de forma coerente com a revisão atual após corrigir a Bíblia; não manter self_audit APPROVED com métricas/proveniência factualmente incompatíveis."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:50:30.000Z"
+}

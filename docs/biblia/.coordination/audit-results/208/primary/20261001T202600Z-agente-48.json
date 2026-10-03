@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "index": 208,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 48",
+  "file": "tests/unit/content-manga/image-fingerprint.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/image-fingerprint.test.js/Bíblia.md",
+  "source_sha": "e4e553c7702701fd17a1d1f3ed2e429ad23934fd",
+  "bible_sha": "fd445726aeb152754361011883ffe6987279c6b2",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A48-208-01",
+      "severity": "BLOCKING",
+      "category": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém quatro audit requests como OPEN e conclui que há quatro solicitações abertas, mas o state canônico já registra três ACCEPTED e uma SUPERSEDED.",
+      "evidence": [
+        "Bíblia §8: 208-001, 208-002, 208-003 e 208-004 aparecem como `OPEN`.",
+        "Bíblia §11: `Resultado da autoauditoria: ✅ APROVADO documentalmente, com quatro solicitações abertas.`",
+        "docs/biblia/.state/208.json: 208-001=ACCEPTED (HIGH), 208-002=ACCEPTED (NORMAL), 208-003=ACCEPTED (NORMAL), 208-004=SUPERSEDED por 205-001 (HIGH).",
+        "docs/biblia/.state/205.json: 205-001 está ACCEPTED e contém a correção canônica do mirror de getCleanUrl; portanto 208-004 não deve permanecer apresentada como request OPEN independente."
+      ],
+      "required_change": "Atualizar §8 e a conclusão para refletir ACCEPTED/SUPERSEDED e apontar 208-004 explicitamente para 205-001, ou remover da Bíblia a duplicação de status mutável."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:26:00Z"
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 3,
+  "index": 181,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE HÍBRIDO 3",
+  "file": "tests/unit/content-gemini/job-runner.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
+  "source_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
+  "bible_sha": "81b10ff06407f9a040cf1b5afda3b94fc7c4779b",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "regression": "A alegação falsa de proveniência CI não foi introduzida por alteração posterior ao merge-base; o arquivo de teste atual já está no merge-base. É uma pendência documental da unidade diretamente ligada à revisão corrente.",
+      "id": "181-PH3-001",
+      "required_change": "Reclassificar o run 36521561968 como evidência histórica do blob feae9242, sem afirmar que cobre DataUrlAtob:null; documentar execução local focal atual 21/21 e registrar explicitamente que a nova assertion não tem run CI associado, ou fornecer um run que efetivamente execute o blob atual.",
+      "summary": "A Bíblia atribui o blob atual b0daca4c... a um run cujo commit executou o blob anterior feae9242..., superestimando a evidência de CI da mudança DataUrlAtob:null.",
+      "type": "STALE_CI_BLOB_PROVENANCE",
+      "severity": "HIGH",
+      "evidence": [
+        "Bíblia §10 declara que run 36521561968 no commit e720890cf34dc9437ee91f3b8172953497d69870 contém exatamente b0daca4ce839d8a5114c8c94e116fa155c721f7b.",
+        "git rev-parse e720890cf34dc9437ee91f3b8172953497d69870:tests/unit/content-gemini/job-runner.test.js retorna feae92421dd98e682caf3f970ba7ff86b8b6aa4a; o blob atual e o blob em 0433c4c6e80aa983a99ee37524cf0257851c383c são b0daca4ce839d8a5114c8c94e116fa155c721f7b.",
+        "O commit 0433c4c6e80aa983a99ee37524cf0257851c383c adiciona a cobertura DataUrlAtob:null, presente em RUN-01B atual. `gh run list --commit 0433c4c6e80aa983a99ee37524cf0257851c383c` retornou lista vazia.",
+        "Teste focal executado nesta revisão: 1 suíte, 21/21 testes, com --runInBand --detectOpenHandles. A suíte ampla content-scripts foi iniciada, mas interrompida após passar por testes RPA longos para manter a verificação no escopo da unidade.",
+        "Revisão independente da integridade documental: fonte atual tem 761 linhas textuais + newline; a Bíblia possui headings 1–761 contíguos, corrigindo o desalinhamento relatado no resultado anterior."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-03T08:03:24Z",
+  "completed_order_id": null,
+  "production_sha": null,
+  "test_sha": "b0daca4ce839d8a5114c8c94e116fa155c721f7b",
+  "audit_epoch": 1,
+  "handoff_id": "181-e1-833ac96b1f4c",
+  "revision_id": "b97d5587eb99f545f3fb26a0f65122faedd2ac1a0fcbbd4935b48b3d7a301d72",
+  "human_approval_id": null
+}

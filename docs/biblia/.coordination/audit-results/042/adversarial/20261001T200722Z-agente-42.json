@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "index": 42,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 42",
+  "file": "extension/content/gemini/dom.js",
+  "bible": "docs/biblia/extension/content/gemini/dom.js/Bíblia.md",
+  "source_sha": "d3694ea70cdd97b64e483884895a458993791714",
+  "bible_sha": "e15d3cc1128c8b9b58f435b9ef597ddd1d45d326",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "042-ADV-001",
+      "severity": "BLOCKING",
+      "category": "EVIDENCE_CLASSIFICATION",
+      "finding": "A cobertura linha-a-linha classifica como PROVADO DIRETAMENTE o ramo inválido de findAllDeep na Linha 068, embora o teste citado use somente root válido e matcher função.",
+      "evidence": "Bíblia Linha 068: '✅ PROVADO DIRETAMENTE' e na mesma evidência 'erros do matcher não são testados'. Source Linha 068: if (!root || typeof matcher !== 'function') return list;. dom-modules.test.js chama findAllDeep(document.body, element => ...) e não possui caso null/non-function/throw para esse contrato.",
+      "requested_action": "Rebaixar a classificação da Linha 068 (e quaisquer linhas U05 cujo comportamento específico não é assertado) para a força realmente sustentada, ou citar/adicionar prova focal existente sem alterar source durante a auditoria."
+    },
+    {
+      "id": "042-ADV-002",
+      "severity": "BLOCKING",
+      "category": "EVIDENCE_CLASSIFICATION",
+      "finding": "Linhas de variantes positivas do primeiro passe de findSendButton são marcadas PROVADO DIRETAMENTE apesar de o único teste focal selecionar o candidato por aria-label='Send message', tornando várias expressões posteriores inalcançadas por short-circuit.",
+      "evidence": "Source Linha 285 satisfaz label === 'send message'; por short-circuit de ||, Linhas 286-294 (incluindo tooltip === 'send', testId === 'send-button' e className.includes('send-button')) não são avaliadas para o candidato vencedor. A Bíblia marca, por exemplo, Linhas 289/293/294 como '✅ PROVADO DIRETAMENTE' e simultaneamente admite que variantes de label/icon/test-id não são todas isoladas.",
+      "requested_action": "Reclassificar as Linhas 286-294 conforme a evidência real e separar execução/semântica geral de prova positiva de cada variante; somente manter PROVADO DIRETAMENTE onde uma assertion focal realmente exerce e distingue o comportamento."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:07:22Z"
+}

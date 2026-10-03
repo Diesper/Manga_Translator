@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "index": 191,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE HÍBRIDO",
+  "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+  "source_sha": "207a1ba48085ee9090ab55974db84ae8cf00c4a3",
+  "bible_sha": "1c49f79ad10800973f252f7ee2617b3031346a18",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "191-PRI2-001",
+      "severity": "HIGH",
+      "type": "AUDIO_LIFECYCLE_BRANCH_GAP",
+      "summary": "A revisão real de áudio ainda não prova o lifecycle que depende de ativação do usuário nem a recriação após AudioContext fechado.",
+      "evidence": [
+        "content_manga.js chama unlockNotificationAudio() no clique real do botão e no fluxo de tradução individual; esse caminho é responsável por resume() enquanto a ativação do usuário ainda é válida.",
+        "audio-synthesis-full.test.js dispara START_TRANSLATION_FROM_POPUP diretamente e não clica no botão; replacement-and-completion-real.test.js possui cliques, mas não instala/asserta AudioContext/AUDIO_UNLOCKED.",
+        "getNotificationAudioContext() possui branch explícito `notificationAudioContext.state === 'closed'` que deve criar um novo contexto; nem a suíte #191 nem a relacionada contém fixture state:'closed'.",
+        "As dependências citadas na Bíblia continuam nos SHAs documentados; portanto o gap é comportamental, não staleness documental."
+      ],
+      "requested_action": "Adicionar regressões pelo content script real para o clique que executa unlockNotificationAudio e para substituição de contexto closed; fortalecer fallbacks adjacentes de áudio quando apropriado.",
+      "impact": "Autoplay pode voltar a falhar no gesto real ou um contexto fechado pode ser reutilizado/incorretamente não substituído enquanto a suíte permanece verde."
+    }
+  ],
+  "confirmations": {
+    "source_bible_binding": "CONFIRMADO",
+    "embedded_source_exact": "A_REVALIDAR_APOS_CORRECAO",
+    "prior_requests_191_001_003": "CORRECOES_PRESENTES",
+    "dependency_shas": "COINCIDEM_COM_BIBLIA",
+    "prior_run": "36948794013 focal 5/5 Node20+Node22; related audio PASS; global failures external"
+  },
+  "completed_at_utc": "2026-10-02T01:22:00Z"
+}

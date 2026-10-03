@@ -1,0 +1,133 @@
+{
+  "index": 18,
+  "file": "extension/background/actions/open-manga-root.js",
+  "bible": "docs/biblia/extension/background/actions/open-manga-root.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "71c83df253cdac601a118104fc1d7e467f35bfd6",
+  "started_at_utc": "2026-09-30T12:27:00Z",
+  "completed_at_utc": "2026-10-01T21:00:46.521Z",
+  "audit_requests": [
+    {
+      "id": "018-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/open-manga-root-action.test.js",
+      "found_while_auditing": "extension/background/actions/open-manga-root.js",
+      "finding": "Não há teste focal para context.handleMarkerAndShow ausente ou inválido.",
+      "current_evidence": "Sucesso e erro do helper são preservados e keepAlive=true é provado.",
+      "missing_evidence": "Comportamento do router quando a dependência não existe.",
+      "why_needed": "Falha de montagem do contexto pode virar exceção genérica sem diagnóstico específico.",
+      "requested_action": "Adicionar teste da action real sem helper e confirmar resposta/erro do router.",
+      "expected_evidence": "Ausência do helper produz comportamento controlado e não fica pendente.",
+      "expected_auditor_action": "Fortalecer cobertura em mudança separada.",
+      "possible_regression": "Abertura da pasta raiz pode falhar sem resposta útil.",
+      "impact": "Ação do popup para abrir a pasta principal.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:42:00Z",
+      "audit_finding": "ACCEPTED. `execute` chama diretamente `context.handleMarkerAndShow`; ausência ou valor não-função lança antes de resposta e não há caso focal correspondente.",
+      "auditor_recommended_action": "Adicionar guard/dependency contract e teste para helper ausente/inválido."
+    },
+    {
+      "id": "018-002",
+      "status": "ACCEPTED",
+      "type": "ASYNC_LIFECYCLE_REVIEW",
+      "target_file": "extension/background/actions/open-manga-root.js",
+      "found_while_auditing": "extension/background/actions/open-manga-root.js",
+      "finding": "A Promise só resolve quando handleMarkerAndShow invoca o callback; não há timeout local.",
+      "current_evidence": "Os testes existentes sempre chamam o callback.",
+      "missing_evidence": "Garantia de conclusão quando o helper não responde.",
+      "why_needed": "Um ramo sem callback pode manter o canal de mensagem aberto indefinidamente.",
+      "requested_action": "Auditar o helper e, se necessário, definir timeout/cancelamento em mudança separada com teste.",
+      "expected_evidence": "Lifecycle de conclusão explicitamente provado.",
+      "expected_auditor_action": "Revisar contrato assíncrono.",
+      "possible_regression": "Popup pode ficar aguardando indefinidamente.",
+      "impact": "UX e lifecycle de mensagens.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T20:42:00Z",
+      "audit_finding": "ACCEPTED como lifecycle review. A Promise resolve somente quando `handleMarkerAndShow` invoca callback; não há timeout/rejeição local. Callback perdido deixa a action pendente indefinidamente.",
+      "auditor_recommended_action": "Adicionar timeout/cancelamento ou garantir contrato durável do helper; testar callback que nunca chega."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "20/20",
+    "source_text_lines": 19,
+    "external_audit_requests_open": 2,
+    "note": "Reauditoria solicitada pelo usuário concluída; duas lacunas persistidas sem alterar código funcional."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T21:00:46.521Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "71c83df253cdac601a118104fc1d7e467f35bfd6",
+      "bible_sha": "cc5baa2d27ce612031ebafa2ad82961ccbf26d0d",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "0f91f216fcaa95dfc3c13317baf22a74a27290de43c52a7eff2c04021af9f51d",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "0290b29039c079c3e44f7e892da0233403df852c371edb95df54573e2777a151"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:39.403Z",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "COMPLETED",
+      "from_review_status": "CHANGES_REQUIRED",
+      "to_review_status": "CHANGES_REQUIRED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "0290b29039c079c3e44f7e892da0233403df852c371edb95df54573e2777a151",
+      "event_hash": "9f1dfdf2328c17ffe0fbdc433a490eb5b24d53892e95d4a37cff42fa971c8120"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "CHANGES_REQUIRED",
+      "to_review_status": "CHANGES_REQUIRED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "9f1dfdf2328c17ffe0fbdc433a490eb5b24d53892e95d4a37cff42fa971c8120",
+      "event_hash": "9b424c59035b528501a8564504dec098cc5fda81335e9467c509f612bed16436"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "71c83df253cdac601a118104fc1d7e467f35bfd6",
+  "bible_sha": null,
+  "revision_id": "0f91f216fcaa95dfc3c13317baf22a74a27290de43c52a7eff2c04021af9f51d",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.",
+  "review_status": "CHANGES_REQUIRED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T21:00:46.521Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "CHANGES_REQUIRED"
+    ]
+  }
+}

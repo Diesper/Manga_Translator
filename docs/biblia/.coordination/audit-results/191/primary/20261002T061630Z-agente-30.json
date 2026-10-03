@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "index": 191,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 30",
+  "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
+  "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
+  "bible_sha": "ef9c432625b61f10fe27ff613bb39a59fd9ae509",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "191-031",
+      "severity": "HIGH",
+      "type": "GTC_FALLBACK_READ_ERROR_UNHANDLED",
+      "summary": "Legacy fallback read ignores storage.local.get errors.",
+      "evidence": [
+        "cm-gtc-client.js line 118 resolves the callback result directly without inspecting chrome.runtime.lastError.",
+        "line 119 immediately indexes the returned object for each gtc_<hash>.",
+        "No current test injects lastError for this legacy read."
+      ],
+      "requested_action": "Make fallback reads error-aware and add fault-injection regression together with 191-029/030.",
+      "correction_authorized": false,
+      "reason_correction_not_authorized": "Distinct ADVERSARIAL decision is still required for the protected binding."
+    }
+  ],
+  "score": {
+    "functional_correctness": "22/25",
+    "adversarial_robustness": "14/20",
+    "coverage_tests": "16/20",
+    "regressions_compatibility": "15/15",
+    "error_handling": "6/10",
+    "structural_quality": "5/5",
+    "documentation_coherence": "5/5",
+    "total": "83/100"
+  },
+  "completed_at_utc": "2026-10-02T06:16:30Z"
+}

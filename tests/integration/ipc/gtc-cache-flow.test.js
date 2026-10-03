@@ -1,250 +1,290 @@
 /**
  * gtc-cache-flow.test.js
  * ─────────────────────────────────────────────────────────────────────────────
- * Testes de integração do Global Translation Cache (GTC) — v3.2.
+ * Integração real do GTC moderno:
+ * content_manga.js -> chrome.runtime -> createGtcRuntimeHandler -> IndexedDB.
  *
- * FLUXO COMPLETO:
- * 1. extractAndSendImages gera fingerprints em paralelo
- * 2. Consulta o GTC no storage (batch get)
- * 3. Cache hits → applyImageReplacement(fromCache=true)
- * 4. Cache misses → fila do Gemini
- * 5. UPDATE_IMAGE salva no GTC após nova tradução
- *
- * CENÁRIOS:
- * A. 100% cache hits → sem Gemini, checkIfComplete(true)
- * B. 0% cache hits → tudo vai para Gemini (comportamento v3.1)
- * C. Hits parciais → alguns imediatos + resto para Gemini
- * D. Mesma imagem em site espelho → GTC resolve sem Gemini
+ * A suíte não reimplementa a decisão hit/miss. Fixtures apenas pré-populam o
+ * repository real ou forçam explicitamente o fallback legado.
  */
 
-const path = require('path');
-const fs   = require('fs');
-// Portable root finder — works regardless of where this file is placed in the tree.
-// Walks up from __dirname until it finds the folder containing extension/manifest.json.
-const { findRepoRoot } = require('../../helpers/repo-root');
-const ROOT = findRepoRoot(__dirname);
+const crypto = require('crypto');
+const { TextEncoder } = require('util');
+const { IDBFactory } = require('fake-indexeddb');
 
-const { getStorageMock } = require(path.join(ROOT, 'tests/mocks/chrome-api.mock.js'));
+const { loadContentScript } = require('../../helpers/load-content-script.js');
+const {
+    getRuntimeMock,
+    getStorageMock,
+} = require('../../mocks/chrome-api.mock.js');
+const {
+    createGtcRuntimeHandler,
+    createIndexedDbRepository,
+} = require('../../../extension/shared/gtc-indexeddb.js');
 
-describe('Global Translation Cache (GTC) — Fluxo Completo v3.2', () => {
+Object.defineProperty(global, 'crypto', {
+    value: crypto.webcrypto,
+    configurable: true,
+});
+global.TextEncoder = TextEncoder;
+if (typeof globalThis.structuredClone !== 'function') {
+    globalThis.structuredClone = value => JSON.parse(JSON.stringify(value));
+}
 
-    const TRANS_BASE64 = 'data:image/png;base64,TRANSLATED_IMAGE';
-    const HASH_PAGE1   = 'a'.repeat(64); // SHA-256 simulado para página 1
-    const HASH_PAGE2   = 'b'.repeat(64); // SHA-256 simulado para página 2
-    const HASH_PAGE3   = 'c'.repeat(64); // SHA-256 simulado para página 3
+describe('Global Translation Cache (GTC) — integração moderna real', () => {
+    const TRANSLATED_0 = 'data:image/png;base64,Q0FDSEVfMA==';
+    const TRANSLATED_1 = 'data:image/png;base64,Q0FDSEVfMQ==';
 
-    // ── Simulação do fluxo de extractAndSendImages com GTC ─────────────────────
-    async function simulateExtractWithGTC(chromeStorage, imageHashes) {
-        const hashKeys = imageHashes.filter(Boolean).map(h => `gtc_${h}`);
-        const gtcData = hashKeys.length > 0
-            ? await new Promise(r => chromeStorage.get(hashKeys, r))
-            : {};
+    let runtimeMock;
+    let storageMock;
+    let repository;
+    let runtimeMessages;
+    let startBatches;
+    let queryManyMode;
 
-        const cacheHits = [];
-        const cacheMisses = [];
-
-        imageHashes.forEach((hash, i) => {
-            const cacheKey = hash ? `gtc_${hash}` : null;
-            const cached = cacheKey ? gtcData[cacheKey] : null;
-            if (cached) cacheHits.push({ index: i, base64: cached });
-            else cacheMisses.push({ index: i });
-        });
-
-        return { cacheHits, cacheMisses };
+    function uniqueDbName() {
+        return `gtc-cache-flow-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
 
-    let storageMock;
+    async function waitFor(assertion, { timeout = 3000, interval = 10 } = {}) {
+        const startedAt = performance.now();
+        while (performance.now() - startedAt < timeout) {
+            const result = await assertion();
+            if (result) return result;
+            await new Promise(resolve => setTimeout(resolve, interval));
+        }
+        throw new Error('Timeout aguardando integração GTC');
+    }
 
-    beforeEach(() => {
-        storageMock = getStorageMock();
-    });
+    function installRealGtcBridge() {
+        const realHandler = createGtcRuntimeHandler({ repository });
 
-    describe('Cenário A: 100% cache hits', () => {
-        test('todas as imagens no cache → sem envio para Gemini', async () => {
-            // Pré-popula o GTC
-            await storageMock.set({
-                [`gtc_${HASH_PAGE1}`]: TRANS_BASE64,
-                [`gtc_${HASH_PAGE2}`]: TRANS_BASE64,
-            });
+        runtimeMock.onMessage.addListener((request, sender, sendResponse) => {
+            if (!request || !request.action || !request.action.startsWith('GTC_')) return false;
+            runtimeMessages.push(request);
 
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2]
-            );
+            if (request.action === 'GTC_QUERY_MANY' && queryManyMode) {
+                if (queryManyMode.kind === 'seed') {
+                    Promise.resolve()
+                        .then(async () => {
+                            const selected = queryManyMode.select(request.hashes || []);
+                            await repository.putMany(
+                                selected.map(({ hash, translatedDataUrl }) => ({
+                                    hash,
+                                    translatedDataUrl,
+                                    cleanUrl: `fixture://${hash}`,
+                                }))
+                            );
+                            realHandler(request, sender, sendResponse);
+                        })
+                        .catch(error => sendResponse({ ok: false, error: error.message }));
+                    return true;
+                }
 
-            expect(cacheHits).toHaveLength(2);
-            expect(cacheMisses).toHaveLength(0);
-        });
-
-        test('cache hits têm o base64 correto', async () => {
-            const TRANS_P1 = 'data:image/png;base64,PAGE1_TRANSLATED';
-            const TRANS_P2 = 'data:image/png;base64,PAGE2_TRANSLATED';
-
-            await storageMock.set({
-                [`gtc_${HASH_PAGE1}`]: TRANS_P1,
-                [`gtc_${HASH_PAGE2}`]: TRANS_P2,
-            });
-
-            const { cacheHits } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2]
-            );
-
-            expect(cacheHits[0].base64).toBe(TRANS_P1);
-            expect(cacheHits[1].base64).toBe(TRANS_P2);
-        });
-    });
-
-    describe('Cenário B: 0% cache hits', () => {
-        test('nenhuma imagem no cache → todas vão para Gemini', async () => {
-            // Storage vazio — sem GTC entries
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]
-            );
-
-            expect(cacheHits).toHaveLength(0);
-            expect(cacheMisses).toHaveLength(3);
-        });
-
-        test('indices dos cache misses são preservados corretamente', async () => {
-            const { cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]
-            );
-
-            expect(cacheMisses.map(m => m.index)).toEqual([0, 1, 2]);
-        });
-    });
-
-    describe('Cenário C: hits parciais', () => {
-        test('pag1 e pag3 no cache, pag2 não → pag2 vai para Gemini', async () => {
-            await storageMock.set({
-                [`gtc_${HASH_PAGE1}`]: TRANS_BASE64,
-                // HASH_PAGE2 não está no cache
-                [`gtc_${HASH_PAGE3}`]: TRANS_BASE64,
-            });
-
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]
-            );
-
-            expect(cacheHits.map(h => h.index)).toEqual([0, 2]);
-            expect(cacheMisses.map(m => m.index)).toEqual([1]);
-        });
-
-        test('contagem total = cache hits + cache misses = imagens selecionadas', async () => {
-            await storageMock.set({ [`gtc_${HASH_PAGE1}`]: TRANS_BASE64 });
-
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [HASH_PAGE1, HASH_PAGE2, HASH_PAGE3]
-            );
-
-            expect(cacheHits.length + cacheMisses.length).toBe(3);
-        });
-    });
-
-    describe('Cenário D: mesma imagem em site espelho (cross-URL)', () => {
-        test('imagem traduzida em siteA é reconhecida em siteB pelo hash', async () => {
-            // A MESMA imagem física (mesmo conteúdo de pixels) tem URLs diferentes
-            // em dois sites, mas produz o MESMO fingerprint hash.
-            const SHARED_HASH = HASH_PAGE1; // Mesmo hash = mesma imagem
-
-            // Salva no GTC após tradução em siteA
-            await storageMock.set({ [`gtc_${SHARED_HASH}`]: TRANS_BASE64 });
-
-            // siteB tenta traduzir a mesma imagem — deve encontrar no GTC
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                [SHARED_HASH] // Mesmo hash, URL diferente (mas hash é o que importa)
-            );
-
-            expect(cacheHits).toHaveLength(1);
-            expect(cacheMisses).toHaveLength(0);
-            expect(cacheHits[0].base64).toBe(TRANS_BASE64);
-        });
-    });
-
-    describe('Salvamento no GTC após tradução pelo Gemini', () => {
-        test('UPDATE_IMAGE salva entry no GTC com chave gtc_${hash}', async () => {
-            const hash = HASH_PAGE1;
-            const translated = TRANS_BASE64;
-
-            // Simula o que UPDATE_IMAGE faz
-            await storageMock.set({ [`gtc_${hash}`]: translated });
-
-            // Verifica que a entry foi salva
-            const data = await storageMock.get([`gtc_${hash}`]);
-            expect(data[`gtc_${hash}`]).toBe(translated);
-        });
-
-        test('sem hash disponível (fingerprint falhou), GTC não é salvo', async () => {
-            // origHash = null significa que generateImageFingerprint retornou null
-            const origHash = null;
-            const toSet = {};
-
-            if (origHash) {
-                toSet[`gtc_${origHash}`] = TRANS_BASE64;
+                if (queryManyMode.kind === 'legacy-fallback') {
+                    Promise.resolve()
+                        .then(async () => {
+                            const legacyEntries = Object.fromEntries(
+                                (request.hashes || []).map((hash, index) => [
+                                    `gtc_${hash}`,
+                                    queryManyMode.values[index] || TRANSLATED_0,
+                                ])
+                            );
+                            await storageMock.set(legacyEntries);
+                            sendResponse({ ok: false, error: 'forced modern GTC failure' });
+                        })
+                        .catch(error => sendResponse({ ok: false, error: error.message }));
+                    return true;
+                }
             }
 
-            await storageMock.set(toSet);
-
-            // Nenhuma chave gtc_* deve existir
-            const data = await storageMock.get(null);
-            const gtcKeys = Object.keys(data).filter(k => k.startsWith('gtc_'));
-            expect(gtcKeys).toHaveLength(0);
+            return realHandler(request, sender, sendResponse);
         });
 
-        test('múltiplas traduções criam múltiplas entries no GTC', async () => {
-            await storageMock.set({ [`gtc_${HASH_PAGE1}`]: 'data:base64:T1' });
-            await storageMock.set({ [`gtc_${HASH_PAGE2}`]: 'data:base64:T2' });
-            await storageMock.set({ [`gtc_${HASH_PAGE3}`]: 'data:base64:T3' });
+        runtimeMock.onMessage.addListener((request, _sender, sendResponse) => {
+            if (!request || !request.action) return false;
 
-            const data = await storageMock.get(null);
-            const gtcKeys = Object.keys(data).filter(k => k.startsWith('gtc_'));
-            expect(gtcKeys).toHaveLength(3);
+            if (request.action === 'START_BATCH') {
+                startBatches.push(request);
+                sendResponse({
+                    ok: true,
+                    batchId: request.batchId,
+                    queued: false,
+                    queuePosition: null,
+                });
+                return false;
+            }
+
+            if (request.action === 'CALCULATE_VISUAL_FINGERPRINT') {
+                sendResponse({ ok: false, error: 'fingerprint visual não necessário no cenário SHA' });
+                return false;
+            }
+
+            if (
+                request.action === 'LOG_ENTRY'
+                || request.action === 'SM_SAVE_PAGE'
+                || request.action === 'SM_STATS'
+            ) {
+                sendResponse({ ok: true });
+                return false;
+            }
+
+            return false;
         });
+    }
+
+    async function loadPages(count = 2) {
+        return loadContentScript({
+            hostname: 'localhost',
+            domImages: Array.from({ length: count }, (_, index) => ({
+                src: `http://localhost/page-${index}.png`,
+                width: 800 + index,
+                height: 1200 + index,
+            })),
+        });
+    }
+
+    beforeEach(async () => {
+        jest.resetModules();
+        runtimeMock = getRuntimeMock();
+        storageMock = getStorageMock();
+
+        runtimeMock._messageListeners = [];
+        runtimeMock._connectListeners = [];
+        runtimeMock.lastError = null;
+        runtimeMessages = [];
+        startBatches = [];
+        queryManyMode = null;
+
+        await storageMock.clear();
+        repository = createIndexedDbRepository({
+            indexedDbFactory: new IDBFactory(),
+            dbName: uniqueDbName(),
+        });
+        installRealGtcBridge();
+
+        delete window.__manga_translator_content_injected;
+        delete window.__manga_translator_active_instance;
+        delete window.MangaTranslatorGtcFingerprint;
+        document.documentElement.innerHTML = '<head></head><body></body>';
     });
 
-    describe('Batch get vs N gets individuais (eficiência)', () => {
-        test('um único get com N chaves retorna os mesmos dados que N gets individuais', async () => {
-            await storageMock.set({
-                [`gtc_${HASH_PAGE1}`]: 'data:T1',
-                [`gtc_${HASH_PAGE2}`]: 'data:T2',
-                [`gtc_${HASH_PAGE3}`]: 'data:T3',
-            });
-
-            // Batch get (uma chamada)
-            const batchResult = await new Promise(r =>
-                storageMock.get([
-                    `gtc_${HASH_PAGE1}`,
-                    `gtc_${HASH_PAGE2}`,
-                    `gtc_${HASH_PAGE3}`
-                ], r)
-            );
-
-            expect(batchResult[`gtc_${HASH_PAGE1}`]).toBe('data:T1');
-            expect(batchResult[`gtc_${HASH_PAGE2}`]).toBe('data:T2');
-            expect(batchResult[`gtc_${HASH_PAGE3}`]).toBe('data:T3');
-        });
+    afterEach(async () => {
+        jest.restoreAllMocks();
+        await repository.clear();
+        await storageMock.clear();
+        runtimeMock._messageListeners = [];
+        runtimeMock._connectListeners = [];
+        delete window.__manga_translator_content_injected;
+        delete window.__manga_translator_active_instance;
+        delete window.MangaTranslatorGtcFingerprint;
+        document.documentElement.innerHTML = '<head></head><body></body>';
     });
 
-    describe('Hashes nulos ou imagens inválidas', () => {
-        test('hash null é ignorado (sem entrada no GTC)', async () => {
-            const hashes = [null, HASH_PAGE1, null];
-            await storageMock.set({ [`gtc_${HASH_PAGE1}`]: TRANS_BASE64 });
+    test('100% SHA hits passam pelo runtime/IndexedDB real e evitam START_BATCH', async () => {
+        queryManyMode = {
+            kind: 'seed',
+            select(hashes) {
+                return (hashes || []).map((hash, index) => ({
+                    hash,
+                    translatedDataUrl: index === 0 ? TRANSLATED_0 : TRANSLATED_1,
+                }));
+            },
+        };
 
-            const { cacheHits, cacheMisses } = await simulateExtractWithGTC(
-                storageMock,
-                hashes
-            );
+        await loadPages(2);
+        document.getElementById('manga-main-content').click();
 
-            // null hashes = cache miss
-            expect(cacheMisses.map(m => m.index)).toContain(0);
-            expect(cacheMisses.map(m => m.index)).toContain(2);
-            expect(cacheHits.map(h => h.index)).toContain(1);
+        await waitFor(() =>
+            Array.from(document.querySelectorAll('img')).every(img => img.dataset.translated === 'true')
+        );
+
+        const images = Array.from(document.querySelectorAll('img'));
+        expect(images[0].getAttribute('src')).toBe(TRANSLATED_0);
+        expect(images[1].getAttribute('src')).toBe(TRANSLATED_1);
+        expect(startBatches).toHaveLength(0);
+
+        const shaQueries = runtimeMessages.filter(message => message.action === 'GTC_QUERY_MANY');
+        expect(shaQueries).toHaveLength(1);
+        expect(shaQueries[0].hashes).toHaveLength(2);
+    });
+
+    test('hit parcial aplica cache e encaminha somente o miss para START_BATCH', async () => {
+        queryManyMode = {
+            kind: 'seed',
+            select(hashes) {
+                return hashes && hashes[0]
+                    ? [{ hash: hashes[0], translatedDataUrl: TRANSLATED_0 }]
+                    : [];
+            },
+        };
+
+        await loadPages(2);
+        document.getElementById('manga-main-content').click();
+
+        const batch = await waitFor(() => startBatches[0]);
+        expect(batch.images).toEqual([{ index: 1 }]);
+
+        await waitFor(() => document.querySelector('[data-testid="img-0"]').dataset.translated === 'true');
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src')).toBe(TRANSLATED_0);
+        expect(document.querySelector('[data-testid="img-1"]').dataset.translated).not.toBe('true');
+
+        const shaQueries = runtimeMessages.filter(message => message.action === 'GTC_QUERY_MANY');
+        expect(shaQueries).toHaveLength(1);
+        expect(shaQueries[0].hashes).toHaveLength(2);
+    });
+
+    test('falha do caminho moderno ativa fallback legado gtc_<hash> na implementação real', async () => {
+        queryManyMode = {
+            kind: 'legacy-fallback',
+            values: [TRANSLATED_0, TRANSLATED_1],
+        };
+
+        await loadPages(2);
+        document.getElementById('manga-main-content').click();
+
+        await waitFor(() =>
+            Array.from(document.querySelectorAll('img')).every(img => img.dataset.translated === 'true')
+        );
+
+        const images = Array.from(document.querySelectorAll('img'));
+        expect(images[0].getAttribute('src')).toBe(TRANSLATED_0);
+        expect(images[1].getAttribute('src')).toBe(TRANSLATED_1);
+        expect(startBatches).toHaveLength(0);
+
+        const shaQueries = runtimeMessages.filter(message => message.action === 'GTC_QUERY_MANY');
+        expect(shaQueries).toHaveLength(1);
+
+        const legacyState = await storageMock.get(
+            shaQueries[0].hashes.map(hash => `gtc_${hash}`)
+        );
+        expect(Object.keys(legacyState)).toHaveLength(2);
+    });
+
+    test('UPDATE_IMAGE real persiste tradução via GTC_SAVE no repository IndexedDB real', async () => {
+        const context = await loadPages(1);
+        const original = document.querySelector('[data-testid="img-0"]');
+        original.dataset.mangaIndex = '0';
+        original.dataset.origHash = 'abc123hash';
+
+        await context.sendMessage('UPDATE_IMAGE', {
+            index: 0,
+            newSrc: TRANSLATED_0,
         });
+
+        await waitFor(async () => {
+            const result = await repository.getMany(['abc123hash']);
+            return result.abc123hash === TRANSLATED_0;
+        });
+
+        const stored = await repository.getMany(['abc123hash']);
+        expect(stored).toEqual({ abc123hash: TRANSLATED_0 });
+        expect(runtimeMessages).toContainEqual(expect.objectContaining({
+            action: 'GTC_SAVE',
+            hash: 'abc123hash',
+            translatedDataUrl: TRANSLATED_0,
+            cleanUrl: 'http://localhost/page-0.png',
+        }));
+        expect(document.querySelector('[data-testid="img-0"]').getAttribute('src')).toBe(TRANSLATED_0);
     });
 });

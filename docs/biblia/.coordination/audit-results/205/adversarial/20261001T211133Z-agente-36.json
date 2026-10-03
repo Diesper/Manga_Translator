@@ -1,0 +1,36 @@
+{
+  "schema_version": 2,
+  "index": 205,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 36",
+  "file": "tests/unit/content-manga/get-clean-url.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/get-clean-url.test.js/Bíblia.md",
+  "source_sha": "a04fe1e3552d5b61a91442496a1294e6d8379fbf",
+  "bible_sha": "d974ab38ab394831906ed49b976bafbd244b75a1",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "205-ADV36-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 205-001/002/003 como OPEN e conclui que há três audit_requests abertos, mas o state canônico registra os três como ACCEPTED.",
+      "evidence": [
+        "Bíblia.md linhas 113, 129 e 145 rotulam 205-001/002/003 como OPEN; linha 401 afirma 'três audit_requests abertos'.",
+        "docs/biblia/.state/205.json registra 205-001=ACCEPTED, 205-002=ACCEPTED e 205-003=ACCEPTED, todos já auditados por AGENTE 23.",
+        "As três lacunas técnicas permanecem factuais; o defeito bloqueante é o lifecycle/status documental stale, não a existência das requests."
+      ]
+    },
+    {
+      "id": "205-ADV36-002",
+      "severity": "NORMAL",
+      "type": "EVIDENCE_CLASSIFICATION_CONTRADICTION",
+      "summary": "A tabela classifica Reddit/Imgur como PROVADO DIRETAMENTE, embora a própria Bíblia reconheça que auto-restorer-real.test.js fornece apenas evidência consumer-level indireta para a API focal getCleanUrl.",
+      "evidence": [
+        "Bíblia.md linhas 84-85 classifica canonicalização Reddit/Imgur como 'PROVADO DIRETAMENTE por teste externo'.",
+        "Bíblia.md linha 109 afirma explicitamente que essas provas são 'indiretas para a API focal' e 'consumer-level', sem matriz direta sobre MangaTranslatorDomReplace.getCleanUrl.",
+        "auto-restorer-real.test.js não chama MangaTranslatorDomReplace.getCleanUrl diretamente; loadContentScript carrega cm-dom-replace.js real e as assertions observam restauração final via consumidor. A categoria conservadora é PROVA_DE_CONSUMIDOR/EXECUCAO_INDIRETA."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:11:33Z"
+}

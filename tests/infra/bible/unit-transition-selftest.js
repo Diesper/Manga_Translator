@@ -1,0 +1,618 @@
+'use strict';
+
+const assert = require('assert');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const life = require('../../../scripts/bible/core/lifecycle-core');
+const transition = require('../../../scripts/bible/commands/unit-transition');
+const realPlanTransition = transition.planTransition;
+const orderFixture = require('./completed-order-fixture');
+// These scenarios explicitly exercise authorized work. Denial without a human
+// order has its own end-to-end policy suite, so its rejection cannot mask CAS,
+// revision, token or lifecycle errors below.
+const authorizedTransition = { ...transition, planTransition(input) {
+  return realPlanTransition({ ...input, completedOrder: input.state.completion?.human_order_required_since_utc
+    ? orderFixture.orderFor(input.state,input.request.at_utc) : null });
+} };
+
+// Exercise the executable entry point as well as the imported API. The protocol
+// loads this module again while the CLI is building its model.
+const cli = require('child_process').spawnSync(process.execPath, [
+  path.resolve(__dirname, '../../../scripts/bible/commands/unit-transition.js'), 'issue-token',
+  '--index', '999', '--actor', 'CLI-REGRESSION',
+  '--at', '2026-10-02T21:45:00Z', '--expected-status', 'CHANGES_REQUIRED',
+  '--expected-state-sha', '0'.repeat(40),
+  '--expected-revision-id', '0'.repeat(64), '--expected-cycle', '0',
+], { encoding: 'utf8' });
+assert.ifError(cli.error);
+assert.strictEqual(cli.status, 1);
+assert.match(cli.stderr, /Unit transition: ERROR — INDEX_NOT_FOUND/);
+console.log('PASS executable transition CLI initializes protocol dependencies before rejecting an unknown unit');
+
+function state(cycles = 0) {
+  const s = {
+    index: 10,
+    status: 'CHANGES_REQUIRED',
+    file: 'fixture.js',
+    bible: 'docs/biblia/fixture/Bíblia.md',
+    source_sha: 'a'.repeat(40),
+    bible_sha: 'b'.repeat(40),
+    history: [],
+  };
+  for (let i=1;i<=cycles;i+=1) {
+    s.history.push({
+      at_utc: '2026-10-01T0' + i + ':00:00Z',
+      type: 'EDITOR_CORRECTION_STARTED',
+      from_status: 'CHANGES_REQUIRED',
+      to_status: 'IN_PROGRESS',
+      agent: 'AGENT-' + i,
+      source_sha: s.source_sha,
+      bible_sha: s.bible_sha,
+    });
+    s.history.push({
+      at_utc: '2026-10-01T0' + i + ':10:00Z',
+      type: life.HANDOFF_EVENT,
+      source_sha: s.source_sha,
+      bible_sha: s.bible_sha,
+      agent: 'AGENT-' + i,
+    });
+  }
+  return s;
+}
+function pipeline(s) {
+  return {
+    index: s.index,
+    decision: 'CHANGES_REQUIRED',
+    problems: [],
+    source_sha: s.source_sha,
+    bible_sha: s.bible_sha,
+    primary: { phase:'PRIMARY', verdict:'CHANGES_REQUIRED', auditor:'A1', path:'p.json', completed_at_utc:'2026-10-02T06:00:00Z' },
+    adversarial: { phase:'ADVERSARIAL', verdict:'CHANGES_REQUIRED', auditor:'A2', path:'a.json', completed_at_utc:'2026-10-02T06:01:00Z' },
+  };
+}
+
+let s = state(3);
+let snap = life.lifecycleSnapshot(s);
+const token = transition.issueCorrectionToken(s, pipeline(s), { issued_at_utc:'2026-10-02T06:30:00Z', actor:'AGENT-X' });
+assert.deepStrictEqual(transition.validateCorrectionToken(s, token), []);
+console.log('PASS final CHANGES_REQUIRED issues revision-bound token');
+assert.strictEqual(token.token_id,transition.expectedCorrectionTokenId(token));
+const forgedTokenId={...token,token_id:'corr-010-forged'};
+assert.ok(transition.validateCorrectionToken(s,forgedTokenId,{pipeline:pipeline(s)})
+  .includes('TOKEN_ID_NOT_DETERMINISTIC'));
+console.log('PASS correction token id is deterministic from its immutable authorization fields');
+
+const waitingAdversarial = {
+  ...pipeline(s),
+  decision:'WAITING_ADVERSARIAL',
+  adversarial:null,
+};
+assert.throws(()=>transition.issueCorrectionToken(
+  s,
+  waitingAdversarial,
+  {issued_at_utc:'2026-10-02T06:30:05Z',actor:'AGENT-X'}
+),/TOKEN_REQUIRES_FINAL_CHANGES_REQUIRED/);
+console.log('PASS isolated PRIMARY cannot mint correction token');
+
+const divergentNoReaudit = {
+  ...pipeline(s),
+  decision:'REAUDIT_REQUIRED',
+  primary:{...pipeline(s).primary,verdict:'APPROVED'},
+  adversarial:{...pipeline(s).adversarial,verdict:'CHANGES_REQUIRED'},
+  reaudit:null,
+};
+assert.throws(()=>transition.issueCorrectionToken(
+  s,
+  divergentNoReaudit,
+  {issued_at_utc:'2026-10-02T06:30:06Z',actor:'AGENT-X'}
+),/TOKEN_REQUIRES_FINAL_CHANGES_REQUIRED/);
+console.log('PASS divergence without REAUDIT cannot mint correction token');
+
+const approvedNoCorrection = {
+  ...pipeline(s),
+  decision:'APPROVED',
+  primary:{...pipeline(s).primary,verdict:'APPROVED'},
+  adversarial:{...pipeline(s).adversarial,verdict:'APPROVED'},
+};
+assert.throws(()=>transition.issueCorrectionToken(
+  s,
+  approvedNoCorrection,
+  {issued_at_utc:'2026-10-02T06:30:07Z',actor:'AGENT-X'}
+),/TOKEN_REQUIRES_FINAL_CHANGES_REQUIRED/);
+console.log('PASS APPROVED pipeline cannot mint correction token');
+
+assert.throws(()=>authorizedTransition.planTransition({
+  state:s,
+  pipeline:pipeline(s),
+  token,
+  request:{action:'START_CORRECTION',actor:'TOKEN-THIEF',at_utc:'2026-10-02T06:30:30Z'},
+}), /TOKEN_ACTOR_MISMATCH/);
+console.log('PASS token cannot be transferred to another actor');
+
+const supersededPipeline = pipeline(s);
+supersededPipeline.adversarial = {
+  ...supersededPipeline.adversarial,
+  auditor:'A3',
+  path:'a-new.json',
+  completed_at_utc:'2026-10-02T06:05:00Z',
+};
+assert.ok(
+  transition.validateCorrectionToken(s, token, { pipeline:supersededPipeline })
+    .includes('TOKEN_DECISION_STALE')
+);
+assert.throws(()=>authorizedTransition.planTransition({
+  state:s,
+  pipeline:supersededPipeline,
+  token,
+  request:{action:'START_CORRECTION',actor:'AGENT-X',at_utc:'2026-10-02T06:30:45Z'},
+}),/TOKEN_DECISION_STALE/);
+console.log('PASS newer final decision record invalidates previously issued token');
+
+const changedPrimaryPipeline=pipeline(s);
+changedPrimaryPipeline.primary={
+  ...changedPrimaryPipeline.primary,
+  auditor:'A9',
+  path:'p-new.json',
+  completed_at_utc:'2026-10-02T06:04:00Z',
+};
+assert.ok(
+  transition.validateCorrectionToken(s,token,{pipeline:changedPrimaryPipeline})
+    .includes('TOKEN_DECISION_STALE')
+);
+console.log('PASS token binds full PRIMARY+ADVERSARIAL evidence, not only final phase');
+
+assert.throws(()=>transition.issueCorrectionToken(
+  s,
+  pipeline(s),
+  {issued_at_utc:'2026-10-02T06:00:30Z',actor:'AGENT-X'}
+),/TOKEN_ISSUED_BEFORE_FINAL_DECISION/);
+console.log('PASS token cannot predate the last audit evidence');
+
+const tokenRoot=fs.mkdtempSync(path.join(os.tmpdir(),'corr-token-registry-'));
+const tokenDir=path.join(tokenRoot,'docs','biblia','.coordination','correction-authorizations','010');
+fs.mkdirSync(tokenDir,{recursive:true});
+fs.writeFileSync(path.join(tokenDir,token.token_id+'.json'),JSON.stringify(token,null,2)+'\n');
+const tokenRegistry=transition.loadCorrectionTokens(
+  tokenRoot,
+  [s],
+  {pipelines:new Map([[s.index,supersededPipeline]])}
+);
+assert.ok(tokenRegistry.problems.some((x)=>x.includes('TOKEN_DECISION_STALE')));
+const wrongPath=path.join(tokenDir,'wrong-token-name.json');
+fs.writeFileSync(wrongPath,JSON.stringify(token,null,2)+'\n');
+const wrongPathRegistry=transition.loadCorrectionTokens(
+  tokenRoot,
+  [s],
+  {pipelines:new Map([[s.index,pipeline(s)]])}
+);
+assert.ok(wrongPathRegistry.problems.some((x)=>x.includes('token_id diverge do filename')));
+fs.rmSync(tokenRoot,{recursive:true,force:true});
+console.log('PASS active token registry rejects superseded decision and path/token identity forgery');
+
+assert.throws(()=>authorizedTransition.planTransition({
+  state:s,
+  token,
+  request:{action:'START_CORRECTION',actor:'AGENT-X',at_utc:'2026-10-02T06:30:50Z'},
+}),/START_CORRECTION_PIPELINE_REQUIRED/);
+console.log('PASS correction start cannot bypass current decision by omitting pipeline');
+
+assert.throws(()=>authorizedTransition.planTransition({
+  state:s,
+  pipeline:pipeline(s),
+  token,
+  request:{
+    action:'START_CORRECTION',
+    actor:'AGENT-X',
+    at_utc:'2026-10-02T06:30:55Z',
+  },
+}),/STRATEGY_REVIEW_REQUIRED/);
+console.log('PASS every third cycle requires explicit strategy reassessment');
+
+let planned = authorizedTransition.planTransition({
+  state:s,
+  pipeline:pipeline(s),
+  token,
+  currentStateSha:'state-sha',
+  request:{
+    action:'START_CORRECTION',
+    actor:'AGENT-X',
+    at_utc:'2026-10-02T06:31:00Z',
+    expected_status:'CHANGES_REQUIRED',
+    expected_cycle:3,
+    expected_revision_id:snap.revision_id,
+    expected_state_sha:'state-sha',
+    strategy_review:{
+      related_cycles:[1,2,3],
+      observed_pattern:'three correction handoffs without stable closure',
+      evidence:'cycles 1..3 required repeated correction',
+      why_previous_strategy_insufficient:'local fixes did not close the audit loop',
+      new_strategy:'switch to cross-file contract validation',
+    },
+  },
+});
+assert.strictEqual(planned.state.status, 'IN_PROGRESS');
+assert.ok(transition.tokenConsumed(planned.state, token.token_id));
+assert.ok(planned.state.history.some((e)=>e.correction_token_id===token.token_id));
+assert.deepStrictEqual(life.eventChainProblems(planned.state), []);
+console.log('PASS token is consumed append-only on correction start');
+console.log('PASS canonical transition history remains hash-chained');
+const frozenEdit=JSON.parse(JSON.stringify(planned.state));
+frozenEdit.status='COMPLETED';frozenEdit.review_status='IN_PROGRESS';
+frozenEdit.completion={achieved:true,first_completed_at_utc:'2026-10-01T00:00:00Z',human_order_required_since_utc:'2026-10-03T00:00:00Z'};
+life.appendLifecycleEvent(frozenEdit.history,{type:'COMPLETED_HUMAN_FREEZE_ACTIVATED',at_utc:'2026-10-03T00:00:00Z',from_status:'COMPLETED',to_status:'COMPLETED',from_review_status:'IN_PROGRESS',to_review_status:'IN_PROGRESS'});
+transition.persistSnapshot(frozenEdit,life.lifecycleSnapshot(frozenEdit));
+assert.deepStrictEqual(life.lifecycleProblems(frozenEdit),[]);
+const forgedMetadata=JSON.parse(JSON.stringify(frozenEdit));
+life.appendLifecycleEvent(forgedMetadata.history,{type:'COMPLETED_WORK_ORDER_OPENED',at_utc:'2026-10-03T00:00:01Z',from_status:'COMPLETED',to_status:'COMPLETED',from_review_status:'CHANGES_REQUIRED',to_review_status:'IN_PROGRESS'});
+assert.ok(life.lifecycleProblems(forgedMetadata).some(p=>p.includes('metadata cannot change review status')));
+console.log('PASS completion freeze preserves an existing canonical correction without allowing metadata to start one');
+assert.deepStrictEqual(transition.tokenHistoryProblems([planned.state],[token]), []);
+console.log('PASS registry validates consumed token history');
+
+const abortInput=JSON.parse(JSON.stringify(planned.state));
+abortInput.audit_requests=[{
+  id:'SAFE-UF-001',
+  type:'UNVERIFIED_FINDING',
+  status:'SUPERSEDED',
+  finding:'preserve diagnostic provenance during abort',
+}];
+const abortHistoryLength=abortInput.history.length;
+const abortRevision=life.revisionIdentity(abortInput);
+const aborted = authorizedTransition.planTransition({
+  state:abortInput,
+  request:{
+    action:'SAFE_ABORT',
+    actor:'AGENT-X',
+    at_utc:'2026-10-02T06:31:15Z',
+    restore_status:'READY_FOR_AUDIT',
+    correction_token_id:token.token_id,
+    reason:'fixture abort',
+  },
+});
+assert.strictEqual(life.lifecycleSnapshot(aborted.state).correction_cycle,3);
+assert.strictEqual(aborted.state.status,'READY_FOR_AUDIT');
+assert.ok(aborted.state.history.length>abortHistoryLength);
+assert.ok(aborted.state.history.some((e)=>e.type===life.SAFE_ABORT_EVENT));
+assert.deepStrictEqual(aborted.state.audit_requests,abortInput.audit_requests);
+assert.strictEqual(life.revisionIdentity(aborted.state).revision_id,abortRevision.revision_id);
+console.log('PASS SAFE_ABORT does not increment correction cycle');
+console.log('PASS SAFE_ABORT preserves history, revision and finding provenance and returns audit-able');
+
+const refreshInput = state(2);
+refreshInput.status='COMPLETED';
+refreshInput.completed_at_utc='2026-10-02T06:20:00Z';
+const refreshBefore = life.lifecycleSnapshot(refreshInput);
+const refreshed = authorizedTransition.planTransition({
+  state: refreshInput,
+  request:{
+    action:'REFRESH_REVISION_FOR_AUDIT',
+    actor:'MAINTAINER',
+    at_utc:'2026-10-02T06:31:20Z',
+    test_sha:'d'.repeat(40),
+    bible_sha:'e'.repeat(40),
+    production_sha:'f'.repeat(40),
+  },
+});
+const refreshAfter = life.lifecycleSnapshot(refreshed.state);
+assert.strictEqual(refreshed.state.status,'COMPLETED');
+assert.strictEqual(refreshed.state.review_status,'READY_FOR_AUDIT');
+assert.strictEqual(refreshed.state.source_sha,'d'.repeat(40));
+assert.strictEqual(refreshed.state.completed_at_utc,refreshInput.completed_at_utc);
+assert.strictEqual(refreshAfter.correction_cycle,refreshBefore.correction_cycle);
+assert.strictEqual(refreshAfter.lifetime_correction_cycles,refreshBefore.lifetime_correction_cycles);
+assert.strictEqual(refreshAfter.audit_epoch,refreshBefore.audit_epoch+1);
+assert.ok(refreshed.state.history.some((e)=>e.type===life.REVISION_REFRESH_EVENT));
+assert.throws(()=>authorizedTransition.planTransition({
+  state:refreshed.state,
+  request:{
+    action:'REFRESH_REVISION_FOR_AUDIT',
+    actor:'MAINTAINER',
+    at_utc:'2026-10-02T06:31:21Z',
+    test_sha:'d'.repeat(40),
+    bible_sha:'e'.repeat(40),
+    production_sha:'f'.repeat(40),
+  },
+}),/REVISION_REFRESH_REQUIRES_DRIFT/);
+const refreshInvalid = state(1);
+refreshInvalid.status='PENDING';
+assert.throws(()=>authorizedTransition.planTransition({
+  state:refreshInvalid,
+  request:{
+    action:'REFRESH_REVISION_FOR_AUDIT',
+    actor:'MAINTAINER',
+    at_utc:'2026-10-02T06:31:22Z',
+    test_sha:'d'.repeat(40),
+    bible_sha:'e'.repeat(40),
+  },
+}),/REVISION_REFRESH_STATUS_INVALID/);
+console.log('PASS REFRESH_REVISION_FOR_AUDIT invalidates audits without correction escalation');
+
+const correctedHandoff = authorizedTransition.planTransition({
+  state: planned.state,
+  request: {
+    action:'HANDOFF_FOR_AUDIT',
+    actor:'AGENT-X',
+    at_utc:'2026-10-02T06:31:30Z',
+    test_sha:'c'.repeat(40),
+    bible_sha:'d'.repeat(40),
+    production_sha:'e'.repeat(40),
+  },
+});
+const correctedSnapshot = life.lifecycleSnapshot(correctedHandoff.state);
+assert.strictEqual(correctedHandoff.state.source_sha,'c'.repeat(40));
+assert.strictEqual(correctedHandoff.state.test_sha,'c'.repeat(40));
+assert.strictEqual(correctedHandoff.state.bible_sha,'d'.repeat(40));
+assert.strictEqual(correctedHandoff.state.production_sha,'e'.repeat(40));
+assert.notStrictEqual(correctedSnapshot.revision_id,snap.revision_id);
+assert.deepStrictEqual(life.eventChainProblems(correctedHandoff.state),[]);
+console.log('PASS handoff freezes corrected production/test/Bible revision rather than stale state binding');
+
+
+const orphanState = JSON.parse(JSON.stringify(planned.state));
+const consumed = orphanState.history.find((entry)=>entry.type==='CORRECTION_TOKEN_CONSUMED');
+consumed.correction_token_id = 'corr-missing';
+assert.ok(transition.tokenHistoryProblems([orphanState],[token]).some((x)=>x.includes('inexistente')));
+console.log('PASS registry rejects orphan token consumption');
+
+const transferredState = JSON.parse(JSON.stringify(planned.state));
+const transferred = transferredState.history.find((entry)=>entry.type==='CORRECTION_TOKEN_CONSUMED');
+transferred.actor = 'TOKEN-THIEF';
+assert.ok(transition.tokenHistoryProblems([transferredState],[token]).some((x)=>x.includes('ator do consumo diverge')));
+console.log('PASS registry rejects transferred token consumption');
+
+assert.throws(()=>authorizedTransition.planTransition({
+  state:planned.state,
+  token,
+  request:{action:'START_CORRECTION',actor:'OTHER',at_utc:'2026-10-02T06:32:00Z'},
+}), /START_CORRECTION_STATUS_INVALID|TOKEN_ALREADY_CONSUMED/);
+console.log('PASS token cannot be reused');
+
+assert.throws(()=>authorizedTransition.planTransition({
+  state:s,
+  token,
+  currentStateSha:'new-sha',
+  request:{
+    action:'START_CORRECTION',
+    actor:'AGENT-X',
+    at_utc:'2026-10-02T06:31:00Z',
+    expected_state_sha:'old-sha',
+  },
+}), /REJECTED_STATE_CHANGED:state_sha/);
+assert.strictEqual(life.lifecycleSnapshot(s).correction_cycle,3);
+console.log('PASS stale CAS writer is rejected');
+console.log('PASS stale CAS rejection leaves correction cycle unchanged');
+
+transition.assertCas(s,snap,{
+  expected_status:'CHANGES_REQUIRED',
+  expected_cycle:3,
+  expected_revision_id:snap.revision_id,
+  expected_state_sha:'state-sha',
+},'state-sha');
+assert.throws(()=>transition.assertCas(
+  s,snap,{expected_status:'READY_FOR_AUDIT'},'state-sha'
+),/REJECTED_STATE_CHANGED:status/);
+assert.throws(()=>transition.assertCas(
+  s,snap,{expected_cycle:4},'state-sha'
+),/REJECTED_STATE_CHANGED:cycle/);
+assert.throws(()=>transition.assertCas(
+  s,snap,{expected_revision_id:'f'.repeat(64)},'state-sha'
+),/REJECTED_STATE_CHANGED:revision/);
+console.log('PASS CAS correct preconditions pass');
+console.log('PASS CAS rejects status, cycle and revision drift independently');
+
+assert.deepStrictEqual(
+  transition.revisionBindingProblems(
+    {production_sha:'a'.repeat(40),test_sha:'b'.repeat(40),bible_sha:'c'.repeat(40),revision_id:'d'.repeat(64)},
+    {production_sha:'a'.repeat(40),test_sha:'b'.repeat(40),bible_sha:'c'.repeat(40),revision_id:'d'.repeat(64)}
+  ),
+  []
+);
+assert.ok(
+  transition.revisionBindingProblems(
+    {production_sha:null,test_sha:'b'.repeat(40),bible_sha:'c'.repeat(40),revision_id:'d'.repeat(64)},
+    {production_sha:null,test_sha:'e'.repeat(40),bible_sha:'c'.repeat(40),revision_id:'f'.repeat(64)}
+  ).includes('TEST')
+);
+console.log('PASS live working revision drift invalidates token binding');
+
+const reservationRoot=fs.mkdtempSync(path.join(os.tmpdir(),'corr-reservation-'));
+const reservationState=state(3);
+reservationState.file='fixture/a.js';
+reservationState.bible='docs/biblia/fixture/a.js/Bíblia.md';
+const reservationToken={token_id:'corr-fixture',revision_id:'r'.repeat(64),correction_cycle:3};
+const reservationRel=transition.createCorrectionReservation(
+  reservationRoot,reservationState,'WRITER-A','2026-10-02T06:35:00Z',reservationToken
+);
+assert.strictEqual(transition.assertCorrectionReservation(reservationRoot,reservationState,'WRITER-A'),reservationRel);
+assert.throws(()=>transition.createCorrectionReservation(
+  reservationRoot,reservationState,'WRITER-B','2026-10-02T06:35:01Z',reservationToken
+),/UNIT_HIGH_PRIORITY_BUT_ALREADY_RESERVED/);
+const secondReservationState={...reservationState,file:'fixture/b.js',bible:'docs/biblia/fixture/b.js/Bíblia.md'};
+assert.throws(()=>transition.createCorrectionReservation(
+  reservationRoot,secondReservationState,'WRITER-A','2026-10-02T06:35:02Z',reservationToken
+),/CORRECTOR_ALREADY_RESERVED/);
+transition.releaseCorrectionReservation(reservationRoot,reservationState,'WRITER-A');
+assert.throws(()=>transition.assertCorrectionReservation(reservationRoot,reservationState,'WRITER-A'),/CORRECTION_RESERVATION_REQUIRED/);
+fs.rmSync(reservationRoot,{recursive:true,force:true});
+console.log('PASS correction reservation grants one writer and rejects concurrent second writer');
+
+s = state(6);
+snap = life.lifecycleSnapshot(s);
+const emergencyToken = transition.issueCorrectionToken(s, pipeline(s), { issued_at_utc:'2026-10-02T06:40:00Z', actor:'NEW-AGENT' });
+assert.throws(()=>authorizedTransition.planTransition({
+  state:s,
+  pipeline:pipeline(s),
+  token:emergencyToken,
+  request:{
+    action:'START_CORRECTION',
+    actor:'NEW-AGENT',
+    at_utc:'2026-10-02T06:41:00Z',
+    strategy_review:{
+      related_cycles:[4,5,6],
+      observed_pattern:'same concurrency symptom survives three more cycles',
+      evidence:'cycles 4..6 repeatedly expose ordering races',
+      why_previous_strategy_insufficient:'cross-file validation still left runtime ordering unresolved',
+      new_strategy:'serialize the shared runtime writer',
+    },
+  },
+}), /EMERGENCY_ROOT_CAUSE_REVIEW_REQUIRED/);
+planned = authorizedTransition.planTransition({
+  state:s,
+  pipeline:pipeline(s),
+  token:emergencyToken,
+  request:{
+    action:'START_CORRECTION',
+    actor:'NEW-AGENT',
+    at_utc:'2026-10-02T06:41:00Z',
+    strategy_review:{
+      related_cycles:[4,5,6],
+      observed_pattern:'same concurrency symptom survives three more cycles',
+      evidence:'cycles 4..6 repeatedly expose ordering races',
+      why_previous_strategy_insufficient:'cross-file validation still left runtime ordering unresolved',
+      new_strategy:'serialize the shared runtime writer',
+    },
+    root_cause_review:{
+      categories:['CONCURRENCY'],
+      related_cycles:[4,5,6],
+      evidence:'reproduzido',
+      why_previous_failed:'os ciclos anteriores trataram sintomas locais',
+      strategy:'mudar arquitetura',
+    },
+  },
+});
+planned = authorizedTransition.planTransition({
+  state:planned.state,
+  request:{action:'HANDOFF_FOR_AUDIT',actor:'NEW-AGENT',at_utc:'2026-10-02T06:50:00Z'},
+});
+assert.strictEqual(planned.state.status, 'HUMAN_LOCKED');
+assert.strictEqual(life.lifecycleSnapshot(planned.state).correction_cycle, 7);
+console.log('PASS cycle 6 handoff escalates to HUMAN_LOCKED');
+
+const hs = planned.state;
+const hsnap = life.lifecycleSnapshot(hs);
+assert.throws(()=>authorizedTransition.planTransition({
+  state:hs,
+  pipeline:pipeline(hs),
+  request:{action:'RECONCILE_DECISION',actor:'SYSTEM',at_utc:'2026-10-02T06:55:00Z'},
+}),/RECONCILE_HUMAN_LOCKED/);
+assert.throws(()=>authorizedTransition.planTransition({
+  state:hs,
+  pipeline:{
+    ...pipeline(hs),
+    decision:'APPROVED',
+    primary:{...pipeline(hs).primary,verdict:'APPROVED'},
+    adversarial:{...pipeline(hs).adversarial,verdict:'APPROVED'},
+  },
+  request:{action:'RECONCILE_DECISION',actor:'SYSTEM',at_utc:'2026-10-02T06:55:01Z'},
+}),/RECONCILE_HUMAN_LOCKED/);
+console.log('PASS HUMAN blocks automatic reconcile and automatic COMPLETED projection');
+const approval = {
+  schema_version:1,
+  approval_id:'human-10-1',
+  index:10,
+  locked_cycle:7,
+  decision:'ALLOW_ONE_CORRECTION',
+  permission:'ONE_CORRECTION_CYCLE',
+  approved_by:'human',
+  approved_at_utc:'2026-10-02T07:00:00Z',
+  approval_source:'workflow_dispatch',
+  approval_environment:'human-approval',
+  production_sha:hsnap.production_sha,
+  test_sha:hsnap.test_sha,
+  bible_sha:hsnap.bible_sha,
+  revision_id:hsnap.revision_id,
+};
+assert.throws(()=>transition.issueCorrectionToken(hs,pipeline(hs),{
+  issued_at_utc:'2026-10-02T06:59:00Z',
+  actor:'HUMAN-AUTHORIZED-AGENT',
+  humanApproval:approval,
+}),/TOKEN_ISSUED_BEFORE_HUMAN_APPROVAL/);
+console.log('PASS HUMAN correction token cannot predate human approval');
+
+const humanToken = transition.issueCorrectionToken(hs, pipeline(hs), {
+  issued_at_utc:'2026-10-02T07:01:00Z',
+  actor:'HUMAN-AUTHORIZED-AGENT',
+  humanApproval:approval,
+});
+assert.ok(transition.validateCorrectionToken(hs,humanToken,{pipeline:pipeline(hs)})
+  .includes('TOKEN_HUMAN_APPROVAL_INVALID'));
+assert.deepStrictEqual(
+  transition.validateCorrectionToken(hs,humanToken,{pipeline:pipeline(hs),humanApproval:approval}),
+  []
+);
+console.log('PASS active HUMAN token requires the exact approval registry entry');
+planned = authorizedTransition.planTransition({
+  state:hs,
+  pipeline:pipeline(hs),
+  token:humanToken,
+  humanApproval:approval,
+  request:{action:'START_CORRECTION',actor:'HUMAN-AUTHORIZED-AGENT',at_utc:'2026-10-02T07:02:00Z'},
+});
+assert.strictEqual(planned.state.status,'IN_PROGRESS');
+assert.ok(planned.state.history.some((e)=>e.type==='HUMAN_APPROVAL_CONSUMED'));
+assert.strictEqual(life.activeHumanAuthorizedCorrection(planned.state), true);
+assert.deepStrictEqual(life.lifecycleProblems(planned.state), []);
+console.log('PASS HUMAN approval unlocks exactly one correction without disabling HUMAN quarantine');
+
+const resetApproval = {
+  ...approval,
+  approval_id:'human-10-reset',
+  decision:'RESET_ESCALATION',
+  permission:null,
+  approved_at_utc:'2026-10-02T07:02:30Z',
+};
+const reset = authorizedTransition.planTransition({
+  state:hs,
+  humanApproval:resetApproval,
+  request:{action:'HUMAN_RESET_ESCALATION',actor:'HUMAN-OPERATOR',at_utc:'2026-10-02T07:03:00Z'},
+});
+assert.strictEqual(reset.state.status,'READY_FOR_AUDIT');
+assert.strictEqual(life.lifecycleSnapshot(reset.state).current_escalation_cycle,0);
+assert.ok(reset.state.history.some((e)=>e.type==='HUMAN_APPROVAL_CONSUMED' && e.approval_id===resetApproval.approval_id));
+assert.deepStrictEqual(life.lifecycleProblems(reset.state),[]);
+assert.throws(()=>authorizedTransition.planTransition({
+  state:reset.state,
+  humanApproval:resetApproval,
+  request:{action:'HUMAN_RESET_ESCALATION',actor:'HUMAN-OPERATOR',at_utc:'2026-10-02T07:04:00Z'},
+}),/RESET_REQUIRES_HUMAN_LOCK|HUMAN_RESET_APPROVAL_REQUIRED/);
+console.log('PASS RESET_ESCALATION consumes approval once and projects status canonically');
+
+const approvedPipeline = {
+  ...pipeline(hs),
+  decision:'APPROVED',
+  primary:{phase:'PRIMARY',verdict:'APPROVED',auditor:'HA1',path:'hp.json',completed_at_utc:'2026-10-02T07:10:00Z'},
+  adversarial:{phase:'ADVERSARIAL',verdict:'APPROVED',auditor:'HA2',path:'ha.json',completed_at_utc:'2026-10-02T07:11:00Z'},
+};
+const closeApproval = {
+  ...approval,
+  approval_id:'human-10-close',
+  decision:'PERMANENTLY_CLOSE',
+  permission:null,
+  approved_at_utc:'2026-10-02T07:12:00Z',
+};
+assert.throws(()=>authorizedTransition.planTransition({
+  state:hs,
+  pipeline:pipeline(hs),
+  humanApproval:closeApproval,
+  request:{action:'HUMAN_COMPLETE',actor:'HUMAN-OPERATOR',at_utc:'2026-10-02T07:13:00Z'},
+}),/HUMAN_COMPLETE_REQUIRES_FINAL_APPROVED/);
+assert.throws(()=>authorizedTransition.planTransition({
+  state:hs,
+  pipeline:approvedPipeline,
+  humanApproval:null,
+  request:{action:'HUMAN_COMPLETE',actor:'HUMAN-OPERATOR',at_utc:'2026-10-02T07:13:00Z'},
+}),/HUMAN_PERMANENT_CLOSE_APPROVAL_REQUIRED/);
+const closed = authorizedTransition.planTransition({
+  state:hs,
+  pipeline:approvedPipeline,
+  humanApproval:closeApproval,
+  request:{action:'HUMAN_COMPLETE',actor:'HUMAN-OPERATOR',at_utc:'2026-10-02T07:13:00Z'},
+});
+assert.strictEqual(closed.state.status,'COMPLETED');
+assert.strictEqual(life.lifecycleSnapshot(closed.state).lifetime_correction_cycles,7);
+assert.strictEqual(life.lifecycleSnapshot(closed.state).human_permanently_closed,true);
+assert.deepStrictEqual(life.lifecycleProblems(closed.state),[]);
+console.log('PASS HUMAN permanent close requires APPROVED + human approval');
+
+console.log('Unit transition self-test: SUCCESS');

@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "index": 111,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 29",
+  "file": "tests/integration/ipc/gtc-indexeddb-deep.test.js",
+  "bible": "docs/biblia/tests/integration/ipc/gtc-indexeddb-deep.test.js/Bíblia.md",
+  "source_sha": "39d0542f9bad4ee59fe1939396e2fb3e41e2c38d",
+  "bible_sha": "acb3c503e7d2413925e10d833e6aa5e8687ce972",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "head_observed_before_publish": "b9478cc5ad04669b4e162fd0b6305bfe827ea69c",
+    "divergence_reaudited": "PRIMARY legado AGENTE 6 = CHANGES_REQUIRED; ADVERSARIAL AGENTE 31 = APPROVED; AGENTE 29 é independente de ambos.",
+    "embedded_source_exact": true,
+    "source_text_lines": 311,
+    "terminal_newline": true,
+    "documented_positions": "312/312; união matemática das 18 faixas cobre 1..312 sem gaps, overlaps ou posições fora do arquivo.",
+    "primary_blockers_revalidated": [
+      "Lifecycle corrigido: 111-001, 111-002 e 111-003 aparecem como ACCEPTED na Bíblia e no state; conclusão registra 3 ACCEPTED, 0 OPEN.",
+      "Dependência/ownership corrigidos: Bíblia documenta tests/helpers/load-content-script.js carregando cm-gtc-client.js antes de content_manga.js; content_manga.js rebinds GTC para window.MangaTranslatorGtcClient."
+    ],
+    "evidence_strength": [
+      "PROVA_DIRETA: assertions do próprio teste sobre fingerprint, uma GTC_QUERY_MANY, ausência de START_BATCH e fallback storage legado, restauração/preservação de atributos e persistência final após UPDATE_IMAGE.",
+      "PROVA_DIRETA CONTROLADA: cm-gtc-client.js, createGtcRuntimeHandler e createIndexedDbRepository são implementações reais, executadas sobre runtime mock/JSDOM/fake-indexeddb.",
+      "EXECUCAO_INDIRETA: CI run 36577447500 passou em Node 20, Node 22, Coverage e Windows no mesmo source blob SHA 39d0542f9bad4ee59fe1939396e2fb3e41e2c38d.",
+      "SEM_PROVA_ESPECIFICA: meta nominal <200 ms não é provada; assertion é apenas elapsedMs <1000."
+    ],
+    "limitations_revalidated": [
+      "A suíte não inicializa extension/background.js completo; registra diretamente o handler GTC real.",
+      "Runtime Chrome é mock; serialização/dispatch real do navegador não é provado.",
+      "Benchmark usa JSDOM, fake-indexeddb, data URLs pequenas e MutationObserver no-op; não prova SLA de produto em Chromium nativo.",
+      "Banco por teste tem nome único, mas não há delete/clear explícito no teardown; request 111-003 permanece ACCEPTED como dívida externa."
+    ],
+    "audit_requests": [
+      "111-001 ACCEPTED e factual: contrato textual <200 ms versus assertion <1000 ms.",
+      "111-002 ACCEPTED e factual: benchmark sintético não representa Chromium/IndexedDB nativo/imagens pesadas.",
+      "111-003 ACCEPTED e factual: cleanup explícito do DB ausente e import fs morto."
+    ],
+    "formal_refutation": "A objeção mais forte seria que o teste não prova o background/Chromium real. A Bíblia já delimita explicitamente handler/repositório reais sobre runtime mock + fake-indexeddb e classifica service worker completo/Chromium nativo como não provados; portanto a objeção não sustenta reprovação documental."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T22:04:33.239Z"
+}

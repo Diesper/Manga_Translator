@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "index": 138,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 15",
+  "file": "tests/unit/background/deliver-result-from-tab-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/deliver-result-from-tab-action.test.js/Bíblia.md",
+  "source_sha": "263cb827e30468c377c5b1eb5863e90bd6cf26b0",
+  "bible_sha": "343af4a3747cb34ee9dc58bb3dc2359696e0bff4",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "138-A15-001",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A seção 8 da Bíblia apresenta 138-001, 138-002, 138-003 e 138-004 como OPEN, mas o state canônico atual registra 138-001/003/004 como ACCEPTED e 138-002 como SUPERSEDED por 007-002.",
+      "evidence": [
+        "Bíblia.md seção 8: headings 138-001, 138-002, 138-003 e 138-004 terminam em OPEN.",
+        ".state/138.json no binding atual: 138-001=ACCEPTED, 138-002=SUPERSEDED (superseded_by=007-002), 138-003=ACCEPTED, 138-004=ACCEPTED.",
+        ".state/007.json confirma que 007-002 existe, está ACCEPTED e cobre a lacuna de ownership/identity/staging que supersede 138-002.",
+        "O conteúdo técnico das lacunas continua compatível com source/assertions; a falha é o lifecycle documental stale, que pode induzir trabalho duplicado e contradiz o state autoritativo."
+      ],
+      "required_change": "Atualizar a seção 8 para refletir os estados atuais: 138-001 ACCEPTED; 138-002 SUPERSEDED por 007-002; 138-003 ACCEPTED; 138-004 ACCEPTED. Preservar as limitações técnicas já documentadas."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T15:48:11Z"
+}

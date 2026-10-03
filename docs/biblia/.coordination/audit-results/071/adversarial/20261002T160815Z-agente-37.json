@@ -1,0 +1,45 @@
+{
+  "schema_version": 2,
+  "index": 71,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 37",
+  "file": "scripts/ci/jest-worker-warning.js",
+  "bible": "docs/biblia/scripts/ci/jest-worker-warning.js/Bíblia.md",
+  "source_sha": "b1379b6811e5513b955ebbbef4450ca4ca1e77da",
+  "bible_sha": "cfff54168d461c090be04c57f2cbd2da9e1b5dc6",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_37_VS_AUDITOR_LEGADO_AGENTE_8",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_requests_nonblocking": [
+    "071-COORD-001 RESOLVED — conflito de reserva/autoria foi reconfirmado contra os commits históricos; AGENTE 8 concluiu/aprovou antes da reserva tardia do AGENTE 17."
+  ],
+  "audit_notes": {
+    "source_text_lines": 9,
+    "source_final_newline": true,
+    "documented_positions": "10/10",
+    "embedded_source_exact": true,
+    "line_mapping": "9 linhas reais + 3 linhas vazias explicitamente descritas + posição 10 LF; headings Linha 1..10 sequenciais.",
+    "direct_evidence": "O self-test importa o módulo real e prova match positivo por substring, PASS normal e FAIL comum; os exports são usados diretamente.",
+    "evidence_limit": "O caso positivo reutiliza FORCED_WORKER_EXIT importado e por isso não prova independentemente que o literal continua igual ao warning externo do Jest; a Bíblia explicita essa tautologia.",
+    "consumer_wiring": "run-jest-ci usa somente jestStderr e torna o warning bloqueante; os dois diagnósticos usam stdout+stderr; verify-ci-contract protege chamada, self-test em CI e ausência de --forceExit.",
+    "root_cause_context": "REG-WORKER-4S confirma timer 4_000 pendente, cancelamento e contagem final zero, corretamente classificado apenas como contexto causal.",
+    "formal_refutation_attempt": "Tentativas de sustentar literal falsamente provado, branch não-string coberto, canal stdout garantido, consumer omitido, conflito de autoria não resolvido, SHA stale ou cobertura incompleta falharam porque a Bíblia registra explicitamente as limitações e o histórico foi reconfirmado.",
+    "final_head_before_publish": "49f4e33e24e7daadc3c6e8e1070cc5f52f9bfe48"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-02T16:08:15.385Z"
+}

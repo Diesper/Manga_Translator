@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "index": 166,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 4",
+  "file": "tests/unit/background/router.test.js",
+  "bible": "docs/biblia/tests/unit/background/router.test.js/Bíblia.md",
+  "source_sha": "d7c33bc525e1683acabff44389c5d51471cc7037",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "166-PRI-001",
+      "severity": "MATERIAL",
+      "category": "EVIDENCE_OVERCLAIM",
+      "bible_location": "Seção 4 — Gate de origem",
+      "finding": "A Bíblia afirma que o caso SOURCE_DENIED prova diretamente a ordem origem → validate/execute, mas esse cenário não registra função validate; ele prova apenas que a origem negada impede execute.",
+      "evidence": [
+        "No cenário SOURCE_DENIED de router.test.js, a action registrada contém name, meta.allowedSources/async:false e execute, sem propriedade validate.",
+        "A assertion expect(execute).not.toHaveBeenCalled() prova o short-circuit antes de execute.",
+        "router.js atualmente executa o gate de origem antes do gate de payload, mas uma regressão que movesse validate antes de origem continuaria passando nesse teste porque não existe validator observável nesse cenário.",
+        "Logo, a ordem origem → validate não é provada diretamente pelo caso citado."
+      ],
+      "required_change": "Limitar a conclusão a 'SOURCE_DENIED bloqueia execute', ou adicionar validator spy ao cenário e assertar que validate também não foi chamado antes de classificar a ordem origem → validate/execute como prova direta."
+    },
+    {
+      "id": "166-PRI-002",
+      "severity": "DOCUMENTAL",
+      "category": "STALE_AUDIT_REQUEST_STATUS",
+      "bible_location": "Seção 11 — Solicitações ao auditor",
+      "finding": "Os três requests aparecem como OPEN na Bíblia, mas o state canônico atual já possui lifecycle diferente.",
+      "evidence": [
+        "166-001 está ACCEPTED no .state/166.json.",
+        "166-002 está SUPERSEDED por 031-003 no .state/166.json.",
+        "166-003 está ACCEPTED no .state/166.json.",
+        "A Bíblia continua rotulando 166-001, 166-002 e 166-003 como OPEN."
+      ],
+      "required_change": "Sincronizar os status com o state ou marcar explicitamente esses rótulos como snapshot histórico; registrar o supersede 166-002 → 031-003."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:07:00Z"
+}

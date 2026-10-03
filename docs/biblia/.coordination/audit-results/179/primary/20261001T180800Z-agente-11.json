@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "index": 179,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
+  "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "179-PRI-001",
+      "severity": "HIGH",
+      "type": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "summary": "A rastreabilidade cobre 684/684 posições, porém o mapeamento semântico está amplamente deslocado: diversos testes são documentados como cenários completamente diferentes do código real.",
+      "evidence": [
+        "Linha fonte 260 declara `CG-01/CG-02: dataURLtoFile...`, mas a Bíblia a classifica como `CG-16/17 — processGeminiJob delete guard`.",
+        "Linha 272 declara `CG-03/CG-04` e linha 279 `CG-05/06/07`, mas ambas continuam documentadas como `CG-16/17 — processGeminiJob delete guard`.",
+        "Linha 296 declara `CG-08: sleep...`, mas é documentada como `CG-18/19/20 — delete wrappers`.",
+        "Linha 312 declara `REG-03/CG-22` e também é documentada como `CG-18/19/20 — delete wrappers`.",
+        "Linha 349 declara `CG-23`, mas a Bíblia atribui `CG-21/22`; linha 394 declara `CG-24`, mas também recebe `CG-21/22`.",
+        "Linha 432 declara `CG-14 deleting_urls`, mas é classificada como `CG-23 — CustomEvent + fallback DOM`; linha 458 `CG-45 deleteCurrentConversation...` também recebe CG-23.",
+        "Linha 522 `CG-50 deleteCurrentConversation...` é mapeada como `CG-24 — Quill ausente/fallback`; linhas 553 e 603 de deleteCurrentConversation são rotuladas `CG-25/26 — editor/find/send regressions`.",
+        "A fonte integral é byte-equivalente e a união de posições é 684/684 sem gaps; portanto o defeito é semântico posição↔comportamento, não de contagem."
+      ]
+    },
+    {
+      "id": "179-PRI-002",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 179-001/002/003 como OPEN, enquanto o state canônico registra SUPERSEDED/ACCEPTED/ACCEPTED.",
+      "evidence": [
+        "Bíblia.md linhas 69, 77 e 85 usam headings OPEN.",
+        "docs/biblia/.state/179.json registra 179-001=SUPERSEDED por 050-001, 179-002=ACCEPTED e 179-003=ACCEPTED.",
+        "docs/biblia/.state/050.json confirma 050-001=ACCEPTED para ausência de harness MAIN-world real de inject.js.",
+        "load-content-gemini-module.js carrega content_gemini e módulos gemini, mas não inject.js; `execCommand` aparece nesta suíte/test harness e não no job-runner produtivo; waitForElement produtivo observa DOM/shadow roots, sustentando as lacunas documentadas."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T18:08:00Z"
+}

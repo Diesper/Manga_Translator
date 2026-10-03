@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "index": 48,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 48",
+  "file": "extension/content/gemini/selectors.js",
+  "bible": "docs/biblia/extension/content/gemini/selectors.js/Bíblia.md",
+  "source_sha": "0bf8db6e416a880de9f4dd37bd4cc290e5aaba19",
+  "bible_sha": "89a630d869706786cd5edb14910e7895ae1e3fb2",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A48-048-01",
+      "severity": "BLOCKING",
+      "category": "INTERNAL_CONTRADICTION",
+      "summary": "A Bíblia se declara concluída/aprovada no cabeçalho, mas a conclusão interna afirma que a promoção para esse mesmo estado ainda depende de uma futura seção crítica compartilhada.",
+      "evidence": [
+        "Bíblia linha 3: `Estado: ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA`.",
+        "Bíblia linha 2014: `a promoção para ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA depende da futura seção crítica compartilhada`.",
+        "docs/biblia/.state/048.json está `COMPLETED`, portanto a frase final é stale e contradiz o lifecycle atual do próprio documento."
+      ],
+      "required_change": "Remover/reescrever a conclusão stale para que o veredito interno e o cabeçalho representem um único estado documental atual."
+    },
+    {
+      "id": "A48-048-02",
+      "severity": "BLOCKING",
+      "category": "SEMANTIC_OVERSTATEMENT",
+      "summary": "A análise U08 afirma que `RESPONSE` inclui a base `MODEL_RESPONSE_STRICT`, mas as listas do source não têm relação de inclusão total.",
+      "evidence": [
+        "Bíblia U08: `Inclui a base strict e fallbacks mais genéricos`.",
+        "Source `selectors.js` linha 47: `MODEL_RESPONSE_STRICT` contém `[data-turn-role=\"assistant\"]`.",
+        "Source `selectors.js` linhas 60–78: `RESPONSE` não contém `[data-turn-role=\"assistant\"]`; contém apenas `div[data-turn-role=\"assistant\"]`.",
+        "`dom.getResponseContainer` primeiro tenta `getStrictModelResponseContainer` e só depois consulta `SELECTORS.RESPONSE`; portanto o comportamento efetivo pode cobrir strict-first, mas isso não torna a lista RESPONSE um superset literal."
+      ],
+      "required_change": "Corrigir U08/invariantes relacionados para descrever a relação real: listas sobrepostas, com strict-first no consumer e fallbacks adicionais em RESPONSE, sem afirmar que RESPONSE contém integralmente a base strict."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:09:00Z"
+}

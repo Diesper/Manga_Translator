@@ -1,0 +1,56 @@
+{
+  "schema_version": 2,
+  "index": 22,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 21",
+  "file": "extension/background/actions/request-image-data.js",
+  "bible": "docs/biblia/extension/background/actions/request-image-data.js/Bíblia.md",
+  "source_sha": "2491262323966a256d61d741e9c23420acccee2f",
+  "bible_sha": "58174e7d4b83b90d3f4f421ddc1e78baca83dd87",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "022-REAUDIT-001",
+      "severity": "MATERIAL",
+      "category": "SEMANTIC_LINE_MAPPING",
+      "summary": "A posição 023 atribui à transformação/resolução de lastError o papel da detecção feita na posição 022.",
+      "evidence": [
+        "Source posição 022: `if (chrome.runtime.lastError) {` testa/detecta a falha.",
+        "Source posição 023: `resolve({ error: chrome.runtime.lastError.message });` converte a falha em resposta resolvida `{error: message}`.",
+        "Bíblia posição 023: `Detecta falha de transporte Chrome no callback.` repete indevidamente o papel da posição 022.",
+        "O teste direto `devolve a mensagem de chrome.runtime.lastError` exige `{ error: 'Could not establish connection.' }`, confirmando que a transformação da linha 023 é comportamento observável."
+      ],
+      "required_change": "Corrigir somente o papel local da posição 023 para documentar a resolução/transformação de `lastError.message` em `{error: message}`; manter a posição 022 como detecção."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "main_architecture": "CONFIRMADO_3X",
+    "dependencies_consumers": "CONFIRMADO_3X",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_request_022_001": "CONFIRMADO_3X",
+    "semantic_position_023": "CONTRADITO_3X",
+    "independence": "CONFIRMADA_VS_AGENTE_22",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passed": [
+      "SOURCE_SHA e BIBLE_SHA atuais",
+      "fonte integral byte a byte",
+      "cobertura 33/33",
+      "relay REQUEST_IMAGE_DATA e ausência de validate/ownership",
+      "retry do job-runner",
+      "handler/fallback do content_manga",
+      "adaptador legado que remove ok:true",
+      "classificação das lacunas e audit request 022-001"
+    ],
+    "failed": [
+      "rastreabilidade semântica da posição 023"
+    ],
+    "passes": "0-15 concluídas"
+  },
+  "completed_at_utc": "2026-10-01T20:06:20Z"
+}

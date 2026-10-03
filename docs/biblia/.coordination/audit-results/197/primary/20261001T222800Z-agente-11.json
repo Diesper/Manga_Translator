@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "index": 197,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-manga/canonical-title.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/canonical-title.test.js/Bíblia.md",
+  "source_sha": "bfb01bdfb8de0921d85486e56003ac2e37f4b0e2",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "197-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 197-001/002/003 como OPEN, embora o state canônico registre SUPERSEDED/SUPERSEDED/ACCEPTED.",
+      "evidence": [
+        "Bíblia.md linhas 133, 159 e 179 usam headings OPEN.",
+        "docs/biblia/.state/197.json registra 197-001=SUPERSEDED por 035-001, 197-002=SUPERSEDED por 099-001 e 197-003=ACCEPTED; os superseders estão ACCEPTED.",
+        "197-003 é factual: o teste de limite cria 100 caracteres e exige apenas `length <= 80`, sem verificar conteúdo/length exatos.",
+        "A fonte integral é byte-equivalente ao arquivo, o mapa documenta 45/45 posições linha a linha e o mesmo blob passou em Node 20/22.",
+        "Não foi sustentado outro finding documental material."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T22:28:00Z"
+}
