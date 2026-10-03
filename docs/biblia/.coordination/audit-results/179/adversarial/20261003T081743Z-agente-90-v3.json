@@ -1,0 +1,66 @@
+{
+  "schema_version": 3,
+  "index": 179,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 90",
+  "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
+  "source_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+  "bible_sha": "6fbd6581f76d5d47cc2e7fb02408ba1b4debbad5",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "ADV-179-01",
+      "type": "LATE_SHADOW_ROOT_NOT_OBSERVED",
+      "severity": "HIGH",
+      "summary": "waitForElement não detecta uma shadow root anexada depois de a espera começar a um host já conectado.",
+      "problem": "waitForElement observa mutações de childList no documento e nas shadow roots coletadas inicialmente. Se o host já está conectado sem shadowRoot quando a espera inicia e attachShadow() ocorre depois, a chamada não gera mutação de childList no host/documento. A callback do MutationObserver não roda e a nova root não é observada; a busca só é repetida pelo timeout final, atrasando a resolução até 20 segundos por padrão. O caso tardio atual acrescenta apenas um elemento ao DOM comum, então não detecta essa regressão.",
+      "required_change": "Adicionar teste que conecte primeiro um host sem shadowRoot, inicie waitForElement, anexe a shadow root e insira o alvo antes do timeout; fazer a implementação descobrir roots tardias e resolver prontamente, sem polling órfão nem vazamento de observer/timer.",
+      "location": "extension/content/gemini/job-runner.js:179-242; tests/unit/content-gemini/helpers-and-regressions-real.test.js:279-294",
+      "evidence": [
+        "collectOpenShadowRoots() só é executado no início e dentro da callback do MutationObserver do documento/roots já observados.",
+        "attachShadow() num host já conectado não adiciona childList ao documento ou host, portanto não notifica o observer registrado no documento.",
+        "O timer padrão é de 20_000 ms e só então consulta queryFirstDeep(selector) novamente.",
+        "CG-06 insere .late-node em document.body; não cobre host pré-existente que recebe shadowRoot tardiamente.",
+        "A execução focal passou 15/15, mas não exercita essa ordem adversarial de eventos."
+      ]
+    },
+    {
+      "id": "ADV-179-02",
+      "type": "RESOLVED_REQUEST_BODY_STALE",
+      "severity": "NORMAL",
+      "summary": "A request 179-004 está marcada RESOLVED, mas seu corpo ainda afirma que a evidência está ausente e pede um teste que já existe.",
+      "problem": "A seção 10 mantém o texto de abertura, evidência ausente e risco da request original sem convertê-los em registro histórico/resolução. Isso contradiz o status RESOLVED, a seção 2 e o state canônico.",
+      "required_change": "Substituir o corpo por descrição da resolução, vinculando o RUN-01B atual e mantendo a afirmação de ausência apenas como histórico claramente datado.",
+      "location": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md:87-94",
+      "evidence": [
+        "O título da seção diz 179-004 — TEST_REQUIRED — RESOLVED.",
+        "O corpo atual diz 'Evidência ausente' e pede criar o caso DataUrlAtob:null.",
+        "A mesma Bíblia §2 registra que job-runner.test.js RUN-01B cobre DataUrlAtob:null; docs/biblia/.state/179.json marca a request como RESOLVED com resolution action TEST_ADDED."
+      ]
+    },
+    {
+      "id": "ADV-179-03",
+      "type": "LINE_FUNCTION_SEMANTIC_MISMATCH",
+      "severity": "HIGH",
+      "summary": "A tabela linha a linha contém funções deslocadas em posições iniciais que não correspondem ao source incorporado.",
+      "problem": "A entrada da posição 1 afirma ativação de strict mode, mas a primeira linha da suíte importa getRuntimeMock/getStorageMock. As posições 5–7 configuram window.location com Object.defineProperty, não importam mocks/helpers, e as posições 9–12 montam origin/opções do objeto location, não resolvem caminho nem carregam módulos. A cobertura posicional completa 684/684 não prova semântica correta.",
+      "required_change": "Realinhar as descrições afetadas e conferir semanticamente todas as linhas da tabela contra a fonte antes de afirmar que a auditoria linha a linha está completa.",
+      "location": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md:798 e tabela de linhas 001-012",
+      "evidence": [
+        "A primeira linha do source é const { getRuntimeMock, getStorageMock } = require('../../mocks/chrome-api.mock.js');.",
+        "A Bíblia marca essa posição como 'Ativa strict mode'.",
+        "A função real strict-mode não aparece no início do source; o trecho inicial importa módulos e define helper de location.",
+        "git diff entre merge-base 650f9864d7ebb17f81a2a32cb4b50f604e07d98e e HEAD não altera o arquivo de teste; o achado é um problema documental da revisão atual, não regressão no source do teste."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-03T08:17:43Z",
+  "completed_order_id": null,
+  "production_sha": null,
+  "test_sha": "65c66f1a756d127909ed6661386e72c19e3a3a2c",
+  "audit_epoch": 1,
+  "handoff_id": "179-e1-cfdfaf4809f7",
+  "revision_id": "fe5252b985e47c582339dd2ceba700f54478fe4bf0c78b0c67a091d67263ad03",
+  "human_approval_id": null
+}
