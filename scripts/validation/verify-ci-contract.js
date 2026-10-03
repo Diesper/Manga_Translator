@@ -69,6 +69,26 @@ function hasExecutableRun(block, marker) {
   });
 }
 
+function yamlListValues(block, key) {
+  const lines = String(block || '').split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const match = /^(\s*)([A-Za-z0-9_-]+):\s*$/.exec(lines[i]);
+    if (!match || match[2] !== key) continue;
+    const keyIndent = match[1].length;
+    const values = [];
+    for (let j = i + 1; j < lines.length; j++) {
+      const line = lines[j];
+      if (!line.trim()) continue;
+      const indent = (line.match(/^\s*/) || [''])[0].length;
+      if (indent <= keyIndent) break;
+      const item = /^\s*-\s*([^#]*?)(?:\s+#.*)?$/.exec(line);
+      if (item) values.push(item[1].trim());
+    }
+    return values;
+  }
+  return [];
+}
+
 const ciContract = jobBlock('ci-contract');
 if (!hasExecutableRun(ciContract, 'node scripts/validation/verify-repository-structure.js')) {
   problems.push('CI Contract precisa executar o gate estrutural do repositório');
@@ -390,8 +410,9 @@ if (!/if:\s*\$\{\{\s*always\(\)\s*&&\s*!cancelled\(\)\s*\}\}/.test(gate)) {
 if (/if:\s*\$\{\{\s*always\(\)\s*\}\}/.test(gate)) {
   problems.push('ci-gate: if: always() puro é proibido porque pode gerar falso vermelho em run cancelado');
 }
+const gateDependencies = new Set(yamlListValues(gate, 'needs'));
 for (const dependency of requiredJobs.filter((job) => job !== 'ci-gate')) {
-  if (!gate.includes('- ' + dependency)) {
+  if (!gateDependencies.has(dependency)) {
     problems.push('ci-gate: dependência obrigatória ausente: ' + dependency);
   }
 }

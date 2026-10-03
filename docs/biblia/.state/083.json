@@ -4,7 +4,7 @@
   "bible": "docs/biblia/scripts/validation/verify-ci-contract.js/Bíblia.md",
   "status": "COMPLETED",
   "agent": null,
-  "source_sha": "b1e0e240d9b95cce3c88cd5f679e0d544f9e589f",
+  "source_sha": "c8f392e16693f62aac272036abcc018a5f3ba278",
   "started_at_utc": "2026-09-30T06:08:00Z",
   "completed_at_utc": "2026-10-01T04:07:00Z",
   "audit_requests": [
@@ -55,19 +55,19 @@
     "self_audit": "SOURCE_SYNC_PENDING_REAUDIT",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "569/569",
+    "documented_positions": "590/590",
     "range_blocks": 34,
     "ranges_contiguous": true,
     "source_has_final_newline": false,
-    "bible_lines": 597,
+    "bible_lines": 618,
     "direct_negative_proofs": 10,
     "external_audit_requests_open": 2,
-    "note": "Fonte integral sincronizada ao CI Contract endurecido e ao self-test ampliado; revisão atual READY_FOR_AUDIT e exige PRIMARY + ADVERSARIAL novos.",
-    "source_text_lines": 569
+    "note": "Fonte integral sincronizada ao CI Contract com parsing contextual de run: e needs:; revisão atual READY_FOR_AUDIT e exige PRIMARY + ADVERSARIAL novos.",
+    "source_text_lines": 590
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T05:41:31Z",
+  "updated_at_utc": "2026-10-03T06:20:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:07:00Z",
@@ -182,6 +182,43 @@
       "reason": "Sincroniza a unidade 083 ao CI Contract corrigido e ao self-test ampliado; a revisão permanece pendente de auditoria independente.",
       "previous_event_hash": "bff682150bb726fa7b8276e04b3e8115bbfd91efc42b60a7b2cd3a1ba9a5ea98",
       "event_hash": "a92bd0e8f5dc86201b6bf012a99deea6f2e5cd755e3513a2444f70040612ee47"
+    },
+    {
+      "type": "COMPLETED_WORK_ORDER_OPENED",
+      "at_utc": "2026-10-03T06:20:00Z",
+      "approval_id": "083-human-db408ff36e440730",
+      "origin_revision_id": "974f3dc8e381f61e9b030a55826197046f4788dd985edf5be786e0f005e133ca",
+      "origin_audit_epoch": 3,
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "previous_event_hash": "a92bd0e8f5dc86201b6bf012a99deea6f2e5cd755e3513a2444f70040612ee47",
+      "event_hash": "ef34aac02d0a73e1273538a0a0b3c6f43fbc6dcabfbcb44eb48c7caa5f9ae5dc"
+    },
+    {
+      "at_utc": "2026-10-03T06:20:00Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "actor": "Diesper-directed-ci-gate-fix",
+      "previous_source_sha": "b1e0e240d9b95cce3c88cd5f679e0d544f9e589f",
+      "previous_bible_sha": "94c41d07de9772273ddc543141bdd4d614a0",
+      "previous_production_sha": "3b91a9900c9e82cbf5432fbb40d74aca5c842918",
+      "previous_revision_id": "974f3dc8e381f61e9b030a55826197046f4788dd985edf5be786e0f005e133ca",
+      "source_sha": "c8f392e16693f62aac272036abcc018a5f3ba278",
+      "test_sha": "c8f392e16693f62aac272036abcc018a5f3ba278",
+      "bible_sha": "b19c032114c7de0772273ddc543141bdd4d614a0",
+      "production_sha": "3b91a9900c9e82cbf5432fbb40d74aca5c842918",
+      "revision_id": "8ba4824eaee796716681264d13dcc12bde52b0204a22c8d6be1d9ecfded05a9f",
+      "correction_cycle": 0,
+      "audit_epoch": 4,
+      "handoff_id": "083-e4-d82b92fb765d",
+      "reason": "Corrige a validação de dependências do CI Gate para exigir itens exatos em needs:; mantém a unidade 083 em READY_FOR_AUDIT para revisão independente.",
+      "previous_event_hash": "ef34aac02d0a73e1273538a0a0b3c6f43fbc6dcabfbcb44eb48c7caa5f9ae5dc",
+      "event_hash": "a27eb5bd5939598b8c72e42dced0ec2294609be4e0f6099b3e2151ebac45f0d5"
     }
   ],
   "evidence": [
@@ -194,17 +231,17 @@
       "note": "Requests 083-001..002 permanecem ACCEPTED; aprovação documental não as converte em prova funcional."
     }
   ],
-  "test_sha": "b1e0e240d9b95cce3c88cd5f679e0d544f9e589f",
-  "bible_sha": "94c41d07de977f5d8b76f9323e3b21413073187f",
+  "test_sha": "c8f392e16693f62aac272036abcc018a5f3ba278",
+  "bible_sha": "b19c032114c7de0772273ddc543141bdd4d614a0",
   "production_sha": "3b91a9900c9e82cbf5432fbb40d74aca5c842918",
   "correction_cycle": 0,
   "lifetime_correction_cycles": 0,
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 3,
-  "handoff_id": "083-e3-76204f9cea5c",
-  "revision_id": "974f3dc8e381f61e9b030a55826197046f4788dd985edf5be786e0f005e133ca",
+  "audit_epoch": 4,
+  "handoff_id": "083-e4-d82b92fb765d",
+  "revision_id": "8ba4824eaee796716681264d13dcc12bde52b0204a22c8d6be1d9ecfded05a9f",
   "review_status": "READY_FOR_AUDIT",
   "completion": {
     "achieved": true,
@@ -214,7 +251,7 @@
   "completion_quality": {
     "status": "WITH_CAVEATS",
     "caveats": [
-      "WAITING_PRIMARY"
+      "REVALIDATION_REQUIRED"
     ]
   }
 }

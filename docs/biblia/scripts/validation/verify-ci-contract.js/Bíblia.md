@@ -3,8 +3,8 @@
 > **Schema da Bíblia:** 2
 > **Índice:** 83
 > **Fonte:** `scripts/validation/verify-ci-contract.js`
-> **SHA da revisão pendente:** `b1e0e240d9b95cce3c88cd5f679e0d544f9e589f`
-> **Posições da fonte:** 569
+> **SHA da revisão pendente:** `c8f392e16693f62aac272036abcc018a5f3ba278`
+> **Posições da fonte:** 590
 > **Status:** COMPLETED
 > **Revisão:** READY_FOR_AUDIT — requer auditoria independente após correção dos contratos 083-001/002.
 
@@ -14,7 +14,7 @@ Referências operacionais atualizadas junto à mudança de diretórios; contrato
 
 ## Evidência e limites
 
-A sincronização abaixo é mecânica e incorpora a correção do falso positivo por comentário YAML, limites de comando e novas mutações negativas representativas. Não concede APPROVED nem reaproveita auditoria de outro SHA. As requests 083-001/002 permanecem como histórico de finding até nova auditoria independente da revisão atual.
+A sincronização abaixo é mecânica e incorpora a correção do falso positivo por comentário YAML, limites de comando, validação exata da lista `needs:` do CI Gate e mutações negativas representativas. Não concede APPROVED nem reaproveita auditoria de outro SHA. As requests 083-001/002 permanecem como histórico de finding até nova auditoria independente da revisão atual.
 
 ## Fonte integral exata
 
@@ -88,6 +88,26 @@ function hasExecutableRun(block, marker) {
     }
     return false;
   });
+}
+
+function yamlListValues(block, key) {
+  const lines = String(block || '').split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const match = /^(\s*)([A-Za-z0-9_-]+):\s*$/.exec(lines[i]);
+    if (!match || match[2] !== key) continue;
+    const keyIndent = match[1].length;
+    const values = [];
+    for (let j = i + 1; j < lines.length; j++) {
+      const line = lines[j];
+      if (!line.trim()) continue;
+      const indent = (line.match(/^\s*/) || [''])[0].length;
+      if (indent <= keyIndent) break;
+      const item = /^\s*-\s*([^#]*?)(?:\s+#.*)?$/.exec(line);
+      if (item) values.push(item[1].trim());
+    }
+    return values;
+  }
+  return [];
 }
 
 const ciContract = jobBlock('ci-contract');
@@ -411,8 +431,9 @@ if (!/if:\s*\$\{\{\s*always\(\)\s*&&\s*!cancelled\(\)\s*\}\}/.test(gate)) {
 if (/if:\s*\$\{\{\s*always\(\)\s*\}\}/.test(gate)) {
   problems.push('ci-gate: if: always() puro é proibido porque pode gerar falso vermelho em run cancelado');
 }
+const gateDependencies = new Set(yamlListValues(gate, 'needs'));
 for (const dependency of requiredJobs.filter((job) => job !== 'ci-gate')) {
-  if (!gate.includes('- ' + dependency)) {
+  if (!gateDependencies.has(dependency)) {
     problems.push('ci-gate: dependência obrigatória ausente: ' + dependency);
   }
 }
@@ -593,4 +614,4 @@ console.log('Contrato da CI validado: gates obrigatórios, regressões e verific
 
 ## Cobertura documental de linhas
 
-- 1–569: snapshot integral da revisão acima; revisão semântica independente pendente.
+- 1–590: snapshot integral da revisão acima; revisão semântica independente pendente.

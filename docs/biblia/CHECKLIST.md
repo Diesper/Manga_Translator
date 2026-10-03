@@ -83,7 +83,7 @@
 - [x] 079 — `scripts/validation/check-js-syntax.js` — COMPLETED — com ressalvas: WAITING_ADVERSARIAL
 - [x] 080 — `scripts/validation/playwright-gate-reporter-selftest.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
 - [x] 081 — `scripts/validation/validate-manifest.js` — COMPLETED
-- [x] 082 — `scripts/validation/verify-ci-contract-selftest.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
+- [x] 082 — `scripts/validation/verify-ci-contract-selftest.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
 - [x] 083 — `scripts/validation/verify-ci-contract.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
 - [x] 084 — `scripts/validation/verify-coverage-selftest.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
 - [x] 085 — `scripts/validation/verify-coverage.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED

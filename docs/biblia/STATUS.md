@@ -105,8 +105,8 @@
 | 079 | scripts/validation/check-js-syntax.js | COMPLETED | COMPLETED | {"status":"WITH_CAVEATS","caveats":["WAITING_ADVERSARIAL"]} | WAITING_ADVERSARIAL | - | fbc69cf9f910c3666ef390828b1793098b3bfe06 | 2 |
 | 080 | scripts/validation/playwright-gate-reporter-selftest.js | COMPLETED | READY_FOR_AUDIT | {"status":"WITH_CAVEATS","caveats":["WAITING_PRIMARY"]} | WAITING_ADVERSARIAL | - | c3574843cf1614c9b705e6940e7502bbeb75e5be | 2 |
 | 081 | scripts/validation/validate-manifest.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | 93dbb1882c69c47482b1b07fdaf3a2a9e9d133b1 | 3 |
-| 082 | scripts/validation/verify-ci-contract-selftest.js | COMPLETED | COMPLETED | {"status":"WITH_CAVEATS","caveats":["REAUDIT_REQUIRED"]} | REAUDIT_REQUIRED | - | 8d34dee0d632fde17c0609dac7dfe2a0ef60c927 | 3 |
-| 083 | scripts/validation/verify-ci-contract.js | COMPLETED | READY_FOR_AUDIT | {"status":"WITH_CAVEATS","caveats":["WAITING_PRIMARY"]} | WAITING_ADVERSARIAL | - | 54079e7865fc1889fd48b75a5e18175ce3869459 | 2 |
+| 082 | scripts/validation/verify-ci-contract-selftest.js | COMPLETED | READY_FOR_AUDIT | {"status":"WITH_CAVEATS","caveats":["WAITING_PRIMARY"]} | WAITING_ADVERSARIAL | - | 48b25e56dcaff1d2460bfbe697759d1921091968 | 3 |
+| 083 | scripts/validation/verify-ci-contract.js | COMPLETED | READY_FOR_AUDIT | {"status":"WITH_CAVEATS","caveats":["WAITING_PRIMARY"]} | WAITING_ADVERSARIAL | - | c8f392e16693f62aac272036abcc018a5f3ba278 | 2 |
 | 084 | scripts/validation/verify-coverage-selftest.js | COMPLETED | COMPLETED | {"status":"WITH_CAVEATS","caveats":["REAUDIT_REQUIRED"]} | REAUDIT_REQUIRED | - | ac08dd661f2d2410a56a7fd685cd9b55e85901f9 | 4 |
 | 085 | scripts/validation/verify-coverage.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | 45f920bd2db5ba3a1273438b1814b29aeafc3be4 | 5 |
 | 086 | scripts/validation/verify-e2e-shard-plan.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | ea1149ced74425ad27ede90ec409c2548cb5b65d | 3 |
