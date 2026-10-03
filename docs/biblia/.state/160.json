@@ -90,7 +90,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T07:30:36.490Z",
+  "updated_at_utc": "2026-10-03T07:35:57.562Z",
   "history": [
     {
       "at_utc": "2026-10-03T07:30:36.490Z",
@@ -113,18 +113,40 @@
       "reason": "Corrigir vínculo de SHA observado; preservar conclusão e etapa de auditoria, sem reutilizar aprovação antiga.",
       "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
       "event_hash": "6ee716bc49abb6894ad28a8453cfaf335e3f7417922b594428871c46fde2044e"
+    },
+    {
+      "at_utc": "2026-10-03T07:35:57.562Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "authorized-sha-repair",
+      "previous_source_sha": "c242bda9fbae752c90e4b41de971b05f9880595f",
+      "previous_bible_sha": "bea7cf22e05737f12839e752fbfa6558d1f6a378",
+      "previous_production_sha": null,
+      "previous_revision_id": "5daac8eb26872e546b08b622fb490d8f75cdb1ab91d6426233b9da9a77849d54",
+      "source_sha": "c242bda9fbae752c90e4b41de971b05f9880595f",
+      "test_sha": "c242bda9fbae752c90e4b41de971b05f9880595f",
+      "bible_sha": "8c7fd3228724507cee84ad95ebd8695a1be4a712",
+      "production_sha": null,
+      "revision_id": "c8a622b27f5b50ed937566cae053037d99ec84514548dfde50f92613464a28dc",
+      "correction_cycle": 0,
+      "audit_epoch": 2,
+      "handoff_id": "160-e2-4db47628ddfd",
+      "reason": "Corrigir vínculo de SHA observado; preservar conclusão e etapa de auditoria, sem reutilizar aprovação antiga.",
+      "previous_event_hash": "6ee716bc49abb6894ad28a8453cfaf335e3f7417922b594428871c46fde2044e",
+      "event_hash": "c84f5eaabbc893cda64d10186d92befbbfb35d721b6a5c0ad9297b9936b08dc0"
     }
   ],
   "evidence": [],
   "test_sha": "c242bda9fbae752c90e4b41de971b05f9880595f",
-  "bible_sha": "bea7cf22e05737f12839e752fbfa6558d1f6a378",
+  "bible_sha": "8c7fd3228724507cee84ad95ebd8695a1be4a712",
   "production_sha": null,
   "correction_cycle": 0,
   "lifetime_correction_cycles": 0,
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 1,
-  "handoff_id": "160-e1-5860461abc54",
-  "revision_id": "5daac8eb26872e546b08b622fb490d8f75cdb1ab91d6426233b9da9a77849d54"
+  "audit_epoch": 2,
+  "handoff_id": "160-e2-4db47628ddfd",
+  "revision_id": "c8a622b27f5b50ed937566cae053037d99ec84514548dfde50f92613464a28dc"
 }
