@@ -2,7 +2,7 @@
   "index": 85,
   "file": "scripts/validation/verify-coverage.js",
   "bible": "docs/biblia/scripts/validation/verify-coverage.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "45f920bd2db5ba3a1273438b1814b29aeafc3be4",
   "started_at_utc": "2026-09-30T06:11:30Z",
@@ -112,7 +112,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T21:42:26.028Z",
+  "updated_at_utc": "2026-10-02T15:43:00Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:08:57Z",
@@ -139,6 +139,24 @@
       "source_sha": "45f920bd2db5ba3a1273438b1814b29aeafc3be4",
       "bible_sha": "3c260cc8496d20c8f470d2694676957285ebe26f",
       "reason": "085-REAUDIT-001/002 corrigidos; reclassificadas 17 ocorrências de evidência não causal. Source inalterado; nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-02T15:43:00Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "45f920bd2db5ba3a1273438b1814b29aeafc3be4",
+      "bible_sha": "3c260cc8496d20c8f470d2694676957285ebe26f",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "b57fb71828e7008de57b95a37b2bad23b9a0b440c8a0df2477382b448ab33e77",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "6062813bc79b64a110862df92f1b55e2b4819c80a6f2e7fd9ea357610634ceed",
+      "event_hash": "61f91553fce870711d6d04f9fa00c784b000d42185c0c467c695327abf0224d1"
     }
   ],
   "evidence": [
@@ -159,5 +177,17 @@
     "source_text_lines": 223,
     "external_audit_requests_open": 0,
     "evidence_note": "A Bíblia reproduz a fonte atual byte a byte e classifica corretamente força/limites do coverage gate; 085-001 está SUPERSEDED por 084-002 e 085-002..005 permanecem ACCEPTED."
-  }
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "45f920bd2db5ba3a1273438b1814b29aeafc3be4",
+  "bible_sha": null,
+  "revision_id": "b57fb71828e7008de57b95a37b2bad23b9a0b440c8a0df2477382b448ab33e77",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

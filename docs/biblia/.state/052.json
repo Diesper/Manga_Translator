@@ -2,10 +2,10 @@
   "index": 52,
   "file": "extension/options/options.js",
   "bible": "docs/biblia/extension/options/options.js/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "f69f132c0ef653cded49887a60724b84dfa2b6c9",
-  "completed_at_utc": "2026-09-30T06:14:31.653Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "052-001",
@@ -53,8 +53,39 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
+  "updated_at_utc": "2026-10-01T20:53:00Z",
   "started_at_utc": null,
-  "history": [],
-  "evidence": []
+  "history": [
+    {
+      "at_utc": "2026-10-01T20:53:00Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "f69f132c0ef653cded49887a60724b84dfa2b6c9",
+      "bible_sha": "39723799fe64e582912a9cae20ae0a114ce63898",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "520e88981ece7b8096b414ca91a8ce4e56d2e234441a9e02375f89a19df64dd6",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "c5b5f78619464ca13ab3cd9f5bb93792be80e5b261abe13ef282330ef55f8381"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "f69f132c0ef653cded49887a60724b84dfa2b6c9",
+  "bible_sha": null,
+  "revision_id": "520e88981ece7b8096b414ca91a8ce4e56d2e234441a9e02375f89a19df64dd6",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

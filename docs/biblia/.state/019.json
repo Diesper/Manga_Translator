@@ -2,11 +2,11 @@
   "index": 19,
   "file": "extension/background/actions/refresh-job-watchdog.js",
   "bible": "docs/biblia/extension/background/actions/refresh-job-watchdog.js/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "25f86a8dba57c25a11a234c8f1ded0c3871d2aaa",
   "started_at_utc": "2026-09-30T12:20:00Z",
-  "completed_at_utc": "2026-09-30T12:28:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "019-001",
@@ -62,7 +62,38 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T20:48:18Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T20:48:18Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "25f86a8dba57c25a11a234c8f1ded0c3871d2aaa",
+      "bible_sha": "bd8c42b9a33ff9c78371738af09d79f44680d02c",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "356916497ad8d6b605f7a442da5d6ecad1166681d5589cde1b065ea4858ea186",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "ab18b23a74a0a7232b102344e81269f9626e65399219f95f9bc92e139f031039"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "25f86a8dba57c25a11a234c8f1ded0c3871d2aaa",
+  "bible_sha": null,
+  "revision_id": "356916497ad8d6b605f7a442da5d6ecad1166681d5589cde1b065ea4858ea186",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

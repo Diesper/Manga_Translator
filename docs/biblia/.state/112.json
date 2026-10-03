@@ -2,7 +2,7 @@
   "index": 112,
   "file": "tests/integration/ipc/image-translation-routing.test.js",
   "bible": "docs/biblia/tests/integration/ipc/image-translation-routing.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "6c47003aae5207d711c667bc805fb71373ae788f",
   "started_at_utc": null,
@@ -44,7 +44,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:11:50Z",
+  "updated_at_utc": "2026-10-02T15:56:30Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:47:06.186Z",
@@ -92,6 +92,24 @@
       "bible_sha": "c7cede0b4bcd107f4bf4136691dac82aef7fb88b",
       "agent": "AGENTE 30",
       "reason": "Partial-cache routing test added; Bible lifecycle/newline corrected; focal suite passed 4/4 on Node 20 and Node 22. Global failure is external PERF-09/unit 114."
+    },
+    {
+      "at_utc": "2026-10-02T15:56:30Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "6c47003aae5207d711c667bc805fb71373ae788f",
+      "bible_sha": "c7cede0b4bcd107f4bf4136691dac82aef7fb88b",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "ab8e2b41a005d8cffafb88f36137cf39e81d87c8c2803159bbb9984e213048ca",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "be0dd5f79cfeb3f01ab7d48a3fbd7013b896654a25948ad96e9ca248a8716ecc",
+      "event_hash": "2c9064d8278fe0876aa42cd8b5f84b0a64a3bfe8da16b66f7854e2ebe4dfdd0d"
     }
   ],
   "evidence": [
@@ -132,5 +150,16 @@
     "accepted_requests_pending_validation": 0,
     "note": "Lifecycle stale and LF-terminal findings corrected. Partial-cache real routing added and passed 4/4 in Node 20 and Node 22. Overall Jest red only for unrelated PERF-09/unit 114."
   },
-  "bible_sha": "c7cede0b4bcd107f4bf4136691dac82aef7fb88b"
+  "bible_sha": "c7cede0b4bcd107f4bf4136691dac82aef7fb88b",
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "6c47003aae5207d711c667bc805fb71373ae788f",
+  "revision_id": "ab8e2b41a005d8cffafb88f36137cf39e81d87c8c2803159bbb9984e213048ca",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

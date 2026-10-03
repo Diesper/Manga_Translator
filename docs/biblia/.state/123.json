@@ -2,11 +2,11 @@
   "index": 123,
   "file": "tests/smoke/smoke-01-batch-lifecycle.js",
   "bible": "docs/biblia/tests/smoke/smoke-01-batch-lifecycle.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "c412ccaac3c01de93b0a6362747525c48d79a765",
   "started_at_utc": "2026-09-30T06:29:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T20:18:44Z",
   "audit_requests": [
     {
       "id": "123-001",
@@ -86,7 +86,38 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T20:18:44Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T20:18:44Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "c412ccaac3c01de93b0a6362747525c48d79a765",
+      "bible_sha": "1d140caf676b7628f1ec78c186492a108631ce07",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "59b919a238abf571a75f6e8eef014aa943594e931c60c4ae4774a581bc4ebea4",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "4a2f96d8cfca8063c7c26e19b84db5c698e7ddb5529747d9cfe729b4863ee0f0"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "c412ccaac3c01de93b0a6362747525c48d79a765",
+  "bible_sha": null,
+  "revision_id": "59b919a238abf571a75f6e8eef014aa943594e931c60c4ae4774a581bc4ebea4",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual."
 }

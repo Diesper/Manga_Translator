@@ -2,11 +2,11 @@
   "index": 90,
   "file": "scripts/validation/verify-test-policy-selftest.js",
   "bible": "docs/biblia/scripts/validation/verify-test-policy-selftest.js/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "ac0318e4d90c5014180eb3d3a6ac4784cc70a24a",
   "started_at_utc": "2026-09-30T06:15:00Z",
-  "completed_at_utc": "2026-10-01T04:20:42Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "090-001",
@@ -63,7 +63,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T04:20:42Z",
+  "updated_at_utc": "2026-10-02T15:42:11.188Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:20:42Z",
@@ -73,6 +73,24 @@
       "source_sha": "ac0318e4d90c5014180eb3d3a6ac4784cc70a24a",
       "auditor": "AGENTE 23",
       "reason": "Auditoria independente SHA-bound confirmou 110/110 posições, fonte integral exata, execução do verifier real em sandbox e classificação correta das lacunas."
+    },
+    {
+      "at_utc": "2026-10-02T15:42:11.188Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "ac0318e4d90c5014180eb3d3a6ac4784cc70a24a",
+      "bible_sha": "2b53f1a2232e30b5eb1ef0f0ee2f3365433f0ed1",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "f1aa89d5cc45152ead6c7d63c1012b4386c05133f3f0648d6772d8bbe6e6132a",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "7392941a24c950fbbc37ca0a1fca5a5732d01822e2a8d25983b6baf3095b6597",
+      "event_hash": "f517717f0b0a3959ab8c3d633b25982bb56ad0fb475755dee870dece33d48c6a"
     }
   ],
   "evidence": [
@@ -84,5 +102,17 @@
       "at_utc": "2026-10-01T04:20:42Z",
       "note": "090-001 permanece ACCEPTED; 090-002 permanece SUPERSEDED por 083-002."
     }
-  ]
+  ],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "ac0318e4d90c5014180eb3d3a6ac4784cc70a24a",
+  "bible_sha": null,
+  "revision_id": "f1aa89d5cc45152ead6c7d63c1012b4386c05133f3f0648d6772d8bbe6e6132a",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

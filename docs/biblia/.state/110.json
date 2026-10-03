@@ -2,7 +2,7 @@
   "index": 110,
   "file": "tests/integration/ipc/gtc-cache-flow.test.js",
   "bible": "docs/biblia/tests/integration/ipc/gtc-cache-flow.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
   "started_at_utc": null,
@@ -181,7 +181,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:29:00Z",
+  "updated_at_utc": "2026-10-02T15:52:54.624Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:59:10Z",
@@ -243,6 +243,24 @@
       "workflow_sha": "65fd11e02cb63ae290772526da30aae6365d186b",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Cinco requests 110-001..005 resolvidos. CI final 36945960530/job 110648032272: 4/4 focal + 13/13 suites, 81/81 integration."
+    },
+    {
+      "at_utc": "2026-10-02T15:52:54.624Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
+      "bible_sha": "3d0ca867623bb51c382008cb8376e518c23afd35",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "8289c325030d241cb91b7278c7fd17d94821a7ac692bbd5fc9b835bafd0d621e",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "10aaf5bba89a59237ce3ab0f54a6c1adf13576b955a40de449b06356871caf1c",
+      "event_hash": "a85948ecc157f6dbceceed6dcb542c29e16c786a690eff6d50534d0cf758ae7f"
     }
   ],
   "evidence": [
@@ -281,5 +299,17 @@
     "bible_lines": 441,
     "external_audit_requests_open": 0,
     "evidence_note": "Run 36945960530/job 110648032272: focal real 4/4 + integration 81/81. Run negativa 36945821282 reproduziu o gap de structuredClone antes do reparo."
-  }
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "d2d0685772206873d2dfe5b5a43efd7f5218ad60",
+  "bible_sha": null,
+  "revision_id": "8289c325030d241cb91b7278c7fd17d94821a7ac692bbd5fc9b835bafd0d621e",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

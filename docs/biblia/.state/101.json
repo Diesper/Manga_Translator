@@ -2,11 +2,11 @@
   "index": 101,
   "file": "tests/helpers/load-content-gemini-module.js",
   "bible": "docs/biblia/tests/helpers/load-content-gemini-module.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
   "started_at_utc": "2026-09-30T06:20:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T19:59:30Z",
   "audit_requests": [
     {
       "id": "101-001",
@@ -123,7 +123,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T05:28:20Z",
+  "updated_at_utc": "2026-10-01T19:59:30Z",
   "history": [
     {
       "at_utc": "2026-10-01T05:11:00Z",
@@ -151,6 +151,24 @@
       "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
       "agent": "AGENTE 23",
       "reason": "Bíblia #101 corrigida conforme auditoria independente; source permaneceu inalterado e cinco requests seguem ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T19:59:30Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
+      "bible_sha": "f420b5b3e90468040b87681d0e102dac8e6cfe54",
+      "decision": "APPROVED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "APPROVED",
+      "reaudit": "APPROVED",
+      "revision_id": "0cb1819285b27425a4fb39b321f34fa5b2f88a7d2991f7b02b5ca4a0b5585bb2",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "previous_event_hash": "6555294be8934087331d1289bd2e33a9a3c387e2a29cd3faa0e3a33f23f38a3d",
+      "event_hash": "9c50a1f5ed41f76dec9a6cf6e301df7b7db4290ea80a31a912d40bb432e415ac"
     }
   ],
   "evidence": [
@@ -178,5 +196,17 @@
     "source_text_lines": 34,
     "external_audit_requests_open": 5,
     "repair_note": "Corrigidos findings da auditoria: 9 globals diretos + selectors indireto; reload do bootstrap registra storage.get/onChanged listener; statuses 101-001..005 alinhados ao state como ACCEPTED."
-  }
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
+  "bible_sha": null,
+  "revision_id": "0cb1819285b27425a4fb39b321f34fa5b2f88a7d2991f7b02b5ca4a0b5585bb2",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual."
 }

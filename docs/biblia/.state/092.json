@@ -2,7 +2,7 @@
   "index": 92,
   "file": "tests/e2e/cache-and-storage.spec.js",
   "bible": "docs/biblia/tests/e2e/cache-and-storage.spec.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
   "started_at_utc": "2026-09-30T06:16:30Z",
@@ -90,7 +90,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T16:44:40.718Z",
+  "updated_at_utc": "2026-10-01T21:41:53Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:23:25Z",
@@ -117,6 +117,24 @@
       "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
       "bible_sha": "169c84b08d9c0d3b4c0c20e1e10a6713928c020d",
       "reason": "REAUDIT 092-REA-001 confirmou lifecycle documental stale: 092-001/002/003 são ACCEPTED. Source inalterado; nova revisão documental exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T21:41:53Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
+      "bible_sha": "169c84b08d9c0d3b4c0c20e1e10a6713928c020d",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "b818e2942c8e920c30e769725f6601911366589391d2ea3155c69dcc1b957c4a",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "6cfb17b5f52e9219d4b4ff3e4b21d09a4683b0c63d2a0ebd88271a3087cfcee2",
+      "event_hash": "062b3c12223cdd0a7bb6b617433dbcd8a32bd88815c5a0b458f1f15ebf12a6b8"
     }
   ],
   "evidence": [
@@ -128,5 +146,17 @@
       "at_utc": "2026-10-01T04:23:25Z",
       "note": "Run 36577447500 usou commit b6ad13f... cujo blob deste arquivo é exatamente b181989...; medium-a/b e gate agregado passaram. 092-001..003 permanecem ACCEPTED."
     }
-  ]
+  ],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "b181989a9b89151ca17cbcbeb7db9342b98c9add",
+  "bible_sha": null,
+  "revision_id": "b818e2942c8e920c30e769725f6601911366589391d2ea3155c69dcc1b957c4a",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

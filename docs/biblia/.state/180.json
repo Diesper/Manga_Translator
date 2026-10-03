@@ -2,7 +2,7 @@
   "index": 180,
   "file": "tests/unit/content-gemini/image-quarantine.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/image-quarantine.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "b2c73b79c8824e5507e436a75ec9abc663919c6b",
   "started_at_utc": "2026-09-30T14:45:00Z",
@@ -86,7 +86,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T18:51:02.979Z",
+  "updated_at_utc": "2026-10-01T21:45:30Z",
   "history": [
     {
       "at_utc": "2026-10-01T18:51:02.979Z",
@@ -104,7 +104,37 @@
       "source_sha": "b2c73b79c8824e5507e436a75ec9abc663919c6b",
       "bible_sha": "4d291d6e1946b57fb49895d0127860c5e427581c",
       "reason": "A8-180-01/02 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T21:45:30Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "b2c73b79c8824e5507e436a75ec9abc663919c6b",
+      "bible_sha": "4d291d6e1946b57fb49895d0127860c5e427581c",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "8dbdf0bb8ff9aa260067208b804e2c49f63f9662e3bebe82525043622b7f8d6e",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "20a51dcd97237b87714dbc127c30f364778edb72220cf8b209af2cb22bf8e49e",
+      "event_hash": "bac07b9a134dfd35e38c737404da88e864e4c0d941640d43c4853a437f373101"
     }
   ],
-  "evidence": []
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "b2c73b79c8824e5507e436a75ec9abc663919c6b",
+  "bible_sha": null,
+  "revision_id": "8dbdf0bb8ff9aa260067208b804e2c49f63f9662e3bebe82525043622b7f8d6e",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

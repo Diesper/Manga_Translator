@@ -6,7 +6,7 @@
   "agent": null,
   "source_sha": "ea1149ced74425ad27ede90ec409c2548cb5b65d",
   "started_at_utc": "2026-09-30T06:11:43.307Z",
-  "completed_at_utc": "2026-10-01T04:10:39Z",
+  "completed_at_utc": "2026-10-01T16:05:04.944Z",
   "audit_requests": [
     {
       "id": "086-001",
@@ -83,7 +83,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T04:10:39Z",
+  "updated_at_utc": "2026-10-01T16:05:04.944Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:10:39Z",
@@ -93,6 +93,24 @@
       "source_sha": "ea1149ced74425ad27ede90ec409c2548cb5b65d",
       "auditor": "AGENTE 23",
       "reason": "Auditoria independente SHA-bound confirmou 156/156 posições, fonte integral exata, wiring do gate E2E e classificação fiel das limitações 086-001..003."
+    },
+    {
+      "at_utc": "2026-10-01T16:05:04.944Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "source_sha": "ea1149ced74425ad27ede90ec409c2548cb5b65d",
+      "bible_sha": "17e4dd5e8b23c32e53474cb6d50107b33141135e",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "776ff3d45125ff843d17477849a617407d22e4665c0470dacf9687e90c1eea63",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "previous_event_hash": "fc28ea9a8b58e5205fcee2c5408c18182c745389fc9fe73c06d2628a23451df4",
+      "event_hash": "710afc0d2471807e225dc884cfee035f6e653ccc66035bd3f243e0dd99ac3bfd"
     }
   ],
   "evidence": [
@@ -104,5 +122,17 @@
       "at_utc": "2026-10-01T04:10:39Z",
       "note": "Requests 086-001..003 permanecem ACCEPTED; falta de self-test focal, timeout/spawn policy e schema parcial continuam pendências reais."
     }
-  ]
+  ],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "ea1149ced74425ad27ede90ec409c2548cb5b65d",
+  "bible_sha": null,
+  "revision_id": "776ff3d45125ff843d17477849a617407d22e4665c0470dacf9687e90c1eea63",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual."
 }

@@ -2,7 +2,7 @@
   "index": 115,
   "file": "tests/integration/popup-translated-thumbnails.test.js",
   "bible": "docs/biblia/tests/integration/popup-translated-thumbnails.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "677347d968d2916dbcba2d7a8ae67ad37f802a74",
   "started_at_utc": null,
@@ -91,7 +91,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T01:26:00Z",
+  "updated_at_utc": "2026-10-02T15:53:35.062Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:33:41.887Z",
@@ -140,6 +140,24 @@
       "bible_sha": "cd815205c4a8ad747d37ac7510e204f65575fe4f",
       "agent": "AGENTE 30",
       "reason": "Strengthened lazy-loading and selective-failure assertions passed 5/5 on Node 20 and Node 22 in isolated validation PR #69."
+    },
+    {
+      "at_utc": "2026-10-02T15:53:35.062Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "677347d968d2916dbcba2d7a8ae67ad37f802a74",
+      "bible_sha": "cd815205c4a8ad747d37ac7510e204f65575fe4f",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "4ae27fcfa1c573912fb30205d69f16869081fa6a06c497712cd0b039cca9d13d",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "7f943a12eae9f4e937944702a37feb456c132d06659e81265ee936f4ba2081a6",
+      "event_hash": "882d7b186e20ddb52333d58cd67b0ec98b358c7ed27eda0d66bc4f0ab3f991f3"
     }
   ],
   "evidence": [
@@ -171,5 +189,16 @@
       "external_failure": "PERF-09 tests/integration/performance.test.js: blob.arrayBuffer is not a function in storage-manager.js"
     }
   ],
-  "bible_sha": "cd815205c4a8ad747d37ac7510e204f65575fe4f"
+  "bible_sha": "cd815205c4a8ad747d37ac7510e204f65575fe4f",
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "677347d968d2916dbcba2d7a8ae67ad37f802a74",
+  "revision_id": "4ae27fcfa1c573912fb30205d69f16869081fa6a06c497712cd0b039cca9d13d",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

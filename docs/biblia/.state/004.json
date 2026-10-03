@@ -2,7 +2,7 @@
   "index": 4,
   "file": "extension/background/actions/check-extraction-tab.js",
   "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
   "started_at_utc": null,
@@ -94,7 +94,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:50:45Z",
+  "updated_at_utc": "2026-10-02T15:45:35.873Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:28:00Z",
@@ -164,6 +164,24 @@
       "job_id": 110637664732,
       "agent": "AGENTE HÍBRIDO",
       "reason": "PRIMARY e ADVERSARIAL findings corrigidos; 004-001/002 resolvidos. Self-test focal PASS; background 45/45 suites e 225/225 testes com detectOpenHandles."
+    },
+    {
+      "at_utc": "2026-10-02T15:45:35.873Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
+      "bible_sha": "6e2dc1ad40c7d54921604bbf96c93031efb2ecf2",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "e8baa2c0ff6f7a5ec43029b51f302db3084af9c861dd06bc6cddd5b7ad177d3e",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "9019138ff068b85105bddd32d37e66f342e9fa6ab6f33259629b3b5aacec8591",
+      "event_hash": "9b05059eb9adc5a7b9af71c66105ca15af8126fe4f262e1aa132359c0c01ca38"
     }
   ],
   "evidence": [
@@ -183,5 +201,16 @@
       "open_handles": "--detectOpenHandles enabled"
     }
   ],
-  "progress_note": "Correção híbrida validada; requests 004-001/002 RESOLVED. Nova revisão aguarda PRIMARY + ADVERSARIAL independentes."
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.",
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
+  "bible_sha": null,
+  "revision_id": "e8baa2c0ff6f7a5ec43029b51f302db3084af9c861dd06bc6cddd5b7ad177d3e"
 }

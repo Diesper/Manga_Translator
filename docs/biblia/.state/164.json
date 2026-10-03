@@ -2,11 +2,11 @@
   "index": 164,
   "file": "tests/unit/background/request-image-data-action.test.js",
   "bible": "docs/biblia/tests/unit/background/request-image-data-action.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "b04cd6cac53339fb479c19b7977acb61339ffdd9",
   "started_at_utc": "2026-09-30T12:30:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T20:43:51.726Z",
   "audit_requests": [
     {
       "id": "164-001",
@@ -73,7 +73,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T18:27:37.885Z",
+  "updated_at_utc": "2026-10-01T20:43:51.726Z",
   "history": [
     {
       "at_utc": "2026-10-01T18:27:37.885Z",
@@ -91,7 +91,37 @@
       "source_sha": "b04cd6cac53339fb479c19b7977acb61339ffdd9",
       "bible_sha": "e349d896cd16856a039df2af116fd23deda27cd4",
       "reason": "164-ADV-001/002 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T20:43:51.726Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "b04cd6cac53339fb479c19b7977acb61339ffdd9",
+      "bible_sha": "e349d896cd16856a039df2af116fd23deda27cd4",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "3d2caf72f23aead9312108201cfbf5fc2fd104fcfe0af4f3986508d8ce993eae",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "previous_event_hash": "2859ae0dbdd003d67df6621fa5099eeb66db561ac397992419e79d61bb2087ff",
+      "event_hash": "c299fd3406aac83dc710d9f03d85a7464de4e5a136e66c739459f255761bdb2c"
     }
   ],
-  "evidence": []
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "b04cd6cac53339fb479c19b7977acb61339ffdd9",
+  "bible_sha": null,
+  "revision_id": "3d2caf72f23aead9312108201cfbf5fc2fd104fcfe0af4f3986508d8ce993eae",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual."
 }

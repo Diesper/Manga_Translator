@@ -6,7 +6,7 @@
   "agent": null,
   "source_sha": "52a4b3c1500dca615b6e2ca3d0d7b140ffdb9a3e",
   "started_at_utc": "2026-09-30T14:26:00Z",
-  "completed_at_utc": "2026-09-30T14:34:00Z",
+  "completed_at_utc": "2026-10-02T16:03:15.349Z",
   "audit_requests": [
     {
       "id": "070-001",
@@ -104,7 +104,38 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-02T16:03:15.349Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T16:03:15.349Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "source_sha": "52a4b3c1500dca615b6e2ca3d0d7b140ffdb9a3e",
+      "bible_sha": "d9a808635669012b393d8fa7bf50226014adaed6",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "a33b2339af620182aedc51e0213cf2cd2ea6cbde822f6f7ca71dc328996511ac",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "514c2b25afe0c70153b9ef734fae19bb64b658f6320638f7f23642035d900c77"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "52a4b3c1500dca615b6e2ca3d0d7b140ffdb9a3e",
+  "bible_sha": null,
+  "revision_id": "a33b2339af620182aedc51e0213cf2cd2ea6cbde822f6f7ca71dc328996511ac",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual."
 }

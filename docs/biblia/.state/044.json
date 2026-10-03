@@ -2,11 +2,11 @@
   "index": 44,
   "file": "extension/content/gemini/image-quarantine.js",
   "bible": "docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "ddca93d17ca2934a9e95dba96a87283be4e9b9a3",
   "started_at_utc": "2026-09-30T13:31:00Z",
-  "completed_at_utc": "2026-09-30T13:37:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "044-001",
@@ -83,7 +83,38 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T21:08:42.373Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T21:08:42.373Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "ddca93d17ca2934a9e95dba96a87283be4e9b9a3",
+      "bible_sha": "4316fc408da7a75f54bb26efc02f2294dd8f4f94",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "67788aa9b4b8d061619cf5b689e27c39f85897ba45a472a815adc4771705eed8",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "a08566fabf8d502b6684d09ddcb874bba0b302a27bc3891d7adcb9dd118a57f5"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "ddca93d17ca2934a9e95dba96a87283be4e9b9a3",
+  "bible_sha": null,
+  "revision_id": "67788aa9b4b8d061619cf5b689e27c39f85897ba45a472a815adc4771705eed8",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

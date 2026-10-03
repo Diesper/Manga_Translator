@@ -2,7 +2,7 @@
   "index": 187,
   "file": "tests/unit/content-gemini/rpa-flow.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/rpa-flow.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
   "started_at_utc": "2026-09-30T17:40:00Z",
@@ -97,7 +97,7 @@
   "timing_note": "started_at_utc já existia no state com horário posterior ao timestamp GitHub do commit documental; foi preservado sem reescrever histórico.",
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T19:32:17.673Z",
+  "updated_at_utc": "2026-10-01T22:10:00.000Z",
   "history": [
     {
       "at_utc": "2026-10-01T19:32:17.673Z",
@@ -115,7 +115,37 @@
       "source_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
       "bible_sha": "50d2ca74afb78e229f88352efc6ecfeac3b238ce",
       "reason": "187-PRI/A8 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T22:10:00.000Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
+      "bible_sha": "50d2ca74afb78e229f88352efc6ecfeac3b238ce",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "dda65e8c4fb33e3652acac2e95a8fc3cb74b224f730b32b1cbd1f2613bdafd9c",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "c883c13f1fe6270371f2b1e27f54ed9f1d608bb5e3268b8c7ab4d85b4e3ca6c4",
+      "event_hash": "1cf2f7094c465d50920cdf0f1eea933edc6111b06b9a0729635c7ba69c25e390"
     }
   ],
-  "evidence": []
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "4bcd24983325106d82be04e2c547a99df1a74fd5",
+  "bible_sha": null,
+  "revision_id": "dda65e8c4fb33e3652acac2e95a8fc3cb74b224f730b32b1cbd1f2613bdafd9c",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

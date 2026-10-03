@@ -2,11 +2,11 @@
   "index": 35,
   "file": "extension/content/cm-chapter.js",
   "bible": "docs/biblia/extension/content/cm-chapter.js/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "44b621d570b6492ef08982ec4e093ffcfe6d24f8",
   "started_at_utc": "2026-09-30T13:40:00Z",
-  "completed_at_utc": "2026-09-30T13:46:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "035-001",
@@ -83,7 +83,38 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-01T21:07:20Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T21:07:20Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "44b621d570b6492ef08982ec4e093ffcfe6d24f8",
+      "bible_sha": "cd7c4c9cced252913d61857df5a25cd3a3b8c68f",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "8843522b130247e4bb0ab1ca7d2bfed71506081b6224f63c7e3e35eba883968a",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "5dd10a94037fbc122cb7a3e4ed996de5e9f554d39e0bebbba935332099fe11ae"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "44b621d570b6492ef08982ec4e093ffcfe6d24f8",
+  "bible_sha": null,
+  "revision_id": "8843522b130247e4bb0ab1ca7d2bfed71506081b6224f63c7e3e35eba883968a",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

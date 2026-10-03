@@ -2,7 +2,7 @@
   "index": 89,
   "file": "scripts/validation/verify-repository-structure.js",
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "1b7b48a8e2c088b02616741c91e9998b624df5ab",
   "started_at_utc": "2026-09-30T06:14:00Z",
@@ -127,7 +127,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T23:03:00Z",
+  "updated_at_utc": "2026-10-02T15:39:05Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -275,6 +275,24 @@
       "bible_sha": "f1ce3aacb4a59e95aed4fc967ef7fcf6b603126a",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Root do gate não é mais redirecionável por ambiente; self-test executa a cópia do verifier em sandbox. GitHub Actions Repository Structure Selftest run 36937874961 concluiu success."
+    },
+    {
+      "at_utc": "2026-10-02T15:39:05Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "1b7b48a8e2c088b02616741c91e9998b624df5ab",
+      "bible_sha": "f1ce3aacb4a59e95aed4fc967ef7fcf6b603126a",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "ef23ab7ef2875e25cfc172a059a00dd07c1ebd2ff1f20e9936a323db485e65c7",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "f0e8ad0cedf1f251512b306cae6cec82e28a1f88d0d253da3c27415ceacada2e",
+      "event_hash": "538180ec4439f976e37db0891e8e7d20bf65343cb41c986e72c6ebcd6e9a4aea"
     }
   ],
   "evidence": [
@@ -316,5 +334,17 @@
     "documented_positions": "414/414",
     "source_text_lines": 413,
     "repair_note": "Overclaim arquitetural corrigido; 089-003/005 resolvidos; root fixo por __dirname; self-test executa a cópia sandboxada do verifier e passou na run 36937874961."
-  }
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "1b7b48a8e2c088b02616741c91e9998b624df5ab",
+  "bible_sha": null,
+  "revision_id": "ef23ab7ef2875e25cfc172a059a00dd07c1ebd2ff1f20e9936a323db485e65c7",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

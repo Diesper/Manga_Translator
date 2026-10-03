@@ -2,10 +2,10 @@
   "index": 43,
   "file": "extension/content/gemini/editor.js",
   "bible": "docs/biblia/extension/content/gemini/editor.js/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "0adbd4374758095acd84eda56522a2eb2c64fb1b",
-  "completed_at_utc": "2026-09-30T06:00:49.841Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "043-001",
@@ -41,8 +41,39 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
+  "updated_at_utc": "2026-10-01T21:13:00Z",
   "started_at_utc": null,
-  "history": [],
-  "evidence": []
+  "history": [
+    {
+      "at_utc": "2026-10-01T21:13:00Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "0adbd4374758095acd84eda56522a2eb2c64fb1b",
+      "bible_sha": "406a763ca4f917d88f5566334d2379e6ae4926a0",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "709344c5979a3e9836ce5f26a269cd95ff26614e5a85d53e53726b58eeb5c58d",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "d1f85b6742444b2d75740d521626e864743433ff60c76b48f5e42f5995001077"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "0adbd4374758095acd84eda56522a2eb2c64fb1b",
+  "bible_sha": null,
+  "revision_id": "709344c5979a3e9836ce5f26a269cd95ff26614e5a85d53e53726b58eeb5c58d",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

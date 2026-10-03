@@ -2,7 +2,7 @@
   "index": 106,
   "file": "tests/integration/banned-images-flow.test.js",
   "bible": "docs/biblia/tests/integration/banned-images-flow.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "3e750df20bdfb54c56202916191ef04eeafc9e9e",
   "started_at_utc": null,
@@ -88,7 +88,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:18:30Z",
+  "updated_at_utc": "2026-10-02T16:01:13Z",
   "history": [
     {
       "at_utc": "2026-10-01T12:08:47Z",
@@ -143,6 +143,24 @@
       "workflow_sha": "45c9934a621935bbddc7a5bf385425001e9941ea",
       "agent": "AGENTE HÍBRIDO",
       "reason": "Integração sintética substituída por fluxo real; 106-001/002 resolvidos. Run 36945155749/job 110645467215: focal 3/3 e integration 89/89 verdes."
+    },
+    {
+      "at_utc": "2026-10-02T16:01:13Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "3e750df20bdfb54c56202916191ef04eeafc9e9e",
+      "bible_sha": "05e278a27d957bf9785c4b5c9bd67a0c12f5acec",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "c16c7ec08a7bc101255c4798806643a63313e4af1559572f3532bb2a5a202a28",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "989e3980c76476793647136a59c131478fde2b34f139abb1bbac5fe62305d165",
+      "event_hash": "a67a1454e5e380d186515c067f50b2a27c8027ade830f9644b06d3fd121caa11"
     }
   ],
   "evidence": [
@@ -175,5 +193,17 @@
       "related_tests": "89/89",
       "note": "Popup real gravou a chave consumida pelo content script real; GET_PAGE_IMAGES e START_BATCH preservaram índices DOM e excluíram a banida."
     }
-  ]
+  ],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "3e750df20bdfb54c56202916191ef04eeafc9e9e",
+  "bible_sha": null,
+  "revision_id": "c16c7ec08a7bc101255c4798806643a63313e4af1559572f3532bb2a5a202a28",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

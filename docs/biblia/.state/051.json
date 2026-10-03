@@ -2,10 +2,10 @@
   "index": 51,
   "file": "extension/options/options.html",
   "bible": "docs/biblia/extension/options/options.html/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "3ca95e66641d2884fa653f25f7bedbb2a8ac3b2b",
-  "completed_at_utc": "2026-09-30T06:04:22.601Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "051-001",
@@ -42,8 +42,39 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
+  "updated_at_utc": "2026-10-01T21:48:00Z",
   "started_at_utc": null,
-  "history": [],
-  "evidence": []
+  "history": [
+    {
+      "at_utc": "2026-10-01T21:48:00Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "3ca95e66641d2884fa653f25f7bedbb2a8ac3b2b",
+      "bible_sha": "d9727f827e7cc3b5d454f1826192cc0512cbc8cc",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "a1ca3ee97adbb851fb4847e3ee71acba28f4b00927c0e8f3aa352c19320e9ac8",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "27049858848811c59bcf34296c1cece271abb503669a045d447a97864d45a6ca"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "3ca95e66641d2884fa653f25f7bedbb2a8ac3b2b",
+  "bible_sha": null,
+  "revision_id": "a1ca3ee97adbb851fb4847e3ee71acba28f4b00927c0e8f3aa352c19320e9ac8",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

@@ -2,11 +2,11 @@
   "index": 117,
   "file": "tests/integration/popup.ui.test.js",
   "bible": "docs/biblia/tests/integration/popup.ui.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
   "started_at_utc": "2026-09-30T06:22:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T22:02:12.719Z",
   "audit_requests": [
     {
       "id": "117-001",
@@ -84,7 +84,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T13:43:49Z",
+  "updated_at_utc": "2026-10-01T22:02:12.719Z",
   "history": [
     {
       "at_utc": "2026-10-01T13:39:48.407Z",
@@ -112,6 +112,24 @@
       "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
       "agent": "AGENTE 23",
       "reason": "Bíblia #117 corrigida conforme auditoria independente: 117-001..003 agora ACCEPTED e conclusão alinhada ao lifecycle canônico."
+    },
+    {
+      "at_utc": "2026-10-01T22:02:12.719Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+      "bible_sha": "e34d8654790a2b5e67995b654664d57616df5bd2",
+      "decision": "APPROVED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "APPROVED",
+      "reaudit": "APPROVED",
+      "revision_id": "350c4c9fa40b3c90c3a94fff97461362a82917d241eea91cb4fb7f0167250925",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "previous_event_hash": "264e59a328ec4447df79da3c8d609a8cb15128df084d4dbdce67d95c713089b4",
+      "event_hash": "954a2e64104bc1b4fd41eed517170e63213ce4d3c9e4f15b68e8df9e9d78b86c"
     }
   ],
   "evidence": [
@@ -130,5 +148,17 @@
       "at_utc": "2026-10-01T13:43:49Z",
       "note": "Source permaneceu inalterado; somente lifecycle textual dos requests e conclusão documental foram corrigidos. Reauditoria independente necessária."
     }
-  ]
+  ],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "57158c9b6e6f88955bf82a292e75624dc2ad8d0c",
+  "bible_sha": null,
+  "revision_id": "350c4c9fa40b3c90c3a94fff97461362a82917d241eea91cb4fb7f0167250925",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual."
 }

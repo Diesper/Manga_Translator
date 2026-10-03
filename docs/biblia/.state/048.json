@@ -2,10 +2,10 @@
   "index": 48,
   "file": "extension/content/gemini/selectors.js",
   "bible": "docs/biblia/extension/content/gemini/selectors.js/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "0bf8db6e416a880de9f4dd37bd4cc290e5aaba19",
-  "completed_at_utc": "2026-09-30T06:03:17.794Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "048-001",
@@ -41,8 +41,39 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
+  "updated_at_utc": "2026-10-01T21:20:16Z",
   "started_at_utc": null,
-  "history": [],
-  "evidence": []
+  "history": [
+    {
+      "at_utc": "2026-10-01T21:20:16Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "0bf8db6e416a880de9f4dd37bd4cc290e5aaba19",
+      "bible_sha": "89a630d869706786cd5edb14910e7895ae1e3fb2",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "6ec834ff3ef0b3f6e2021aff39a83001b497714734c0d52c74fccca9f61a5965",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "aae2218e355523a32694bb649900a645d868964094a4b5caa0f8f899bef65bdd"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "0bf8db6e416a880de9f4dd37bd4cc290e5aaba19",
+  "bible_sha": null,
+  "revision_id": "6ec834ff3ef0b3f6e2021aff39a83001b497714734c0d52c74fccca9f61a5965",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

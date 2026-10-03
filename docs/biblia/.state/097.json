@@ -2,11 +2,11 @@
   "index": 97,
   "file": "tests/fixtures/manga-page.html",
   "bible": "docs/biblia/tests/fixtures/manga-page.html/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
   "started_at_utc": "2026-09-30T06:15:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T21:48:33.817Z",
   "audit_requests": [],
   "document_quality": {
     "self_audit": "APPROVED",
@@ -33,7 +33,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T21:35:53.547Z",
+  "updated_at_utc": "2026-10-01T21:48:33.817Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:58:55Z",
@@ -60,6 +60,24 @@
       "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
       "bible_sha": "3861173aabb790eb8b26b7ef676f77f322e53b7e",
       "reason": "097-REA-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T21:48:33.817Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+      "bible_sha": "3861173aabb790eb8b26b7ef676f77f322e53b7e",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "808025886d0d8873f3e906180f6490943990909f1d0e2bedcac25b3cf9b43712",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "previous_event_hash": "7df193413c387803123ef648e7d199f871f4cdaf177b58a5687f36fa14d864f3",
+      "event_hash": "3c9494de9178b19a74b17eee889995f0472d1e1eebf9ad6d86ed176a0b68c243"
     }
   ],
   "evidence": [
@@ -71,5 +89,17 @@
       "at_utc": "2026-10-01T04:58:55Z",
       "note": "Run 36815953158: medium-a/medium-b e gate E2E focal verdes; nenhum audit_request bloqueante."
     }
-  ]
+  ],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+  "bible_sha": null,
+  "revision_id": "808025886d0d8873f3e906180f6490943990909f1d0e2bedcac25b3cf9b43712",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual."
 }
