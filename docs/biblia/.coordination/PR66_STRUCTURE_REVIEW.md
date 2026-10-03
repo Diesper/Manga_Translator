@@ -17,6 +17,41 @@ A primeira entrega segura é corrigir os defeitos de infraestrutura que já impe
 
 A análise começou no PR temporário 87. Por instrução posterior do humano, a implementação foi integrada sobre o head atual do PR 66, preservando seu progresso posterior ao snapshot. O histórico abaixo conserva as evidências e limitações da análise inicial; a política vigente está em COMPLETION_POLICY.md.
 
+## Integração na branch do PR 66 — 3 de outubro de 2026
+
+A ordem posterior do humano foi priorizar a aplicação na branch canônica. A integração parte de `2aa562f48585cfff54473e4d0e62077955ab23ea`, preservando os 233 estados, os 529 resultados de auditoria, as autorizações imutáveis e a reserva ativa. A aplicação inicial da política e os ajustes necessários à validação foram solicitados diretamente pelo humano; nenhuma aprovação de workflow ou auditoria foi fabricada.
+
+Foram incorporados:
+
+- Conclusão permanente das 113 unidades historicamente concluídas. Status visível COMPLETED, revisão operacional e qualidade com ressalvas são campos separados; eventos e datas anteriores são preservados. Migração torna-se inerte após a ativação da trava.
+- Ordens humanas por unidade/revisão para trabalho posterior em COMPLETED, com prazo, um ciclo de revisão, identidade humana, proveniência de workflow e proibição de autoauditoria. Planners priorizam unidades abertas; transições, resultados, leases/claims, reconciliação e diff protegido aplicam a restrição.
+- Reparação de SHA nas unidades abertas sem perder a etapa pública WAITING_ADVERSARIAL/REAUDIT_REQUIRED. A prova antiga continua inválida para aprovar o SHA novo; o pipeline interno exige evidências atuais.
+- Migração dos 35 módulos/self-tests operacionais para scripts/bible e tests/infra/bible, motor de transição separado de I/O, Git por operação, índice de resultados, HEAD em lote, CAS, locks por unidade, escrita atômica e journal. Journal detecta falha parcial; não promete atomicidade simultânea de vários arquivos nem recuperação automática.
+- Controlador de áudio real separado, inicializado sob demanda, compatível com MV3 e extração Googleusercontent. Replay agrupa payload/timestamp; cache best-effort e persistência/ACK mantêm seus contratos. Cleanup do poller normaliza null.
+- Três suítes passaram a executar produção real, com mutação da produção detectada. As unidades abertas #192/#197 agora vinculam também o SHA dos módulos reais executados. Mínimos protegidos: 109 suítes/877 testes, 22 E2E e 57 arquivos instrumentados; limites de performance e cobertura não foram reduzidos.
+- Workflows e contratos de CI atualizados, incluindo regressões de CLI, refresh de SHA, ordens humanas, convergência entre escritores de projeções e normalização LF/CRLF.
+
+Validação observada:
+
+| Verificação | Evidência |
+| --- | --- |
+| npm run validate | PASS, incluindo estrutura, projeções, inventário E2E, governança e infraestrutura |
+| Lifecycle/anti-loop | PASS; matriz adversarial rejeita 20/20 ataques |
+| Histórico e autoridade | PASS para estados, auditorias e artefatos imutáveis em relação ao head canônico de entrada |
+| Freeze/migração | PASS; 113 conclusões permanentes e migration check changed=0 |
+| Concorrência/persistência | Dois processos, exatamente um vencedor; CAS stale e escrita interrompida rejeitados; JSON preservado; journal pendente detectado |
+| Git | Edição após cache, stage, reset soft, atributos locais novos, falha Git e mudança durante operação detectados |
+| Runtime no checkout experimental | 109/877 PASS; arquivos de runtime/testes unitários/configuração idênticos aos da integração por git diff |
+| Coverage | PASS; 57 arquivos; statements/lines 81,27%, branches 72,62%, functions 84,71% |
+| Playwright | Smoke 6, visual 224 e E2E 22 PASS; E2E sem skipped/flaky |
+| Performance isolada | 2 suítes/13 testes PASS; orçamento de 750 ms preservado |
+| Actionlint | Todos os workflows PASS |
+| Modelo real | 233 unidades/529 auditorias, zero problemas; leitura em cerca de 1,7–1,9 s; 7 processos Git por operação limpa |
+
+As Bíblias dos fontes alterados receberam snapshot exato e ressalva de revisão semântica pendente; as versões anteriores foram arquivadas integralmente. Isso não concede APPROVED. O gate final continua bloqueando auditorias/correções pendentes e a reserva existente, mesmo quando o status visível é COMPLETED.
+
+A decomposição completa de UPDATE_IMAGE e dos controladores do popup, a remoção dos loaders restantes de audit-core/human-gate e uma migração que amplie o corpus congelado são etapas posteriores do roteiro. Esta integração entrega as regras solicitadas e as primeiras fronteiras arquiteturais, sem declarar o roteiro inteiro concluído.
+
 ## Escopo e limites da análise
 
 Foram comparados os caminhos alterados no PR, examinados os módulos centrais de coordenação/validação, os seis arquivos de runtime modificados, os helpers de teste e os workflows. A análise também carregou os 233 estados e os 528 resultados de auditoria do snapshot. Foram consultados logs reais do GitHub e o ruleset ativo de main.
