@@ -42,6 +42,32 @@ assert.deepStrictEqual(reconcile.projectState(state,changes),{changed:false,stat
 const changed=reconcile.projectState(state,changes,[order]);assert.strictEqual(changed.state.status,'COMPLETED');
 assert.strictEqual(changed.state.review_status,'CHANGES_REQUIRED');
 assert.strictEqual(access.orderFor(changed.state,[order],at),null);
+
+const correctionAt='2026-10-03T01:01:00Z';
+const correctionOrder=orderFor(changed.state,correctionAt);
+const correctionSnapshot=life.lifecycleSnapshot(changed.state);
+const correctionToken=transition.issueCorrectionToken(changed.state,changes,{
+  issued_at_utc:correctionAt,actor:'completed-corrector'
+});
+const correctionRequest={
+  action:'START_CORRECTION',actor:'completed-corrector',at_utc:'2026-10-03T01:01:01Z',
+  expected_status:'COMPLETED',expected_state_sha:'d'.repeat(40),
+  expected_revision_id:correctionSnapshot.revision_id,
+  expected_cycle:correctionSnapshot.current_escalation_cycle,
+};
+assert.throws(()=>transition.planTransition({
+  state:changed.state,pipeline:changes,token:correctionToken,request:correctionRequest,
+  currentStateSha:correctionRequest.expected_state_sha,
+}),/DIRECT_HUMAN_ORDER/);
+const startedCompletedCorrection=transition.planTransition({
+  state:changed.state,pipeline:changes,token:correctionToken,request:correctionRequest,
+  completedOrder:correctionOrder,currentStateSha:correctionRequest.expected_state_sha,
+}).state;
+assert.strictEqual(startedCompletedCorrection.status,'COMPLETED');
+assert.strictEqual(completion.reviewStatus(startedCompletedCorrection),'IN_PROGRESS');
+assert.strictEqual(startedCompletedCorrection.completed_at_utc,state.completed_at_utc);
+assert.deepStrictEqual(completion.completionProblems(startedCompletedCorrection),[]);
+
 const correctionModel={states:[state,open],pipelines:[changes,{...changes,index:2}],human_approvals:[]};
 assert.deepStrictEqual(planCorrections(correctionModel,1,80,at).candidates.map(c=>c.index),[2]);
 assert.throws(()=>buildAuditResult(state,pipeline,{phase:'PRIMARY',verdict:'APPROVED',auditor:'agent',completed_at_utc:at}),/DIRECT_HUMAN_ORDER/);

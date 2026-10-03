@@ -78,6 +78,20 @@ assert.ok(
 );
 console.log('PASS required protocol step cannot be disabled with if:false');
 
+const broadenedAutoToken={
+  ...sources,
+  transition:sources.transition.replace(
+    'if [ "$OPERATION" = "START_CORRECTION" ] && [ -z "$TOKEN_ID" ]; then',
+    'if [ -z "$TOKEN_ID" ]; then'
+  ),
+};
+assert.ok(
+  governance.validateSources(broadenedAutoToken).some((problem)=>(
+    problem.startsWith('transition:') && problem.includes('START_CORRECTION')
+  ))
+);
+console.log('PASS automatic correction-token issuance cannot be broadened beyond START_CORRECTION');
+
 const tolerantHandoff={
   ...sources,
   handoff:sources.handoff.replace(

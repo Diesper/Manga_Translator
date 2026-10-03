@@ -47,6 +47,10 @@ const REQUIRED = {
   ],
   transition: [
     'workflow_dispatch:',
+    "description: 'Correction token id for START_CORRECTION; leave blank to auto-issue canonically'",
+    'if [ "$OPERATION" = "START_CORRECTION" ] && [ -z "$TOKEN_ID" ]; then',
+    'AUTO_TOKEN_PATH="$(node scripts/bible/commands/unit-transition.js issue-token',
+    'export TOKEN_ID',
     'REFRESH_REVISION_FOR_AUDIT',
     'bible-unit-transition-${{ inputs.index }}',
     'node scripts/validation/verify-bible-lifecycle.js',
