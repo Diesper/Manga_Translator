@@ -1,13 +1,15 @@
 # Bíblia técnica — scripts/validation/verify-ci-contract-selftest.js
 
 > **Estado:** ✅ CONCLUÍDO DOCUMENTALMENTE PELO AGENTE 5  
-> **SHA auditado:** `8d34dee0d632fde17c0609dac7dfe2a0ef60c927`  
+> **SHA da revisão pendente:** `48b25e56dcaff1d2460bfbe697759d1921091968`  
 > **Agente responsável:** AGENTE 5  
 > **Tipo:** self-test negativo do contrato estrutural da CI  
-> **Linhas textuais:** **122**  
-> **Posições documentais:** **123**, contando o newline final  
+> **Linhas textuais:** **217**  
+> **Posições documentais:** **217**, snapshot integral da revisão pendente  
 > **PR:** #66  
 > **Branch:** docs/project-bible
+
+> **Revisão atual:** READY_FOR_AUDIT — a fonte foi ampliada para cobrir mutações negativas adicionais do contrato de CI. A análise detalhada abaixo preserva evidência histórica da revisão anterior; afirmações de contagem/linha devem ser revalidadas contra o snapshot integral atualizado.
 
 ## 1. Papel arquitetural
 
@@ -273,7 +275,102 @@ expectContractFailure(
   'marcador obrigatório ausente'
 );
 
-console.log('✅ CI Contract self-test aprovado: o gate rejeita job ausente, forbidOnly enfraquecido e marcador de regressão removido.');
+expectContractFailure(
+  'comando obrigatório presente somente em comentário YAML',
+  (sandbox) => {
+    const workflowPath = path.join(sandbox, '.github/workflows/ci.yml');
+    replaceRequired(
+      workflowPath,
+      '        run: npm run validate:test-policy',
+      '        # run: npm run validate:test-policy'
+    );
+  },
+  'CI Contract precisa executar a política anti-skip/escape-hatch'
+);
+
+expectContractFailure(
+  'self-test do contrato presente somente em comentário YAML',
+  (sandbox) => {
+    const workflowPath = path.join(sandbox, '.github/workflows/ci.yml');
+    replaceRequired(
+      workflowPath,
+      '        run: npm run test:ci-contract:infra',
+      '        # run: npm run test:ci-contract:infra'
+    );
+  },
+  'CI Contract precisa executar o self-test negativo do próprio contrato'
+);
+
+expectContractFailure(
+  'coverage bloqueante convertido em comentário',
+  (sandbox) => {
+    const workflowPath = path.join(sandbox, '.github/workflows/ci.yml');
+    replaceRequired(
+      workflowPath,
+      '      - name: Gerar coverage com Jest/V8\n        run: npm run test:coverage',
+      '      - name: Gerar coverage com Jest/V8\n        # run: npm run test:coverage'
+    );
+  },
+  'coverage: deve executar test:coverage de forma bloqueante'
+);
+
+expectContractFailure(
+  'Windows perde verificação de coverage',
+  (sandbox) => {
+    const workflowPath = path.join(sandbox, '.github/workflows/ci.yml');
+    replaceRequired(
+      workflowPath,
+      '      - name: Verificar coverage e normalização de paths\n        run: npm run test:coverage:verify',
+      '      - name: Verificar coverage e normalização de paths\n        # run: npm run test:coverage:verify'
+    );
+  },
+  'windows-portability não cobre contrato obrigatório: npm run test:coverage:verify'
+);
+
+expectContractFailure(
+  'Bible Final Readiness convertido em comentário',
+  (sandbox) => {
+    const workflowPath = path.join(sandbox, '.github/workflows/ci.yml');
+    replaceRequired(
+      workflowPath,
+      '        run: npm run bible:final-readiness',
+      '        # run: npm run bible:final-readiness'
+    );
+  },
+  'bible-final-readiness: marcador obrigatório ausente: npm run bible:final-readiness'
+);
+
+expectContractFailure(
+  'concurrency passa a cancelar execução da main',
+  (sandbox) => {
+    const workflowPath = path.join(sandbox, '.github/workflows/ci.yml');
+    replaceRequired(
+      workflowPath,
+      '  cancel-in-progress: false',
+      '  cancel-in-progress: true'
+    );
+  },
+  'concurrency: execuções da main não podem ser canceladas por um merge posterior'
+);
+
+expectContractFailure(
+  'dependência obrigatória removida do CI Gate',
+  (sandbox) => {
+    const workflowPath = path.join(sandbox, '.github/workflows/ci.yml');
+    replaceRequired(
+      workflowPath,
+      '      - coverage\n      - e2e-shard',
+      '      - coverage-disabled-for-selftest\n      - e2e-shard'
+    );
+  },
+  'ci-gate: dependência obrigatória ausente: coverage'
+);
+
+console.log(
+  '✅ CI Contract self-test aprovado: o gate rejeita mutações de jobs, comandos executáveis, ' +
+  'coverage/Windows, Bible readiness, concurrency, dependências do gate, forbidOnly e matriz de regressão.'
+);
+
 ```
 
 ## 9. Documentação linha/posição a linha

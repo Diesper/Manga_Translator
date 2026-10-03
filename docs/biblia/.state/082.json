@@ -4,7 +4,7 @@
   "bible": "docs/biblia/scripts/validation/verify-ci-contract-selftest.js/Bíblia.md",
   "status": "COMPLETED",
   "agent": null,
-  "source_sha": "8d34dee0d632fde17c0609dac7dfe2a0ef60c927",
+  "source_sha": "48b25e56dcaff1d2460bfbe697759d1921091968",
   "started_at_utc": "2026-09-30T06:08:00Z",
   "completed_at_utc": "2026-10-01T04:02:00Z",
   "audit_requests": [
@@ -73,19 +73,19 @@
     }
   ],
   "document_quality": {
-    "self_audit": "APPROVED",
+    "self_audit": "SOURCE_SYNC_PENDING_REAUDIT",
     "source_sha_reconfirmed": true,
     "embedded_source_exact": true,
-    "documented_positions": "123/123",
-    "source_textual_lines": 122,
-    "bible_textual_lines": 2506,
+    "documented_positions": "217/217",
+    "source_textual_lines": 217,
+    "bible_textual_lines": 2604,
     "external_audit_requests_open": 3,
     "global_files_modified": false,
-    "note": "Concluída segundo o escopo particionado desta execução; AUDITORIA.md/STATUS.md/CHECKLIST.md não foram modificados pelo AGENTE 5."
+    "note": "Fonte integral sincronizada ao self-test ampliado; revisão atual READY_FOR_AUDIT e exige nova auditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "updated_at_utc": "2026-10-03T05:41:31Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:02:00Z",
@@ -117,6 +117,30 @@
       "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
       "previous_event_hash": "289341b619870ba39d8273f0168613689b2108a396f4db5a07f12e759c4ea416",
       "event_hash": "b2c8849fbb82941234f4176f4ca828f99ef7047a561b4dbad60289c2a81897de"
+    },
+    {
+      "at_utc": "2026-10-03T05:41:31Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "READY_FOR_AUDIT",
+      "actor": "Diesper-directed-ci-contract-sync",
+      "previous_source_sha": "8d34dee0d632fde17c0609dac7dfe2a0ef60c927",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "3efb9849459c6323d8a0858f2be20c30b91d3936630199a35c0e06b4d841d96b",
+      "source_sha": "48b25e56dcaff1d2460bfbe697759d1921091968",
+      "test_sha": "48b25e56dcaff1d2460bfbe697759d1921091968",
+      "bible_sha": "f3bdcae4dd4b7fdf61c020554591e741b74c009f",
+      "production_sha": null,
+      "revision_id": "7587da33ecd3673c70a6e056a4f0df34e543c598d5557777dff2429f3427c694",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "082-e1-9b17d92dcf2a",
+      "reason": "Ordem humana direta do usuário nesta conversa: sincronizar a unidade 082 ao self-test ampliado do CI Contract e continuar a implementação no PR #66; não houve workflow_dispatch fabricado nem aprovação anterior reutilizada.",
+      "previous_event_hash": "b2c8849fbb82941234f4176f4ca828f99ef7047a561b4dbad60289c2a81897de",
+      "event_hash": "29385f80457d2de4ff320ad18a0488bdd58e00d9fbae8d4722d47d41e7aab5a5"
     }
   ],
   "evidence": [
@@ -129,7 +153,7 @@
       "note": "Requests 082-001..003 permanecem ACCEPTED como melhorias de robustez/meta-infra."
     }
   ],
-  "review_status": "COMPLETED",
+  "review_status": "READY_FOR_AUDIT",
   "completion": {
     "achieved": true,
     "first_completed_at_utc": "2026-10-01T04:02:00Z",
@@ -138,7 +162,7 @@
   "completion_quality": {
     "status": "WITH_CAVEATS",
     "caveats": [
-      "REAUDIT_REQUIRED"
+      "WAITING_PRIMARY"
     ]
   },
   "correction_cycle": 0,
@@ -146,10 +170,10 @@
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 0,
-  "handoff_id": null,
+  "audit_epoch": 1,
+  "handoff_id": "082-e1-9b17d92dcf2a",
   "production_sha": null,
-  "test_sha": "8d34dee0d632fde17c0609dac7dfe2a0ef60c927",
-  "bible_sha": null,
-  "revision_id": "3efb9849459c6323d8a0858f2be20c30b91d3936630199a35c0e06b4d841d96b"
+  "test_sha": "48b25e56dcaff1d2460bfbe697759d1921091968",
+  "bible_sha": "f3bdcae4dd4b7fdf61c020554591e741b74c009f",
+  "revision_id": "7587da33ecd3673c70a6e056a4f0df34e543c598d5557777dff2429f3427c694"
 }
