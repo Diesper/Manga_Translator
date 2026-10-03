@@ -78,14 +78,14 @@
     "embedded_source_exact": true,
     "documented_positions": "217/217",
     "source_textual_lines": 217,
-    "bible_textual_lines": 2604,
+    "bible_textual_lines": 2616,
     "external_audit_requests_open": 3,
     "global_files_modified": false,
-    "note": "Fonte integral sincronizada ao self-test ampliado; revisão atual READY_FOR_AUDIT e exige nova auditoria independente."
+    "note": "Fonte integral e cobertura documental 217/217 sincronizadas; revisão atual READY_FOR_AUDIT e exige nova auditoria independente."
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T05:41:31Z",
+  "updated_at_utc": "2026-10-03T05:45:56Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:02:00Z",
@@ -141,6 +141,30 @@
       "reason": "Ordem humana direta do usuário nesta conversa: sincronizar a unidade 082 ao self-test ampliado do CI Contract e continuar a implementação no PR #66; não houve workflow_dispatch fabricado nem aprovação anterior reutilizada.",
       "previous_event_hash": "b2c8849fbb82941234f4176f4ca828f99ef7047a561b4dbad60289c2a81897de",
       "event_hash": "29385f80457d2de4ff320ad18a0488bdd58e00d9fbae8d4722d47d41e7aab5a5"
+    },
+    {
+      "at_utc": "2026-10-03T05:45:56Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "actor": "Diesper-directed-ci-contract-sync",
+      "previous_source_sha": "48b25e56dcaff1d2460bfbe697759d1921091968",
+      "previous_bible_sha": "f3bdcae4dd4b7fdf61c020554591e741b74c009f",
+      "previous_production_sha": null,
+      "previous_revision_id": "7587da33ecd3673c70a6e056a4f0df34e543c598d5557777dff2429f3427c694",
+      "source_sha": "48b25e56dcaff1d2460bfbe697759d1921091968",
+      "test_sha": "48b25e56dcaff1d2460bfbe697759d1921091968",
+      "bible_sha": "4259a47adb06b14175c6d6cee9b8091b6a699805",
+      "production_sha": null,
+      "revision_id": "968b1d77a09fb3589cd7c34deab3898a5fb9f5ff965085b4a1662ed293315337",
+      "correction_cycle": 0,
+      "audit_epoch": 2,
+      "handoff_id": "082-e2-1e57cf501fcc",
+      "reason": "Corrige a cobertura documental da unidade 082 após o CI detectar que a Bíblia ainda terminava na posição 123; a fonte permanece a mesma e a revisão segue READY_FOR_AUDIT.",
+      "previous_event_hash": "29385f80457d2de4ff320ad18a0488bdd58e00d9fbae8d4722d47d41e7aab5a5",
+      "event_hash": "962429ba1b6058f2462e7b4fb4681c6731cc98d96ec03752d7c526be6ecc6ff8"
     }
   ],
   "evidence": [
@@ -170,10 +194,10 @@
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 1,
-  "handoff_id": "082-e1-9b17d92dcf2a",
+  "audit_epoch": 2,
+  "handoff_id": "082-e2-1e57cf501fcc",
   "production_sha": null,
   "test_sha": "48b25e56dcaff1d2460bfbe697759d1921091968",
-  "bible_sha": "f3bdcae4dd4b7fdf61c020554591e741b74c009f",
-  "revision_id": "7587da33ecd3673c70a6e056a4f0df34e543c598d5557777dff2429f3427c694"
+  "bible_sha": "4259a47adb06b14175c6d6cee9b8091b6a699805",
+  "revision_id": "968b1d77a09fb3589cd7c34deab3898a5fb9f5ff965085b4a1662ed293315337"
 }

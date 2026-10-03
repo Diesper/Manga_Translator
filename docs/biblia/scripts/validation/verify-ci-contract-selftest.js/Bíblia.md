@@ -2589,15 +2589,27 @@ console.log('✅ CI Contract self-test aprovado: o gate rejeita job ausente, for
 
 **Evidência automatizada:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO — a posição existe no fonte, mas não há assertion automatizada focal para essa propriedade isolada.
 
+
+### Linhas/posições 124–217 — mutações negativas adicionais da revisão atual
+
+**Fonte:** posições 124–217 do snapshot integral acima.
+
+**O que faz:** amplia o self-test para rejeitar comandos obrigatórios presentes apenas em comentário YAML e cobre famílias adicionais de contrato: self-test do próprio gate, coverage, Windows, Bible Final Readiness, concurrency e dependências do CI Gate.
+
+**Como faz:** cada cenário continua criando sandbox descartável, aplica uma mutação causal e exige falha do verificador real com diagnóstico específico.
+
+**Evidência automatizada:** ✅ PROVADO DIRETAMENTE PARA A REVISÃO ATUAL — os cenários são executados pelo próprio self-test e o gate CI Contract os chama em CI.
+
+
 ## 10. Autoauditoria documental
 
-- SHA do blob reconfirmado imediatamente antes da escrita: `8d34dee0d632fde17c0609dac7dfe2a0ef60c927`.
+- SHA da revisão de fonte sincronizada: `48b25e56dcaff1d2460bfbe697759d1921091968`.
 - Fonte embutida: conteúdo integral do blob, incluindo newline final.
-- Cobertura documental: **123/123 posições**.
+- Cobertura documental: **217/217 posições**.
 - Dependências e consumidores cruzados com `package.json`, workflow, contrato real e matriz de regressões.
 - Classificações de evidência não tratam mera ocorrência textual como prova direta.
-- Os três cenários negativos executam a implementação real de `verify-ci-contract.js` em sandbox.
+- Os dez cenários negativos atuais executam a implementação real de `verify-ci-contract.js` em sandbox.
 - Lacunas encontradas foram preservadas como lacunas e registradas como solicitações `082-001` a `082-003`.
 - Nenhum código, teste, fixture, workflow, configuração ou arquivo global foi alterado para produzir evidência.
 
-**Resultado da autoauditoria do AGENTE 5:** ✅ APROVADA para fidelidade documental deste SHA.
+**Resultado da sincronização atual:** 🟣 READY_FOR_AUDIT — a revisão ampliada ainda exige auditoria independente.
