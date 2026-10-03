@@ -8,8 +8,10 @@ const {
   commonClaimProblems,
   duplicateIndexProblem,
   leaseRevisionProblems,
+  primaryLeaseStatusProblem,
   validateEditorialReservationEntries,
 } = require('../../../scripts/bible/commands/audit-protocol');
+const completedOrderFixture = require('./completed-order-fixture');
 
 function state() {
   return {
@@ -135,7 +137,35 @@ assert(
   JSON.stringify(pipeline)
 );
 
-const fixtureState = state();
+const fixtureState = {
+  ...state(),
+  review_status: 'CHANGES_REQUIRED',
+  test_sha: 'a'.repeat(40),
+  bible_sha: 'c'.repeat(40),
+  completion: {
+    achieved: true,
+    first_completed_at_utc: '2026-10-01T00:00:00.000Z',
+    human_order_required_since_utc: '2026-10-01T00:00:00.000Z',
+  },
+};
+const completedOrder = completedOrderFixture.orderFor(fixtureState, new Date().toISOString());
+assert(
+  'lease PRIMARY em COMPLETED aceita ordem humana exata e ativa',
+  primaryLeaseStatusProblem(fixtureState, false, [completedOrder]) === null,
+  String(primaryLeaseStatusProblem(fixtureState, false, [completedOrder]))
+);
+assert(
+  'lease PRIMARY em COMPLETED sem ordem humana continua rejeitado',
+  Boolean(primaryLeaseStatusProblem(fixtureState, false, [])),
+  String(primaryLeaseStatusProblem(fixtureState, false, []))
+);
+const staleCompletedOrder = { ...completedOrder, test_sha: 'b'.repeat(40) };
+assert(
+  'lease PRIMARY em COMPLETED rejeita ordem vinculada a revisão antiga',
+  Boolean(primaryLeaseStatusProblem(fixtureState, false, [staleCompletedOrder])),
+  String(primaryLeaseStatusProblem(fixtureState, false, [staleCompletedOrder]))
+);
+
 let leaseProblems = commonClaimProblems({
   state: fixtureState,
   index: 1,
