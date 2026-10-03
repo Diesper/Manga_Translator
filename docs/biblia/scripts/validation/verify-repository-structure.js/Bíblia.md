@@ -3,14 +3,14 @@
 > **Schema da Bíblia:** 2
 > **Índice:** 89
 > **Fonte:** `scripts/validation/verify-repository-structure.js`
-> **SHA da revisão pendente:** `e80da68ff70c2a26eeada261cd4e5d8cce2649b3`
-> **Posições da fonte:** 418
+> **SHA da revisão pendente:** `a449b27e6fc40cfa04b5de4f62c7c417322da2a1`
+> **Posições da fonte:** 423
 > **Status:** READY_FOR_AUDIT
 > **Revisão:** READY_FOR_AUDIT — requer auditoria independente.
 
 ## Mudança e invariantes
 
-Validador usa revisão HEAD em lote, aceita conclusão permanente com revisão separada, e exige evidência atual no gate final. Self-test de mutações recebe exclusão explícita para seus próprios exemplos negativos.
+Validador usa revisão HEAD em lote, aceita conclusão permanente com revisão separada, e exige evidência atual no gate final. O scanner rejeita entradas `Dirent.isSymbolicLink()` sem segui-las (incluindo junctions e links dentro de diretórios ignorados); somente o `node_modules` canônico da raiz é ignorado para suportar o runtime local. A verificação da raiz de `extension/` também contabiliza links como entradas inesperadas. Self-test de mutações recebe exclusão explícita para seus próprios exemplos negativos e inclui uma junction `extension/rogue-parent/node_modules` apontando para um wrapper proibido fora do checkout.
 
 ## Evidência e limites
 
@@ -34,8 +34,14 @@ function exists(rel) {
 function walk(dir, { ignore = new Set() } = {}) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    if (ignore.has(entry.name)) return [];
     const full = path.join(dir, entry.name);
+    if (entry.isSymbolicLink()) {
+      if (path.resolve(full) !== path.join(root, 'node_modules')) {
+        problems.push('link simbólico proibido: ' + rel(full));
+      }
+      return [];
+    }
+    if (ignore.has(entry.name)) return [];
     if (entry.isDirectory()) return walk(full, { ignore });
     return entry.isFile() ? [full] : [];
   });
@@ -281,7 +287,7 @@ if (!popupSource.includes('reader/reader.html?id=')) {
 }
 
 const extensionRootFiles = fs.readdirSync(path.join(root, 'extension'), { withFileTypes: true })
-  .filter(entry => entry.isFile())
+  .filter(entry => entry.isFile() || entry.isSymbolicLink())
   .map(entry => entry.name)
   .sort();
 if (JSON.stringify(extensionRootFiles) !== JSON.stringify(['background.js', 'manifest.json'])) {
@@ -436,8 +442,9 @@ if (problems.length) {
 console.log(
   'Estrutura validada: npm/Jest/Playwright centralizados, tooling separado e caminhos legados ausentes.'
 );
+
 ~~~
 
 ## Cobertura documental de linhas
 
-- 1–418: snapshot integral da revisão acima; revisão semântica independente pendente.
+- 1–423: snapshot integral da revisão acima; revisão semântica independente pendente.

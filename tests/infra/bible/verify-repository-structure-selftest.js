@@ -137,6 +137,23 @@ function replaceDirectoryWithFile(fixture, baselineResult, relative, expectedMar
   }
 }
 
+function addDirectoryLink(fixture, baselineResult, relative, targetRelative, expectedMarker) {
+  const link = path.join(fixture, relative);
+  const linkParent = path.dirname(link);
+  const target = path.join(path.dirname(fixture), targetRelative);
+  fs.mkdirSync(linkParent, { recursive: true });
+  fs.mkdirSync(target, { recursive: true });
+  fs.writeFileSync(path.join(target, 'hidden.ps1'), 'Write-Host forbidden\n', 'utf8');
+  try {
+    fs.symlinkSync(target, link, process.platform === 'win32' ? 'junction' : 'dir');
+    assertIntroduces(relative, baselineResult, run(fixture), expectedMarker);
+  } finally {
+    fs.rmSync(link, { recursive: true, force: true });
+    fs.rmSync(linkParent, { recursive: true, force: true });
+    fs.rmSync(target, { recursive: true, force: true });
+  }
+}
+
 function main() {
   const checkoutBaseline = run(repoRoot);
 
@@ -219,6 +236,14 @@ function main() {
       'extension/rogue.js',
       '/* rogue */\n',
       'a raiz de extension/ deve conter somente background.js e manifest.json'
+    );
+
+    addDirectoryLink(
+      fixture,
+      fixtureBaseline,
+      'extension/rogue-parent/node_modules',
+      'linked-target',
+      'link simbólico proibido: extension/rogue-parent/node_modules'
     );
 
     mutateFile(

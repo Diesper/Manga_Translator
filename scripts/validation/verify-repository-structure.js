@@ -13,8 +13,14 @@ function exists(rel) {
 function walk(dir, { ignore = new Set() } = {}) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    if (ignore.has(entry.name)) return [];
     const full = path.join(dir, entry.name);
+    if (entry.isSymbolicLink()) {
+      if (path.resolve(full) !== path.join(root, 'node_modules')) {
+        problems.push('link simbólico proibido: ' + rel(full));
+      }
+      return [];
+    }
+    if (ignore.has(entry.name)) return [];
     if (entry.isDirectory()) return walk(full, { ignore });
     return entry.isFile() ? [full] : [];
   });
@@ -260,7 +266,7 @@ if (!popupSource.includes('reader/reader.html?id=')) {
 }
 
 const extensionRootFiles = fs.readdirSync(path.join(root, 'extension'), { withFileTypes: true })
-  .filter(entry => entry.isFile())
+  .filter(entry => entry.isFile() || entry.isSymbolicLink())
   .map(entry => entry.name)
   .sort();
 if (JSON.stringify(extensionRootFiles) !== JSON.stringify(['background.js', 'manifest.json'])) {
