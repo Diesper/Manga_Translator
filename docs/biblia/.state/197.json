@@ -2,7 +2,7 @@
   "index": 197,
   "file": "tests/unit/content-manga/canonical-title.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/canonical-title.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "27ea51de33e3e56ed6535eae1a5dd530f8c06f67",
   "started_at_utc": "2026-09-30T06:34:00Z",
@@ -87,7 +87,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T04:05:34.928Z",
+  "updated_at_utc": "2026-10-03T08:11:16Z",
   "history": [
     {
       "at_utc": "2026-10-01T20:08:17Z",
@@ -150,6 +150,24 @@
       "reason": "Corrigir vínculo de SHA observado; preservar conclusão e etapa de auditoria, sem reutilizar aprovação antiga.",
       "previous_event_hash": "e3f5d6d02bcf21a02b4690c297ffdef14d1da2973bad6f65d2b56b2e2132485d",
       "event_hash": "740d5ccb556f1457c1a545fb770f805ba9f683b8324dfa47c13a946ef746664a"
+    },
+    {
+      "at_utc": "2026-10-03T08:11:16Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "27ea51de33e3e56ed6535eae1a5dd530f8c06f67",
+      "bible_sha": "805abb8064cb9dffd1d7da583fcb52045201e4a0",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "52bc42b165c2059f2f3c50bf11f628a0d6d7d586b71b1852ab381aa8ca901c8e",
+      "audit_epoch": 2,
+      "handoff_id": "197-e2-5b34ed28beae",
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "740d5ccb556f1457c1a545fb770f805ba9f683b8324dfa47c13a946ef746664a",
+      "event_hash": "818673cd17389203870b78339462819c7ebd10590055ed5445c2f9c26e084bc4"
     }
   ],
   "evidence": [],

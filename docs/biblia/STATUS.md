@@ -8,8 +8,8 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **44**
-- CHANGES_REQUIRED: **72**
+- READY_FOR_AUDIT: **39**
+- CHANGES_REQUIRED: **77**
 - HUMAN_LOCKED: **0**
 - BLOCKED: **0**
 - COMPLETED: **117**
@@ -112,7 +112,7 @@
 | 086 | scripts/validation/verify-e2e-shard-plan.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | ea1149ced74425ad27ede90ec409c2548cb5b65d | 3 |
 | 087 | scripts/validation/verify-jest-worker-warning-selftest.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | 4c8ce078abcf58f66ded7918650b2f54d9fa40cf | 1 |
 | 088 | scripts/validation/verify-publish-contract.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | f5b3f6c69f85f90fe43689de2e44b6ed70cca757 | 2 |
-| 089 | scripts/validation/verify-repository-structure.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | e80da68ff70c2a26eeada261cd4e5d8cce2649b3 | 5 |
+| 089 | scripts/validation/verify-repository-structure.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | e80da68ff70c2a26eeada261cd4e5d8cce2649b3 | 5 |
 | 090 | scripts/validation/verify-test-policy-selftest.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | ac0318e4d90c5014180eb3d3a6ac4784cc70a24a | 2 |
 | 091 | scripts/validation/verify-test-policy.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | 4a821403353445023452a0b5055e3a0893beaad2 | 3 |
 | 092 | tests/e2e/cache-and-storage.spec.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | b181989a9b89151ca17cbcbeb7db9342b98c9add | 3 |
@@ -183,8 +183,8 @@
 | 157 | tests/unit/background/open-existing-folder-action.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_PRIMARY | - | 49b6cd110ebae43d7a4ed5a29b5a8e8430e5efb3 | 2 |
 | 158 | tests/unit/background/open-manga-root-action.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_PRIMARY | - | fd34ec27189d5c4f3bf2bffb51972a26f540a19b | 1 |
 | 159 | tests/unit/background/plan-missing-handlers-real.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_PRIMARY | - | 9f8c6e4a88256aae9e2b26cd2121fe8474d736b8 | 0 |
-| 160 | tests/unit/background/process-finalize-real.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_PRIMARY | - | abb1b936fadf0e309933e39b4b705116eb320a1f | 3 |
-| 161 | tests/unit/background/refresh-job-watchdog-action.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | d2acd697b78872400a16bfdac3a4866446d2239f | 3 |
+| 160 | tests/unit/background/process-finalize-real.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | REAUDIT_REQUIRED | - | c242bda9fbae752c90e4b41de971b05f9880595f | 3 |
+| 161 | tests/unit/background/refresh-job-watchdog-action.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | d2acd697b78872400a16bfdac3a4866446d2239f | 3 |
 | 162 | tests/unit/background/regex-escape.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 3707482c013734dd2fd0e6a3989eee30c5f5406e | 2 |
 | 163 | tests/unit/background/report-error-action.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 507406dfbbc285a981b725408eb1e507e18268c8 | 3 |
 | 164 | tests/unit/background/request-image-data-action.test.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | b04cd6cac53339fb479c19b7977acb61339ffdd9 | 2 |
@@ -204,11 +204,11 @@
 | 178 | tests/unit/content-gemini/editor-submit.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | ccfa4c881543111b13d0bd8f8198f402039b2233 | 3 |
 | 179 | tests/unit/content-gemini/helpers-and-regressions-real.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | 65c66f1a756d127909ed6661386e72c19e3a3a2c | 4 |
 | 180 | tests/unit/content-gemini/image-quarantine.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | b2c73b79c8824e5507e436a75ec9abc663919c6b | 3 |
-| 181 | tests/unit/content-gemini/job-runner.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | b0daca4ce839d8a5114c8c94e116fa155c721f7b | 4 |
+| 181 | tests/unit/content-gemini/job-runner.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | b0daca4ce839d8a5114c8c94e116fa155c721f7b | 4 |
 | 182 | tests/unit/content-gemini/manual-assist-hud.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f | 3 |
 | 183 | tests/unit/content-gemini/observer.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 0eff259f673c32e44c6d5ccf6f627c0c6d5505cc | 3 |
 | 184 | tests/unit/content-gemini/plan-rpa-edge-cases.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 81e21c6e245ec8f75c68db163170266c40561a6c | 3 |
-| 185 | tests/unit/content-gemini/resolution-elevation.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | a8ef465959d231766ee41b9397183b7cb6b53e36 | 3 |
+| 185 | tests/unit/content-gemini/resolution-elevation.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | a8ef465959d231766ee41b9397183b7cb6b53e36 | 3 |
 | 186 | tests/unit/content-gemini/result-extractor.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 611df28380a88aa8c0b468e7300ee3a17aca0f70 | 3 |
 | 187 | tests/unit/content-gemini/rpa-flow.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 4bcd24983325106d82be04e2c547a99df1a74fd5 | 3 |
 | 188 | tests/unit/content-gemini/safe-background-delete.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e | 3 |
@@ -220,7 +220,7 @@
 | 194 | tests/unit/content-manga/auto-restorer-real.test.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | cf792733e62f4b787073f1f7257e2701d29547a6 | 3 |
 | 195 | tests/unit/content-manga/button-ui-real.test.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | a82baea685c1b325e8b21a9a914ef405a142ef97 | 3 |
 | 196 | tests/unit/content-manga/canonical-title-full.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | 12c203636749f69c09448a063be5384bf221e2b8 | 3 |
-| 197 | tests/unit/content-manga/canonical-title.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | 27ea51de33e3e56ed6535eae1a5dd530f8c06f67 | 3 |
+| 197 | tests/unit/content-manga/canonical-title.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 27ea51de33e3e56ed6535eae1a5dd530f8c06f67 | 3 |
 | 198 | tests/unit/content-manga/chapter-id-cache.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 7bc23a456be69aaac252e7acea2b498d61a07520 | 3 |
 | 199 | tests/unit/content-manga/chapter-id-rejection.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 783c8abd86029345a97ce44f4eaf5415274bf4b3 | 3 |
 | 200 | tests/unit/content-manga/close-interval.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | e9bcb9c9267176fab8ec8229c66514c21ebbc814 | 1 |

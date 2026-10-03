@@ -90,7 +90,7 @@
 - [x] 086 — `scripts/validation/verify-e2e-shard-plan.js` — COMPLETED
 - [x] 087 — `scripts/validation/verify-jest-worker-warning-selftest.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
 - [x] 088 — `scripts/validation/verify-publish-contract.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
-- [ ] 089 — `scripts/validation/verify-repository-structure.js` — READY_FOR_AUDIT
+- [ ] 089 — `scripts/validation/verify-repository-structure.js` — CHANGES_REQUIRED
 - [x] 090 — `scripts/validation/verify-test-policy-selftest.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
 - [x] 091 — `scripts/validation/verify-test-policy.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
 - [x] 092 — `tests/e2e/cache-and-storage.spec.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
@@ -162,7 +162,7 @@
 - [ ] 158 — `tests/unit/background/open-manga-root-action.test.js` — READY_FOR_AUDIT
 - [ ] 159 — `tests/unit/background/plan-missing-handlers-real.test.js` — READY_FOR_AUDIT
 - [ ] 160 — `tests/unit/background/process-finalize-real.test.js` — READY_FOR_AUDIT
-- [ ] 161 — `tests/unit/background/refresh-job-watchdog-action.test.js` — READY_FOR_AUDIT
+- [ ] 161 — `tests/unit/background/refresh-job-watchdog-action.test.js` — CHANGES_REQUIRED
 - [ ] 162 — `tests/unit/background/regex-escape.test.js` — CHANGES_REQUIRED
 - [ ] 163 — `tests/unit/background/report-error-action.test.js` — CHANGES_REQUIRED
 - [x] 164 — `tests/unit/background/request-image-data-action.test.js` — COMPLETED
@@ -182,11 +182,11 @@
 - [ ] 178 — `tests/unit/content-gemini/editor-submit.test.js` — CHANGES_REQUIRED
 - [ ] 179 — `tests/unit/content-gemini/helpers-and-regressions-real.test.js` — READY_FOR_AUDIT
 - [ ] 180 — `tests/unit/content-gemini/image-quarantine.test.js` — CHANGES_REQUIRED
-- [ ] 181 — `tests/unit/content-gemini/job-runner.test.js` — READY_FOR_AUDIT
+- [ ] 181 — `tests/unit/content-gemini/job-runner.test.js` — CHANGES_REQUIRED
 - [ ] 182 — `tests/unit/content-gemini/manual-assist-hud.test.js` — CHANGES_REQUIRED
 - [ ] 183 — `tests/unit/content-gemini/observer.test.js` — CHANGES_REQUIRED
 - [ ] 184 — `tests/unit/content-gemini/plan-rpa-edge-cases.test.js` — CHANGES_REQUIRED
-- [ ] 185 — `tests/unit/content-gemini/resolution-elevation.test.js` — READY_FOR_AUDIT
+- [ ] 185 — `tests/unit/content-gemini/resolution-elevation.test.js` — CHANGES_REQUIRED
 - [ ] 186 — `tests/unit/content-gemini/result-extractor.test.js` — CHANGES_REQUIRED
 - [ ] 187 — `tests/unit/content-gemini/rpa-flow.test.js` — CHANGES_REQUIRED
 - [ ] 188 — `tests/unit/content-gemini/safe-background-delete.test.js` — CHANGES_REQUIRED
@@ -198,7 +198,7 @@
 - [x] 194 — `tests/unit/content-manga/auto-restorer-real.test.js` — COMPLETED
 - [x] 195 — `tests/unit/content-manga/button-ui-real.test.js` — COMPLETED
 - [ ] 196 — `tests/unit/content-manga/canonical-title-full.test.js` — READY_FOR_AUDIT
-- [ ] 197 — `tests/unit/content-manga/canonical-title.test.js` — READY_FOR_AUDIT
+- [ ] 197 — `tests/unit/content-manga/canonical-title.test.js` — CHANGES_REQUIRED
 - [ ] 198 — `tests/unit/content-manga/chapter-id-cache.test.js` — CHANGES_REQUIRED
 - [ ] 199 — `tests/unit/content-manga/chapter-id-rejection.test.js` — CHANGES_REQUIRED
 - [ ] 200 — `tests/unit/content-manga/close-interval.test.js` — CHANGES_REQUIRED

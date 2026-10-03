@@ -2,7 +2,7 @@
   "index": 89,
   "file": "scripts/validation/verify-repository-structure.js",
   "bible": "docs/biblia/scripts/validation/verify-repository-structure.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "e80da68ff70c2a26eeada261cd4e5d8cce2649b3",
   "started_at_utc": "2026-09-30T06:14:00Z",
@@ -127,7 +127,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T03:50:28.650Z",
+  "updated_at_utc": "2026-10-03T08:03:49Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -337,6 +337,24 @@
       "reason": "Implementação do plano diretamente no PR 66 por instrução explícita do usuário; atualizar vínculo sem aprovação automática.",
       "previous_event_hash": "80a6c07eb4fbc81bbad0b91fa247bd4ea033de92bbb3607d23d6e6af81e47174",
       "event_hash": "a58d6fb1b3b84773de379909ee43459a9c1bcd21b3f49fb083c52305b0379f65"
+    },
+    {
+      "at_utc": "2026-10-03T08:03:49Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "e80da68ff70c2a26eeada261cd4e5d8cce2649b3",
+      "bible_sha": "04b406e6b0a4e5d0d58a0d50fb64715419643913",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "CHANGES_REQUIRED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": null,
+      "revision_id": "b5151f6b2b88fcc30a3e090387b21eb8cbc5b888e890d5d02113b554e70d0061",
+      "audit_epoch": 2,
+      "handoff_id": "089-e2-e832b23aa261",
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "a58d6fb1b3b84773de379909ee43459a9c1bcd21b3f49fb083c52305b0379f65",
+      "event_hash": "417956ec47075180e3180f1f968380031c32bc615a63eb10bb30512a9ab7fd27"
     }
   ],
   "evidence": [
