@@ -1,6 +1,23 @@
 'use strict';
 
 const fs = require('fs');
+const crypto = require('crypto');
+// Register every historical invocation before selecting a shard: no assertions or fixtures are shared.
+// CLI: node scripts/validation/verify-bible-coordination-selftest.js [--shard=N/5] [--list-cases]
+// With no shard, all 56 cases execute once in their original order. The frozen digest guards
+// case kind, name, order and occurrence; changing inventory requires an explicit reviewed update.
+const cases = [];
+const occurrences = new Map();
+function registerCase(kind, args, execute) {
+  const key = kind + ':' + args[0];
+  const occurrence = (occurrences.get(key) || 0) + 1;
+  occurrences.set(key, occurrence);
+  cases.push({ id: String(cases.length + 1).padStart(3, '0') + ':' + key + ':' + occurrence, run: () => execute(...args) });
+}
+function expectPass(...args) { registerCase('PASS', args, executePass); }
+function expectFail(...args) { registerCase('FAIL', args, executeFail); }
+function expectReadiness(...args) { registerCase('READINESS', args, executeReadiness); }
+function expectDerivedAuditStatus(...args) { registerCase('DERIVED', args, executeDerivedAuditStatus); }
 const os = require('os');
 const path = require('path');
 const {
@@ -166,7 +183,7 @@ function readiness(root, options = {}) {
   const validation = validateBibleCoordination(root,{checkDerived:false,enforceSingleAuditClaimPerAuditor:true,headLabel:'fixture'});
   return evaluateMergeReadiness(validation, options);
 }
-function expectReadiness(name, expectedReady, setup, options = {}, needle = null) {
+function executeReadiness(name, expectedReady, setup, options = {}, needle = null) {
   const root=makeFixture();
   try {
     if (setup) setup(root);
@@ -180,7 +197,7 @@ function expectReadiness(name, expectedReady, setup, options = {}, needle = null
     process.stdout.write('PASS '+name+' -> merge-ready='+result.ready+'\n');
   } finally { fs.rmSync(root,{recursive:true,force:true}); }
 }
-function expectPass(name,setup){
+function executePass(name,setup){
   const root=makeFixture();
   try{
     if(setup) setup(root);
@@ -189,7 +206,7 @@ function expectPass(name,setup){
     process.stdout.write('PASS '+name+'\n');
   } finally { fs.rmSync(root,{recursive:true,force:true}); }
 }
-function expectFail(name,needle,setup,checkDerived=false,enforceSingleAuditClaimPerAuditor=false){
+function executeFail(name,needle,setup,checkDerived=false,enforceSingleAuditClaimPerAuditor=false){
   const root=makeFixture();
   try{
     setup(root);
@@ -203,7 +220,7 @@ function expectFail(name,needle,setup,checkDerived=false,enforceSingleAuditClaim
 
 expectPass('.state/.reservas/.coordination permitidos');
 
-function expectDerivedAuditStatus(name, auditSourceSha, currentSourceSha, auditResult, expected) {
+function executeDerivedAuditStatus(name, auditSourceSha, currentSourceSha, auditResult, expected) {
   const state = {
     index: 65,
     file: '.github/workflows/ci.yml',
@@ -448,4 +465,27 @@ expectReadiness('auditoria aprovada de outro SHA bloqueia merge',false,(root)=>{
   write(root,'docs/biblia/AUDITORIA.md',audit);
 });
 
-process.stdout.write('Bible coordination validator self-test: SUCCESS\n');
+const inventory = cases.map(item => item.id);
+const digest = crypto.createHash('sha256').update(JSON.stringify(inventory)).digest('hex');
+console.log('INVENTORY ' + cases.length + ' ' + digest);
+if (digest !== 'c03482bdd6599c607778a5fde3528965959bb008190c91a925b8043e86d98cee') throw new Error('COORDINATION_CASE_INVENTORY_CHANGED:' + digest);
+const argv = process.argv.slice(2);
+if (argv.some(arg => arg !== '--list-cases' && !/^--shard=[1-5]\/5$/.test(arg)) || argv.filter(arg => arg.startsWith('--shard=')).length > 1) throw new Error('Use --shard=N/5 with N=1..5, optionally --list-cases');
+const shardArg = argv.find(arg => arg.startsWith('--shard='));
+const shard = shardArg ? Number(shardArg.slice(8,9)) : null;
+// Contiguous groups preserve canonical ordering while giving the heavier readiness cases fewer slots.
+const shardEnds = [10, 21, 34, 46, 56];
+const selected = cases.filter((item, i) => shard === null || (i >= (shardEnds[shard - 2] || 0) && i < shardEnds[shard - 1]));
+if (!selected.length) throw new Error('EMPTY_COORDINATION_SHARD');
+if (argv.includes('--list-cases')) selected.forEach(item => console.log(item.id));
+else {
+  const started = process.hrtime.bigint();
+  for (const item of selected) {
+    const caseStarted = process.hrtime.bigint();
+    console.log('CASE ' + item.id);
+    item.run();
+    console.log('CASE_RESULT ' + JSON.stringify({ id: item.id, durationMs: Number(process.hrtime.bigint() - caseStarted)/1e6 }));
+  }
+  console.log('COORDINATION_RESULT ' + JSON.stringify({ shard: shardArg || 'all', cases: selected.length, inventoryDigest: digest, durationMs: Number(process.hrtime.bigint() - started)/1e6 }));
+  process.stdout.write('Bible coordination validator self-test: SUCCESS\n');
+}
