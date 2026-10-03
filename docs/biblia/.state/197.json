@@ -87,7 +87,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T03:41:55.040Z",
+  "updated_at_utc": "2026-10-03T04:05:34.928Z",
   "history": [
     {
       "at_utc": "2026-10-01T20:08:17Z",
@@ -128,6 +128,28 @@
       "reason": "Implementação do plano diretamente no PR 66 por instrução explícita do usuário; atualizar vínculo sem aprovação automática.",
       "previous_event_hash": "54678d4ad43e5290435da67f86b652d0f59030737d92d70da0e7d7e1bfcd1573",
       "event_hash": "e3f5d6d02bcf21a02b4690c297ffdef14d1da2973bad6f65d2b56b2e2132485d"
+    },
+    {
+      "at_utc": "2026-10-03T04:05:34.928Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "authorized-sha-repair",
+      "previous_source_sha": "27ea51de33e3e56ed6535eae1a5dd530f8c06f67",
+      "previous_bible_sha": "805abb8064cb9dffd1d7da583fcb52045201e4a0",
+      "previous_production_sha": null,
+      "previous_revision_id": "e1d9af10b4340683ae00b55a7d43d6b40e83836f5c60121e3d031ac365e2c820",
+      "source_sha": "27ea51de33e3e56ed6535eae1a5dd530f8c06f67",
+      "test_sha": "27ea51de33e3e56ed6535eae1a5dd530f8c06f67",
+      "bible_sha": "805abb8064cb9dffd1d7da583fcb52045201e4a0",
+      "production_sha": "2fbdaea5717ea39e10e49ddb3fdbe53c8fecbf0a",
+      "revision_id": "52bc42b165c2059f2f3c50bf11f628a0d6d7d586b71b1852ab381aa8ca901c8e",
+      "correction_cycle": 0,
+      "audit_epoch": 2,
+      "handoff_id": "197-e2-5b34ed28beae",
+      "reason": "Corrigir vínculo de SHA observado; preservar conclusão e etapa de auditoria, sem reutilizar aprovação antiga.",
+      "previous_event_hash": "e3f5d6d02bcf21a02b4690c297ffdef14d1da2973bad6f65d2b56b2e2132485d",
+      "event_hash": "740d5ccb556f1457c1a545fb770f805ba9f683b8324dfa47c13a946ef746664a"
     }
   ],
   "evidence": [],
@@ -136,11 +158,14 @@
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 1,
-  "handoff_id": "197-e1-f08f88d78dfd",
-  "production_sha": null,
+  "audit_epoch": 2,
+  "handoff_id": "197-e2-5b34ed28beae",
+  "production_sha": "2fbdaea5717ea39e10e49ddb3fdbe53c8fecbf0a",
   "test_sha": "27ea51de33e3e56ed6535eae1a5dd530f8c06f67",
   "bible_sha": "805abb8064cb9dffd1d7da583fcb52045201e4a0",
-  "revision_id": "e1d9af10b4340683ae00b55a7d43d6b40e83836f5c60121e3d031ac365e2c820",
-  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
+  "revision_id": "52bc42b165c2059f2f3c50bf11f628a0d6d7d586b71b1852ab381aa8ca901c8e",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.",
+  "production_files": [
+    "extension/content/cm-chapter.js"
+  ]
 }

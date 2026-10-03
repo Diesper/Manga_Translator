@@ -66,7 +66,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T03:41:52.956Z",
+  "updated_at_utc": "2026-10-03T04:05:34.037Z",
   "history": [
     {
       "at_utc": "2026-10-01T20:05:44Z",
@@ -107,6 +107,28 @@
       "reason": "Implementação do plano diretamente no PR 66 por instrução explícita do usuário; atualizar vínculo sem aprovação automática.",
       "previous_event_hash": "f8a4f47546feb0544870934fb7a4ec4afa7fea5f08f72c9482624c1276f11753",
       "event_hash": "4bc9f34dba88e5b2cf28f7b0910b933c20a0b8cbd295ab6d73fb6f7a2652b868"
+    },
+    {
+      "at_utc": "2026-10-03T04:05:34.037Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "authorized-sha-repair",
+      "previous_source_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
+      "previous_bible_sha": "b03e282af6c0898b9ee4f287a19df889e16dfc9a",
+      "previous_production_sha": null,
+      "previous_revision_id": "a687cfb6ace2cfe0c7378a9a21a43e572e6d5b2d1417f1fd209ec025d9cddecf",
+      "source_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
+      "test_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
+      "bible_sha": "b03e282af6c0898b9ee4f287a19df889e16dfc9a",
+      "production_sha": "827fd71f9f0ed221b8adf9b02bb1d145e4146d84",
+      "revision_id": "3876e6a1eeba8775e491923d909c4ced236a34d57ec0d79bf4da17f3080b07c2",
+      "correction_cycle": 0,
+      "audit_epoch": 2,
+      "handoff_id": "192-e2-8442e253d924",
+      "reason": "Corrigir vínculo de SHA observado; preservar conclusão e etapa de auditoria, sem reutilizar aprovação antiga.",
+      "previous_event_hash": "4bc9f34dba88e5b2cf28f7b0910b933c20a0b8cbd295ab6d73fb6f7a2652b868",
+      "event_hash": "a6a48c6a088f9a8bbb346f34117f40cf57a4ca544837fed508dcbffa49073072"
     }
   ],
   "evidence": [],
@@ -115,11 +137,14 @@
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 1,
-  "handoff_id": "192-e1-0f0c14e1b960",
-  "production_sha": null,
+  "audit_epoch": 2,
+  "handoff_id": "192-e2-8442e253d924",
+  "production_sha": "827fd71f9f0ed221b8adf9b02bb1d145e4146d84",
   "test_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
   "bible_sha": "b03e282af6c0898b9ee4f287a19df889e16dfc9a",
-  "revision_id": "a687cfb6ace2cfe0c7378a9a21a43e572e6d5b2d1417f1fd209ec025d9cddecf",
-  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
+  "revision_id": "3876e6a1eeba8775e491923d909c4ced236a34d57ec0d79bf4da17f3080b07c2",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.",
+  "production_files": [
+    "extension/content/cm-audio.js"
+  ]
 }
