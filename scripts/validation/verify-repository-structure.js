@@ -313,6 +313,8 @@ const operationalTextFiles = tracked.filter((file) => {
 });
 for (const file of operationalTextFiles) {
   const relative = rel(file);
+  // This fixture intentionally contains forbidden paths to test rejection.
+  if (relative === 'tests/infra/bible/verify-repository-structure-selftest.js') continue;
   const source = fs.readFileSync(file, 'utf8');
   for (const marker of legacyReferenceMarkers) {
     if (source.includes(marker)) {

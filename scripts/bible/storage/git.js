@@ -3,7 +3,9 @@ const crypto = require('crypto');
 const cp = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const snapshots = new Map();
+const operations = new Map();
 const slash = value => String(value).replace(/\\/g, '/');
 function gitBlobShaBuffer(value) {
   const bytes = Buffer.isBuffer(value) ? value : Buffer.from(value);
@@ -19,6 +21,7 @@ function clearGitSnapshotCache(root = null) { if (root) snapshots.delete(path.re
 function loadGitSnapshot(root) {
   const key = path.resolve(root);
   const previous = snapshots.get(key);
+  if (previous && operations.has(key)) return previous;
   if (previous && (!previous.isGit || (previous.indexStamp === stamp(previous.indexPath)
     && [...previous.attributes].every(([file, value]) => stamp(file) === value)))) return previous;
   let indexPath;
@@ -30,6 +33,10 @@ function loadGitSnapshot(root) {
   }
   const index = new Map(), dirty = new Set(), stamps = new Map(), attributes = new Map(), pathAttributes = new Map();
   const metadata = git(key, ['rev-parse', '--git-path', 'HEAD', '--git-path', 'packed-refs', '--git-path', 'config', '--git-path', 'info/attributes']).trim().split(/\r?\n/).map(file => path.resolve(key, file));
+  const gitConfigHome=process.env.XDG_CONFIG_HOME || path.join(os.homedir(),'.config');
+  metadata.push(path.join(os.homedir(),'.gitconfig'),path.join(gitConfigHome,'git/config'),path.join(gitConfigHome,'git/attributes'));
+  for (const name of ['GIT_CONFIG_GLOBAL','GIT_CONFIG_SYSTEM']) if(process.env[name]) metadata.push(path.resolve(key,process.env[name]));
+  try { const external=git(key,['config','--path','--get','core.attributesFile']).trim();if(external)metadata.push(path.resolve(key,external)); } catch(error) { if(error.status!==1)throw error; }
   for (const file of metadata) attributes.set(file, stamp(file));
   const headSource = fs.readFileSync(metadata[0], 'utf8').trim();
   if (headSource.startsWith('ref: ')) {
@@ -41,6 +48,9 @@ function loadGitSnapshot(root) {
     if (!match) continue;
     const relative = slash(match[2]);
     index.set(relative, match[1].toLowerCase());
+    // Immutable audit data is not a source/Bible binding. If explicitly hashed,
+    // it takes the canonical hash path rather than an unproved index fast path.
+    if(relative.startsWith('docs/biblia/') && !relative.endsWith('/Bíblia.md') && path.basename(relative)!=='.gitattributes') continue;
     stamps.set(relative, stamp(path.join(key, relative)));
     if (path.basename(relative) === '.gitattributes') attributes.set(path.join(key, relative), stamps.get(relative));
     for (let directory = path.dirname(path.join(key, relative)); directory.startsWith(key + path.sep) || directory === key; directory = path.dirname(directory)) {
@@ -60,6 +70,16 @@ function gitWorkingTreeBlobSha(root, relativePath) {
   if (!fs.existsSync(absolute)) return null;
   const snapshot = loadGitSnapshot(root);
   if (!snapshot.isGit) return fileBlobSha(absolute);
+  const operation = operations.get(path.resolve(root));
+  if (operation?.requested.has(relative)) return operation.requested.get(relative);
+  const finish = sha => {
+    if (operation) {
+      operation.requested.set(relative,sha);
+      operation.files.set(absolute,identity.split('|')[0]);
+      attributePaths.forEach((file,i)=>operation.attributes.set(file,attributeIdentity[i]));
+    }
+    return sha;
+  };
   let attributesUnchanged = true;
   const attributeIdentity = [];
   const attributePaths = [];
@@ -73,9 +93,9 @@ function gitWorkingTreeBlobSha(root, relativePath) {
   }
   const identity = stamp(absolute) + '|' + attributeIdentity.join('|');
   const cached = snapshot.hashes.get(relative);
-  if (cached?.identity === identity) return cached.sha;
+  if (cached?.identity === identity) return finish(cached.sha);
   if (snapshot.index.has(relative) && !snapshot.dirty.has(relative)
-    && attributesUnchanged && snapshot.stamps.get(relative) === stamp(absolute)) return snapshot.index.get(relative);
+    && attributesUnchanged && snapshot.stamps.get(relative) === stamp(absolute)) return finish(snapshot.index.get(relative));
   const result = git(root, ['hash-object', '--path=' + relative, absolute]).trim();
   if (!/^[a-f0-9]{40}$/i.test(result)) throw new Error('INVALID_GIT_BLOB_SHA');
   const sha = result.toLowerCase();
@@ -83,7 +103,7 @@ function gitWorkingTreeBlobSha(root, relativePath) {
     && snapshot.indexStamp === stamp(snapshot.indexPath)
     && [...snapshot.attributes].every(([file,value]) => stamp(file) === value)) snapshot.hashes.set(relative, { identity, sha });
   else throw new Error('REVISION_CHANGED_DURING_HASH');
-  return sha;
+  return finish(sha);
 }
 function headBlobSha(root, relativePath, fallbackSource) {
   const snapshot = loadGitSnapshot(root);
@@ -98,4 +118,19 @@ function headBlobSha(root, relativePath, fallbackSource) {
   }
   return snapshot.head.get(slash(relativePath)) || gitBlobShaBuffer(Buffer.from(fallbackSource, 'utf8'));
 }
-module.exports = { gitBlobShaBuffer, fileBlobSha, loadGitSnapshot, clearGitSnapshotCache, gitWorkingTreeBlobSha, headBlobSha };
+function withRevisionSnapshot(root, read) {
+  const key=path.resolve(root);
+  if (operations.has(key)) return read();
+  clearGitSnapshotCache(key);
+  const operation={requested:new Map(),files:new Map(),attributes:new Map()};
+  operations.set(key,operation);
+  try {
+    const result=read(),snapshot=snapshots.get(key);
+    if (snapshot?.isGit && (snapshot.indexStamp!==stamp(snapshot.indexPath)
+      || [...snapshot.attributes,...operation.attributes,...operation.files].some(([file,value])=>stamp(file)!==value))) {
+      throw Error('REVISION_CHANGED_DURING_OPERATION');
+    }
+    return result;
+  } finally { operations.delete(key); }
+}
+module.exports = { withRevisionSnapshot, gitBlobShaBuffer, fileBlobSha, loadGitSnapshot, clearGitSnapshotCache, gitWorkingTreeBlobSha, headBlobSha };

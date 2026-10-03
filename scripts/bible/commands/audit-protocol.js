@@ -423,7 +423,7 @@ function resolvePipeline(state, records = [], legacyAudits = new Map(), options 
   });
 }
 
-function loadModel() {
+function loadModelSnapshot() {
   core.clearGitSnapshotCache(repoRoot);
   const states = readStates();
   const baseline = core.loadBibleBaseline(repoRoot);
@@ -502,6 +502,8 @@ function loadModel() {
     merge_problems: [...claims.strictProblems, ...editorialReservations.strictProblems],
   };
 }
+
+function loadModel() { return require('../storage/git').withRevisionSnapshot(repoRoot,loadModelSnapshot); }
 
 function formatPipeline(pipeline) {
   return [

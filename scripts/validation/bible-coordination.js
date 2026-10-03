@@ -367,7 +367,7 @@ function buildDerived(states, audits, headLabel, auditPipelines = null) {
   };
 }
 
-function validateBibleCoordination(root, options = {}) {
+function validateBibleCoordinationSnapshot(root, options = {}) {
   clearGitSnapshotCache(root);
   const problems = [];
   const enforceSingleAuditClaimPerAuditor = options.enforceSingleAuditClaimPerAuditor === true;
@@ -644,6 +644,10 @@ function evaluateMergeReadiness(validation, options = {}) {
       requests: requestCounts,
     },
   };
+}
+
+function validateBibleCoordination(root, options = {}) {
+  return require('../bible/storage/git').withRevisionSnapshot(root,()=>validateBibleCoordinationSnapshot(root,options));
 }
 
 module.exports = {

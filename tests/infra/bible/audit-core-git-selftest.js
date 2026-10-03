@@ -111,6 +111,12 @@ try {
   const filtered=gitWorkingTreeBlobSha(root,rel);
   fs.writeFileSync(path.join(path.dirname(abs),'.gitattributes'),'*.md -text\n');
   assert('atributo local novo invalida filtro sem editar a fonte',gitWorkingTreeBlobSha(root,rel)!==filtered);
+  const stable=fs.readFileSync(abs,'utf8');
+  let snapshotRejected=false;
+  try { revisionGit.withRevisionSnapshot(root,()=>{const sha=gitWorkingTreeBlobSha(root,rel);fs.writeFileSync(abs,'changed during read\n');assert('uma operação lê uma identidade consistente',gitWorkingTreeBlobSha(root,rel)===sha);}); }
+  catch(error){snapshotRejected=/REVISION_CHANGED_DURING_OPERATION/.test(error.message);}
+  assert('mudança durante operação bloqueia o resultado antes de devolvê-lo',snapshotRejected);
+  fs.writeFileSync(abs,stable);
   const originalExec=childProcess.execFileSync;
   try {
     fs.writeFileSync(abs,'failure fixture\n');
