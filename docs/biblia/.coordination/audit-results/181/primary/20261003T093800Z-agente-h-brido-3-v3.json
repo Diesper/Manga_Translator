@@ -1,0 +1,20 @@
+{
+  "schema_version": 3,
+  "index": 181,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE HÍBRIDO 3",
+  "file": "tests/unit/content-gemini/job-runner.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/job-runner.test.js/Bíblia.md",
+  "source_sha": "d40f591b95027b0742c5d4c11b47b7c98a775028",
+  "bible_sha": "8f4e017e44484828ed42a5f9e1edf2ad5a704282",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-03T09:38:00Z",
+  "completed_order_id": null,
+  "production_sha": null,
+  "test_sha": "d40f591b95027b0742c5d4c11b47b7c98a775028",
+  "audit_epoch": 3,
+  "handoff_id": "181-e3-0a3d829d2fb7",
+  "revision_id": "597d57b591ba101f3d16e90d2320686e84d658de339665a38e00370f2c8b90db",
+  "human_approval_id": null
+}
