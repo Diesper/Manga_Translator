@@ -2,7 +2,7 @@ name: PR66 Isolated Structure Review
 
 on:
   pull_request:
-    branches: [docs/project-bible]
+    branches: [codex/pr66-structure-review-base-20261002]
     paths:
       - '.github/workflows/pr66-structure-review.yml'
       - '.github/workflows/bible-reconcile-checkpoint.yml'

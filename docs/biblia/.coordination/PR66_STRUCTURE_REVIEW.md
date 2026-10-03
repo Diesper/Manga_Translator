@@ -7,6 +7,7 @@ PR analisado: https://github.com/Diesper/Manga_Translator/pull/66
 Snapshot fixo: `a4f679b3b4dfea8a2916057e3f75fa63c2415bc1`.
 Merge-base com main: `650f9864d7ebb17f81a2a32cb4b50f604e07d98e`.
 Branch de experimentação: `codex/temp-pr66-structure-review-20261002`.
+Base independente e congelada do PR temporário: `codex/pr66-structure-review-base-20261002`, apontando para o snapshot analisado.
 
 ## Conclusão
 
@@ -167,6 +168,8 @@ Uma falha concreta já existente em `log-exporter.test.js` espera `window.logPol
 
 O workflow novo `PR66 Isolated Structure Review` usa checkout do **head SHA** do PR temporário, contents read e grupo `pr66-structure-review-<número>`. Seus jobs executam somente governança/mutações em Windows/Linux e lint dos workflows reparados. Não despacha transições, aprovações humanas ou reconciliação contra `docs/project-bible`.
 
+A base inicial `docs/project-bible` avançou e o PR experimental apresentou conflito antes que Actions o executasse. A base foi substituída por uma branch congelada no SHA analisado. Assim, nenhum rebase no trabalho concorrente é necessário para testar a proposta. Este draft não deve ser merged nessa base de experimento; uma eventual aplicação ao PR 66 requer cherry-pick dos commits de correção e revalidação no SHA canônico atual.
+
 Os workflows normais herdados continuam elegíveis para o PR; não foram desabilitados. Seus grupos por ref são distintos do PR 66. Isso isola cancelamento/serialização por grupo, mas **não reserva capacidade de runners ou quota da conta**. Um PR temporário também não faz desaparecer failures preexistentes do runtime ou do gate final.
 
 O ruleset ativo de main exige JS Syntax Check, Manifest Validation, E2E Tests (Playwright), Code Coverage e CI Gate com branch atualizada. A ausência de proteção no endpoint legado de branch não significa ausência de ruleset: o ruleset ativo foi consultado separadamente.
@@ -184,6 +187,7 @@ O ruleset ativo de main exige JS Syntax Check, Manifest Validation, E2E Tests (P
 | actionlint depois | Todos os workflows do checkout passaram |
 | Governança e self-tests após correção | Passaram, incluindo LF/CRLF e 9 mutantes da reconciliação |
 | Cache de revisão | Defeito reproduzido em fixture Git própria |
+| Lifecycle atual e self-tests core/unit-transition | Passaram; 233 states, 0 HUMAN_LOCKED, 1 finding, 0 approvals/tokens |
 | `npm run validate` antes do reparo de contexto | Estrutura passou; projeções bloquearam com 16 diagnostics de pipeline |
 | Regressão de contexto de projeção | Vermelho em `4e8715b9`; verde após `36bf8eaf`, mantendo rejeição do REAUDIT inválido corrente |
 | Check das projeções reais após reparo | Eliminou os falsos diagnostics; continua vermelho por STATUS/CHECKLIST stale, sem regenerar dados |
