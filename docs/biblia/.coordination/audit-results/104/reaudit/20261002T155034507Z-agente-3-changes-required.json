@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "index": 104,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 3",
+  "file": "tests/helpers/repo-root.js",
+  "bible": "docs/biblia/tests/helpers/repo-root.js/Bíblia.md",
+  "source_sha": "b2520d65820e7b9072602018b0f46609ac967c58",
+  "bible_sha": "ab7bf0794a3f299a7bc8b12367c82cd482ff8f4d",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "104-A3-REA-20261002-001",
+      "severity": "MATERIAL",
+      "category": "LIFECYCLE_CONTRADICTION",
+      "summary": "A Bíblia atual se declara documentalmente concluída no cabeçalho, mas o state canônico e a própria conclusão do documento dizem que a revisão está READY_FOR_AUDIT e ainda depende de auditor independente para chegar a COMPLETED.",
+      "evidence": [
+        "Bíblia, cabeçalho: `Estado documental: ✅ CONCLUÍDA PELO AGENTE RESPONSÁVEL`.",
+        "docs/biblia/.state/104.json: `status: READY_FOR_AUDIT`, `agent: null`.",
+        "Bíblia, conclusão: `O item retorna a READY_FOR_AUDIT e somente auditor independente pode promovê-lo a COMPLETED`.",
+        "PRIMARY atual (AGENTE 24) e ADVERSARIAL atual (AGENTE 21) estão vinculadas ao mesmo SOURCE_SHA b2520d... e BIBLE_SHA ab7bf0..., mas divergem; a contradição acima permanece presente no blob atual.",
+        "A releitura independente confirmou que os demais pontos críticos não justificam reprovação adicional: fonte integral exata, 23 linhas + LF = 24 posições, mapa 24/24 sem gaps, 31 consumers diretos, evidência CI corretamente classificada como indireta e request 104-001 corretamente ACCEPTED."
+      ],
+      "required_change": "Substituir o rótulo de conclusão do cabeçalho por um estado revision-aware compatível com READY_FOR_AUDIT/decisão distribuída pendente; não declarar a revisão atual concluída antes da decisão do pipeline."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X_24_DE_24",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies_consumers": "CONFIRMADO_3X_31_CONSUMIDORES",
+    "tests_assertions": "CONFIRMADO_3X_SEM_TESTE_FOCAL",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X_104_001_ACCEPTED",
+    "lifecycle_contradiction": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_3_DIFERENTE_DE_AGENTES_24_E_21",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "primary_hypothesis": "APPROVED — AGENTE 24",
+    "adversarial_hypothesis": "CHANGES_REQUIRED — AGENTE 21",
+    "resolution": "CHANGES_REQUIRED",
+    "source_text_lines": 23,
+    "source_final_newline": true,
+    "documented_positions": "24/24",
+    "embedded_source_exact": true,
+    "consumer_search": "32 arquivos com findRepoRoot incluindo a implementação = 31 consumers",
+    "focal_error_search": "mensagem de erro localizada apenas na implementação",
+    "ci_run": 36577447500,
+    "ci_blob_verified_at_commit": "b6ad13fce47adcab3fcd10281f28848f7b4ce50f",
+    "ci_source_blob": "b2520d65820e7b9072602018b0f46609ac967c58",
+    "ci_linux": "109/109 suites; 851/851 testes",
+    "ci_windows": "109/109 suites; 851/851 testes",
+    "head_before_publish": "7dd6e625314acb43125206bf9668425ec31e6913"
+  },
+  "completed_at_utc": "2026-10-02T15:50:34.507Z"
+}

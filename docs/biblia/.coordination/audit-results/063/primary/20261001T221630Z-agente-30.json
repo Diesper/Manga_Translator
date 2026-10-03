@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "index": 63,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 30",
+  "file": "package.json",
+  "bible": "docs/biblia/package.json/Bíblia.md",
+  "source_sha": "4b2ed97106c576075c960ab20308ee1c835cae71",
+  "bible_sha": "b5bb161d7564d11760ca1323a29e2b6c50c8f65f",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "063-A30-001",
+      "severity": "HIGH",
+      "category": "STALE_REVISION_BINDING",
+      "problem": "O state e a Bíblia declaram SOURCE_SHA 4b2ed971..., mas o blob Git atual de package.json é 5b5c328f....",
+      "evidence": [
+        "docs/biblia/.state/063.json source_sha=4b2ed97106c576075c960ab20308ee1c835cae71.",
+        "Cabeçalho da Bíblia #063 usa o mesmo SHA 4b2ed971....",
+        "GitHub contents API no HEAD auditado 254254c... retorna blob 5b5c328f6139eeff920dc65a78014a6c5b6db3a6 para package.json.",
+        "bible-coordination.js compara state.source_sha com git rev-parse HEAD:<source> e classifica divergência como SHA stale."
+      ],
+      "requested_action": "Atualizar state e Bíblia para o blob atual e invalidar qualquer aprovação anterior ligada à revisão antiga."
+    },
+    {
+      "id": "063-A30-002",
+      "severity": "HIGH",
+      "category": "EMBEDDED_SOURCE_DIVERGENCE",
+      "problem": "A seção Fonte integral exata não corresponde mais ao package.json atual e omite os scripts de protocolo/reconciliação/final-readiness adicionados depois.",
+      "evidence": [
+        "Fonte embutida possui 60 linhas úteis; package.json atual possui 74.",
+        "Primeira divergência material na linha 48: a Bíblia fecha o bloco de scripts, enquanto o source atual continua com test:bible-protocol:infra e demais comandos até a linha 62.",
+        "O validador bible-coordination.js exige igualdade da fonte integral para estados READY_FOR_AUDIT/CHANGES_REQUIRED/COMPLETED."
+      ],
+      "requested_action": "Substituir a fonte integral pelo conteúdo exato do package.json atual e revisar as seções semânticas afetadas pelos novos scripts."
+    },
+    {
+      "id": "063-A30-003",
+      "severity": "NORMAL",
+      "category": "STALE_COVERAGE_AND_SELF_AUDIT",
+      "problem": "A cobertura e a autoauditoria afirmam 61/61 posições e fonte exata, mas o source atual possui 75 posições (74 linhas + LF final).",
+      "evidence": [
+        "Cabeçalho da Bíblia: Posições da fonte = 61.",
+        "Seção 8 cobre apenas posições 1-61.",
+        "Autoauditoria marca como verdadeiros SHA atual, fonte integral exata e 61/61, contrariados pelo HEAD atual."
+      ],
+      "requested_action": "Recalcular faixas para 1-75, atualizar o cabeçalho/document_quality e remover afirmações stale."
+    }
+  ],
+  "checks": {
+    "json_syntax": "PASS",
+    "npm_run_references": "PASS_0_MISSING",
+    "npm_run_cycles": "PASS_0_CYCLES",
+    "direct_script_targets": "PASS_60_CHECKED_0_MISSING",
+    "engines_ci_alignment": "KNOWN_GAP_063_002",
+    "revision_binding": "FAIL",
+    "embedded_source": "FAIL",
+    "coverage": "FAIL",
+    "final_verdict": "CHANGES_REQUIRED"
+  },
+  "completed_at_utc": "2026-10-01T22:16:30Z"
+}

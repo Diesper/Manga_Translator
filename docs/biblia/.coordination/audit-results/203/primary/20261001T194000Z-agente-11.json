@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "index": 203,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-manga/extraction-and-handlers-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/extraction-and-handlers-real.test.js/Bíblia.md",
+  "source_sha": "038961e8228c7b5f1a87023a739ad5f33288423b",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "203-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 203-001/002/003/004 como OPEN, embora os quatro requests já estejam ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia.md linhas 319, 343, 367 e 391 usam headings OPEN.",
+        "docs/biblia/.state/203.json registra 203-001=ACCEPTED, 203-002=ACCEPTED, 203-003=ACCEPTED e 203-004=ACCEPTED.",
+        "203-001 continua factual: UPDATE_IMAGE possui guard STALE_UPDATE para batchId divergente e a suíte não exercita esse caminho.",
+        "203-002 continua factual: BATCH_COMPLETE possui guard STALE_COMPLETE para batchId divergente e a suíte cobre apenas completion válido.",
+        "203-003 continua factual: MAX_EXTRACTION_PASSES=3 e AUXILIARY_EXTRACT_FAILED existem, mas a suíte não esgota as três falhas até término.",
+        "203-004 continua factual: branch PERSIST_FAIL/persist_failed existe em UPDATE_IMAGE e não há caso de persistTranslatedPage rejeitando.",
+        "A fonte integral é byte-equivalente e a cobertura reparada posição-a-posição 816/816 foi reconfirmada; não foi sustentado outro finding documental."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:40:00Z"
+}

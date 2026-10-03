@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "index": 88,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "scripts/validation/verify-publish-contract.js",
+  "bible": "docs/biblia/scripts/validation/verify-publish-contract.js/Bíblia.md",
+  "source_sha": "f5b3f6c69f85f90fe43689de2e44b6ed70cca757",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-088-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia rotula 088-001 e 088-002 como OPEN, mas o state canônico atual e a auditoria SHA-bound registram ambas como ACCEPTED.",
+      "evidence": [
+        "Bíblia linha 99: `### 088-001 — TEST_REQUIRED — OPEN`.",
+        "Bíblia linha 103: `### 088-002 — CONTRACT_REVIEW — OPEN`.",
+        "`.state/088.json`: 088-001.status=`ACCEPTED` e 088-002.status=`ACCEPTED`.",
+        "`AUDITORIA.md` da #088 confirma explicitamente que 088-001 e 088-002 permanecem ACCEPTED."
+      ],
+      "requested_documentation_fix": "Atualizar a Bíblia para refletir o status canônico ACCEPTED (ou remover o token de status da seção), preservando as duas requests como lacunas externas não bloqueantes."
+    },
+    {
+      "id": "A8-088-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A Bíblia classifica wiring estático como `EXECUTADO INDIRETAMENTE`, embora a evidência citada seja apenas a ligação package/CI e a própria Bíblia diga que o run observado estava pending e não foi usado como prova de sucesso.",
+      "evidence": [
+        "Bíblia linha 60: `caminho verde do CLI na CI | job ci-contract chama o CLI real | 🟨 EXECUTADO INDIRETAMENTE`.",
+        "Bíblia linha 68: o run observado estava `pending` e `não foi usado como prova de sucesso`.",
+        "Diversas posições linha-a-linha repetem `🟨 EXECUTADO INDIRETAMENTE — o CLI é ligado a package.json#validate:publish e ao job ci-contract` sem apontar execução/run SHA-bound.",
+        "`package.json` e `.github/workflows/ci.yml` provam wiring; `verify-ci-contract.js` apenas verifica presença textual do wiring/marcadores."
+      ],
+      "adversarial_test": "A simples existência de `run: npm run validate:publish` no YAML continua verdadeira mesmo se o job nunca tiver sido executado; portanto essa evidência não distingue configuração de execução.",
+      "requested_documentation_fix": "Reclassificar essa evidência como GATE_ESTATICO/WIRING, ou citar uma execução real SHA-bound (run/job e resultado) que efetivamente tenha executado este blob."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T16:08:59.468Z"
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "index": 190,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-gemini/temporary-chat-v2.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/temporary-chat-v2.test.js/Bíblia.md",
+  "source_sha": "bdf7146fac7fa9575b2fa1ab8f16e2d6b4480446",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "190-PRI-001",
+      "severity": "HIGH",
+      "type": "SEMANTIC_COVERAGE_RANGE_MISMATCH",
+      "summary": "O Mapa integral por faixas omite posição e desloca os cenários TEMP em relação às linhas reais.",
+      "evidence": [
+        "A linha 65 é omitida integralmente: o mapa salta de 47–64 para 66–89.",
+        "TEMP-01 é mapeado como 30–46, mas sua declaração está na linha 27 e TEMP-02 já começa na 43.",
+        "TEMP-02 é mapeado 47–64, mas TEMP-03 começa na linha 60.",
+        "TEMP-03 é mapeado 66–89, porém TEMP-04 começa na linha 85.",
+        "TEMP-04 é mapeado 90–107, porém TEMP-05 começa na linha 102.",
+        "TEMP-05 é mapeado 108–127, mas o teste final de click único já começa na linha 122.",
+        "A fonte integral é byte-equivalente ao arquivo e o SHA coincide; o defeito é do mapa posição↔responsabilidade."
+      ]
+    },
+    {
+      "id": "190-PRI-002",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 190-001/002/003 como OPEN, embora os três requests já estejam ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia.md linhas 108, 122 e 136 usam headings OPEN.",
+        "docs/biblia/.state/190.json registra 190-001=ACCEPTED, 190-002=ACCEPTED e 190-003=ACCEPTED.",
+        "190-001 é factual: ensureActive retorna verification_failed/aborted quando signal.aborted, mas a suíte não injeta AbortSignal.",
+        "190-002 é factual: ensureActive termina em control_not_actionable quando há controle semântico porém triggerClick falha; não há caso focal.",
+        "190-003 é factual: o job-runner reduz tempStatus a flags/status e trata verification_failed genericamente, sem matriz integrada por reason.",
+        "O mesmo blob passou em Node 20/22; isso valida os cenários presentes, não elimina as lacunas aceitas."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:24:00Z"
+}

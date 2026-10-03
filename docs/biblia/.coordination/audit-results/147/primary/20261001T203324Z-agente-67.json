@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "index": 147,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 67",
+  "file": "tests/unit/background/gtc-runtime-bridge.test.js",
+  "bible": "docs/biblia/tests/unit/background/gtc-runtime-bridge.test.js/Bíblia.md",
+  "source_sha": "21c01d044af7313cae9b571ab715c4e5846b9a30",
+  "bible_sha": "ce0bb4c57192be158b482971e3df9dc7f0913e63",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "147-PRI67-001",
+      "category": "LINE_SEMANTIC_MISMATCH",
+      "severity": "BLOCKING",
+      "summary": "A coluna de fonte é integral, mas descrições semânticas de posições críticas do caso GTC_SAVE_MANY/GTC_STATS estão deslocadas e atribuem comportamento à linha errada.",
+      "evidence": [
+        "Source posição 080: `{ hash: 'hash-2', translatedDataUrl: 'data:2' },` — segunda entrada válida. A Bíblia descreve essa posição como `Entrada inválida com hash null; o repositório ignora o put...`.",
+        "Source posição 081: `{ hash: null, translatedDataUrl: 'data:ignored' },` — esta é a entrada inválida central para a discrepância `count:3` versus `stats.count:2`. A Bíblia descreve a posição como `Fecha entries e request.`.",
+        "Source posição 093 é `action: 'GTC_STATS'`, mas a Bíblia diz `Fecha request de stats`; o fechamento real ocorre na posição 094.",
+        "A própria seção 6 da Bíblia identifica corretamente `hash-1` e `hash-2` como válidos e o terceiro item `hash:null` como inválido, portanto o mapeamento linha a linha contradiz a análise semântica de alto nível."
+      ],
+      "required_change": "Corrigir as descrições do mapeamento linha a linha para que cada posição descreva a linha correspondente, em especial 077–083 e 092–094, e revisar os demais rótulos agrupados para eliminar deslocamentos semânticos semelhantes. O source/teste não deve ser alterado para acomodar a documentação."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:33:24Z"
+}

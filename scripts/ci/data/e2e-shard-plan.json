@@ -1,44 +1,55 @@
 {
   "version": 1,
+  "timingSource": "Playwright blob reports and GitHub job timings from run 37131362956",
   "groups": [
     {
       "id": "fifo",
       "tag": "@e2e-fifo",
+      "grep": "@e2e-fifo",
       "kind": "heavy-exclusive",
       "expectedTests": 1,
-      "estimatedSeconds": 50.5,
+      "estimatedSeconds": 48.4,
+      "estimatedJobSeconds": 89,
       "workers": 1
     },
     {
       "id": "attachment",
       "tag": "@e2e-attachment",
+      "grep": "@e2e-attachment",
       "kind": "heavy",
       "expectedTests": 3,
       "estimatedSeconds": 27.4,
+      "estimatedJobSeconds": 78,
       "workers": 3
     },
     {
       "id": "medium-a",
       "tag": "@e2e-medium-a",
+      "grep": "Executa o lote em background com exclusão segura sem depender de ghost mousemove|salva as paginas traduzidas no storage do capitulo real|E2E submit ignorado: falha cedo sem entrar em espera de geração de 4 minutos|reset de IndexedDB falha fechado quando a limpeza não pode ser confirmada",
       "kind": "medium",
       "expectedTests": 4,
-      "estimatedSeconds": 41.5,
+      "estimatedSeconds": 34.3,
+      "estimatedJobSeconds": 76,
       "workers": 2
     },
     {
       "id": "medium-b",
       "tag": "@e2e-medium-b",
+      "grep": "@e2e-medium-b",
       "kind": "medium",
       "expectedTests": 4,
       "estimatedSeconds": 42.1,
+      "estimatedJobSeconds": 84,
       "workers": 2
     },
     {
       "id": "fast",
       "tag": "@e2e-fast",
-      "kind": "fast",
-      "expectedTests": 9,
-      "estimatedSeconds": 22.4,
+      "grep": "renderiza paginas salvas em ordem numerica correta|slider de largura persiste no localStorage|navegacao por teclado avanca paginas e atualiza contador/progresso|E2E resposta rápida:|E2E resultado atual do Gemini:|REG result ownership: conversa temporária|E2E aba Gemini manual:|REG result ownership: janela minimizada|REG result ownership: background com exclusão segura|segunda traducao em host espelho usa o GTC sem abrir novas abas Gemini",
+      "kind": "fast-balanced",
+      "expectedTests": 10,
+      "estimatedSeconds": 28.6,
+      "estimatedJobSeconds": 69,
       "workers": 3
     }
   ]

@@ -1,0 +1,74 @@
+{
+  "schema_version": 2,
+  "index": 106,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 21",
+  "file": "tests/integration/banned-images-flow.test.js",
+  "bible": "docs/biblia/tests/integration/banned-images-flow.test.js/Bíblia.md",
+  "source_sha": "7624e120e7ffac4efd5abe5c68fc5706aea35017",
+  "bible_sha": "b6c7e474dd8dcd54b4c9ca156fadbd7abae88a01",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A21-106-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "STALE_EVIDENCE_BINDING",
+      "finding": "A seção 3.2 ancora a evidência de package.json no blob 51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48, mas o package.json atual do branch é 5b5c328f6139eeff920dc65a78014a6c5b6db3a6. Os scripts descritos permanecem verdadeiros, porém a referência criptográfica explicitamente declarada como observada não identifica a revisão atual.",
+      "evidence": [
+        "Bíblia linha 74: package.json observado no SHA 51bbd80a5a8a6c49385ce7aa4ec10afc79c7aa48.",
+        "Blob atual revalidado imediatamente antes do veredito: 5b5c328f6139eeff920dc65a78014a6c5b6db3a6.",
+        "package.json atual: test:integration = 'jest --config jest.config.js --selectProjects integration'; test:ci = 'node scripts/ci/run-jest-ci.js'.",
+        "scripts/ci/run-jest-ci.js atual continua inventariando tests/integration e validando a partição integration; logo o defeito é o binding stale, não a descrição semântica."
+      ],
+      "requested_documentation_fix": "Revalidar package.json na revisão atual e substituir o SHA observado pelo blob vigente, preservando as alegações de wiring somente após essa revalidação.",
+      "relation_to_primary": "Confirma independentemente PRI-106-01 após comparar a Bíblia com o blob atual e tentar separar drift semântico de drift puramente criptográfico."
+    },
+    {
+      "id": "A21-106-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "STALE_EVIDENCE_BINDING",
+      "finding": "A seção 3.3 ancora a evidência de .github/workflows/ci.yml no blob ebee75820db9bfab618bf3c3016065c5bc857ed7, mas o workflow atual do branch é 9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a. O wiring focal citado permanece presente, porém a referência criptográfica explicitamente declarada como observada está stale.",
+      "evidence": [
+        "Bíblia linha 82: .github/workflows/ci.yml observado no SHA ebee75820db9bfab618bf3c3016065c5bc857ed7.",
+        "Blob atual revalidado imediatamente antes do veredito: 9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a.",
+        "Workflow atual mantém job unit-and-integration com matriz Node 20.x/22.x e etapa npm run test:ci.",
+        "Workflow atual mantém etapa explícita npm run test:integration no job de portabilidade; portanto, novamente, a semântica focal continua verdadeira e o defeito é a âncora SHA stale."
+      ],
+      "requested_documentation_fix": "Revalidar o workflow atual e atualizar o SHA observado para o blob vigente antes de reutilizar a seção como evidência da revisão corrente.",
+      "relation_to_primary": "Confirma independentemente PRI-106-02 após reabrir o workflow atual e verificar o conteúdo das etapas citadas."
+    }
+  ],
+  "confidence_matrix": {
+    "sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "line_mapping": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONTRADITO_APENAS_PACKAGE_E_WORKFLOW_SHA",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "explicit_blob_bindings": "CONTRADITO",
+    "independence": "CONFIRMADA_AGENTE_26_VS_AGENTE_21",
+    "phase_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 211,
+    "documented_positions": "212/212",
+    "line_mapping": "211/211 linhas textuais conferidas; Linha 212 documenta o newline final",
+    "synthetic_model_classification": "A Bíblia atual descreve corretamente que simulateGetPageImages/simulateBanImages/simulateUnbanImages são modelo sintético, não prova ponta a ponta do produto.",
+    "other_explicit_blob_bindings": "repo-root.js, chrome-api.mock.js, jest.config.js, popup.js, content_manga.js, cm-dom-replace.js, popup.advanced.ui.test.js, extraction-and-handlers-real.test.js, extract-flow-real.test.js e auto-restorer-real.test.js foram reabertos e permanecem nos SHAs declarados.",
+    "external_assertions": "As suítes externas citadas executam as implementações reais nos comportamentos específicos atribuídos: ban no popup, GET_PAGE_IMAGES excluindo banidas, auto-seleção do botão excluindo banidas e caso todas banidas.",
+    "nonblocking_requests": [
+      "106-001",
+      "106-002"
+    ],
+    "formal_refutation_attempt": "Foi testada a hipótese de que os SHAs stale fossem apenas referências históricas. A redação usa 'observado no SHA' como evidência corrente, e a seção 15 lista o wiring como lido; os blobs atuais diferem. A semântica citada continua verdadeira, mas o vínculo criptográfico não."
+  },
+  "passages_executed": "0-15",
+  "completed_at_utc": "2026-10-01T21:04:39.505Z"
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "index": 126,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 24",
+  "file": "tests/smoke/smoke-04-storage-manager.js",
+  "bible": "docs/biblia/tests/smoke/smoke-04-storage-manager.js/Bíblia.md",
+  "source_sha": "0ba92d74356cb092a7706dca7d280168cd5c512e",
+  "bible_sha": "03d33f33a127aa289c317315f21894956d75a1f1",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "126-REAUDIT-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia registra 126-001, 126-002 e 126-003 como OPEN e conclui que as três audit_requests estão abertas, mas o state canônico atual registra 126-001=SUPERSEDED por 060-002 e 126-002/126-003=ACCEPTED.",
+      "evidence": [
+        "Bíblia §7: 126-001, 126-002 e 126-003 estão rotuladas OPEN.",
+        "Bíblia §10: `audit_requests abertas: 126-001, 126-002, 126-003`.",
+        ".state/126.json: 126-001=SUPERSEDED (`superseded_by: 060-002`), 126-002=ACCEPTED, 126-003=ACCEPTED.",
+        ".state/060.json: 060-002=ACCEPTED e cobre fault injection/rollback do storage-manager.",
+        ".state/126.json mantém `document_quality.external_audit_requests_open: 3`, metadata derivada stale."
+      ],
+      "requested_documentation_fix": "Sincronizar lifecycle na Bíblia: 126-001=SUPERSEDED por 060-002, 126-002=ACCEPTED, 126-003=ACCEPTED; remover a conclusão de três requests OPEN e normalizar metadata derivada."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T22:06:00.397Z",
+  "passes": "0-15",
+  "confidence_matrix": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X_APOS_LEITURA",
+    "assertions": "CONFIRMADO_3X_APOS_LEITURA",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_VS_PRIMARY_AGENTE_46_E_ADVERSARIAL_AGENTE_22",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 122,
+    "final_newline": true,
+    "documented_positions": "123/123; 16 blocos contíguos, sem gaps/overlaps",
+    "technical_evidence": "Limitações técnicas de rollback, cleanup page/asset e completude de migração são representadas conservadoramente e batem com as assertions reais.",
+    "runner_wiring": "run-smoke.js descobre smoke-\\d+*.js, executa em processos Node e falha em status não-zero; package.json inclui test:smoke em npm test.",
+    "formal_refutation_attempt": "APPROVED não é sustentável porque o lifecycle documentado contradiz o state canônico atual.",
+    "triple_check": {
+      "A_document_matches_current_source": "SIM",
+      "B_every_claim_true_and_supported": "NAO — lifecycle OPEN é falso",
+      "C_limitations_represented_honestly": "NAO — lifecycle canônico não está refletido"
+    }
+  }
+}

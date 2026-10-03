@@ -12,11 +12,15 @@
     async execute(_request, context) {
       await context.ensureInitialized();
       const tabId = context.sender && context.sender.tab ? context.sender.tab.id : -1;
-      const extractionTabs = context.state.extractionTabs || {};
-      const mapping = extractionTabs[tabId];
+      const extractionTabs = context.state && context.state.extractionTabs;
+      const hasMapping = extractionTabs
+        && typeof extractionTabs === 'object'
+        && !Array.isArray(extractionTabs)
+        && Object.prototype.hasOwnProperty.call(extractionTabs, tabId);
+      const mapping = hasMapping ? extractionTabs[tabId] : null;
 
-      if (mapping) {
-        return { isExtractionTab: true, ...mapping };
+      if (mapping && typeof mapping === 'object' && !Array.isArray(mapping)) {
+        return { ...mapping, isExtractionTab: true };
       }
 
       return { isExtractionTab: false };

@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "index": 124,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 39",
+  "file": "tests/smoke/smoke-02-uuid-and-reconcile.js",
+  "bible": "docs/biblia/tests/smoke/smoke-02-uuid-and-reconcile.js/Bíblia.md",
+  "source_sha": "d977f43a4b29653d01b0fd9c395cb04edb9c1a50",
+  "bible_sha": "0437a8c522d0dfbb69c70a58518f44854a3d362f",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "124-REA39-001",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "severity": "HIGH",
+      "summary": "A faixa documental 59–102 marca todo o mockChrome como '✅ PROVADO para a simulação', embora partes relevantes definidas nessa faixa não sejam exercitadas pelo cenário.",
+      "evidence": [
+        "No source, fora das definições do mock, há uma chamada a mockChrome.storage.local.remove(keys), duas iterações por mockChrome.tabs.get via tabExists e uma limpeza por mockChrome.alarms.clear para o job descartado; não há chamada a mockChrome.storage.local.get nem set.",
+        "mockChrome.storage.local.remove é chamado sem callback, logo o branch `if (cb) cb()` de remove também não é exercitado.",
+        "As assertions finais verificam o efeito de remoção da chave 102 e o registro do watchdog, mas não verificam get/set nem callbacks/Promises gerais do storage mock.",
+        "Regressões em get/set ou no callback de remove deixariam este smoke verde; portanto a evidência deve ser dividida ou rebaixada para estrutural/não exercitada nesses trechos."
+      ]
+    },
+    {
+      "id": "124-REA39-002",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "severity": "NORMAL",
+      "summary": "A Bíblia rotula 124-001, 124-002 e 124-003 como OPEN, enquanto o state canônico atual registra as três como ACCEPTED.",
+      "evidence": [
+        "Bíblia seção 12 usa headings `124-001 — ... — OPEN`, `124-002 — ... — OPEN` e `124-003 — ... — OPEN`.",
+        "docs/biblia/.state/124.json registra 124-001=ACCEPTED, 124-002=ACCEPTED e 124-003=ACCEPTED, todas com auditoria externa.",
+        "As três lacunas técnicas continuam materialmente válidas; o problema documental é o lifecycle/status stale, não a existência das requests."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:13:53Z"
+}

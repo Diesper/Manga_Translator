@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "index": 99,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 18",
+  "file": "tests/helpers/extracted-functions.js",
+  "bible": "docs/biblia/tests/helpers/extracted-functions.js/Bíblia.md",
+  "source_sha": "ccbf20485608a223c723adf638860cb7151c8886",
+  "bible_sha": "ae41ca769109b40fff187beb597192e5925e1878",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X_102_DE_102_SEM_GAPS_OU_OVERLAPS",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies_consumers": "CONFIRMADO_3X",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_strength": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X_ACCEPTED_SUPERSEDED_ACCEPTED",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "source_text_lines": 101,
+    "source_has_final_newline": true,
+    "documented_positions": "102/102",
+    "embedded_source_exact": true,
+    "production_snapshots": {
+      "extension/content/cm-chapter.js": "44b621d570b6492ef08982ec4e093ffcfe6d24f8",
+      "extension/content/content_manga.js": "a8b3698019f6f22027f09f544f15c0563a9f6515",
+      "extension/background/actions/open-existing-folder.js": "59ef82cbf960e360eb404fbd969067f017021607"
+    },
+    "consumer_inventory": [
+      "canonical-title.test.js importa canonicalTitle do helper",
+      "canonical-title-full.test.js importa canonicalTitle do helper",
+      "audio-synthesis.test.js importa playErrorSound do helper",
+      "audio-synthesis-full.test.js importa playErrorSound do helper",
+      "chapter-dedup.test.js mantém mirror próprio e não importa este helper",
+      "nenhum consumer atual localizado para waitForDownload/escapeForRegex do helper"
+    ],
+    "evidence_run": 36577447500,
+    "evidence_run_head_sha": "b6ad13fce47adcab3fcd10281f28848f7b4ce50f",
+    "evidence_source_blob_reconfirmed_equal_current": true,
+    "evidence_jobs": [
+      109437162616,
+      109437162789
+    ],
+    "historical_results_stale_for_current_bible": [
+      "ADVERSARIAL AGENTE 16 -> bible_sha 71be5ac59a3bcdd69f4d972ab1e33739cfe91b74",
+      "REAUDIT AGENTE 19 -> bible_sha 71be5ac59a3bcdd69f4d972ab1e33739cfe91b74"
+    ],
+    "current_revision_reason": "Correção A19-099-R01 atualizou lifecycle para 099-001 ACCEPTED, 099-002 SUPERSEDED por 191-001, 099-003 ACCEPTED.",
+    "adversarial_challenge": "Tentativa de refutar a evidência de regex verificou que background.js carrega router.js e open-existing-folder.js e que SHOW_EXISTING_FOLDER mapeia para open-existing-folder; a classificação de fluxo real permanece sustentada."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:47:44.680726Z"
+}

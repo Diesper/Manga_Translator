@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "index": 60,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 30",
+  "file": "extension/shared/storage-manager.js",
+  "bible": "docs/biblia/extension/shared/storage-manager.js/Bíblia.md",
+  "source_sha": "d1cd5a2c83ed5fe5a36e67966ea835806b863395",
+  "bible_sha": "09da9b0cd46cf272c0691415574fa5b16af41004",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "060-REA30-001",
+      "severity": "MATERIAL",
+      "category": "EVIDENCE_OVERCLASSIFICATION",
+      "problem": "As linhas 399-403 da Bíblia classificam a deleção integral de chapterPages/restoreEntries/assets como diretamente provada por smoke-04, mas o teste só exige deleted > 0 e pageCount === 0 após deleteChapter.",
+      "evidence": [
+        "Bíblia #060, headings Linha 0399..0403: evidência declarada como '✅ PROVADO DIRETAMENTE NO CAMINHO SEQUENCIAL'.",
+        "tests/smoke/smoke-04-storage-manager.js: após deleteChapter, assertions focais são delChapterRes.deleted > 0 e getChapterPageCount(chapterId) === 0.",
+        "Não há assertion pós-deleteChapter que consulte restoreEntries nem assets do capítulo; portanto esses efeitos não são provados focalmente."
+      ],
+      "required_change": "Rebaixar 399-403 para prova parcial e distinguir explicitamente o que o smoke comprova do que é apenas lido no source."
+    },
+    {
+      "id": "060-REA30-002",
+      "severity": "MATERIAL",
+      "category": "SEMANTIC_MAPPING_ERROR",
+      "problem": "A descrição linha-a-linha erra o significado dos try/catch de migração e das Promises chrome.storage.local.",
+      "evidence": [
+        "Source 445-451 envolve savePageResult por página e suprime a exceção para continuar; Bíblia 445 diz 'API opcional' e 'crypto/storage com fallback'.",
+        "Source 464-470 faz o mesmo para restore órfão; Bíblia 464 repete a descrição de API opcional.",
+        "Source 473 e 475 criam Promise com apenas resolve; Bíblia afirma 'Resolve/rejeita'.",
+        "A seção de riscos da própria Bíblia reconhece que chrome.storage.local ignora chrome.runtime.lastError, contradizendo o mapeamento 473/475."
+      ],
+      "required_change": "Descrever 445/464 como supressão de falha por item e 473/475 como Promise resolve-only sem propagação de runtime.lastError."
+    },
+    {
+      "id": "060-REA30-003",
+      "severity": "MATERIAL",
+      "category": "CONSUMER_COVERAGE_INCOMPLETE",
+      "problem": "O mapa/checklist de consumers é incompleto.",
+      "evidence": [
+        "extension/options/options.js usa SM_GET_ASSET.",
+        "extension/shared/shared-ui.js usa SM_LIST_RESTORE e SM_DELETE_CLEAN_URL.",
+        "Checklist da Bíblia declara apenas 'Consumers background/content/popup/reader investigados'.",
+        "SM_DELETE_CLEAN_URL é especialmente relevante às invariantes de deleção/race documentadas no próprio arquivo."
+      ],
+      "required_change": "Adicionar options.js e shared-ui.js ao mapa de consumers com ações exercidas e ajustar o checklist."
+    }
+  ],
+  "checks": {
+    "revision_binding": "PASS",
+    "embedded_source_binding": "PASS_BY_CURRENT_BLOB_AND_STATE",
+    "primary_legacy": "APPROVED",
+    "adversarial": "CHANGES_REQUIRED",
+    "finding_060_ADV_001": "CONFIRMED",
+    "finding_060_ADV_002": "CONFIRMED",
+    "finding_060_ADV_003": "CONFIRMED",
+    "final_verdict": "CHANGES_REQUIRED"
+  },
+  "completed_at_utc": "2026-10-01T22:22:10Z"
+}

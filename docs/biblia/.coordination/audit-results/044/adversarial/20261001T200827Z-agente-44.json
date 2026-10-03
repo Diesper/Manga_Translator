@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 44,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 44",
+  "file": "extension/content/gemini/image-quarantine.js",
+  "bible": "docs/biblia/extension/content/gemini/image-quarantine.js/Bíblia.md",
+  "source_sha": "ddca93d17ca2934a9e95dba96a87283be4e9b9a3",
+  "bible_sha": "4316fc408da7a75f54bb26efc02f2294dd8f4f94",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "044-ADV-001",
+      "severity": "NORMAL",
+      "type": "LINE_RANGE_SEMANTIC_MAPPING_ERROR",
+      "summary": "A posição 196 é atribuída à U17/API da instância, mas no source ela fecha assessExtractedResult; a API da instância só começa depois, no return da factory.",
+      "evidence": [
+        "Source linhas 165–196: `async function assessExtractedResult({` abre na linha 165 e o `}` da linha 196 encerra essa função.",
+        "Bíblia seção 12: U16 termina em 195 e U17 é declarada como linhas 196–204, “API da instância de quarentena”.",
+        "Bíblia seção 15, Linha 196 — U17: afirma que `}` “fecha a estrutura sintática aberta em U17” e explica a devolução da API, embora o `return {` da API só apareça na linha 198.",
+        "Releitura independente do source L160–205 confirma a fronteira sintática: linha 196 fecha a avaliação; linha 197 é vazia; linha 198 inicia `return {` da API."
+      ],
+      "required_change": "Corrigir a fronteira/unidade e a semântica documental da linha 196 (e ranges relacionados) para refletir que ela encerra `assessExtractedResult`. Não alterar o source para fazê-lo combinar com a Bíblia."
+    },
+    {
+      "id": "044-ADV-002",
+      "severity": "NORMAL",
+      "type": "STALE_EVIDENCE_REVISION",
+      "summary": "A Bíblia vincula o gate estático `verify-repository-structure.js` ao blob SHA c4509784..., mas a revisão atual do branch é 04d0337a...; o claim específico de ordem ainda foi revalidado, porém a referência de evidência declarada está stale.",
+      "evidence": [
+        "Bíblia seção 8 cita `scripts/validation/verify-repository-structure.js` com SHA `c4509784d71a0f52dc98e822159ffd6b45b0cd7d`.",
+        "Blob atual de `scripts/validation/verify-repository-structure.js` no branch `docs/project-bible`: `04d0337a168e14994bd855a455f11dd61fcabcb6`.",
+        "A revisão antiga tinha 732 linhas e a atual 380 após refatoração da validação de Bíblia; portanto não é a mesma revisão documentalmente citada.",
+        "A checagem focal de `expectedContentScripts` permanece equivalente na revisão atual e ainda compara a lista por igualdade JSON, então o comportamento alegado foi reconfirmado, mas o SHA usado como provenance não corresponde ao arquivo atual."
+      ],
+      "required_change": "Atualizar a referência de evidência ao SHA atual depois de revalidar o gate, ou remover o binding stale e descrever a evidência atual sem afirmar uma revisão antiga como corrente."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:08:27.897Z"
+}

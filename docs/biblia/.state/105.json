@@ -1,0 +1,178 @@
+{
+  "index": 105,
+  "file": "tests/helpers/track-background-delay-timers.js",
+  "bible": "docs/biblia/tests/helpers/track-background-delay-timers.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+  "started_at_utc": "2026-09-30T06:20:00Z",
+  "completed_at_utc": "2026-10-01T22:20:00.000Z",
+  "audit_requests": [
+    {
+      "id": "105-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/background/track-background-delay-timers.test.js",
+      "found_while_auditing": "tests/helpers/track-background-delay-timers.js",
+      "finding": "O helper tem prova direta focal para o delay de 4_000 ms por marker-anchor-real.test.js, mas não existe teste dedicado que prove os branches de 600 ms e 18_000 ms, a delegação de delays não rastreados e a remoção automática do Map quando um callback rastreado dispara naturalmente.",
+      "current_evidence": "marker-anchor-real.test.js executa o background real, verifica getPendingDelays() contendo 4_000, verifica o retorno do cancelamento contendo 4_000 e getPendingCount() igual a zero. process-finalize-real/lifecycle-alarms-real/regex-escape/message-handlers-real instalam e cancelam o tracker durante teardown, mas sem assertions focais equivalentes para 600/18_000.",
+      "missing_evidence": "Assertions diretas para captura/cancelamento de 600 e 18_000, passagem transparente de delay fora da allowlist, propagação dos argumentos do callback, remoção de pending após disparo natural e comportamento idempotente de cancelamentos repetidos.",
+      "why_needed": "Se os delays reais de finalizeJob mudarem ou um branch do helper regredir, o teardown pode deixar handles vivos e reintroduzir worker leak sem que a regressão de 4 s detecte o problema.",
+      "requested_action": "Adicionar um teste unitário focal para o helper, usando a implementação real e controlando timers, cobrindo 600, 4_000 e 18_000, um delay não rastreado, firing natural e cancelamento repetido. Não copiar a lógica do helper para o teste.",
+      "expected_evidence": "Assertions sobre getPendingDelays/getPendingCount, retorno do cancelador, callback/args e ausência de handle rastreado após disparo/cancelamento para todos os três delays.",
+      "expected_auditor_action": "Confirmar a lacuna e criar a cobertura em alteração separada, sem tratar o uso indireto atual como prova dos branches não assertados.",
+      "possible_regression": "Handles de 600 ms ou 18 s podem sobreviver ao teardown, atrasar o encerramento do worker Jest ou executar callbacks contra mocks já restaurados.",
+      "impact": "Confiabilidade e isolamento de suítes de background; a cobertura direta existente de 4 s continua válida.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:45:00Z",
+      "audit_finding": "ACCEPTED. Há prova direta do delay 4_000 ms, mas não de 600/18_000, delays não rastreados, firing natural, callback args e cancelamento repetido. Esses ramos controlam handles que podem reintroduzir worker leak.",
+      "auditor_recommended_action": "Adicionar teste unitário do tracker cobrindo 600/4000/18000, delay fora da allowlist, disparo natural e cancel idempotente.",
+      "reaudited_by": "AGENTE 1",
+      "reaudited_at_utc": "2026-10-01T05:41:00Z",
+      "reaudit_finding": "Permanece ACCEPTED. A lacuna de teste focal foi reconfirmada; o bloqueio documental é o rótulo OPEN stale duplicado na Bíblia, incompatível com o state canônico ACCEPTED."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "42/42",
+    "range_blocks": 10,
+    "ranges_contiguous": true,
+    "source_has_final_newline": true,
+    "bible_lines": 179,
+    "direct_specific_proof": "4_000 ms capture/cancel/count",
+    "external_audit_requests_open": 0,
+    "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados.",
+    "repair_note": "Lifecycle duplicado 105-001 corrigido: Bíblia agora reflete ACCEPTED e retorna para reauditoria independente."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T05:41:00Z",
+      "type": "INDEPENDENT_AUDIT_CHANGES_REQUIRED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "auditor": "AGENTE 1",
+      "reason": "A Bíblia rotula a request 105-001 como OPEN, mas o state canônico atual registra a request como ACCEPTED após auditoria do AGENTE 23."
+    },
+    {
+      "at_utc": "2026-10-01T05:47:07Z",
+      "type": "EDITOR_REPAIR_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "agent": "AGENTE 23",
+      "reason": "Align Bible request lifecycle 105-001 with canonical state ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T05:47:30Z",
+      "type": "EDITOR_REPAIR_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "agent": "AGENTE 23",
+      "reason": "Reparo documental #105: request 105-001 alinhada ao state canônico ACCEPTED."
+    },
+    {
+      "at_utc": "2026-10-01T20:04:40.191Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "reason": "ADV-105-01: corrigir classificação de evidência para timers 600 ms/18 s."
+    },
+    {
+      "at_utc": "2026-10-01T20:04:40.191Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "bible_sha": "29b9247daa81df65ba83f8206141dd0ffd4c99af",
+      "reason": "ADV-105-01 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T22:20:00.000Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "bible_sha": "29b9247daa81df65ba83f8206141dd0ffd4c99af",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "66e7e9640491133c17e05c9a6455efb7f84a90d5ea44dbace974c79a9692256e",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "previous_event_hash": "7304f41aed4edb746e8b9524001a7a94045dd8ce37184bfb72052956648d7b42",
+      "event_hash": "376e9e54fc00812ae7799986e0b10624ea4f6225f2d741c9e5e30af3b1853961"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:41.210Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "376e9e54fc00812ae7799986e0b10624ea4f6225f2d741c9e5e30af3b1853961",
+      "event_hash": "ec7d0ef9f260754114e0506b892f8cf81c53825128e1073a2482c696d8121149"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "ec7d0ef9f260754114e0506b892f8cf81c53825128e1073a2482c696d8121149",
+      "event_hash": "64c6f6652d5c2980a5bb198d975d9ef5a04bbcfc22fa244a9de88723b2e4e606"
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "verdict": "CHANGES_REQUIRED",
+      "auditor": "AGENTE 1",
+      "at_utc": "2026-10-01T05:41:00Z",
+      "note": "Passagens 0–15: SHA/fonte/cobertura/semântica/consumers/evidence classification passam; lifecycle duplicado OPEN na Bíblia diverge do state ACCEPTED."
+    },
+    {
+      "type": "EDITOR_REPAIR",
+      "source_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+      "editor": "AGENTE 23",
+      "at_utc": "2026-10-01T05:47:30Z",
+      "note": "Somente Bíblia/state corrigidos; source permaneceu inalterado e item foi devolvido para reauditoria independente."
+    }
+  ],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "b7860da7879c9bac7714f3ba7d33a7024b586c0d",
+  "bible_sha": null,
+  "revision_id": "66e7e9640491133c17e05c9a6455efb7f84a90d5ea44dbace974c79a9692256e",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual.",
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T22:20:00.000Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "VERIFIED",
+    "caveats": []
+  }
+}

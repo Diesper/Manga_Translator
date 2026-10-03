@@ -1,0 +1,44 @@
+{
+  "schema_version": 2,
+  "index": 115,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 1",
+  "file": "tests/integration/popup-translated-thumbnails.test.js",
+  "bible": "docs/biblia/tests/integration/popup-translated-thumbnails.test.js/Bíblia.md",
+  "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
+  "bible_sha": "fa7dec1b031dfe9e90a0c7dc6ce99f4f10df8d5d",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "115-REAUDIT-001",
+      "severity": "MATERIAL",
+      "category": "CONSUMER_AND_GATE_OMISSION",
+      "location": "Bíblia.md — seção 2 / fronteiras e seção 4 / evidência",
+      "problem": "A Bíblia descreve popup, harness e mocks, mas omite a cadeia atual que descobre esta suíte, fornece seu ambiente JSDOM/mocks e a executa nos gates de CI.",
+      "evidence": [
+        "jest.config.js inclui `tests/integration/**/*.test.js` no projeto `integration`, com `testEnvironment: 'jsdom'` e setupFilesAfterEnv `tests/mocks/chrome-api.mock.js` + `tests/mocks/dom-environment.js`.",
+        "scripts/ci/run-jest-ci.js inclui `integration` em integrationProjects, usa jest.config.js, executa `--listTests` e falha se algum arquivo .test.js de unit/integration ficar fora do relatório.",
+        "package.json#test:ci executa `node scripts/ci/run-jest-ci.js`; package.json#test:integration seleciona exclusivamente o projeto integration.",
+        ".github/workflows/ci.yml executa `npm run test:ci` no job unit-and-integration em Node 20.x e 22.x.",
+        "O run 36577447500 no commit b6ad13fce47adcab3fcd10281f28848f7b4ce50f contém exatamente o blob atual 7e4fea854647fe1d21b8066219f9eae8cfd20d1e; os jobs 109437162616/109437162754 registram `PASS integration tests/integration/popup-translated-thumbnails.test.js`, 109/109 suítes e 851/851 testes.",
+        "A Bíblia atual não menciona jest.config.js, run-jest-ci.js, test:ci, o projeto integration ou o job unit-and-integration."
+      ],
+      "required_change": "Documentar a cadeia de descoberta/ambiente/execução/gate e separar claramente prova estrutural atual de evidência histórica do run."
+    },
+    {
+      "id": "115-REAUDIT-002",
+      "severity": "MATERIAL",
+      "category": "SEMANTIC_LINE_MAPPING",
+      "location": "Bíblia.md — seção 9 / documentação linha/posição a linha",
+      "problem": "A cobertura posicional 339/339 e a transcrição integral são exatas, mas dezenas de linhas substantivas recebem descrição genérica que não explica a operação ou o contrato específico daquela linha.",
+      "evidence": [
+        "Linha/posição 29 (`GET_PAGE_IMAGES` → `{ images: [] }`) e 30 (`SET_SELECTED_IMAGES` → `{ success: true }`) são descritas apenas como participação genérica no handler, sem registrar quais contratos do content-script são neutralizados para o popup carregar.",
+        "Linhas 46–48 constroem `stats` por chapterId e linhas 60–67 escolhem page indexes/assets distintos para chap_a/chap_b, mas recebem a mesma descrição genérica de setup, embora esses valores sejam a fixture que sustenta agrupamento e mapeamento de miniaturas.",
+        "O mapa contém 84 ocorrências do template `Participa do ... preparando dados, fluxo ou estado observado pela suíte`; várias estão em lógica/fixtures substantivas, não apenas braces ou declarações estruturais.",
+        "Em contraste, assertions e algumas operações recebem descrição específica; portanto a genericidade não é uma limitação inevitável do formato."
+      ],
+      "required_change": "Substituir descrições genéricas das linhas substantivas por semântica específica da operação/fixture/branch, preservando texto genérico apenas para estrutura sintática sem significado próprio."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T22:45:00.000Z"
+}

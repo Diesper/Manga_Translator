@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "index": 186,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-gemini/result-extractor.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/result-extractor.test.js/Bíblia.md",
+  "source_sha": "611df28380a88aa8c0b468e7300ee3a17aca0f70",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "186-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 186-001/002/003 como OPEN, embora os três requests já estejam ACCEPTED no state canônico.",
+      "evidence": [
+        "Bíblia.md linhas 71, 79 e 87 usam headings OPEN para 186-001/002/003.",
+        "docs/biblia/.state/186.json registra os três requests como ACCEPTED.",
+        "186-001 é factual: blobToDataUrl possui branches para FileReader ausente, construtor/readAsDataURL throw e reader.onerror; EXT-06 cobre apenas o caminho feliz.",
+        "186-002 é factual: sendRuntimeMessageForDataUrl trata runtime/sendMessage ausente, runtime.lastError e throw síncrono; as fixtures desta suíte usam runtime saudável.",
+        "186-003 é factual: extractOrAuxiliaryFallback aguarda onAuxiliaryFallback após DIAGNOSTIC/AUXILIARY_FALLBACK; rejeição do callback não possui caso focal.",
+        "SHA, fonte integral/rastreabilidade 491/491, contextos EXT e a CI do mesmo blob foram reconfirmados; não foi sustentado outro finding material."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:32:00Z"
+}

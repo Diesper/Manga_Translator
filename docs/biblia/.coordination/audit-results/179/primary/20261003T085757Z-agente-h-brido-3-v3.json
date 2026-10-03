@@ -1,0 +1,48 @@
+{
+  "schema_version": 3,
+  "index": 179,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE HÍBRIDO 3",
+  "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
+  "source_sha": "4fd9efcb7d63fedfdc9843af1205cd9a805024a7",
+  "bible_sha": "43c4f723e46d32c43de98a85b601a4d38e490476",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "PRI-179-01",
+      "type": "CLEANUP_ASSERTION_GAP",
+      "severity": "NORMAL",
+      "summary": "CG-06B não verifica diretamente que o MutationObserver foi desconectado.",
+      "problem": "O teste garante que os timers zeraram, mas não observa MutationObserver.disconnect. Assim, a afirmação da Bíblia de que CG-06B verifica o disconnect não é sustentada por assertion; uma regressão que deixa o observer conectado passaria pelo teste e poderia reter o documento/continuar processando mutações.",
+      "required_change": "Espionar ou injetar MutationObserver no CG-06B, exigir disconnect após resolução e atualizar a Bíblia para refletir somente as assertions executadas.",
+      "location": "tests/unit/content-gemini/helpers-and-regressions-real.test.js:280-306; docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md:24,95",
+      "evidence": [
+        "CG-06B verifica jest.getTimerCount()===0, mas não há spy/assertion sobre MutationObserver.disconnect.",
+        "job-runner.js chama observer.disconnect() no finish; a implementação é correta nessa trilha observada, mas a regressão não está protegida pelo teste declarado como prova.",
+        "A Bíblia afirma explicitamente que CG-06B verifica disconnect do observer, portanto há uma inconsistência objetiva entre teste e evidência documental."
+      ]
+    },
+    {
+      "id": "PRI-179-02",
+      "type": "STALE_AUDIT_REQUEST_DOCUMENTATION",
+      "severity": "LOW",
+      "summary": "A Bíblia mantém a descrição de 179-002 como não corrigida após os títulos e fixtures serem atualizados.",
+      "problem": "A seção 179-002 ainda diz que os títulos/comentários descrevem paste/execCommand e pede sua atualização; no source atual os títulos REG-03/CG-22, CG-23 e CG-24 foram renomeados e o mock obsoleto removido. O status ACCEPTED da solicitação também não distingue o trabalho resolvido da decisão inicial.",
+      "required_change": "Reescrever a entrada 179-002 como resolução desta revisão e manter o histórico da descoberta sem afirmar que o código atual continua obsoleto.",
+      "location": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md:77-84",
+      "evidence": [
+        "O diff do source remove promptPasteBehavior e spies de document.execCommand e renomeia os testes para o contrato CustomEvent + fallback DOM.",
+        "A entrada 179-002 ainda descreve a lacuna no presente e repete a ação já executada."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-03T08:57:57Z",
+  "completed_order_id": null,
+  "production_sha": null,
+  "test_sha": "4fd9efcb7d63fedfdc9843af1205cd9a805024a7",
+  "audit_epoch": 2,
+  "handoff_id": "179-e2-c70e2ab6a872",
+  "revision_id": "8bf07e0cf6ee6bcf5df6dbb34cb9ef3468baedc4bb08e3b361cee5f6bbc65258",
+  "human_approval_id": null
+}

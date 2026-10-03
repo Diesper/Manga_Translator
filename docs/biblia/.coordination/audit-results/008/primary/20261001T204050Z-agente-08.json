@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "index": 8,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 8",
+  "file": "extension/background/actions/deliver-result-url.js",
+  "bible": "docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md",
+  "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
+  "bible_sha": "d30e0d76a3cff3b0f250c65ac651567142d10a2d",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-008-P3-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "CALLER_CONTRACT_SEMANTIC_MISMATCH",
+      "summary": "A Bíblia afirma que a action retorna `auxiliaryTabId`, mas o retorno real e as assertions diretas/integradas contêm somente `extractionRegistered: true`.",
+      "evidence": [
+        "Bíblia linha 22: `A action retorna {extractionRegistered:true, auxiliaryTabId}`.",
+        "Source linha 90: `return { extractionRegistered: true };`.",
+        "tests/unit/background/deliver-result-url-action.test.js exige exatamente `{ ok: true, extractionRegistered: true }`.",
+        "tests/unit/background/batch-lifecycle-real.test.js também exige exatamente `{ ok: true, extractionRegistered: true }`.",
+        "extension/content/gemini/job-runner.js consome somente `registered?.ok` e `registered.extractionRegistered === true`."
+      ],
+      "requested_documentation_fix": "Remover `auxiliaryTabId` do contrato de retorno descrito na seção de wiring/caller e deixar explícito que `auxiliaryTabId` é persistido no estado do job, não retornado ao caller."
+    },
+    {
+      "id": "A8-008-P3-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "URL_NORMALIZATION_OVERCLAIM",
+      "summary": "A Bíblia afirma de forma absoluta que HTTP(S) recebe `#manga-translator-extraction`, mas o validator aceita apenas por prefixo e o catch mantém a string original quando `new URL(url)` falha; portanto HTTP(S) malformado aceito pelo validator pode seguir sem hash.",
+      "evidence": [
+        "Source linhas 13-14 aceita qualquer string iniciada por `http:`/`https:` via regex, sem validar parseabilidade completa.",
+        "Source linhas 55-64 só aplica o hash dentro do `try`; no `catch`, mantém `auxiliaryUrl = url`.",
+        "Bíblia linhas 34, 100 e U06 generalizam o comportamento para HTTP(S) sem qualificar `URL()` parseável.",
+        "Contraprova executável independente: `new URL('https:')` lança `Invalid URL`, embora a regex do validator aceite `https:`.",
+        "A própria Bíblia reconhece que o catch não tem teste focal, mas não registra que ele também pode ser alcançado por entradas HTTP(S) aceitas pelo validator."
+      ],
+      "requested_documentation_fix": "Qualificar todas as afirmações/invariantes para HTTP(S) parseável por `URL()`, documentar o fail-open para strings HTTP(S) malformadas aceitas pela regex e manter essa branch como sem prova focal."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_requests_non_blocking": [
+    "008-001",
+    "008-002",
+    "008-003"
+  ],
+  "completed_at_utc": "2026-10-01T20:40:50.755Z"
+}

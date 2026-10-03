@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "index": 115,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 35",
+  "file": "tests/integration/popup-translated-thumbnails.test.js",
+  "bible": "docs/biblia/tests/integration/popup-translated-thumbnails.test.js/Bíblia.md",
+  "source_sha": "7e4fea854647fe1d21b8066219f9eae8cfd20d1e",
+  "bible_sha": "fa7dec1b031dfe9e90a0c7dc6ce99f4f10df8d5d",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-01T20:05:36Z"
+}

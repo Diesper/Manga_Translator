@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "index": 146,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 66",
+  "file": "tests/unit/background/force-send-activation-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/force-send-activation-action.test.js/Bíblia.md",
+  "source_sha": "cab687a5e5d5dd849b6986aeeca5ac642e5b5a6a",
+  "bible_sha": "d664d6e3e676857d515c34831a025bccea5281ed",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "146-PRI66-001",
+      "category": "AUDIT_REQUEST_STATE_MISMATCH",
+      "severity": "BLOCKING",
+      "summary": "A Bíblia apresenta 146-001 e 146-002 como OPEN, mas o state canônico atual marca ambas como SUPERSEDED por 014-002.",
+      "evidence": [
+        "Bíblia linha 79: `### 146-001 — TEST_REQUIRED — OPEN — NORMAL`.",
+        "Bíblia linha 87: `### 146-002 — TEST_REQUIRED — OPEN — NORMAL`.",
+        "`.state/146.json` registra `146-001.status = SUPERSEDED` e `superseded_by = 014-002`.",
+        "`.state/146.json` registra `146-002.status = SUPERSEDED` e `superseded_by = 014-002`.",
+        "`.state/014.json` contém a request 014-002 ACCEPTED cobrindo conflito request/storage, default, IDs ausentes, minimized_window sem windowId e falhas/lastError, confirmando a consolidação que supersede as duas requests locais."
+      ],
+      "required_change": "Atualizar a Bíblia para refletir os estados atuais SUPERSEDED e a consolidação em 014-002, sem recriar as requests como abertas. Revalidar a seção de solicitações e qualquer contagem/linguagem derivada."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:31:43Z"
+}

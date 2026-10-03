@@ -20,7 +20,11 @@ const fs   = require('fs');
 const { findRepoRoot } = require('../../helpers/repo-root');
 const ROOT = findRepoRoot(__dirname);
 
-const { playErrorSound } = require(path.join(ROOT, 'tests/helpers/extracted-functions.js'));
+require(path.join(ROOT, 'extension/content/cm-audio.js'));
+function playErrorSound(factory) {
+    const scope = factory ? { AudioContext: function() { return factory(); } } : window;
+    globalThis.MangaTranslatorAudio.createNotificationAudio({ window: scope, sendAudioLog: jest.fn() }).playErrorSound();
+}
 
 describe('playErrorSound() — Teste Básico (stub v3.0)', () => {
     test('não lança exceção quando AudioContext falha (factory que lança)', () => {

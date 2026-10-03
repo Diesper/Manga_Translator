@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "index": 169,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 9",
+  "file": "tests/unit/background/state-api.test.js",
+  "bible": "docs/biblia/tests/unit/background/state-api.test.js/Bíblia.md",
+  "source_sha": "d9c080339202848719ac448d7684d793684aced2",
+  "bible_sha": "36a96a7f7697438ecb57af0a0a905f2db8d74ba3",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "169-ADV-001",
+      "severity": "MATERIAL",
+      "category": "COVERAGE_GAP",
+      "location": "Bíblia.md — seção 13, mapa integral por faixas",
+      "problem": "O mapa chamado integral não cobre todas as 111 posições da fonte sob o critério manual desta auditoria. A união declarada cobre 108 posições e omite 8, 21 e 25.",
+      "evidence": [
+        "O source atual possui 110 linhas textuais e LF final, totalizando 111 posições.",
+        "As faixas declaradas são 1–6, 7, 9–20, 22–24, 26–51, 52–83, 84–95, 96–109, 110 e posição 111; a união deixa exatamente 8, 21 e 25 de fora.",
+        "As posições 8, 21 e 25 são linhas vazias reais do source, não posições inexistentes.",
+        "A fonte integral embutida é exata, portanto o gap decorre somente do mapa documental, não de divergência de source.",
+        "O validator `bible-coordination.js` possui exceção permissiva para gaps compostos só por linhas vazias, mas o procedimento manual desta auditoria exige reconstruir e conferir a união das posições; gate verde não substitui essa verificação."
+      ],
+      "required_change": "Tornar o mapa realmente contíguo, incorporando 8, 21 e 25 às faixas adjacentes ou documentando-as explicitamente, preservando 111 como posição do newline final."
+    },
+    {
+      "id": "169-ADV-002",
+      "severity": "MATERIAL",
+      "category": "SEMANTIC_RANGE_MAPPING",
+      "location": "Bíblia.md — seção 13, faixas 84–95 e 96–109",
+      "problem": "A fronteira semântica do quarto teste está deslocada: a posição 95 abre `test('pendingBatches ...')`, mas o mapa a atribui ao bloco `restore sem mt_state`; a faixa seguinte começa apenas em 96.",
+      "evidence": [
+        "Source posição 95: `test('pendingBatches é clonado no snapshot e não pode ser mutado por referência externa', () => {`.",
+        "O teste `restore sem mt_state` encerra na posição 93; 94 é separador vazio.",
+        "O mapa declara `84–95 | restore sem mt_state` e `96–109 | proteção de pendingBatches`, omitindo o próprio heading/abertura do teste da unidade semântica correta."
+      ],
+      "required_change": "Realinhar as faixas para que a unidade de restore termine antes da posição 95 e o bloco de pendingBatches comece na posição 95; ao corrigir, manter cobertura contígua das linhas vazias separadoras."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:44:49Z"
+}

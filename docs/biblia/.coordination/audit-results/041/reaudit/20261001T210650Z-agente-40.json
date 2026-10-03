@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 41,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 40",
+  "file": "extension/content/gemini/deletion.js",
+  "bible": "docs/biblia/extension/content/gemini/deletion.js/Bíblia.md",
+  "source_sha": "2cec17f19e5293245b5e2f37493f0ef485b7281f",
+  "bible_sha": "e8bc1d8b42081bfa6948ee41b27981d8fdbb9e96",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "R40-041-001",
+      "severity": "BLOCKING",
+      "category": "SEMANTIC_LINE_MAPPING",
+      "summary": "A cobertura contém 483/483 posições, porém 20 posições anteriores à U22 são atribuídas a U22, cuja própria definição cobre somente 479–483; a linha executável 341 (`await sleep(800);`) é o contraexemplo material.",
+      "evidence": [
+        "Bíblia.md define U16 como linhas 304–340, U17 como 343–370 e U22 como 479–483.",
+        "Bíblia.md, cobertura da Linha 341, registra Unidade U22 — Publicação global/CommonJS e papel 'Espera o diálogo/efeito intermediário'.",
+        "Source deletion.js linha 341 é `await sleep(800);`, imediatamente após `deleteTarget.click()` e antes de `waitForConfirmButton`, portanto pertence semanticamente ao fluxo destrutivo, não à publicação global.",
+        "Verificação estrutural encontrou 20 posições <479 rotuladas U22: 31, 38, 48, 61, 79, 97, 129, 156, 195, 238, 251, 267, 303, 341, 342, 371, 392, 425, 454 e 478."
+      ],
+      "required_change": "Corrigir os limites/atribuições das unidades para todas as 20 posições e revalidar semanticamente 1–483; a contagem 483/483 isolada não basta."
+    },
+    {
+      "id": "R40-041-002",
+      "severity": "NORMAL",
+      "category": "CONSUMER_EVIDENCE_OMISSION",
+      "summary": "A seção de consumers/evidência omite uma suíte relevante que executa o deletion controller real pelo composition root e contém assertions focais adicionais sobre deleteCurrentConversation.",
+      "evidence": [
+        "tests/helpers/load-content-gemini-module.js requer extension/content/gemini/deletion.js antes de carregar content_gemini.js.",
+        "content_gemini.js exporta `deleteCurrentConversation: (...args) => deletionController.deleteCurrentConversation(...args)`.",
+        "tests/unit/content-gemini/helpers-and-regressions-real.test.js chama o export real e cobre CG-45, CG-46, CG-47, CG-50, CG-42/CG-51 e cenários de menu/confirmação renderizados com atraso.",
+        "A Bíblia não contém `helpers-and-regressions-real`, CG-45, CG-46, CG-47, CG-50 ou CG-51; sua seção 2 lista apenas deletion.test.js e rpa-flow.test.js como testes do módulo."
+      ],
+      "required_change": "Adicionar a suíte como consumer/evidência real e classificar a força das assertions sem promovê-las além do que verificam."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:06:50Z"
+}

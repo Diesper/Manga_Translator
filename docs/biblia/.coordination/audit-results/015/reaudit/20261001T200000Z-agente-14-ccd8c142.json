@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "index": 15,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 14",
+  "file": "extension/background/actions/get-tab-id.js",
+  "bible": "docs/biblia/extension/background/actions/get-tab-id.js/Bíblia.md",
+  "source_sha": "2f3b26304ac12a671927b1abefc2a914d7eaa372",
+  "bible_sha": "ccd8c1421401e9d1b69e411d59636bf9f0b57394",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "015-REA-001",
+      "severity": "HIGH",
+      "type": "EVIDENCE_CLASSIFICATION_MISMATCH",
+      "summary": "A lacuna documental inclui `sender sem tab` como sem prova específica, mas esse ramo é exercitado por um teste integrado com a action real.",
+      "evidence": [
+        "tests/unit/background/gtc-runtime-bridge.test.js envia GET_TAB_ID pelo listener real de background e exige exatamente `{ tabId: null }`.",
+        "tests/mocks/chrome-api.mock.js fornece ao listener `sender = { id: this.id, tab: null }`.",
+        "gtc-runtime-bridge.test.js carrega `extension/background.js` real; o caminho Node de background.js requer `background/actions/get-tab-id.js`, e router.createMessageRouter constrói context com o sender recebido antes de executar a action.",
+        "Logo, context ausente/sender ausente podem continuar sem prova focal, mas `sender.tab` ausente/null não pode ser listado como não testado."
+      ],
+      "required_change": "Separar as lacunas: reconhecer prova integrada para sender com `tab:null`; manter apenas context/sender inteiramente ausentes como não confirmados se não houver outro teste."
+    },
+    {
+      "id": "015-REA-002",
+      "severity": "HIGH",
+      "type": "EVIDENCE_CLASSIFICATION_MISMATCH",
+      "summary": "A lacuna `popup/external source` agrega duas origens com evidência diferente; popup é exercitado pelo teste integrado, external não foi provado especificamente.",
+      "evidence": [
+        "O runtime mock usa `sender.id = this.id` e esse mesmo runtime é instalado como `chrome.runtime` pelo background carregado no teste.",
+        "extension/background/router.js classifica `sender.id === chrome.runtime.id` como source `popup` quando não existe sender.tab.",
+        "get-tab-id.js permite `allowedSources:['any']` e o teste integrado obtém `{tabId:null}`, demonstrando que a origem popup atravessa router + action reais.",
+        "Nenhum caso focal external foi localizado na reauditoria."
+      ],
+      "required_change": "Documentar popup como coberto de forma integrada e manter external como lacuna separada."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:00:00Z"
+}

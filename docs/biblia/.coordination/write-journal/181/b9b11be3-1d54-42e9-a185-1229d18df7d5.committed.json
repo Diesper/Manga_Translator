@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "id": "b9b11be3-1d54-42e9-a185-1229d18df7d5",
+  "index": 181,
+  "at_utc": "2026-10-03T09:24:40.885Z",
+  "action": "START_CORRECTION",
+  "expected_state_sha": "6f319e2dcc172ad436eaecfa155aa848d38eb80d",
+  "phase": "committed"
+}

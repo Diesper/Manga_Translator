@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "index": 46,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 46",
+  "file": "extension/content/gemini/observer.js",
+  "bible": "docs/biblia/extension/content/gemini/observer.js/Bíblia.md",
+  "source_sha": "59c5335e1b4fd6b2877988cde9816f1c0b290b35",
+  "bible_sha": "35d0663bd90e98a5c193584745e88ad6d675ff95",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A46-046-01",
+      "severity": "BLOCKING",
+      "category": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A Bíblia classifica genericamente `coalescing de mutations` como `PROVADO DIRETAMENTE`, mas o teste citado só limita `inspectCount` a `<= before + 2` após mutations DOM síncronas e não isola a guarda `inspectionScheduled`/coalescing por microtask do módulo.",
+      "evidence": [
+        "Bíblia, matriz de evidência: `| coalescing de mutations | teste coalescing | ✅ PROVADO DIRETAMENTE |` e U31 atribui ao teste a evidência do coalescing por microtask.",
+        "Source linhas 451-459: `scheduleInspect()` usa `state.inspectionScheduled` para impedir agendamentos concorrentes e agenda `inspect()` via `queueMicrotaskFn`.",
+        "tests/unit/content-gemini/observer.test.js, caso coalescing: faz appendChild + setAttribute + setAttribute + textContent no mesmo turno e apenas exige `inspectCount <= before + 2`.",
+        "Regressão adversarial plausível: remover/neutralizar a guarda `inspectionScheduled` ainda pode manter esse cenário verde, pois as mutations síncronas podem chegar em um único callback de MutationObserver e o oráculo permite até duas inspeções adicionais; portanto a assertion não prova o mecanismo focal nem cardinalidade de uma única inspeção.",
+        "A Bíblia canônica do próprio teste (#183), já corrigida no SHA atual do teste, explicita que `<= before + 2` não prova exatamente uma única inspeção e limita a classificação ao bound observado."
+      ],
+      "required_change": "Na Bíblia #046, restringir a evidência de coalescing ao comportamento realmente observado (`inspectCount <= before + 2` nesse cenário), declarar explicitamente que a cardinalidade exata/guarda `inspectionScheduled` não possui prova focal e ajustar a classificação de evidência de U31/matriz. Não alterar source ou teste para fabricar a prova."
+    },
+    {
+      "id": "A46-046-02",
+      "severity": "MINOR",
+      "category": "SELF_AUDIT_COUNT_MISMATCH",
+      "summary": "A autoauditoria afirma ter lido `observer.test.js` até as assertions dos `21 cenários`, mas o arquivo atual contém 22 casos: OBS-01..20, o caso `coalescing` e PR6.",
+      "evidence": [
+        "Bíblia seção 14: `observer.test.js lido até as assertions dos 21 cenários`.",
+        "tests/unit/content-gemini/observer.test.js atual possui 22 chamadas test(): 20 casos OBS, 1 coalescing e 1 PR6."
+      ],
+      "required_change": "Corrigir a contagem da autoauditoria para 22 ou explicitar qual subconjunto de 21 está sendo contado."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:10:10.606Z"
+}

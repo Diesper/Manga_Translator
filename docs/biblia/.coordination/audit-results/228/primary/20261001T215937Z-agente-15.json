@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "index": 228,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 15",
+  "file": "tests/visual/gtc-fingerprint.visual.js",
+  "bible": "docs/biblia/tests/visual/gtc-fingerprint.visual.js/Bíblia.md",
+  "source_sha": "fb66d9d8eb4125fae1ee9c7f93e52a94cdc5e6e7",
+  "bible_sha": "9ac3e720e9dfa537b6f49700ee6ab7cb0027a045",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A15-228-P01",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "AUDIT_REQUEST_LIFECYCLE",
+      "summary": "A Bíblia rotula 228-001..005 como OPEN, mas o lifecycle canônico atual contém três ACCEPTED e dois SUPERSEDED.",
+      "evidence": [
+        "Bíblia §16 usa OPEN em 228-001, 228-002, 228-003, 228-004 e 228-005.",
+        "State atual: 228-001/004/005=ACCEPTED; 228-002=SUPERSEDED por 211-001; 228-003=SUPERSEDED por 227-001.",
+        "document_quality.external_audit_requests_open permanece 5, contradizendo o array canônico."
+      ],
+      "required_change": "Sincronizar §16 e document_quality com ACCEPTED/SUPERSEDED, incluindo os superseded_by canônicos, sem apagar o histórico técnico dos findings."
+    },
+    {
+      "id": "A15-228-P02",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "EMBEDDED_SOURCE_INTEGRITY",
+      "summary": "O metadado afirma embedded_source_exact=true, mas o bloco de fonte integral contém um newline adicional após o newline terminal do blob.",
+      "evidence": [
+        "Blob real possui 23760 bytes e termina em '});\\n'.",
+        "Conteúdo dentro do fence possui 23761 bytes e termina em '});\\n\\n'.",
+        "Todo o conteúdo anterior aos 23760 bytes é idêntico; a única adição é o newline extra no fim do fence."
+      ],
+      "required_change": "Remover o newline extra de dentro do bloco ou deixar de afirmar igualdade byte-exata; reconfirmar 460 linhas textuais + uma posição de newline terminal."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:59:37Z"
+}

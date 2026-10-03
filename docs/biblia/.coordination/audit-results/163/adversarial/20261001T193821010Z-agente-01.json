@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "index": 163,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 1",
+  "file": "tests/unit/background/report-error-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/report-error-action.test.js/Bíblia.md",
+  "source_sha": "507406dfbbc285a981b725408eb1e507e18268c8",
+  "bible_sha": "b8daac17e8b7edf8295bc8de05bc6adb9f3dd487",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    "BLOQUEANTE — evidence classification superestimada. A matriz afirma como PROVADO DIRETAMENTE que a finalização usa 'tab owner + manga persistida + fromError=true' a partir de finalizeJob(17,31,true), mas no caso feliz request.mangaTabId e job.mangaTabId valem ambos 31. A assertion prova tab owner=17, valor final 31 e fromError=true, porém não prova que 31 veio do job persistido. A própria request 163-002 reconhece que os valores iguais não distinguem precedência/fallback. Reclassificar a origem persistida como sem prova focal/execução indireta ou adicionar caso discriminante.",
+    "BLOQUEANTE — auditoria linha a linha semanticamente incorreta em múltiplas posições. A linha 145 inicia test.each de payload inválido, mas é descrita como 'rejeição por ownership'. As linhas 146-148 são os três vetores focais (jobId ausente, error whitespace, error 4097), porém suas funções descrevem genericamente mangaTabId/jobId e não o comportamento que cada vetor fixa. A linha 160 é assertJobOwnership: jest.fn() sem implementação e não 'retorna posse/tab/job controlados'; a linha 165 diz que o stub de ownership reconhece o sender como dono, embora ownership não deva ser chamado nesse cenário. Essas descrições impedem que o mapa linha a linha represente fielmente o source.",
+    "BLOQUEANTE — consumers/wiring relevantes estão omitidos. O producer real extension/content/gemini/job-runner.js emite GEMINI_ERROR em fluxos de erro; o router mapeia GEMINI_ERROR para report-error; jest.config.js descobre esta suíte no projeto background; scripts/ci/run-jest-ci.js inclui background; package.json#test:ci chama esse runner; e .github/workflows/ci.yml executa npm run test:ci no job Unit + Integration. A Bíblia registra um run histórico e o router/action, mas não documenta o producer real nem o encadeamento atual de descoberta/gate da suíte.",
+    "REFUTAÇÃO DA PRIMARY — o finding A3-163-PRI-001 sobre headings OPEN versus state SUPERSEDED/ACCEPTED não é blocker sob o contrato canônico atual. scripts/validation/bible-coordination.js declara explicitamente que o lifecycle mutável é canônico somente no .state e que OPEN/ACCEPTED/etc. dentro da Bíblia são snapshots documentais que não exigem reescrita a cada triagem. O state atual registra 163-001 SUPERSEDED por 021-001 e 163-002/163-003 ACCEPTED; 021-001 foi revalidada como ACCEPTED."
+  ],
+  "completed_at_utc": "2026-10-01T19:38:21.010Z"
+}

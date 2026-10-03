@@ -1,0 +1,113 @@
+{
+  "index": 41,
+  "file": "extension/content/gemini/deletion.js",
+  "bible": "docs/biblia/extension/content/gemini/deletion.js/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "2cec17f19e5293245b5e2f37493f0ef485b7281f",
+  "completed_at_utc": "2026-10-01T21:06:50Z",
+  "audit_requests": [
+    {
+      "id": "041-001",
+      "status": "ACCEPTED",
+      "type": "ROBUSTNESS_REVIEW",
+      "target_file": "extension/content/gemini/deletion.js",
+      "finding": "Recovery stale por tabId sem TTL/jobId e clear antes de sendDelivery podem perder ownership/retry.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:40:00Z",
+      "audit_finding": "ACCEPTED — durabilidade/recovery problemática confirmada. Recovery é chaveado apenas por tabId e salva `chatId/delivery/createdAt` sem TTL/jobId. `recoverPending` executa delete, chama `clearRecovery(tabId)` e só depois aguarda `sendDelivery`; se a entrega falhar/rejeitar, o marker já foi perdido e não há retry durável.",
+      "auditor_recommended_action": "Adicionar identidade/TTL do job ao marker e só removê-lo após ACK de delivery; em falha manter/regravar estado de retry. Testar delivery rejeitando após delete."
+    },
+    {
+      "id": "041-002",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/unit/content-gemini/deletion.test.js",
+      "finding": "Faltam provas focais para CSS.escape nativo, storage failures, scroll lock real, colisão de chatId e idempotência após reload.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:30:00Z",
+      "audit_finding": "ACCEPTED. A suíte cobre exclusão/recovery principal, mas não `CSS.escape` nativo, falhas de storage get/set/remove, scroll lock real, colisões de chatId nem idempotência após reload. Esses branches existem no módulo e afetam recovery/teardown.",
+      "auditor_recommended_action": "Adicionar casos focais contra `deletion.js` real cobrindo API nativa, storage falhando, lockScroll e repetição/reload, com estado final e recovery marker assertados."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "483/483",
+    "bible_lines": 3806
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "started_at_utc": null,
+  "history": [
+    {
+      "at_utc": "2026-10-01T21:06:50Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "2cec17f19e5293245b5e2f37493f0ef485b7281f",
+      "bible_sha": "e8bc1d8b42081bfa6948ee41b27981d8fdbb9e96",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "35c6518aea79c29e374aebe9a0ed36e6a574be489fd9fd2d72a63a525210dc08",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "aae89d0a361c863284bc10acb017c9c1840a856b66a0c720769033f91cdf0fe4"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:39.902Z",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "COMPLETED",
+      "from_review_status": "CHANGES_REQUIRED",
+      "to_review_status": "CHANGES_REQUIRED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "aae89d0a361c863284bc10acb017c9c1840a856b66a0c720769033f91cdf0fe4",
+      "event_hash": "fb0e5ed0d5d4273c799398e72d7c080492db47ce3e1d38b2277f59656279c5b6"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "CHANGES_REQUIRED",
+      "to_review_status": "CHANGES_REQUIRED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "fb0e5ed0d5d4273c799398e72d7c080492db47ce3e1d38b2277f59656279c5b6",
+      "event_hash": "7251a9d13044dcfca5c0beef12b68bf5d17e13a9e46c87df17e5fb2b2078f845"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "2cec17f19e5293245b5e2f37493f0ef485b7281f",
+  "bible_sha": null,
+  "revision_id": "35c6518aea79c29e374aebe9a0ed36e6a574be489fd9fd2d72a63a525210dc08",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.",
+  "review_status": "CHANGES_REQUIRED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T21:06:50Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "CHANGES_REQUIRED"
+    ]
+  }
+}

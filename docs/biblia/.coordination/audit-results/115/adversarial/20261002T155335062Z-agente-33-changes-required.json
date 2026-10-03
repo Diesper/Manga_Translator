@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "index": 115,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 33",
+  "file": "tests/integration/popup-translated-thumbnails.test.js",
+  "bible": "docs/biblia/tests/integration/popup-translated-thumbnails.test.js/Bíblia.md",
+  "source_sha": "677347d968d2916dbcba2d7a8ae67ad37f802a74",
+  "bible_sha": "cd815205c4a8ad747d37ac7510e204f65575fe4f",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "115-A33-ADV-001",
+      "severity": "HIGH",
+      "type": "STALE_DEPENDENCY_REVISION_EVIDENCE",
+      "summary": "A Bíblia ancora a cadeia de consumidor/gates em SHAs que já não correspondem ao HEAD, inclusive o consumidor focal popup.js.",
+      "evidence": [
+        "Bíblia §2 declara package.json SHA 5b5c328f6139eeff920dc65a78014a6c5b6db3a6; blob atual 2d749c02e45d0a0cd63deb8ffa2ab1ac9a813c21.",
+        "Bíblia §2 declara .github/workflows/ci.yml SHA 9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a; blob atual fbc108c255d06257b741839bb19fa56b4e6794b2.",
+        "Bíblia §2 declara extension/popup/popup.js SHA 300cfe9a9c81814443c9d52a17915d851408748b; blob atual 2b49ae1aaf94ed6aac1ff93437bea177d9a53644.",
+        "jest.config.js, chrome-api.mock.js, dom-environment.js, run-jest-ci.js e load-extension-page.js permanecem nos SHAs documentados; o drift material foi isolado em package/CI/popup."
+      ],
+      "required_change": "Atualizar os bindings externos para o HEAD efetivamente auditado e rotular explicitamente evidência histórica que pertença a revisão anterior desses consumidores/gates."
+    },
+    {
+      "id": "115-A33-ADV-002",
+      "severity": "HIGH",
+      "type": "CURRENT_FOCAL_EXECUTION_REGRESSION",
+      "summary": "A Bíblia apresenta o PASS 5/5 do PR #69 como evidência da revisão corrente, mas o consumidor popup.js atual impede os cinco cenários de alcançar suas assertions.",
+      "evidence": [
+        "popup.js atual chama storageGet(['popupSize'], ...) na linha 54 e declara const storageGet somente na linha 196, criando acesso em TDZ.",
+        "Run 37000976474, job 110818350844, falha na full integration suite e registra FAIL integration tests/integration/popup-translated-thumbnails.test.js.",
+        "Os cinco cenários de #115 falham no bootstrap com ReferenceError: Cannot access 'storageGet' before initialization, com stacks nas linhas 121/136, 179, 256, 321 e 370 do teste.",
+        "A execução histórica PR #69 permanece factual: jobs 110662183804 e 110662183707 registram PASS para popup-translated-thumbnails.test.js; porém ela precede o consumer blob atual e não prova executabilidade corrente.",
+        "A fonte #115 continua contendo as correções 115-001/002 e 35 expects; o bloqueio documental é promover evidência histórica a estado atual após drift do consumidor."
+      ],
+      "required_change": "Enquanto popup.js atual permanecer incompatível, não descrever o PASS 5/5 do PR #69 como prova corrente do fluxo. Separar explicitamente o histórico e, após correção funcional externa, reexecutar a suíte contra o consumidor atual antes de restaurar alegações de gate corrente."
+    }
+  ],
+  "audit_matrix": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "positional_coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO_POR_EVIDENCIA_EXTERNA_STALE",
+    "dependencies": "CONTRADITO",
+    "consumers": "CONTRADITO_POR_DRIFT_E_TDZ",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X_E_NAO_ALCANCADAS_NO_CONSUMIDOR_ATUAL",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X_RESOLVED",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_33_VS_PRIMARY_AGENTE_28",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passed_points": [
+    "SOURCE_SHA do state, blob real e Bíblia coincide em 677347d968d2916dbcba2d7a8ae67ad37f802a74.",
+    "BIBLE_SHA do lease e blob real coincide em cd815205c4a8ad747d37ac7510e204f65575fe4f.",
+    "Fonte integral embutida é byte-a-byte idêntica ao source: 383 linhas textuais + LF terminal.",
+    "Cobertura documental V2 cobre exatamente 384/384 posições, sem gaps, overlaps ou extras.",
+    "Os cinco testes e suas 35 assertions sustentam corretamente as melhorias locais 115-001/002 quando o popup consegue inicializar.",
+    "115-001 e 115-002 permanecem RESOLVED de forma documentalmente coerente porque as assertions solicitadas estão materializadas no source atual.",
+    "Jest discovery, JSDOM/mocks, helper e runner continuam conectando a suíte ao projeto integration."
+  ],
+  "adversarial_attempt": "A conclusão PRIMARY foi tratada como hipótese: hashes externos foram recalculados, o source e a Bíblia foram recomparados byte-a-byte, a cobertura V2 foi recalculada, as 35 assertions foram lidas, helper/consumer/gates foram reabertos e o run citado foi verificado diretamente. As duas objeções da PRIMARY sobreviveram e ficaram mais fortes porque package.json e ci.yml sofreram drift adicional, enquanto popup.js mantém a TDZ reproduzida no log.",
+  "passes": "0-15 concluídas",
+  "triple_check": {
+    "A_integridade": "SIM",
+    "B_veracidade": "NAO",
+    "C_honestidade": "NAO_ENQUANTO_EVIDENCIA_HISTORICA_FOR_APRESENTADA_COMO_CORRENTE"
+  },
+  "completed_at_utc": "2026-10-02T15:53:35.062Z"
+}

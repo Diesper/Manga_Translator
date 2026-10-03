@@ -1,0 +1,58 @@
+{
+  "schema_version": 2,
+  "index": 167,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 5",
+  "file": "tests/unit/background/single-image-context-menu.test.js",
+  "bible": "docs/biblia/tests/unit/background/single-image-context-menu.test.js/Bíblia.md",
+  "source_sha": "c4e122e3fd2a5298b255e647dbc804c903ed17f5",
+  "bible_sha": "1eebefd7fb13c74bbe94210e4d1b49317949116d",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "167-ADV2-001",
+      "severity": "MATERIAL",
+      "category": "SEMANTIC_LINE_MAPPING_ERRORS",
+      "summary": "A fonte integral e a cobertura 173/173 estão corretas, mas a auditoria linha a linha atribui semântica de onClicked a dezenas de linhas que não interagem com esse listener.",
+      "evidence": [
+        "A frase `Interage com listener onClicked registrado pelo background.` ocorre 67 vezes na Bíblia.",
+        "Linhas 013–014 (`return {`, `items,`) apenas estruturam o mock de contextMenus; linhas 018–019 pertencem ao mock de contextMenus.create e seu callback/retorno.",
+        "Linhas 063–074 montam global.chrome com storage/tabs/alarms/runtime/downloads/scripting/contextMenus; não executam o listener onClicked.",
+        "Linhas 095–098 verificam a definição do item criado (id/título/contexts); a linha 153 verifica que o item foi removido. Ainda assim, várias dessas posições recebem a descrição genérica de onClicked.",
+        "Uma comparação programática confirmou 172 headings únicos, nenhum gap/duplicata e código transcrito exatamente para todas as 172 linhas; portanto o defeito é semântico, não de cobertura física."
+      ],
+      "impact": "O leitor que usa a seção linha a linha recebe responsabilidades falsas para partes substanciais do teste, violando o requisito de semântica específica por linha/faixa.",
+      "required_change": "Reescrever as descrições de função das posições afetadas para refletir mock de contextMenus, setup do chrome, criação/remoção do item, dispatch e assertions reais, mantendo 172 linhas + newline."
+    },
+    {
+      "id": "167-ADV2-002",
+      "severity": "MATERIAL",
+      "category": "INTERNAL_LIFECYCLE_CONTRADICTION",
+      "summary": "A conclusão documental ainda chama 167-001/002/003 de `solicitações abertas` e logo depois afirma corretamente que estão ACCEPTED e `não requests OPEN`.",
+      "evidence": [
+        "Na conclusão: `as solicitações abertas concentram-se em corrida de rebuild, saneamento de domínios e observabilidade de falhas`.",
+        "No bloco imediatamente seguinte: `167-001, 167-002 e 167-003 estão ACCEPTED em .state/167.json; ... não requests OPEN`.",
+        "Os headings da Seção 9 marcam os três requests como ACCEPTED.",
+        "O .state/167.json atual confirma 167-001=ACCEPTED, 167-002=ACCEPTED e 167-003=ACCEPTED."
+      ],
+      "impact": "A Bíblia contém duas afirmações mutuamente incompatíveis sobre o lifecycle vigente dos mesmos requests.",
+      "required_change": "Substituir `solicitações abertas` por `solicitações ACCEPTED`, `lacunas aceitas` ou formulação equivalente coerente com o state."
+    },
+    {
+      "id": "167-ADV2-003",
+      "severity": "MATERIAL",
+      "category": "CONSUMER_PROOF_BOUNDARY_OMISSION",
+      "summary": "O dispatch do background é diretamente testado, mas a Bíblia não explicita que o receptor da suíte é um handler mock nem documenta o consumer real de TRANSLATE_CONTEXT_IMAGE.",
+      "evidence": [
+        "No teste #167, linhas 117–122 criam uma aba mock e registram `tabsMock._registerMessageHandler`; o handler apenas coleta a mensagem e responde `{ok:true,index:4}`.",
+        "O mock de chrome.tabs implementa `sendMessage` chamando handlers previamente registrados por `_registerMessageHandler`; ele não executa automaticamente o content script real.",
+        "O consumer real está em `extension/content/content_manga.js`: no branch `request.action === 'TRANSLATE_CONTEXT_IMAGE'`, resolve a imagem e chama `startSingleImageTranslation(img)`.",
+        "`tests/unit/content-manga/floating-button-guard-and-single-click.test.js` exercita esse consumer real em sucesso e rejeições.",
+        "A Bíblia #167 não menciona `content_manga.js`, `startSingleImageTranslation`, `resolveContextMenuImage` nem a suíte focal do consumer."
+      ],
+      "impact": "A afirmação de que #167 prova o encaminhamento do background é válida, mas a fronteira de prova arquitetural fica incompleta: não se pode inferir dessa suíte que o content script real consumiu a mensagem.",
+      "required_change": "Explicitar que #167 prova `tabs.sendMessage`/payload contra receptor mock e citar separadamente o consumer real e sua suíte quando descrever o fluxo até o content script."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:46:01Z"
+}

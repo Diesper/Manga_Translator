@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "index": 141,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 15",
+  "file": "tests/unit/background/download-image-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/download-image-action.test.js/Bíblia.md",
+  "source_sha": "9305ba72e1d62406128ce7a5cd77b945a0b44c83",
+  "bible_sha": "eca5b07aba2da8922d42207569256495eccb9f41",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A15-141-P01",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "summary": "A seção de cobertura posição por posição contém descrições semanticamente deslocadas/incorretas apesar de os 53 headings cobrirem estruturalmente todas as posições.",
+      "evidence": [
+        "Linha 003 resolve ROUTER_PATH para extension/background/router.js; a Bíblia diz que 'obtém mocks reais de storage/tabs'.",
+        "Linha 004 resolve ACTION_PATH para extension/background/actions/download-image.js; a Bíblia a descreve como 'Separador visual'.",
+        "Linha 005 é linha em branco; a Bíblia diz 'Resolve o router real do background'.",
+        "Linha 006 abre function dispatch(listener, request); a Bíblia diz 'Resolve a action real download-image.js'.",
+        "Linha 010 invoca listener(...) e atribui seu retorno a keepAlive; a Bíblia diz apenas que declara keepAlive."
+      ],
+      "required_change": "Reauditar semanticamente as 52 linhas e a posição terminal, corrigindo os papéis linha a linha para corresponder exatamente ao código; não basta preservar a contagem 53/53."
+    },
+    {
+      "id": "A15-141-P02",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "AUDIT_REQUEST_LIFECYCLE",
+      "summary": "A Bíblia e o resumo document_quality apresentam as requests 141-001..004 como OPEN, mas o state canônico registra as quatro como ACCEPTED.",
+      "evidence": [
+        "Bíblia §6 rotula 141-001, 141-002, 141-003 e 141-004 como OPEN.",
+        "Bíblia §10 afirma que as solicitações 141-001..004 permanecem OPEN.",
+        "docs/biblia/.state/141.json registra status ACCEPTED para as quatro requests.",
+        "O mesmo state mantém document_quality.external_audit_requests_open=4, contradizendo o próprio array canônico."
+      ],
+      "required_change": "Sincronizar o lifecycle documental para ACCEPTED e ajustar/remover o contador stale de requests OPEN, preservando explicitamente as lacunas técnicas já aceitas."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T21:54:04Z"
+}

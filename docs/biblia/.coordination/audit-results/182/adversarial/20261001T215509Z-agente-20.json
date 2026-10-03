@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "index": 182,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 20",
+  "file": "tests/unit/content-gemini/manual-assist-hud.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/manual-assist-hud.test.js/Bíblia.md",
+  "source_sha": "14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f",
+  "bible_sha": "a1daa3b47591a17d17aa77d2dc24bdf667c0d046",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A20-182-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "FALSE_SEMANTIC_INVARIANT",
+      "finding": "A Invariante 2 afirma que a seleção manual deve passar pelos mesmos filtros de imagem, mas o JobRunner implementa deliberadamente filtros diferentes: o caminho manual por clique usa isManualSelectableImage(), mais permissivo que isLikelyGeneratedImage() usado por “Usar última”/detecção automática.",
+      "evidence": [
+        "Bíblia §8: “a seleção manual deve passar pelos mesmos filtros de imagem”.",
+        "job-runner.js:isLikelyGeneratedImage() preserva gates estruturais/source/ignore e, no fallback dimensional, exige maxSide >= 256, minSide >= 40 e área >= 12_000 (além de exceções de ownership/URLs especiais).",
+        "job-runner.js:isManualSelectableImage() preserva gates estruturais/source/ignore, mas exige apenas dimensões positivas e maxSide >= 40.",
+        "plan-rpa-edge-cases.test.js prova o contrato intencional: uma imagem 30x1024 sem ownership de model, rejeitável pela heurística automática, é aceita pelo painel manual e segue até FETCH_IMAGE_AS_BASE64.",
+        "A suíte #182 usa apenas candidatos 800x1200; suas assertions não expõem essa diferença."
+      ],
+      "adversarial_mutation": "Uma manutenção que 'alinhasse' isManualSelectableImage aos filtros automáticos para satisfazer a Invariante 2 poderia quebrar justamente o fallback manual destinado a recuperar imagens que a heurística automática não reconheceu.",
+      "required_change": "Reescrever a Invariante 2 e a explicação do contrato: os caminhos compartilham gates de segurança/ignore, mas a seleção manual é intencionalmente mais permissiva. Citar a evidência integrada do cenário 30x1024."
+    },
+    {
+      "id": "A20-182-02",
+      "severity": "NORMAL",
+      "type": "IGNORED_HARNESS_OPTION_NOT_DOCUMENTED",
+      "finding": "A fonte passa {skipAutoProcess:true} para loadContentGeminiModule(), mas o helper não recebe parâmetros nem lê essa opção. A Bíblia reproduz o call site sem esclarecer que o argumento é ignorado, deixando ambíguo o mecanismo real que impede auto-start.",
+      "evidence": [
+        "tests/helpers/load-content-gemini-module.js declara function loadContentGeminiModule() sem parâmetros e apenas carrega os módulos, invalida o cache de content_gemini.js e o require novamente.",
+        "content_gemini.js suprime auto-start porque detecta CommonJS: if (isCommonJsTest) exporta contentGeminiApi; processGeminiJob() automático só ocorre no ramo browser else-if.",
+        "A Bíblia diz que a suíte usa loadContentGeminiModule({skipAutoProcess:true}), mas não registra que a opção não possui efeito."
+      ],
+      "required_change": "Documentar explicitamente que skipAutoProcess é hoje um argumento ignorado e que o branch CommonJS de content_gemini.js é o mecanismo efetivo que impede o auto-processamento."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage_103_103": "CONFIRMADO_3X",
+    "semantic_map": "CONFIRMADO_3X",
+    "local_assertions": "CONFIRMADO_3X",
+    "job_runner_consumers": "CONFIRMADO_3X",
+    "harness_semantics": "CONTRADITO",
+    "semantic_invariants": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "primary_independence": "CONFIRMADA_AGENTE_20_VS_AGENTE_17",
+    "history_state_revision": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 102,
+    "final_newline": true,
+    "documented_positions": "103/103; linhas 1-102 cobertas exatamente uma vez + posição 103 newline final",
+    "current_primary": "AGENTE 17 / CHANGES_REQUIRED / mesma revisão",
+    "current_requests": [
+      "182-001 ACCEPTED",
+      "182-002 ACCEPTED",
+      "182-003 ACCEPTED"
+    ],
+    "formal_rejection": "Sustentada por A20-182-01; A20-182-02 registra precisão adicional do harness."
+  },
+  "passages_executed": "0-15",
+  "completed_at_utc": "2026-10-01T21:55:09Z"
+}

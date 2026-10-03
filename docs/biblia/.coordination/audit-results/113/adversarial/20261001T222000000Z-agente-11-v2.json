@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "index": 113,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 11",
+  "file": "tests/integration/options.ui.test.js",
+  "bible": "docs/biblia/tests/integration/options.ui.test.js/Bíblia.md",
+  "source_sha": "33c34c89f7131ade147ea65b5f5015b79917b708",
+  "bible_sha": "3c2e4f31372dd93cc35b3a11f9a593b8e56ee37f",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A11-113-ADV-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A seção 8 da Bíblia mantém 113-001 e 113-002 como OPEN, enquanto o state canônico da mesma revisão registra ambos como ACCEPTED.",
+      "evidence": [
+        "Bíblia §8: `### 113-001 — TEST_REQUIRED — OPEN`.",
+        "Bíblia §8: `### 113-002 — INTEGRATION_TEST_REQUIRED — OPEN`.",
+        ".state/113.json: 113-001.status = ACCEPTED e 113-002.status = ACCEPTED.",
+        "As duas lacunas continuam tecnicamente válidas: a suíte não cobre os controles listados em 113-001 e, em Refazer, `chrome.runtime.sendMessage` é spy/mock de sucesso, portanto 113-002 continua sem prova composta end-to-end."
+      ],
+      "required_change": "Atualizar somente o lifecycle documental para ACCEPTED e revisar qualquer resumo que trate os requests como OPEN, preservando finding, evidência, severity, target_file e ação solicitada."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "positional_coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X_EXCETO_LIFECYCLE",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers_wiring": "CONFIRMADO_3X",
+    "tests_assertions": "CONFIRMADO_3X",
+    "evidence_strength": "CONFIRMADO_3X",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_11_VS_PRIMARY_AGENTE_10",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "embedded_source_exact": true,
+    "source_text_lines": 350,
+    "source_final_newline": true,
+    "documented_positions": "351/351",
+    "coverage_missing": 0,
+    "coverage_duplicates": 0,
+    "test_cases": 8,
+    "expect_occurrences": 57,
+    "helper_sha": "c2325598f10b3ef9dd656a4e87db8569748e66b0",
+    "options_html_sha": "3ca95e66641d2884fa653f25f7bedbb2a8ac3b2b",
+    "options_js_sha": "f69f132c0ef653cded49887a60724b84dfa2b6c9",
+    "ci_run": 36521561968,
+    "ci_head_sha": "e720890cf34dc9437ee91f3b8172953497d69870",
+    "ci_focal_blob_matches_current": true,
+    "evidence_limits": [
+      "Chrome storage/runtime são mocks; o documento não os promove a execução real de Chromium.",
+      "Refazer prova purga local + emissão GTC, não o receptor/runtime composto.",
+      "113-001 e 113-002 permanecem lacunas aceitas, não resolvidas."
+    ],
+    "tripla_verificacao": {
+      "A_documento_corresponde_source_atual": "SIM",
+      "B_tudo_que_afirma_e_verdadeiro": "NAO por lifecycle OPEN stale",
+      "C_limitacoes_representadas_honestamente": "SIM fora do lifecycle stale"
+    }
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T22:20:00.000Z"
+}

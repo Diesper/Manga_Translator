@@ -1,0 +1,87 @@
+{
+  "schema_version": 2,
+  "index": 20,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 9",
+  "file": "extension/background/actions/relay-progress.js",
+  "bible": "docs/biblia/extension/background/actions/relay-progress.js/Bíblia.md",
+  "source_sha": "24e377893c7151ea0579964453bfc63ce0ed77f4",
+  "bible_sha": "d9a5548f04606984dd11308b19cb642812fa6684",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A9-020-ADV2-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "CONSUMER_CONTRADICTION_AND_OMISSION",
+      "finding": "A revisão identifica content_gemini.js::reportProgress() corretamente como producer de GEMINI_PROGRESS e imediatamente o chama de 'consumidor real', enquanto omite o consumer downstream efetivo de PROGRESS em extension/content/content_manga.js.",
+      "evidence": [
+        "Bíblia: 'content_gemini.js::reportProgress() é o producer' e, no parágrafo seguinte, 'O consumidor real é content_gemini.js::reportProgress()'.",
+        "content_gemini.js linhas 188-195 envia GEMINI_PROGRESS com text/mangaTabId; portanto é producer/upstream.",
+        "content_manga.js trata request.action === 'PROGRESS' e atualiza floatingButtonViewState.text, showStop, background, estado local/persistido e UI.",
+        "replacement-and-completion-real.test.js executa o content script real e exige texto 'GEMINI PROCESSANDO' e fundo laranja após PROGRESS.",
+        "A Bíblia current d9a5548... não documenta content_manga.js como consumer downstream apesar de declarar consumers reais verificados."
+      ],
+      "required_change": "Corrigir producer/consumer, documentar content_manga.js como consumer direto de PROGRESS e registrar os side effects/assertions downstream relevantes."
+    },
+    {
+      "id": "A9-020-ADV2-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_STRENGTH_OVERCLAIM_WITH_MOCK_BOUNDARY",
+      "finding": "A tabela classifica actions-low-risk como 'PROVADO DIRETAMENTE' e routed/message-handlers como 'PROVADO NO BACKGROUND INTEGRADO' sem explicitar que runtime/storage/tabs são mocks. Isso superestima a força da evidência para entrega/callback/lastError no browser real.",
+      "evidence": [
+        "actions-low-risk.test.js importa getStorageMock/getTabsMock de tests/mocks/chrome-api.mock.js.",
+        "routed-actions-legacy.test.js importa getRuntimeMock/getStorageMock/getTabsMock/getDownloadsMock/getAlarmsMock.",
+        "message-handlers-real.test.js usa a mesma fronteira chrome simulada.",
+        "As assertions provam execução da implementação focal/host real contra os mocks, não a entrega real do Chrome nem a semântica do callback/lastError real.",
+        "A própria Bíblia reconhece ausência de prova específica para falha tabs.sendMessage e runtime.lastError/storage."
+      ],
+      "required_change": "Reclassificar conservadoramente como execução direta/integrada da implementação com fronteira chrome mockada, incluindo MOCK_OU_SIMULACAO quando aplicável, e declarar explicitamente o que isso não prova no runtime real."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X_39_DE_39",
+    "local_semantics": "CONFIRMADO_3X",
+    "host_router_dependencies": "CONFIRMADO_3X",
+    "consumers": "CONTRADITO",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X_020-001_ACCEPTED_020-002_ACCEPTED",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_9_DIFERENTE_DE_AGENTE_20",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "source_text_lines": 38,
+    "source_final_newline": true,
+    "documented_positions": "39/39",
+    "embedded_source_exact": true,
+    "downstream_consumer": {
+      "source": "extension/content/content_manga.js",
+      "source_sha": "a8b3698019f6f22027f09f544f15c0563a9f6515",
+      "test": "tests/unit/content-manga/replacement-and-completion-real.test.js",
+      "test_sha": "9dcd26cf4a963ab22c11f8535421603d83260572"
+    },
+    "producer": {
+      "source": "extension/content/content_gemini.js",
+      "source_sha": "55bc83afe31a10c53f39799717f2f221b6919029"
+    },
+    "mock_boundary_tests": {
+      "actions-low-risk.test.js": "e5d4d54674b5a4a3b00dc15112afb40c874d81c3",
+      "routed-actions-legacy.test.js": "62d534355ac80b9b1f4e23dac3ce0ec1515ae4c5",
+      "message-handlers-real.test.js": "1c2815cd1f2fecba58a07c568f24d69af0367af3"
+    },
+    "formal_rejection_attempt": "Sustentada em duas objeções independentes: contradição/omissão do consumer downstream e força de evidência superestimada por não representar a fronteira chrome.* mockada."
+  },
+  "triple_check": {
+    "document_matches_current_source": "SIM",
+    "all_claims_true_and_supported": "NAO — producer é chamado de consumidor e consumer downstream está omitido",
+    "limitations_honestly_represented": "NAO_COMPLETAMENTE — fronteira chrome simulada não aparece na classificação de evidência"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T21:57:38.531Z"
+}

@@ -1,0 +1,94 @@
+{
+  "schema_version": 2,
+  "index": 144,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 33",
+  "file": "tests/unit/background/export-guard.test.js",
+  "bible": "docs/biblia/tests/unit/background/export-guard.test.js/Bíblia.md",
+  "source_sha": "4a34bd498d62aecdefca112b02d7601346891820",
+  "bible_sha": "588ee10ee59641c19933817b243d34ef393999c8",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "144-A33-ADV-001",
+      "severity": "NORMAL",
+      "type": "SEMANTIC_LINE_MAPPING_AND_EVIDENCE_CLASSIFICATION",
+      "summary": "O mapa linha-a-linha atribui comportamento executável à linha 37, que é somente comentário, e usa sistematicamente `EXECUTADO INDIRETAMENTE` para comentários/linhas vazias.",
+      "evidence": [
+        "Source linha 37 é somente `// - Lista com itens → chrome.downloads.download() para cada um, sendResponse ao finalizar`.",
+        "Bíblia linha 37 afirma `Chama a API mock de downloads...`; a chamada real está na linha 59.",
+        "A Bíblia marca 53 posições que são comentários, delimitadores de comentário ou linhas vazias como `EXECUTADO INDIRETAMENTE`; comentários/whitespace não são executados.",
+        "Linha 59, em contraste, contém de fato `chrome.downloads.download(dl, () => checkFinalize());` e recebe a mesma descrição funcional."
+      ],
+      "required_change": "Corrigir a semântica da linha 37 e reclassificar comentários/linhas vazias como documentação/estrutura sem execução, preservando prova apenas nas posições executáveis."
+    },
+    {
+      "id": "144-A33-ADV-002",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia registra 144-001 como OPEN, enquanto o state canônico a registra ACCEPTED e já contém decisão do auditor.",
+      "evidence": [
+        "Bíblia §7: `144-001 — TEST_QUALITY_REVIEW — OPEN`.",
+        "docs/biblia/.state/144.json: `144-001.status = ACCEPTED`, `audited_by = AGENTE 23`, com finding e recomendação preenchidos."
+      ],
+      "required_change": "Sincronizar a request para ACCEPTED e descrevê-la como dívida externa não bloqueante, sem pedir novamente uma decisão já registrada."
+    },
+    {
+      "id": "144-A33-ADV-003",
+      "severity": "NORMAL",
+      "type": "EVIDENCE_OVERCLAIM",
+      "summary": "A Bíblia diz que o segundo teste real prova a espera por downloads, mas as assertions não verificam `waitForDownload` nem sua ordem/semântica.",
+      "evidence": [
+        "export-all-action.test.js injeta `const waitForDownload = jest.fn((id, done) => done(id));`.",
+        "Não existe `expect(waitForDownload...)` no arquivo.",
+        "As assertions do cenário verificam filenames, `chrome.downloads.show(12)` e resposta final.",
+        "Uma mutação que eliminasse `waitForDownload` e finalizasse diretamente com o mesmo id poderia manter essas assertions verdes."
+      ],
+      "required_change": "Estreitar a frase para os comportamentos realmente assertados ou fortalecer a suíte externa com assertion explícita de chamada/ordem/espera antes de classificá-la como prova desse contrato."
+    },
+    {
+      "id": "144-A33-ADV-004",
+      "severity": "NORMAL",
+      "type": "LIFECYCLE_STATUS_CONTRADICTION",
+      "summary": "O cabeçalho da Bíblia declara a unidade concluída e a auditoria aprovada, embora o state atual esteja READY_FOR_AUDIT e já exista PRIMARY CHANGES_REQUIRED para o mesmo SOURCE_SHA/BIBLE_SHA.",
+      "evidence": [
+        "Cabeçalho: `Estado: ✅ CONCLUÍDO — AUDITORIA DE QUALIDADE APROVADA`.",
+        "State atual #144: `status = READY_FOR_AUDIT`.",
+        "PRIMARY AGENTE 64 no mesmo binding: `CHANGES_REQUIRED`."
+      ],
+      "required_change": "Atualizar o estado documental para refletir o lifecycle atual e não apresentar aprovação histórica como aprovação da revisão em auditoria."
+    }
+  ],
+  "passed_points": [
+    "State, source, Bíblia, lease e PRIMARY vinculam o mesmo SOURCE_SHA/BIBLE_SHA.",
+    "Fonte integral embutida é byte-a-byte idêntica ao source.",
+    "119 linhas textuais + LF terminal = 120/120 posições documentadas, sem gaps nem duplicações.",
+    "A Bíblia descreve corretamente o boundary principal: export-guard.test.js executa um mirror local, não export-all.js real.",
+    "A comparação funcional com export-all.js é materialmente correta: production normaliza lista/nome, usa waitForDownload, trata erro/id indefinido e mostra o último concluído.",
+    "Jest descobre o arquivo no projeto background; chrome-api.mock.js fornece downloads/runtime usados pela suíte.",
+    "As assertions locais provam apenas o mirror, classificação principal que a Bíblia reconhece corretamente."
+  ],
+  "audit_matrix": {
+    "sha": "CONFIRMADO_3X",
+    "fonte_integral": "CONFIRMADO_3X",
+    "cobertura": "CONFIRMADO_3X",
+    "semantica_principal": "CONTRADITO_PARCIAL",
+    "dependencias": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "testes": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "historico_state": "CONTRADITO",
+    "phase_independence": "CONFIRMADA_AGENTE_33_VS_PRIMARY_AGENTE_64",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "adversarial_attempt": "A hipótese PRIMARY foi atacada por recomparação byte-a-byte, reconstrução matemática das 120 posições, releitura integral do mirror e da action real, leitura das assertions da suíte real, revisão do router/Jest/mocks/state/request e busca por mutações que ainda passariam. Os três findings PRIMARY sobreviveram; adicionalmente foi confirmada contradição de lifecycle no cabeçalho.",
+  "triple_check": {
+    "A_integridade": "SIM",
+    "B_veracidade": "NAO",
+    "C_honestidade": "NAO"
+  },
+  "completed_at_utc": "2026-10-02T16:03:20.558Z"
+}

@@ -1,0 +1,127 @@
+{
+  "index": 69,
+  "file": "scripts/ci/data/regression-matrix.json",
+  "bible": "docs/biblia/scripts/ci/data/regression-matrix.json/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "f9b9e17e5870c0c6dff9394ef944a803414cc4d2",
+  "started_at_utc": "2026-09-30T03:28:19Z",
+  "completed_at_utc": "2026-10-02T21:32:00Z",
+  "audit_requests": [
+    {
+      "id": "069-001",
+      "status": "ACCEPTED",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "scripts/validation/verify-ci-contract.js",
+      "finding": "O gate exige quantidade mínima e IDs únicos, mas não fixa explicitamente o conjunto completo de IDs críticos.",
+      "requested_action": "Avaliar pinagem dos IDs obrigatórios ou schema equivalente.",
+      "severity": "HIGH",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T18:47:00Z",
+      "audit_finding": "ACCEPTED — enfraquecimento silencioso possível. `verify-ci-contract` exige apenas `entries.length >= 20`, IDs não vazios/únicos, arquivo/markers existentes. Não fixa o conjunto de IDs críticos; um contrato essencial pode ser removido e substituído por outro mantendo ≥20 entradas.",
+      "auditor_recommended_action": "Fixar allowlist/set mínimo de IDs críticos ou versionar schema/política e adicionar mutation test removendo um ID essencial."
+    },
+    {
+      "id": "069-002",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "scripts/validation/verify-ci-contract-selftest.js",
+      "finding": "O self-test cobre remoção de marker, mas não todos os ramos negativos de validação.",
+      "requested_action": "Adicionar casos negativos focais para as demais regras estruturais.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:10:00Z",
+      "audit_finding": "ACCEPTED. O self-test remove apenas um marker obrigatório e prova esse mecanismo, mas não muta os demais ramos estruturais do `verify-ci-contract.js`. Várias regras podem regredir sem self-test negativo próprio.",
+      "auditor_recommended_action": "Adicionar mutation cases focais para os principais ramos estruturais restantes, especialmente gates cuja implementação é regex/textual."
+    },
+    {
+      "id": "069-003",
+      "status": "ACCEPTED",
+      "type": "CONTRACT_REVIEW",
+      "target_file": "scripts/ci/data/regression-matrix.json",
+      "finding": "Campos de metadados não são validados semanticamente e marker textual não equivale sozinho a assertion comportamental.",
+      "requested_action": "Decidir quais metadados devem ser contratuais e se o gate deve ganhar validação semântica.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T21:10:00Z",
+      "audit_finding": "ACCEPTED. `regression-matrix.json` possui metadados como id/error/file/markers, mas o gate valida principalmente presença de markers no arquivo alvo. Isso não prova que o marker representa assertion comportamental nem que metadados semânticos permaneçam coerentes.",
+      "auditor_recommended_action": "Definir quais campos são contratuais e validar schema/semântica adicional onde necessário; manter markers classificados como gate estático."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "232/232",
+    "bible_lines": 3204,
+    "external_audit_requests_open": 3
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "history": [
+    {
+      "at_utc": "2026-10-02T21:32:00Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "source_sha": "f9b9e17e5870c0c6dff9394ef944a803414cc4d2",
+      "bible_sha": "634fcd4a3664833f453afa53b67baead1d9bb33b",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "3a24687f56775572a61a4b853f415bcb41604aac05b335c083a99bada9672987",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "3988e744b35a3ad0aa36601e25779c0004c9354128bf3c88d804b1fe97f60133"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:40.446Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "3988e744b35a3ad0aa36601e25779c0004c9354128bf3c88d804b1fe97f60133",
+      "event_hash": "a73b928adcd80f2ba2f2b0f9336e35297fa8fa59e139b77dc67ca9b3f4f47d31"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "a73b928adcd80f2ba2f2b0f9336e35297fa8fa59e139b77dc67ca9b3f4f47d31",
+      "event_hash": "a8c8be0135b3ef94d106b9d32afd90cf548f391fbd77dcb50e0aece182c4914f"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "f9b9e17e5870c0c6dff9394ef944a803414cc4d2",
+  "bible_sha": null,
+  "revision_id": "3a24687f56775572a61a4b853f415bcb41604aac05b335c083a99bada9672987",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual.",
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-02T21:32:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "VERIFIED",
+    "caveats": []
+  }
+}

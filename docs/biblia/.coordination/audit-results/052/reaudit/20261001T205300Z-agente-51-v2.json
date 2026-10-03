@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "index": 52,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 51",
+  "file": "extension/options/options.js",
+  "bible": "docs/biblia/extension/options/options.js/Bíblia.md",
+  "source_sha": "f69f132c0ef653cded49887a60724b84dfa2b6c9",
+  "bible_sha": "39723799fe64e582912a9cae20ae0a114ce63898",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "052-REA-001",
+      "severity": "HIGH",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A Bíblia classifica como `PROVADO DIRETAMENTE` ramos sem estímulo/assertion focal na suíte citada, contradizendo sua própria seção de evidência e a request 052-001.",
+      "evidence": [
+        "Bíblia.md linha 23 declara `sem prova focal` para auto-restore global e modo minimized.",
+        "Posição 44 (`autoRestoreEnabledEl.checked = result.autoRestoreEnabled !== false`) é marcada `✅ PROVADO DIRETAMENTE` na linha 1005.",
+        "Posição 49 (`if (mode === 'minimized_window')`) recebe a mesma classificação na linha 1065.",
+        "As posições 365–369 do handler de teclado também são classificadas como prova direta, mas `tests/integration/options.ui.test.js` não contém `keydown`, `KeyboardEvent` nem estímulo Enter/Espaço.",
+        "No HEAD revalidado, `options.ui.test.js` não contém `auto-restore-enabled`, `gemini-mode-minimized` nem `minimized_window`.",
+        "state 052-001 está ACCEPTED e registra exatamente a ausência de prova focal para autoRestoreEnabled/minimized/restore/refresh-clear."
+      ],
+      "required_change": "Reclassificar posição a posição conforme a força real da evidência e reservar `PROVADO DIRETAMENTE` apenas a comportamentos efetivamente estimulados e assertados."
+    },
+    {
+      "id": "052-REA-002",
+      "severity": "HIGH",
+      "type": "SEMANTIC_MISDESCRIPTION",
+      "summary": "A documentação do handler `keydown` atribui leitura/persistência de storage e risco de divergência UI-storage a um fluxo que só altera estado efêmero em memória e re-renderiza.",
+      "evidence": [
+        "Bíblia.md posição 365 diz `O callback lê estado atual e persiste/re-renderiza` e `controle e storage poderiam divergir`.",
+        "Source posições 359–363: `toggleSite()` apenas adiciona/remove hostname do Set `expandedOptionSites` e chama `renderSites()`.",
+        "Source posições 365–369: o keydown aceita Enter/Espaço, chama preventDefault e toggleSite; não existe chrome.storage.local.get/set/remove nesse caminho.",
+        "As descrições genéricas das posições 367–368 também falam em coerência de persistência/UI, embora sejam preventDefault e chamada de toggleSite."
+      ],
+      "required_change": "Descrever o handler como controle de acessibilidade da gaveta e estado efêmero de expansão; remover alegações de persistência/storage desse trecho."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:53:00Z"
+}

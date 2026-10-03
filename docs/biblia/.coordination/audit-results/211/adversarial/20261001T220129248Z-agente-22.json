@@ -1,0 +1,83 @@
+{
+  "schema_version": 2,
+  "index": 211,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 22",
+  "file": "tests/unit/gtc/fingerprint.test.js",
+  "bible": "docs/biblia/tests/unit/gtc/fingerprint.test.js/Bíblia.md",
+  "source_sha": "5255083ff2881ad8ed4ad6c6940253031e789658",
+  "bible_sha": "aaee05a4b15fd66a8ffa7ef63c991e041f1e1881",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "211-ADV-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia mantém 211-001/002/003/004 como OPEN e conclui haver quatro solicitações abertas, mas o state canônico registra as quatro como ACCEPTED.",
+      "evidence": [
+        "Bíblia §7 usa headings `211-001 ... OPEN`, `211-002 ... OPEN`, `211-003 ... OPEN` e `211-004 ... OPEN`.",
+        "Bíblia §10 encerra com `APROVADO documentalmente, com quatro solicitações externas abertas`.",
+        ".state/211.json no HEAD atual registra 211-001=ACCEPTED, 211-002=ACCEPTED, 211-003=ACCEPTED e 211-004=ACCEPTED.",
+        "A substância continua atual: hammingDistance não valida hex; boundaries strict 40/35/80/70 não têm matriz focal; wHash/pHash não têm known-answer independente e randomUUID não é exercitado; FP-19/FP-20 permanecem duplicados."
+      ],
+      "requested_documentation_fix": "Sincronizar o lifecycle na Bíblia para ACCEPTED nas quatro requests e remover a conclusão de requests OPEN, preservando os gaps técnicos já aceitos."
+    },
+    {
+      "id": "211-ADV-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "CONSUMER_AND_EXECUTION_WIRING_OMISSION",
+      "summary": "A Bíblia não mapeia consumers runtime nem a cadeia real de descoberta/CI/policy da suíte, apesar de exigir rastreabilidade exaustiva de consumers, dependências e gates.",
+      "evidence": [
+        "extension/manifest.json inclui `shared/gtc-fingerprint.js` como primeiro content script para `<all_urls>`; cm-gtc-client.js e content_manga.js consomem `MangaTranslatorGtcFingerprint`.",
+        "extension/background.js carrega `shared/gtc-fingerprint.js` via importScripts no service worker e actions como calculate-visual-fingerprint consomem a API.",
+        "jest.config.js registra o projeto `gtc` com `tests/unit/gtc/**/*.test.js`.",
+        "scripts/ci/run-jest-ci.js inclui `gtc` em unitProjects; a cadeia npm/CI executa o agregador Jest.",
+        "scripts/validation/verify-test-policy.js varre JS/CJS/MJS sob tests e aplica gates contra skip/only/todo.",
+        "A seção `Dependências reais` da Bíblia cita apenas crypto/TextEncoder e o módulo focal; o wiring runtime/descoberta/gates não é representado nem classificado."
+      ],
+      "requested_documentation_fix": "Adicionar mapa explícito de consumers runtime e de descoberta/execução/policy da suíte, classificando wiring/gates como evidência estrutural e não como prova comportamental."
+    }
+  ],
+  "evidence_classification": {
+    "tests/unit/gtc/fingerprint.test.js": "PROVA_DIRETA sobre o módulo real em ambiente Jest/Node",
+    "extension/shared/gtc-fingerprint.js": "PROVA_DIRETA_DE_SEMANTICA",
+    "extension/manifest.json + background.js": "PROVA_DE_CONSUMIDOR / WIRING_RUNTIME",
+    "jest.config.js + run-jest-ci.js": "GATE_ESTATICO_ESPECIFICO / EXECUCAO_AGREGADA",
+    "verify-test-policy.js": "GATE_ESTATICO_ESPECIFICO",
+    "browser_real_transport": "SEM_PROVA_ESPECIFICA"
+  },
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X_455_DE_455",
+    "semantic_map": "CONFIRMADO_3X",
+    "tests_and_assertions": "CONFIRMADO_3X_APOS_LEITURA",
+    "accepted_gaps": "CONFIRMADO_3X",
+    "consumers_and_wiring": "CONTRADITO_POR_OMISSAO",
+    "audit_requests": "CONTRADITO",
+    "phase_independence": "CONFIRMADA_AGENTE_22_VS_AGENTE_51",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "source_text_lines": 454,
+    "final_newline": true,
+    "documented_positions": "455/455; faixas 1-20,21-41,42-111,112-151,152-177,178-229,230-282,283-393,394-453,454,455 contíguas sem overlap",
+    "primary_current": "CHANGES_REQUIRED por AGENTE 51 para o mesmo SOURCE_SHA/BIBLE_SHA",
+    "assertions_revalidated": [
+      "hammingDistance testa hex válido, tamanho desigual e null, mas não caracteres não-hex.",
+      "generateId testa getRandomValues e fallback sem crypto, não randomUUID.",
+      "wHash/pHash testam formato e determinismo, não oracle independente.",
+      "FP-19/FP-20 são duplicados em blocos distintos.",
+      "thresholds strict não possuem boundary exato/+1 focais."
+    ],
+    "formal_rejection": "A Bíblia deveria ser reprovada porque o lifecycle das requests está factualmente stale e o mapa de consumers/gates é materialmente incompleto, apesar de fonte, cobertura e descrição das lacunas algorítmicas estarem corretas.",
+    "triple_check": {
+      "A_document_matches_current_source": "SIM",
+      "B_every_claim_true_and_supported": "NAO — lifecycle OPEN é falso",
+      "C_limitations_and_dependencies_represented_honestly": "NAO — consumers/gates omitidos"
+    }
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T22:01:29.250Z"
+}

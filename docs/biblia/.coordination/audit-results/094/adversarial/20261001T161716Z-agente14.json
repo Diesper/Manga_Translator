@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "index": 94,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 14",
+  "file": "tests/e2e/translation-flow.spec.js",
+  "bible": "docs/biblia/tests/e2e/translation-flow.spec.js/Bíblia.md",
+  "source_sha": "db1da42c48ff795c41c7103cd5778e5a5d98e878",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "094-ADV-001",
+      "severity": "BLOCKING",
+      "type": "EVIDENCE_OVERCLAIM",
+      "bible_location": "Bíblia.md:195, 282, 300; FIFO analysis",
+      "finding": "A Bíblia afirma/projeta ausência de result stale/cross-batch como PROVADO DIRETAMENTE, mas o FIFO não verifica identidade do resultado por lote. Todos os lotes A–G removem a segunda imagem e iniciam indices:[0], portanto usam a mesma page_001.png; jobs-lifecycle envia jobIndex=0; o mock devolve translated_result_0.png para jobIndex=0. O teste apenas exige uma imagem traduzida por aba, ordem de batchIds/tabs/logs e ausência de quatro actions diagnósticas. Uma regressão silenciosa que troque resultados entre lotes, ainda entregando uma tradução a cada aba e sem emitir esses diagnósticos, pode permanecer verde.",
+      "required_change": "Restringir a documentação ao que é efetivamente provado (ordem FIFO, entrega de uma tradução por aba e ausência dos diagnósticos explicitamente listados) ou fortalecer o E2E em alteração separada com entradas/outputs distinguíveis por lote e assertion de identidade do resultado A–G antes de classificar ausência geral de stale/cross-batch como prova direta."
+    },
+    {
+      "id": "094-ADV-002",
+      "severity": "BLOCKING",
+      "type": "DEPENDENCY_CONSUMER_OMISSION",
+      "bible_location": "Bíblia.md:12-30, 122-136, 266-276",
+      "finding": "A Bíblia não documenta dois elos executáveis relevantes do spec: package.json e playwright.config.js. package.json mapeia test:e2e:group para scripts/ci/run-e2e-group.js; esse runner chama Playwright com --config playwright.config.js; o config define testDir ./tests/e2e e inicia tests/fixtures/gemini-mock-server.js via webServer. A Bíblia descreve o mock e o runner, mas omite o wiring que descobre o spec e levanta a fixture HTTP, deixando incompleta a cadeia consumer/dependency real.",
+      "required_change": "Documentar a cadeia package.json -> run-e2e-group.js -> Playwright --config -> playwright.config.js -> testDir/webServer -> translation-flow.spec.js e gemini-mock-server.js, mantendo separadas as funções de cada elo."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:17:16Z"
+}

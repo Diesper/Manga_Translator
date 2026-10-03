@@ -1,0 +1,16 @@
+{
+  "index": 159,
+  "file": "tests/unit/background/plan-missing-handlers-real.test.js",
+  "bible": "docs/biblia/tests/unit/background/plan-missing-handlers-real.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "9f8c6e4a88256aae9e2b26cd2121fe8474d736b8",
+  "started_at_utc": "2026-09-30T07:12:00Z",
+  "completed_at_utc": null,
+  "audit_requests": [],
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
+}

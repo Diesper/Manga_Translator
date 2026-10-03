@@ -19,12 +19,210 @@ const { findRepoRoot } = require('./repo-root');
 const ROOT = findRepoRoot(__dirname);
 
 
-const GTC_FINGERPRINT_PATH = path.join(ROOT, 'extension/shared/gtc-fingerprint.js');
-const CM_GTC_CLIENT_PATH = path.join(ROOT, 'extension/content/cm-gtc-client.js');
-const CM_DOM_REPLACE_PATH = path.join(ROOT, 'extension/content/cm-dom-replace.js');
-const CM_CHAPTER_PATH = path.join(ROOT, 'extension/content/cm-chapter.js');
-const CM_AUTO_RESTORE_PATH = path.join(ROOT, 'extension/content/cm-auto-restore.js');
-const CONTENT_MANGA_PATH = path.join(ROOT, 'extension/content/content_manga.js');
+const MANIFEST_PATH = path.join(ROOT, 'extension/manifest.json');
+const EXTENSION_STACK_ROOT = path.join(ROOT, 'extension').replace(/\\/g, '/');
+
+const STORAGE_LISTENER_REGISTRY_KEY = '__manga_translator_harness_storage_listeners';
+const RUNTIME_LISTENER_REGISTRY_KEY = '__manga_translator_harness_runtime_listeners';
+const GLOBAL_EVENT_LISTENER_REGISTRY_KEY = '__manga_translator_harness_global_event_listeners';
+const LOAD_IN_PROGRESS_REGISTRY_KEY = '__manga_translator_harness_load_in_progress';
+
+function getTrackedStorageListeners() {
+    const tracked = globalThis[STORAGE_LISTENER_REGISTRY_KEY];
+    return Array.isArray(tracked) ? tracked : [];
+}
+
+function setTrackedStorageListeners(listeners) {
+    globalThis[STORAGE_LISTENER_REGISTRY_KEY] = [...listeners];
+}
+
+function getTrackedRuntimeListeners() {
+    const tracked = globalThis[RUNTIME_LISTENER_REGISTRY_KEY];
+    return Array.isArray(tracked) ? tracked : [];
+}
+
+function setTrackedRuntimeListeners(listeners) {
+    globalThis[RUNTIME_LISTENER_REGISTRY_KEY] = [...listeners];
+}
+
+function getTrackedGlobalEventListeners() {
+    const tracked = globalThis[GLOBAL_EVENT_LISTENER_REGISTRY_KEY];
+    return Array.isArray(tracked) ? tracked : [];
+}
+
+function setTrackedGlobalEventListeners(listeners) {
+    globalThis[GLOBAL_EVENT_LISTENER_REGISTRY_KEY] = [...listeners];
+}
+
+function getMangaContentScriptRelativePaths() {
+    const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf8'));
+    const entry = (manifest.content_scripts || []).find(candidate =>
+        Array.isArray(candidate.js) && candidate.js.includes('content/content_manga.js')
+    );
+    if (!entry) {
+        throw new Error('Manifest não contém o bundle Manga com content/content_manga.js');
+    }
+    return [...entry.js];
+}
+
+function getMangaContentScriptPaths() {
+    return getMangaContentScriptRelativePaths().map(relativePath =>
+        path.join(ROOT, 'extension', relativePath)
+    );
+}
+
+function storageListenersSnapshot() {
+    const listeners = global.chrome?.storage?.local?._listeners;
+    return Array.isArray(listeners) ? [...listeners] : [];
+}
+
+function runtimeListenersSnapshot() {
+    const listeners = global.chrome?.runtime?._messageListeners;
+    return Array.isArray(listeners) ? [...listeners] : [];
+}
+
+function removeStorageListeners(listeners) {
+    const removeListener = global.chrome?.storage?.onChanged?.removeListener;
+    if (typeof removeListener !== 'function') return null;
+
+    let firstError = null;
+    listeners.forEach(listener => {
+        try {
+            removeListener(listener);
+        } catch (error) {
+            if (!firstError) firstError = error;
+        }
+    });
+    return firstError;
+}
+
+function removeRuntimeListeners(listeners) {
+    const removeListener = global.chrome?.runtime?.onMessage?.removeListener;
+    if (typeof removeListener !== 'function') return null;
+
+    let firstError = null;
+    listeners.forEach(listener => {
+        try {
+            removeListener(listener);
+        } catch (error) {
+            if (!firstError) firstError = error;
+        }
+    });
+    return firstError;
+}
+
+function removeGlobalEventListeners(listeners) {
+    let firstError = null;
+    listeners.forEach(({ target, type, listener, options }) => {
+        if (!target || typeof target.removeEventListener !== 'function') return;
+        try {
+            target.removeEventListener(type, listener, options);
+        } catch (error) {
+            if (!firstError) firstError = error;
+        }
+    });
+    return firstError;
+}
+
+function isExtensionListenerRegistration() {
+    const stack = String(new Error().stack || '').replace(/\\/g, '/');
+    return stack.includes(`${EXTENSION_STACK_ROOT}/`);
+}
+
+function startGlobalEventListenerCapture() {
+    const captured = [];
+    const targets = [window, document];
+    const originals = targets.map(target => ({
+        target,
+        hadOwn: Object.prototype.hasOwnProperty.call(target, 'addEventListener'),
+        descriptor: Object.getOwnPropertyDescriptor(target, 'addEventListener'),
+        addEventListener: target.addEventListener,
+    }));
+    let stopped = false;
+
+    originals.forEach(({ target, addEventListener }) => {
+        target.addEventListener = function trackedAddEventListener(type, listener, options) {
+            if (isExtensionListenerRegistration()) {
+                captured.push({ target, type, listener, options });
+            }
+            return addEventListener.call(this, type, listener, options);
+        };
+    });
+
+    return {
+        stop() {
+            if (!stopped) {
+                originals.forEach(({ target, hadOwn, descriptor }) => {
+                    if (hadOwn && descriptor) {
+                        Object.defineProperty(target, 'addEventListener', descriptor);
+                    } else {
+                        delete target.addEventListener;
+                    }
+                });
+                stopped = true;
+            }
+            return [...captured];
+        },
+    };
+}
+
+function disposePreviousContentInstance(listeners = getTrackedGlobalEventListeners()) {
+    if (
+        typeof window === 'undefined'
+        || !window.__manga_translator_content_injected
+        || typeof window.Event !== 'function'
+    ) {
+        return;
+    }
+
+    const event = new window.Event('pagehide');
+    listeners
+        .filter(({ target, type }) => target === window && type === 'pagehide')
+        .forEach(({ listener }) => {
+            if (typeof listener === 'function') listener.call(window, event);
+            else if (listener && typeof listener.handleEvent === 'function') listener.handleEvent(event);
+        });
+}
+
+function cleanupContentInstanceListeners({
+    storageListeners = getTrackedStorageListeners(),
+    runtimeListeners = getTrackedRuntimeListeners(),
+    globalEventListeners = getTrackedGlobalEventListeners(),
+} = {}) {
+    let firstError = null;
+    try {
+        disposePreviousContentInstance(globalEventListeners);
+    } catch (error) {
+        firstError = error;
+    }
+
+    const cleanupErrors = [
+        removeStorageListeners(storageListeners),
+        removeRuntimeListeners(runtimeListeners),
+        removeGlobalEventListeners(globalEventListeners),
+    ];
+    if (!firstError) firstError = cleanupErrors.find(Boolean) || null;
+
+    setTrackedStorageListeners([]);
+    setTrackedRuntimeListeners([]);
+    setTrackedGlobalEventListeners([]);
+    return firstError;
+}
+
+function attachCleanupError(primaryError, cleanupError) {
+    if (
+        cleanupError
+        && primaryError
+        && (typeof primaryError === 'object' || typeof primaryError === 'function')
+        && Object.isExtensible(primaryError)
+    ) {
+        const descriptor = Object.getOwnPropertyDescriptor(primaryError, 'cleanupError');
+        if (!descriptor || descriptor.writable === true) {
+            primaryError.cleanupError = cleanupError;
+        }
+    }
+    return primaryError;
+}
 
 /**
  * Carrega o content script em ambiente JSDOM com estado controlado.
@@ -36,7 +234,10 @@ const CONTENT_MANGA_PATH = path.join(ROOT, 'extension/content/content_manga.js')
  * @param {number}   options.imageMinWidth    - Largura mínima configurada para varredura
  * @param {number}   options.imageMinHeight   - Altura mínima configurada para varredura
  * @param {Array}    options.domImages        - Array de { src, width, height, className, attributes } para criar no DOM
- * @returns {Promise<Object>}  { listeners, getState }
+ * @param {boolean}  options.floatingButtonEnabled - Controla a visibilidade persistente do botão
+ * @param {boolean}  options.clickToTranslateEnabled - Controla tradução individual por clique
+ * @param {number}   options.readyTimeoutMs    - Timeout do bootstrap do botão (default: 250 ms)
+ * @returns {Promise<Object>} Helpers { sendMessage, getButton, getMainContent }
  */
 async function loadContentScript({
     hostname = 'testmanga.com',
@@ -47,8 +248,20 @@ async function loadContentScript({
     floatingButtonEnabled,
     clickToTranslateEnabled,
     domImages = [],
+    readyTimeoutMs = 250,
 } = {}) {
-    // Invalida explicitamente qualquer instância anterior ANTES de tocar no
+    if (globalThis[LOAD_IN_PROGRESS_REGISTRY_KEY]) {
+        throw new Error('loadContentScript não suporta cargas concorrentes no mesmo ambiente JSDOM');
+    }
+    globalThis[LOAD_IN_PROGRESS_REGISTRY_KEY] = true;
+
+    try {
+        const previousCleanupError = cleanupContentInstanceListeners();
+        if (previousCleanupError) throw previousCleanupError;
+
+        const storageListenersBeforeLoad = new Set(storageListenersSnapshot());
+        const runtimeListenersBeforeLoad = new Set(runtimeListenersSnapshot());
+        // Invalida explicitamente qualquer instância anterior ANTES de tocar no
     // storage. Alguns testes reutilizam o mesmo window/JSDOM; sem isto, um
     // listener antigo ainda pode reagir ao clear/set do teste seguinte e
     // recriar um botão órfão antes da nova instância assumir.
@@ -84,16 +297,20 @@ async function loadContentScript({
     if (clickToTranslateEnabled !== undefined) storageInit.clickToTranslateEnabled = clickToTranslateEnabled;
     await global.chrome.storage.local.set(storageInit);
 
-    // 4. Constrói DOM com imagens de teste
-    const imgTags = domImages.map(({ src, width, height, className = '', attributes = {} }, i) => {
-        const extraAttrs = Object.entries(attributes)
-            .map(([key, value]) => `${key}="${String(value)}"`)
-            .join(' ');
-        const classAttr = className ? ` class="${className}"` : '';
-        const extra = extraAttrs ? ` ${extraAttrs}` : '';
-        return `<img src="${src}" data-testid="img-${i}"${classAttr}${extra} width="${width}" height="${height}">`;
-    }).join('\n');
-    document.body.innerHTML = imgTags || '';
+    // 4. Constrói DOM com imagens de teste sem interpolar HTML.
+    document.body.replaceChildren();
+    domImages.forEach(({ src, width, height, className = '', attributes = {} }, i) => {
+        const img = document.createElement('img');
+        for (const [key, value] of Object.entries(attributes)) {
+            img.setAttribute(key, String(value));
+        }
+        img.setAttribute('src', String(src));
+        img.setAttribute('data-testid', `img-${i}`);
+        if (className) img.className = className;
+        img.setAttribute('width', String(width));
+        img.setAttribute('height', String(height));
+        document.body.appendChild(img);
+    });
 
     // 5. Injeta naturalWidth/naturalHeight (JSDOM não renderiza imagens reais)
     document.querySelectorAll('img').forEach((img, i) => {
@@ -120,25 +337,95 @@ async function loadContentScript({
     // 7. Limpa flag de idempotência para permitir re-injeção
     delete window.__manga_translator_content_injected;
 
-    // 8. Carrega os módulos injetados pela extensão na ordem real do manifest
-    jest.isolateModules(() => {
-        require(GTC_FINGERPRINT_PATH);
-        require(CM_GTC_CLIENT_PATH);
-        require(CM_DOM_REPLACE_PATH);
-        require(CM_CHAPTER_PATH);
-        require(CM_AUTO_RESTORE_PATH);
-        require(CONTENT_MANGA_PATH);
-    });
-
-    // 9. Aguarda a inicialização assíncrona do content script de forma determinística
-    const shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
-    const startedAt = Date.now();
-    while (Date.now() - startedAt < 250) {
-        const button = document.getElementById('manga-translator-trigger');
-        if (!shouldCreateButton) break;
-        if (button && button.dataset.positionReady === 'true') break;
-        await new Promise(r => setTimeout(r, 10));
+    // 8. Carrega os módulos injetados pela extensão diretamente da ordem real do manifest.
+    const globalEventCapture = startGlobalEventListenerCapture();
+    let bundleLoadError = null;
+    try {
+        jest.isolateModules(() => {
+            getMangaContentScriptPaths().forEach(modulePath => require(modulePath));
+        });
+    } catch (error) {
+        bundleLoadError = error;
     }
+
+    if (bundleLoadError) {
+        const addedGlobalEventListeners = globalEventCapture.stop();
+        const addedStorageListeners = storageListenersSnapshot()
+            .filter(listener => !storageListenersBeforeLoad.has(listener));
+        const addedRuntimeListeners = runtimeListenersSnapshot()
+            .filter(listener => !runtimeListenersBeforeLoad.has(listener));
+
+        const cleanupError = cleanupContentInstanceListeners({
+            storageListeners: addedStorageListeners,
+            runtimeListeners: addedRuntimeListeners,
+            globalEventListeners: addedGlobalEventListeners,
+        });
+        throw attachCleanupError(bundleLoadError, cleanupError);
+    }
+
+    // 9. Aguarda a inicialização assíncrona do content script de forma determinística.
+    // A captura de listeners globais permanece ativa até o bootstrap terminar para
+    // incluir registros feitos por callbacks assíncronos de storage/createButton.
+    let shouldCreateButton = false;
+    let normalizedReadyTimeoutMs = 250;
+    let bootstrapError = null;
+    let addedGlobalEventListeners = [];
+    let addedStorageListeners = [];
+    let addedRuntimeListeners = [];
+
+    try {
+        shouldCreateButton = domains.includes(hostname) && floatingButtonEnabled !== false;
+        const numericReadyTimeoutMs = Number(readyTimeoutMs);
+        normalizedReadyTimeoutMs = Number.isFinite(numericReadyTimeoutMs) && numericReadyTimeoutMs >= 0
+            ? numericReadyTimeoutMs
+            : 250;
+        const startedAt = Date.now();
+        while (Date.now() - startedAt < normalizedReadyTimeoutMs) {
+            const button = document.getElementById('manga-translator-trigger');
+            if (!shouldCreateButton) break;
+            if (button && button.dataset.positionReady === 'true') break;
+            await new Promise(r => setTimeout(r, 10));
+        }
+    } catch (error) {
+        bootstrapError = error;
+    } finally {
+        addedGlobalEventListeners = globalEventCapture.stop();
+        addedStorageListeners = storageListenersSnapshot()
+            .filter(listener => !storageListenersBeforeLoad.has(listener));
+        addedRuntimeListeners = runtimeListenersSnapshot()
+            .filter(listener => !runtimeListenersBeforeLoad.has(listener));
+    }
+
+    if (bootstrapError) {
+        const cleanupError = cleanupContentInstanceListeners({
+            storageListeners: addedStorageListeners,
+            runtimeListeners: addedRuntimeListeners,
+            globalEventListeners: addedGlobalEventListeners,
+        });
+        throw attachCleanupError(bootstrapError, cleanupError);
+    }
+
+    if (shouldCreateButton) {
+        const button = document.getElementById('manga-translator-trigger');
+        if (!button || button.dataset.positionReady !== 'true') {
+            const timeoutError = new Error(
+                `Timeout aguardando botão do content_manga ficar pronto após ${normalizedReadyTimeoutMs} ms`
+            );
+            const cleanupError = cleanupContentInstanceListeners({
+                storageListeners: addedStorageListeners,
+                runtimeListeners: addedRuntimeListeners,
+                globalEventListeners: addedGlobalEventListeners,
+            });
+            window.__manga_translator_active_instance =
+                `__mt_test_timeout_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+            if (button) button.remove();
+            throw attachCleanupError(timeoutError, cleanupError);
+        }
+    }
+
+    setTrackedStorageListeners(addedStorageListeners);
+    setTrackedRuntimeListeners(addedRuntimeListeners);
+    setTrackedGlobalEventListeners(addedGlobalEventListeners);
 
     // 10. Retorna helpers para os testes
     return {
@@ -147,12 +434,43 @@ async function loadContentScript({
          * Simula chrome.tabs.sendMessage do background ou popup.
          */
         sendMessage(action, extra = {}) {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 const listeners = global.chrome.runtime._messageListeners ?? [];
-                const payload = { action, ...extra };
-                listeners.forEach(fn => fn(payload, { tab: { id: 1 } }, resolve));
-                // Se nenhum listener chamou resolve, resolve em null
-                setTimeout(() => resolve(null), 50);
+                const payload = { ...extra, action };
+                let settled = false;
+                let fallbackTimer = null;
+                let asyncChannelOpen = false;
+
+                const settle = (value) => {
+                    if (settled) return;
+                    settled = true;
+                    if (fallbackTimer !== null) clearTimeout(fallbackTimer);
+                    resolve(value);
+                };
+                const fail = (error) => {
+                    if (settled) return;
+                    settled = true;
+                    if (fallbackTimer !== null) clearTimeout(fallbackTimer);
+                    reject(error);
+                };
+
+                for (const listener of listeners) {
+                    try {
+                        if (listener(payload, { tab: { id: 1 } }, settle) === true) {
+                            asyncChannelOpen = true;
+                        }
+                    } catch (error) {
+                        fail(error);
+                        if (settled) break;
+                    }
+                }
+
+                if (!settled) {
+                    fallbackTimer = setTimeout(
+                        () => settle(null),
+                        asyncChannelOpen ? 500 : 50
+                    );
+                }
             });
         },
 
@@ -166,6 +484,12 @@ async function loadContentScript({
             return document.getElementById('manga-main-content');
         },
     };
+    } finally {
+        globalThis[LOAD_IN_PROGRESS_REGISTRY_KEY] = false;
+    }
 }
 
-module.exports = { loadContentScript };
+module.exports = {
+    loadContentScript,
+    getMangaContentScriptRelativePaths,
+};

@@ -1,0 +1,50 @@
+{
+  "schema_version": 2,
+  "index": 128,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 47",
+  "file": "tests/smoke/smoke-06-sm-message-routing.js",
+  "bible": "docs/biblia/tests/smoke/smoke-06-sm-message-routing.js/Bíblia.md",
+  "source_sha": "dd32621bee49bfe64bb4a667ecbf68fb516e03dd",
+  "bible_sha": "02e396d5d75a943d759baef332db90c625befaf8",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "severity": "BLOCKING",
+      "category": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "As cinco solicitações 128-001..128-005 são apresentadas como OPEN na Bíblia, mas o state canônico atual registra todas como ACCEPTED.",
+      "evidence": [
+        "Bíblia §6 contém 128-001..128-005 com literal OPEN.",
+        "docs/biblia/.state/128.json no mesmo SOURCE_SHA registra 128-001..128-005 como ACCEPTED; 001–003 HIGH e 004–005 NORMAL.",
+        "A divergência persistiu após releitura final de state e Bíblia; os findings técnicos das requests continuam válidos, portanto não é caso de resolução/supersession que justificasse outro status."
+      ],
+      "required_change": "Sincronizar/remover o status mutável duplicado na Bíblia sem apagar as lacunas técnicas já aceitas."
+    },
+    {
+      "severity": "BLOCKING",
+      "category": "CONSUMER_WIRING_INACCURACY",
+      "summary": "A descrição da cadeia do listener omite routeRegisteredAction, que executa antes dos handlers GTC e Storage Manager.",
+      "evidence": [
+        "Bíblia §3 afirma que o listener principal chama primeiro o roteador GTC e depois handleStorageManagerMessage.",
+        "extension/background.js atual chama routeRegisteredAction(request, sender, sendResponse) antes de handleGtcRuntimeMessage e handleStorageManagerMessage e retorna imediatamente quando uma action registrada é tratada.",
+        "extension/background/router.js mapeia START_BATCH e STOP_BATCH, dois dos cinco exemplos não-SM do smoke; no listener real essas actions passam pelo roteador registrado antes de qualquer handler legado.",
+        "Para SM_* o roteador registrado hoje não resolve nome canônico e o fluxo relativo GTC→SM ainda ocorre, mas isso não torna correta a descrição global do listener principal."
+      ],
+      "required_change": "Documentar a ordem real routeRegisteredAction → GTC → Storage Manager, ou qualificar explicitamente que GTC→SM é apenas a ordem relativa dos handlers legados para mensagens não consumidas pelo roteador registrado."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "full_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "source_line_mapping": "CONFIRMADO_3X",
+    "storage_manager_semantics": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_2X",
+    "consumers_wiring": "CONTRADITO",
+    "audit_requests": "CONTRADITO",
+    "primary_independent_recheck": "CONFIRMADA",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "completed_at_utc": "2026-10-01T20:21:05Z"
+}

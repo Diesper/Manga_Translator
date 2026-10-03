@@ -21,7 +21,8 @@ const fs   = require('fs');
 const { findRepoRoot } = require('../../helpers/repo-root');
 const ROOT = findRepoRoot(__dirname);
 
-const { canonicalTitle } = require(path.join(ROOT, 'tests/helpers/extracted-functions.js'));
+require(path.join(ROOT, 'extension/content/cm-chapter.js'));
+const { canonicalTitle } = globalThis.MangaTranslatorChapter;
 
 describe('canonicalTitle() — Teste Básico (stub v3.0)', () => {
     test('retorna string vazia para null/undefined', () => {

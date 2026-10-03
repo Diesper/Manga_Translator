@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "index": 97,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 16",
+  "file": "tests/fixtures/manga-page.html",
+  "bible": "docs/biblia/tests/fixtures/manga-page.html/Bíblia.md",
+  "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+  "bible_sha": "ad94183e6fb9c7e190701a3bd280c0fd870838d4",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "097-ADV-001",
+      "severity": "BLOCKING",
+      "area": "EVIDENCE_CLASSIFICATION",
+      "title": "Wiring atual foi classificado como GATE ESTÁTICO ESPECÍFICO sem gate que o proteja",
+      "bible_location": "Bíblia.md seção 4, linhas da matriz 'Servidor entrega este arquivo...' e 'Buffers PNG correspondentes vêm da fonte única'",
+      "claim_in_bible": "A relação gemini-mock-server.js → manga-page.html e a origem PNG_IMAGES → manga-images.js são classificadas como 🟦 GATE ESTÁTICO ESPECÍFICO.",
+      "evidence": [
+        "O wiring atual existe: gemini-mock-server.js lê tests/fixtures/manga-page.html para / e /manga-page.html e importa PNG_IMAGES de ./manga-images.",
+        "O run 36815953158 contém exatamente o blob atual do fixture e os mesmos specs focais; medium-b passou o cenário principal e o gate agregado terminou 21 passed, skipped=0, flaky=0, failed=0.",
+        "scripts/validation/verify-ci-contract.js não contém manga-page.html, gemini-mock-server.js, PNG_IMAGES ou manga-images.js.",
+        "scripts/validation/verify-repository-structure.js também não contém esses marcadores; busca em scripts/ não localizou gate dedicado a esse wiring."
+      ],
+      "adversarial_counterexample": "O servidor poderia passar a responder /manga-page.html a partir de outro HTML equivalente ou trocar a origem dos buffers mantendo as assertions E2E verdes; os gates estáticos inspecionados não rejeitariam especificamente essa troca. Logo há prova de consumer/execução na revisão atual, mas não um GATE ESTÁTICO ESPECÍFICO.",
+      "required_change": "Reclassificar essas duas linhas como PROVA_DE_CONSUMIDOR/EXECUÇÃO_INDIRETA (ou categoria equivalente conservadora), preservando separadamente a evidência E2E; alternativamente criar um gate estático que verifique explicitamente esse wiring."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:32:35Z"
+}

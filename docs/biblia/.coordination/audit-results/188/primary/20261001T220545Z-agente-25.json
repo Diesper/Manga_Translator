@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "index": 188,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 25",
+  "file": "tests/unit/content-gemini/safe-background-delete.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/safe-background-delete.test.js/Bíblia.md",
+  "source_sha": "cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e",
+  "bible_sha": "8b913d4768aea9eb5a80b719aa2407aa7a24633a",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_revision": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "ci_evidence": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_REVISAO_PRIMARIA_NOVA_APOS_CORRECAO",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "embedded_source_exact": true,
+    "source_text_lines": 285,
+    "source_has_final_newline": true,
+    "documented_positions": "286/286",
+    "map_union": "1-285 exatamente, sem gaps/overlaps/out-of-range; posição 286 reservada ao newline terminal",
+    "repaired_findings_revalidated": [
+      "Mapa de faixas reconstruído corretamente; fronteiras BGD-01..14 conferem com o source real.",
+      "188-001/002/003 estão ACCEPTED na Bíblia e no state.",
+      "BGD-09 não promove cleanup a prova direta: a Bíblia reconhece ausência de spy apesar do cleanup existir no source.",
+      "BGD-14 é corretamente limitado a retry direto/rejeição e não é usado como prova de fallback auxiliar."
+    ],
+    "production_cross_checks": [
+      "load-content-gemini-module.js carrega módulos Gemini reais e depois content_gemini.js real.",
+      "content_gemini.js delega as APIs exercitadas ao resultExtractor/deletionController/jobRunner reais.",
+      "result-extractor.js remove o listener em finish(), confirmando a implementação citada sem elevar a força do teste.",
+      "job-runner.js usa deleteOrScheduleRecovery antes da entrega nos modos background_delete/minimized_window."
+    ],
+    "audit_requests": "188-001/002/003 ACCEPTED e tecnicamente reconfirmadas como lacunas/limitações externas honestamente documentadas",
+    "ci_run": 36521561968,
+    "ci_source_blob_confirmed": "cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e",
+    "ci_jobs_confirmed_success": [
+      109255348283,
+      109255348388,
+      109255348406,
+      109256050280
+    ],
+    "formal_refutation_attempt": "Nenhuma objeção material sustentada após atacar fonte, cobertura matemática, semântica, assertions, dependências, consumers, requests, evidência externa e histórico.",
+    "final_head_before_publish": "f1f937e4d81bd231e3e194ea97da1744d93b0b2f"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T22:05:45.656Z"
+}

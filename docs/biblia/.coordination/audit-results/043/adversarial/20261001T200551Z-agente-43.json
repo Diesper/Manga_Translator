@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "index": 43,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 43",
+  "file": "extension/content/gemini/editor.js",
+  "bible": "docs/biblia/extension/content/gemini/editor.js/Bíblia.md",
+  "source_sha": "0adbd4374758095acd84eda56522a2eb2c64fb1b",
+  "bible_sha": "406a763ca4f917d88f5566334d2379e6ae4926a0",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "043-ADV-001",
+      "severity": "NORMAL",
+      "type": "INTERNAL_SEMANTIC_CONTRADICTION",
+      "summary": "O invariante 6 generaliza que erros do observer diferentes de NOT_CONFIRMED não viram retry silencioso, mas o source só relança imediatamente erros que possuem code diferente de GEMINI_SUBMISSION_NOT_CONFIRMED; um Error sem code é engolido, repetido e reempacotado como NOT_CONFIRMED.",
+      "evidence": [
+        "Bíblia.md seção 18, invariante 6: “Erros do observer diferentes de NOT_CONFIRMED não devem ser convertidos em retry silencioso.”",
+        "editor.js linhas 149–154: lastError recebe a rejeição e o relançamento imediato só ocorre sob `error && error.code && error.code !== 'GEMINI_SUBMISSION_NOT_CONFIRMED'`.",
+        "Reexecução adversarial do source exato com observer.waitForSubmission rejeitando `new Error('plain observer failure')` sem code resultou em 2 chamadas do observer (maxAttempts=2), erro final `GEMINI_SUBMISSION_NOT_CONFIRMED` e `cause` apontando para o erro original.",
+        "Controle positivo com erro `code='GEMINI_UI_ERROR'` resultou em 1 chamada e relançamento do mesmo erro, confirmando que a distinção depende da presença de code.",
+        "A própria Bíblia na seção 7.5 descreve corretamente a condição mais estreita ('se error.code existe e é diferente... relança'), tornando o invariante 6 internamente contraditório."
+      ],
+      "required_change": "Restringir o invariante/descrição a erros codificados do Observer V2, ou documentar explicitamente o comportamento de erros sem code. Não alterar source/testes apenas para fazer a documentação passar."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:05:51.366Z"
+}

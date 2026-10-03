@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "index": 8,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "extension/background/actions/deliver-result-url.js",
+  "bible": "docs/biblia/extension/background/actions/deliver-result-url.js/Bíblia.md",
+  "source_sha": "91c50efe4764f56aac16aec2c91309e06db7d0ac",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A8-008-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "INTERNAL_CONTRADICTION_SEMANTIC_OVERCLAIM",
+      "summary": "O Invariante 3 afirma de forma absoluta que divergências de batch/index/mangaTabId devem bloquear a criação, mas a implementação só compara batchId e mangaTabId quando ambos são truthy e index quando ambos são inteiros.",
+      "evidence": [
+        "Bíblia linha 85: `Batch/index/mangaTabId divergentes do job persistido devem bloquear a criação.`",
+        "Source linhas 40-42: as guardas usam `(batchId && job.batchId ...)`, `Number.isInteger(index) && Number.isInteger(job.index)` e `(mangaTabId && job.mangaTabId ...)`.",
+        "Bíblia linha 354 reconhece que campos ausentes/falsy desativam comparações, contradizendo o invariante absoluto."
+      ],
+      "adversarial_counterexamples": [
+        "request.batchId='' versus job.batchId='batch-real' não ativa identityMismatch.",
+        "request.index=4.5 versus job.index=4 não ativa identityMismatch.",
+        "request.mangaTabId=0 versus job.mangaTabId=33 não ativa identityMismatch."
+      ],
+      "requested_documentation_fix": "Qualificar o invariante e as alegações de segurança para refletir exatamente as condições das guardas, ou documentar explicitamente que valores falsy/não-inteiros podem não ser comparados."
+    },
+    {
+      "id": "A8-008-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "EVIDENCE_OVERCLASSIFICATION",
+      "summary": "A unidade U09 associa `✅ PROVADO DIRETAMENTE` à resposta e aos efeitos anteriores enquanto afirma que a resposta só ocorre depois de `syncState` concluir, mas a suíte direta apenas verifica que `syncState` foi chamado; não testa a conclusão/ordem da Promise.",
+      "evidence": [
+        "Bíblia linha 396: `só responde depois de syncState awaited`.",
+        "Bíblia linha 402: `✅ PROVADO DIRETAMENTE para a resposta e efeitos anteriores`.",
+        "Teste direto `deliver-result-url-action.test.js` usa `syncState = jest.fn().mockResolvedValue()` e apenas `expect(syncState).toHaveBeenCalledTimes(1)`; não mantém a Promise pendente nem verifica ausência de resposta antes da resolução."
+      ],
+      "mutation_test": "Remover apenas o `await` de `await context.syncState()` preservaria as assertions atuais de chamada e resposta com o mock já resolvido, portanto a ordenação não está diretamente provada pela suíte citada.",
+      "requested_documentation_fix": "Rebaixar a classificação da ordenação para evidência por inspeção do source/SEM PROVA ESPECÍFICA, ou citar/adicionar uma assertion focal que mantenha syncState pendente e demonstre que não há resposta antes de sua resolução."
+    }
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONTRADITO",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "completed_at_utc": "2026-10-01T16:02:57.334Z"
+}

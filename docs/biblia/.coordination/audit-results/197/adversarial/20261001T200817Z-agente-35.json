@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "index": 197,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 35",
+  "file": "tests/unit/content-manga/canonical-title.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/canonical-title.test.js/Bíblia.md",
+  "source_sha": "bfb01bdfb8de0921d85486e56003ac2e37f4b0e2",
+  "bible_sha": "0289b74f4354faefec95aaea4d92e4b14e76b48c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "197-ADV-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia apresenta 197-001/002/003 como OPEN, mas o state canônico registra SUPERSEDED/SUPERSEDED/ACCEPTED.",
+      "evidence": [
+        "Bíblia.md headings: 197-001 TEST_AUTHENTICITY OPEN; 197-002 SOURCE_DIVERGENCE OPEN; 197-003 TEST_STRENGTH_REVIEW OPEN.",
+        "docs/biblia/.state/197.json: 197-001=SUPERSEDED por 035-001; 197-002=SUPERSEDED por 099-001; 197-003=ACCEPTED.",
+        "Os superseders 035-001 e 099-001 representam a mesma dívida helper↔produção em pontos canônicos; manter os requests locais como OPEN perde a relação de supersedência.",
+        "A lacuna 197-003 permanece factual: a assertion de 100 'A' exige apenas length <= 80 e não fixa conteúdo nem comprimento exatos."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:08:17Z"
+}

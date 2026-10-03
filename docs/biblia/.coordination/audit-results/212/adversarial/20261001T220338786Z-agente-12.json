@@ -1,0 +1,82 @@
+{
+  "schema_version": 2,
+  "index": 212,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 12",
+  "file": "tests/unit/gtc/indexeddb.test.js",
+  "bible": "docs/biblia/tests/unit/gtc/indexeddb.test.js/Bíblia.md",
+  "source_sha": "30af6c23b54614bd5ce8842f85eabec81dfb086f",
+  "bible_sha": "fcd384ad27a2b48e5a18d48635906d7db2a3f5e3",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A12-212-A01",
+      "severity": "BLOCKING",
+      "category": "EVIDENCE_BOUNDARY_OVERCLASSIFICATION",
+      "summary": "A Bíblia omite mocks focais de fingerprintApi e classifica cenários perceptuais/crop/relaxed de forma mais forte do que a suíte sustenta.",
+      "evidence": [
+        "Bíblia §1 afirma que os doubles locais são apenas factories de falha/abort e o adaptador de callback.",
+        "O source injeta fingerprintApi.matchPerceptualHashes = jest.fn(...) nas linhas 214–222, 424–436 e 483–491.",
+        "O runtime crop/relaxed injeta matchPerceptualHashes e matchPerceptualHashesRelaxed com jest.fn nas linhas 658–673.",
+        "A suíte importa gtc-indexeddb.js, mas não importa/executa gtc-fingerprint.js; portanto prova repository/handler/plumbing sob matcher controlado, não a semântica matemática do matcher perceptual real.",
+        "Bíblia §5 marca memória dHash/crop, índices perceptual/crop e runtime CROP/RELAXED como PROVADO DIRETAMENTE sem essa fronteira probatória."
+      ],
+      "required_change": "Registrar fingerprintApi como MOCK_OU_SIMULACAO e reclassificar/qualificar as linhas da matriz: manter prova direta do repository/handler real sob matcher injetado, mas não atribuir a esta suíte prova do algoritmo perceptual real."
+    },
+    {
+      "id": "A12-212-A02",
+      "severity": "BLOCKING",
+      "category": "AUDIT_REQUEST_LIFECYCLE_STALE",
+      "summary": "A Bíblia mantém 212-001..004 como OPEN e termina dizendo que existem quatro solicitações externas abertas, enquanto o state canônico da mesma revisão registra todas como ACCEPTED.",
+      "evidence": [
+        "Bíblia §8: 212-001 TEST_REQUIRED OPEN.",
+        "Bíblia §8: 212-002 TEST_REQUIRED OPEN.",
+        "Bíblia §8: 212-003 CONTRACT_REVIEW OPEN.",
+        "Bíblia §8: 212-004 TEST_MAINTENANCE OPEN.",
+        ".state/212.json atual: 212-001=ACCEPTED, 212-002=ACCEPTED, 212-003=ACCEPTED, 212-004=ACCEPTED.",
+        "Bíblia §11 afirma `quatro solicitações externas abertas`, repetindo o lifecycle stale."
+      ],
+      "required_change": "Atualizar os quatro requests e o resumo final para ACCEPTED, preservando finding, severidade, evidência e ação solicitada."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "positional_coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X com blockers de evidence/lifecycle",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONTRADITO nos cenários perceptuais com matcher mockado",
+    "audit_requests": "CONTRADITO",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "source_text_lines": 721,
+    "source_final_newline": true,
+    "documented_positions": "722/722, faixas contíguas 1-108,109-117,118-250,251-520,521-721 + LF 722",
+    "embedded_source_exact": true,
+    "tests": 25,
+    "jest_expect_assertions": 62,
+    "implementation_sha": "0c872f23a665304b46dc2bb43c6468762feb2e31",
+    "production_crosscheck": [
+      "gtc-indexeddb.js possui DB_VERSION=4 e branches oldVersion <2/<3/<4; a ausência de testes de migração está honestamente registrada.",
+      "GTC_QUERY_PERCEPTUAL_V2 delega request.queries/mode a repository.queryPerceptual; a ausência de caso direto está honestamente registrada.",
+      "putMany retorna payload.length mesmo descartando inválidas; a ambiguidade de count está honestamente registrada.",
+      "background.js instancia createGtcRuntimeHandler com repository e fingerprintApi reais do service worker."
+    ],
+    "harness_crosscheck": [
+      "jest.config.js inclui tests/unit/gtc/**/*.test.js no projeto gtc.",
+      "package.json expõe test:unit:gtc e test:ci.",
+      "scripts/ci/run-jest-ci.js inclui gtc no inventário unitário e falha em arquivos não descobertos."
+    ],
+    "external_evidence": "gtc-runtime-bridge.test.js realmente exercita GTC_SAVE_MANY/GTC_STATS pelo caminho de background; isso não corrige a sobreclassificação perceptual local.",
+    "formal_refutation": "Fonte, cobertura e lacunas explícitas sobreviveram à tentativa de reprovação; permaneceram materiais apenas a fronteira de evidência dos matchers mockados e o lifecycle OPEN stale."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T22:03:38.786Z"
+}

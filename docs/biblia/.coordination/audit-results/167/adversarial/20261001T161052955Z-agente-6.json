@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "index": 167,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 6",
+  "file": "tests/unit/background/single-image-context-menu.test.js",
+  "bible": "docs/biblia/tests/unit/background/single-image-context-menu.test.js/Bíblia.md",
+  "source_sha": "c4e122e3fd2a5298b255e647dbc804c903ed17f5",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "167-ADV-001",
+      "severity": "MATERIAL",
+      "category": "STALE_AUDIT_REQUEST_STATUS",
+      "summary": "A Bíblia apresenta 167-001, 167-002 e 167-003 como OPEN e conclui que existem 'três lacunas abertas', mas o state atual marca as três como ACCEPTED.",
+      "evidence": [
+        "docs/biblia/.state/167.json: 167-001 = ACCEPTED.",
+        "docs/biblia/.state/167.json: 167-002 = ACCEPTED.",
+        "docs/biblia/.state/167.json: 167-003 = ACCEPTED.",
+        "A Seção 9 da Bíblia rotula os três headings como OPEN e a conclusão repete que as três lacunas estão abertas."
+      ],
+      "requested_change": "Sincronizar os status documentais e a conclusão com o lifecycle canônico atual, ou marcar explicitamente os rótulos antigos como snapshot histórico em vez de estado vigente."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:10:52.955Z"
+}

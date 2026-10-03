@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "index": 4,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 2",
+  "file": "extension/background/actions/check-extraction-tab.js",
+  "bible": "docs/biblia/extension/background/actions/check-extraction-tab.js/Bíblia.md",
+  "source_sha": "18640c20e3ba872c18e81ec4ec7d7357d16fd958",
+  "bible_sha": "6e2dc1ad40c7d54921604bbf96c93031efb2ecf2",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    "BLOQUEANTE — consumers/dependências/wiring reais foram omitidos da Bíblia atual. A produção em extension/content/content_manga.js envia CHECK_IF_EXTRACTION_TAB e decide iniciar/repetir/encerrar a extração a partir de response.isExtractionTab; extension/background/router.js mapeia CHECK_IF_EXTRACTION_TAB -> check-extraction-tab; extension/background.js carrega a action nos bootstraps importScripts/require e aplica compatibilidade legada removendo o wrapper ok da resposta bem-sucedida. A Bíblia atual não menciona CHECK_IF_EXTRACTION_TAB, content_manga.js, router.js, background.js nem esse formato de resposta externo. Há provas integradas específicas já existentes: routed-actions-legacy.test.js observa o roteamento e a resposta sem ok; batch-lifecycle-real.test.js prova registro, hit e reidratação do mapping; plan-missing-handlers-real.test.js também prova hit/miss no background real. A auditoria histórica do SHA anterior registrava explicitamente esse wiring, logo a omissão é uma regressão documental material. Correção requerida: documentar producer/consumer, alias, bootstrap, compatibilidade de resposta e classificar separadamente as provas integradas."
+  ],
+  "completed_at_utc": "2026-10-02T15:30:12Z"
+}

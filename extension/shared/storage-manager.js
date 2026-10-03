@@ -45,12 +45,12 @@ function getIndexedDb() {
 
 function openStorageDb() {
     if (_smDbPromise) return _smDbPromise;
-    _smDbPromise = new Promise((resolve, reject) => {
-        const idb = getIndexedDb();
-        if (!idb || typeof idb.open !== 'function') {
-            reject(new Error('IndexedDB indisponível neste contexto'));
-            return;
-        }
+    const idb = getIndexedDb();
+    if (!idb || typeof idb.open !== 'function') {
+        return Promise.reject(new Error('IndexedDB indisponível neste contexto'));
+    }
+    const opening = new Promise((resolve, reject) => {
+
         const req = idb.open(SM_DB_NAME, SM_DB_VERSION);
         req.onupgradeneeded = (event) => {
             const db = event.target.result;
@@ -71,10 +71,10 @@ function openStorageDb() {
                 db.createObjectStore(SM_STORE_ASSETS, { keyPath: 'assetId' });
             }
         };
-        req.onsuccess = () => resolve(req.result);
+        req.onsuccess = () => { const db = req.result; db.onversionchange = () => { db.close(); _smDbPromise = null; }; resolve(db); };
         req.onerror = () => { _smDbPromise = null; reject(req.error || new Error('Falha ao abrir IndexedDB')); };
     });
-    return _smDbPromise;
+    const cached = opening.catch(error => { if (_smDbPromise === cached) _smDbPromise = null; throw error; }); _smDbPromise = cached; return cached;
 }
 
 // ── Helpers IDB ──────────────────────────────────────────────────────────────
@@ -156,10 +156,10 @@ const _chapterWriters = new Map();
 function enqueueChapterOp(chapterId, operation) {
     const previous = _chapterWriters.get(chapterId) || Promise.resolve();
     const next = previous.then(() => operation(), () => operation());
-    _chapterWriters.set(chapterId, next.catch(() => {}));
-    return next;
+    const tail = next.catch(() => {});
+    _chapterWriters.set(chapterId, tail);
+    tail.finally(() => { if (_chapterWriters.get(chapterId) === tail) _chapterWriters.delete(chapterId); }); return next;
 }
-
 // ── API ──────────────────────────────────────────────────────────────────────
 
 /**
@@ -190,11 +190,11 @@ async function savePageResult(chapterId, pageIndex, imageData, originalUrl, clea
         const obsolete = new Set();
         const previousPage = await _idbGet(pageStore, [chapterId, index]);
         if (previousPage && previousPage.assetId) obsolete.add(previousPage.assetId);
+        if (previousPage && previousPage.cleanUrl && previousPage.cleanUrl !== cleanUrl) { const staleRestore = await _idbGet(restoreStore, [chapterId, previousPage.cleanUrl]); if (staleRestore && staleRestore.assetId) obsolete.add(staleRestore.assetId); restoreStore.delete([chapterId, previousPage.cleanUrl]); }
         if (cleanUrl) {
             const previousRestore = await _idbGet(restoreStore, [chapterId, cleanUrl]);
             if (previousRestore && previousRestore.assetId) obsolete.add(previousRestore.assetId);
         }
-
         assetStore.put({
             assetId,
             blob,
@@ -417,7 +417,7 @@ async function migrateChapterFromLegacy(chapterId) {
 
     const flagKey = `_sm_migrated_${chapterId}`;
     const keys = [flagKey, `${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`];
-    const data = await new Promise(resolve => chrome.storage.local.get(keys, resolve));
+    const data = await new Promise((resolve, reject) => chrome.storage.local.get(keys, value => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.get falhou')); else resolve(value); }));
 
     if (data[flagKey]) return { migrated: 0, skipped: true };
 
@@ -448,7 +448,7 @@ async function migrateChapterFromLegacy(chapterId) {
                 sourceUrl: meta.sourceUrl || '',
             });
             migrated++;
-        } catch (_e) { /* segue para a próxima página */ }
+        } catch (_e) { return { migrated, skipped: false, failed: true }; }
     }
 
     // Restores sem página correspondente
@@ -467,14 +467,14 @@ async function migrateChapterFromLegacy(chapterId) {
                 sourceUrl: meta.sourceUrl || '',
             });
             migrated++;
-        } catch (_e) {}
+        } catch (_e) { return { migrated, skipped: false, failed: true }; }
     }
 
-    await new Promise(resolve => chrome.storage.local.set({ [flagKey]: true }, resolve));
     if (migrated > 0) {
-        await new Promise(resolve => chrome.storage.local.remove(
-            [`${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`], resolve));
+        await new Promise((resolve, reject) => chrome.storage.local.remove(
+            [`${chapterId}_images`, `${chapterId}_restoreMap`, `${chapterId}_restoreMeta`], () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.remove falhou')); else resolve(); }));
     }
+    await new Promise((resolve, reject) => chrome.storage.local.set({ [flagKey]: true }, () => { const error = chrome.runtime?.lastError; if (error) reject(new Error(error.message || 'chrome.storage.local.set falhou')); else resolve(); }));
 
     return { migrated, skipped: false };
 }

@@ -1,0 +1,79 @@
+{
+  "schema_version": 2,
+  "index": 9,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 8",
+  "file": "extension/background/actions/deliver-result.js",
+  "bible": "docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md",
+  "source_sha": "3653bd10c2a0e65c14eb139f906feeafb30411a5",
+  "bible_sha": "f8bc4693ee82bd7156d03420bbff9c7cc378161c",
+  "verdict": "CHANGES_REQUIRED",
+  "refutes_primary": {
+    "auditor": "AGENTE 9",
+    "verdict": "APPROVED",
+    "result": "docs/biblia/.coordination/audit-results/009/primary/20261001T204008Z-agente-09.json",
+    "conclusion": "A aprovação PRIMARY não resiste à auditoria adversarial: permanecem uma contradição semântica nas guardas de identidade e um overclaim sobre persistência do estado no helper DOM ACK."
+  },
+  "findings": [
+    {
+      "id": "A8-009-A3-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "INTERNAL_CONTRADICTION_CONDITIONAL_IDENTITY_GUARDS",
+      "summary": "O Invariante 4 afirma de forma absoluta que divergências de batch/index/mangaTabId falham individualmente, embora o source só compare batchId/mangaTabId quando ambos são truthy e index quando ambos são inteiros; a própria Bíblia reconhece que valores falsy desativam comparações.",
+      "evidence": [
+        "Bíblia linha 96: `Batch, index e mangaTabId divergentes devem falhar individualmente.`",
+        "Source linhas 40-42: batchId e mangaTabId usam guardas truthy; index só compara quando ambos são Number.isInteger.",
+        "Bíblia linha 80 reconhece explicitamente que batchId/mangaTabId falsy desativam comparação.",
+        "Rastreabilidade posições 040-042 documenta as condições, mas a posição 044 volta a dizer `Rejeita quando qualquer dimensão diverge` sem qualificação.",
+        "A suíte direta usa mismatches truthy/integer (batch-forjado, index 999, mangaTabId 999) e não exerce os contraexemplos falsy já reconhecidos como lacuna."
+      ],
+      "adversarial_counterexamples": [
+        "request.batchId='' e job.batchId='batch-real' não ativam identityMismatch apesar da divergência.",
+        "request.mangaTabId=0 e job.mangaTabId=31 não ativam identityMismatch apesar da divergência.",
+        "request.index=4.5 e job.index=4 não ativam identityMismatch porque o request não é inteiro."
+      ],
+      "requested_documentation_fix": "Qualificar o Invariante 4, a posição 044 e qualquer síntese de segurança para dizer que divergências bloqueiam somente quando a guarda correspondente está ativa; preservar os casos falsy/não-inteiros como lacuna explícita."
+    },
+    {
+      "id": "A8-009-A3-02",
+      "severity": "BLOCKING_EVIDENCE_CLASSIFICATION",
+      "type": "DOM_ACK_STATE_PERSISTENCE_OVERCLAIM",
+      "summary": "A Bíblia afirma que jobs-dom-ack grava dom_applied/resultPersisted quando o ACK é aceito e que o teste focal prova diretamente essa persistência, mas a escrita é best-effort e a suíte substitui updateJobState por mock resolvido.",
+      "evidence": [
+        "Bíblia linha 46: `jobs-dom-ack.js ... grava state:'dom_applied' e resultPersisted:true quando o ACK é aceito`.",
+        "Bíblia linha 59 classifica `persistência do estado` como `✅ PROVADO DIRETAMENTE DO HELPER`; U06 linha 364 diz que o teste `prova que esse modo grava dom_applied/resultPersisted`.",
+        "extension/background/jobs-dom-ack.js linhas 20-27 chama updateJobState dentro de try/catch vazio; uma rejeição é engolida e o helper continua.",
+        "tests/unit/background/jobs-dom-ack-staging.test.js linha 21 usa `updateJobState = jest.fn().mockResolvedValue({})`; linhas 53+ apenas verificam que o mock foi chamado com o patch.",
+        "A implementação de produção jobs-lifecycle.js realmente usa chrome.storage.local.set em updateJobState, mas essa implementação não é exercitada por esse teste focal e sua falha pode ser engolida pelo helper."
+      ],
+      "mutation_test": "Fazer updateJobState rejeitar depois de um ACK positivo não impede jobs-dom-ack de resolver sucesso; portanto `ACK aceito => estado gravado` não é uma invariante do helper e a assertion atual não prova persistência durável.",
+      "requested_documentation_fix": "Trocar `grava/prova persistência` por `tenta/solicita updateJobState`; documentar que falhas desse write são engolidas e reclassificar o teste como prova da chamada/patch, não da persistência real. Separar isso da persistência da página no reader."
+    }
+  ],
+  "passed_points": [
+    "SOURCE_SHA, state e source real coincidem.",
+    "Fonte integral embutida é exata: 87 linhas textuais mais newline final.",
+    "Rastreabilidade enumera 88/88 posições sem gaps, duplicatas ou extras.",
+    "Wiring router/background/job-runner foi localizado e corresponde ao documento.",
+    "As correções antigas sobre contrato persisted sintetizado estão incorporadas e honestamente qualificadas.",
+    "Validação mínima, ownership negativo, currentBatchId independente, três mismatches truthy/integer e falhas explícitas de staging têm assertions reais.",
+    "Audit requests 009-001, 009-002 e 009-003 continuam ACCEPTED e permanecem representadas como lacunas não bloqueantes do software/testes."
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONTRADITO",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T20:47:38.016Z"
+}

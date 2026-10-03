@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "index": 87,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 6",
+  "file": "scripts/validation/verify-jest-worker-warning-selftest.js",
+  "bible": "docs/biblia/scripts/validation/verify-jest-worker-warning-selftest.js/Bíblia.md",
+  "source_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
+  "bible_sha": "14c5374a15b047e58a4ef675131bfe15f031b333",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "087-REA-CUR-001",
+      "severity": "MATERIAL",
+      "category": "STALE_DEPENDENCY_EVIDENCE_LOCATORS",
+      "bible_location": "Seção 2 — Posição no pipeline do projeto",
+      "finding": "A semântica e o wiring citados continuam verdadeiros, mas três localizadores numéricos usados como evidência primária estão stale no HEAD atual; por isso a rastreabilidade precisa da Bíblia não é fiel à revisão corrente.",
+      "evidence": [
+        "A Bíblia cita `.github/workflows/ci.yml` linha 85 para `node scripts/validation/verify-jest-worker-warning-selftest.js`; no HEAD revalidado a linha 85 é `verify-coverage-selftest.js` e o self-test de worker está na linha 89.",
+        "A Bíblia cita `scripts/validation/verify-ci-contract.js` linha 423 para `hasForcedWorkerExit(jestStderr)`; no HEAD revalidado esse contrato está na linha 441.",
+        "A Bíblia cita `scripts/validation/verify-ci-contract.js` linha 436 para a exigência do comando do self-test no workflow; no HEAD revalidado essa checagem está na linha 454.",
+        "Os outros localizadores principais verificados permanecem coerentes: `package.json` linha 38 contém o self-test em `validate`, e `regression-matrix.json` linhas 129–135 contêm REG-WORKER-WARNING-GATE.",
+        "O source auditado permanece byte a byte correto (10 linhas textuais + LF = 11/11 posições), e o self-test reconstruído pelos blobs exatos executou com exit 0; a falha é documental de rastreabilidade, não funcional."
+      ],
+      "required_change": "Atualizar os três localizadores stale para a revisão atual ou substituí-los por âncoras estáveis verificáveis; revalidar os consumidores depois da alteração. A request 087-001 pode permanecer ACCEPTED, pois a Bíblia a representa honestamente."
+    }
+  ],
+  "completed_at_utc": "2026-10-02T15:47:34Z"
+}

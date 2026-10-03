@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "index": 82,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 2",
+  "file": "scripts/validation/verify-ci-contract-selftest.js",
+  "bible": "docs/biblia/scripts/validation/verify-ci-contract-selftest.js/Bíblia.md",
+  "source_sha": "8d34dee0d632fde17c0609dac7dfe2a0ef60c927",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    "BLOQUEANTE — status documental das audit_requests está stale. A Bíblia rotula 082-001, 082-002 e 082-003 como OPEN nas seções 7 (linhas 110, 124 e 138), mas o estado canônico .state/082.json marca as três como ACCEPTED e contém evidência/histórico do auditor AGENTE 23; AUDITORIA.md linhas 963–965 também confirma que todas permanecem ACCEPTED. As lacunas técnicas estão descritas honestamente e não bloqueiam por si, porém o documento apresenta um estado de workflow factual diferente do estado atual. Atualizar os três rótulos para ACCEPTED (sem promover a força da evidência) é necessário para a Bíblia refletir o pipeline/audit_requests atual."
+  ],
+  "completed_at_utc": "2026-10-01T16:09:00Z"
+}

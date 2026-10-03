@@ -1,0 +1,64 @@
+{
+  "schema_version": 2,
+  "index": 175,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 14",
+  "file": "tests/unit/content-gemini/claim-bootstrap-keepalive.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/claim-bootstrap-keepalive.test.js/Bíblia.md",
+  "source_sha": "6e6adc2747b0974feec368fedb3652da79dc49b5",
+  "bible_sha": "87717da4bd69b7f3ce8f9cee607aebedd4e1d04c",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "175-ADV-001",
+      "severity": "HIGH",
+      "type": "EVIDENCE_OVERCLAIM",
+      "summary": "A afirmação de que o último caso prova associação ao jobId esperado é mais forte do que as assertions suportam.",
+      "evidence": [
+        "A Bíblia §6 diz que o caso prova `associação ao jobId esperado`; a matriz marca `jobId esperado faz retry até job aparecer` como PROVADO DIRETAMENTE.",
+        "O responder do teste nas linhas 181–200 decide somente por `message.action` e `claimCalls`; ele nunca afirma nem condiciona a resposta a `message.jobId === 'late-job'`.",
+        "As assertions 204–208 verificam apenas que a função retorna um objeto contendo `jobId:'late-job'`, `geminiTabId:456` e que houve três claims.",
+        "Na implementação real, o expectedJobId é enviado no payload do CLAIM_GEMINI_JOB, mas a resposta moderna com `ok:true` e `job` é retornada diretamente; uma regressão que omitisse/trocasse `message.jobId` poderia manter o teste verde."
+      ],
+      "required_change": "Restringir a prova direta a retry/terceira resposta/objeto retornado, e classificar o vínculo do request ao expectedJobId como não provado especificamente; ou criar prova focal em alteração de teste separada."
+    },
+    {
+      "id": "175-ADV-002",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia registra 175-001..004 como OPEN, enquanto o state canônico registra as quatro requests como ACCEPTED.",
+      "evidence": [
+        "Bíblia §12 usa OPEN nos quatro headings e a conclusão fala em `quatro solicitações OPEN`.",
+        "docs/biblia/.state/175.json registra 175-001, 175-002, 175-003 e 175-004 com status ACCEPTED e audit_finding persistido."
+      ],
+      "required_change": "Sincronizar o lifecycle documental para ACCEPTED, preservando as lacunas técnicas como não bloqueantes quando representadas honestamente."
+    },
+    {
+      "id": "175-ADV-003",
+      "severity": "HIGH",
+      "type": "SEMANTIC_TRACEABILITY_MISMATCH",
+      "summary": "Apesar da cobertura estrutural 211/211, o mapa linha-a-linha contém descrições materialmente diferentes do comportamento real.",
+      "evidence": [
+        "Linha 27 `const index = disconnectListeners.indexOf(fn)` localiza a posição do listener para remoção; a Bíblia diz apenas `Mantém listeners onDisconnect registrados`.",
+        "Linha 32 `disconnectListeners.slice().forEach(fn => fn(port))` dispara callbacks de disconnect; a Bíblia novamente diz `Mantém listeners ... registrados`, invertendo manutenção por execução.",
+        "Linha 71 `jest.restoreAllMocks()` restaura mocks Jest; a Bíblia diz `Compõe o cenário estrutura final`.",
+        "Linha 74 redefine `document.documentElement.innerHTML` para limpar o DOM no teardown; a Bíblia diz `Compõe o cenário responder de runtime`."
+      ],
+      "required_change": "Reauditar semanticamente as 210 descrições de linha e substituir templates genéricos/errados por funções específicas compatíveis com o código real."
+    },
+    {
+      "id": "175-ADV-004",
+      "severity": "NORMAL",
+      "type": "DEPENDENCY_CONSUMER_OMISSION",
+      "summary": "A Bíblia cita o loader real e um run de CI, mas omite a cadeia executável que descobre a suíte e define seu ambiente/mocks.",
+      "evidence": [
+        "package.json#test:ci chama scripts/ci/run-jest-ci.js.",
+        "run-jest-ci.js executa Jest com jest.config.js e inclui o projeto content-scripts.",
+        "jest.config.js seleciona `tests/unit/content-gemini/**/*.test.js`, usa ambiente jsdom e carrega `tests/mocks/chrome-api.mock.js` + `tests/mocks/dom-environment.js`.",
+        "O workflow Unit + Integration executa `npm run test:ci` em Node 20.x e 22.x; essa cadeia é necessária para interpretar o que o verde de CI prova."
+      ],
+      "required_change": "Documentar a cadeia package.json → run-jest-ci.js → jest.config.js/content-scripts → jsdom/setup mocks → suíte, distinguindo módulos reais do harness simulado."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:52:00Z"
+}

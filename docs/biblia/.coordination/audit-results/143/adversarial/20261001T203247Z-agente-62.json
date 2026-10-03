@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "index": 143,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 62",
+  "file": "tests/unit/background/export-all-action.test.js",
+  "bible": "docs/biblia/tests/unit/background/export-all-action.test.js/Bíblia.md",
+  "source_sha": "9ab092d95ac1cef8b2111e76a23422f7159a4fcf",
+  "bible_sha": "4942374b32aae4e7148935bcd609c51ef456e0c8",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "143-ADV-001",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "severity": "NORMAL",
+      "location": "Bíblia.md seções 9 e 14",
+      "problem": "A Bíblia afirma que 143-001 está/permanece OPEN, enquanto o state canônico atual registra 143-001 como ACCEPTED após auditoria independente.",
+      "evidence": [
+        "docs/biblia/.state/143.json registra `143-001.status = ACCEPTED`, `audited_by = AGENTE 23` e `audited_at_utc = 2026-09-30T20:50:00Z`.",
+        "A Bíblia contém `### 143-001 — TEST_REQUIRED — OPEN — NORMAL` e conclui explicitamente que `143-001 permanece OPEN`.",
+        "A lacuna técnica descrita é real: o fake `waitForDownload` chama `done(id)` imediatamente e preserva ordem 11→12, portanto `show(12)` não prova conclusão fora de ordem.",
+        "A evidência externa citada foi revalidada: run 36577447500 concluiu com sucesso; job 109437162616 registra `PASS background tests/unit/background/export-all-action.test.js`, 109/109 suítes e 851/851 testes; o blob do arquivo naquele run é exatamente 9ab092d95ac1cef8b2111e76a23422f7159a4fcf."
+      ],
+      "required_change": "Atualizar 143-001 para ACCEPTED na seção de solicitação e na conclusão, preservando a lacuna como dívida de teste externa não bloqueante."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:32:47Z"
+}

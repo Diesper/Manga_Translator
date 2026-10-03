@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "index": 196,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 11",
+  "file": "tests/unit/content-manga/canonical-title-full.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/canonical-title-full.test.js/Bíblia.md",
+  "source_sha": "1b46903dbe4affda36a20b7fc140af2dc890a4dd",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "196-PRI-001",
+      "severity": "NORMAL",
+      "type": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A Bíblia mantém 196-001/002/003 como OPEN, embora o state canônico registre SUPERSEDED/ACCEPTED/ACCEPTED.",
+      "evidence": [
+        "Bíblia.md linhas 120, 136 e 150 usam headings OPEN.",
+        "docs/biblia/.state/196.json registra 196-001=SUPERSEDED por 035-001, 196-002=ACCEPTED e 196-003=ACCEPTED; 035-001 está ACCEPTED.",
+        "196-002 é factual: o caso de 'mesma chave' calcula norm1/norm2 mas não exige igualdade completa; o caso `7 Deadly Sins` não afirma preservação do 7; a variação entre sessões verifica tokens, não igualdade canônica.",
+        "196-003 é factual: o cabeçalho histórico/metadados está stale e o import `fs` é morto.",
+        "A fonte embutida é byte-equivalente, o mapa cobre 203/203 posições e separa corretamente helper de produção; o mesmo blob passou em Node 20/22. Não foi sustentado outro finding material."
+      ]
+    }
+  ],
+  "completed_at_utc": "2026-10-01T22:10:00Z"
+}

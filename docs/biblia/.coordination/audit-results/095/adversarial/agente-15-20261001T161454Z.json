@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "index": 95,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 15",
+  "file": "tests/fixtures/gemini-mock-server.js",
+  "bible": "docs/biblia/tests/fixtures/gemini-mock-server.js/Bíblia.md",
+  "source_sha": "1cd13486bf3a6c1a3d5d4b645e5564be108d6ad4",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A15-095-01",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "AUDIT_REQUEST_LIFECYCLE",
+      "summary": "A Bíblia apresenta 095-001, 095-002, 095-003 e 095-004 como OPEN, mas o state canônico atual registra 095-001/002/004 como ACCEPTED e 095-003 como SUPERSEDED por 064-003.",
+      "evidence": [
+        "docs/biblia/tests/fixtures/gemini-mock-server.js/Bíblia.md:254,278,296,316 rotula as quatro requests como OPEN.",
+        "docs/biblia/.state/095.json registra 095-001=ACCEPTED, 095-002=ACCEPTED, 095-003=SUPERSEDED (superseded_by 064-003) e 095-004=ACCEPTED.",
+        "docs/biblia/.state/064.json contém 064-003=ACCEPTED para o mesmo risco de webServer port:3999 + reuseExistingServer:true sem validação de identidade/health."
+      ],
+      "required_change": "Atualizar a seção de solicitações da Bíblia para refletir o lifecycle canônico atual, sobretudo marcar 095-003 como SUPERSEDED por 064-003 e não direcionar trabalho duplicado; alinhar 095-001/002/004 como ACCEPTED sem alterar a descrição honesta das lacunas."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T16:14:54Z"
+}

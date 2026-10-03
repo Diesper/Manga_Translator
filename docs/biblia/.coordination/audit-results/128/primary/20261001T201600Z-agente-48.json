@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "index": 128,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 48",
+  "file": "tests/smoke/smoke-06-sm-message-routing.js",
+  "bible": "docs/biblia/tests/smoke/smoke-06-sm-message-routing.js/Bíblia.md",
+  "source_sha": "dd32621bee49bfe64bb4a667ecbf68fb516e03dd",
+  "bible_sha": "02e396d5d75a943d759baef332db90c625befaf8",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A48-128-01",
+      "severity": "BLOCKING",
+      "category": "AUDIT_REQUEST_STATUS_STALE",
+      "summary": "A seção de solicitações da Bíblia mantém 128-001..128-005 como OPEN, enquanto o state canônico registra as cinco requests como ACCEPTED.",
+      "evidence": [
+        "Bíblia §6: 128-001, 128-002, 128-003, 128-004 e 128-005 aparecem como `OPEN`.",
+        "docs/biblia/.state/128.json: as cinco requests estão `ACCEPTED`; 128-001..003 têm severity HIGH e 128-004..005 severity NORMAL.",
+        "Os findings técnicos das requests foram revalidados contra o source, background.js e storage-manager.js atuais e continuam materialmente válidos; o erro é o lifecycle duplicado stale da própria Bíblia."
+      ],
+      "required_change": "Atualizar a seção 6 para refletir ACCEPTED (e severidades atuais) ou remover status mutável duplicado, preservando a descrição técnica das lacunas."
+    },
+    {
+      "id": "A48-128-02",
+      "severity": "BLOCKING",
+      "category": "CONSUMER_WIRING_INACCURACY",
+      "summary": "A seção 3 descreve a cadeia do listener como GTC seguido de Storage Manager, omitindo o roteador registrado que hoje executa antes de ambos.",
+      "evidence": [
+        "Bíblia §3: `o listener principal chama primeiro o roteador GTC e depois handleStorageManagerMessage`.",
+        "extension/background.js linha 1238 chama `routeRegisteredAction(request, sender, sendResponse)` e retorna imediatamente se a action registrada for tratada.",
+        "Somente depois, linhas 1243 e 1247, o listener chama `handleGtcRuntimeMessage` e `handleStorageManagerMessage`.",
+        "Isso é relevante aos cinco exemplos não-SM do smoke: no runtime real uma action registrada pode ser consumida antes de alcançar o handler SM; o smoke chama apenas sua cópia local."
+      ],
+      "required_change": "Corrigir §3 para registrar a ordem real routeRegisteredAction → GTC → Storage Manager, ou qualificar explicitamente que a frase descreve apenas a ordem relativa entre os dois handlers legados."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:16:00Z"
+}

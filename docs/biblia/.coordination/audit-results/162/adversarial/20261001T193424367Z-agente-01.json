@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "index": 162,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 1",
+  "file": "tests/unit/background/regex-escape.test.js",
+  "bible": "docs/biblia/tests/unit/background/regex-escape.test.js/Bíblia.md",
+  "source_sha": "3707482c013734dd2fd0e6a3989eee30c5f5406e",
+  "bible_sha": "93a87d76d1a14d3417c582e4a2d646e3c0a0b575",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    "BLOQUEANTE — consumers/wiring de execução e gate da suíte estão omitidos da Bíblia. A revisão independente confirmou que jest.config.js descobre tests/unit/background/**/*.test.js no projeto background; scripts/ci/run-jest-ci.js inclui background e executa Jest com jest.config.js; package.json#test:ci chama esse runner; e o job unit-and-integration de .github/workflows/ci.yml executa npm run test:ci. Para uma Bíblia de um arquivo de teste, esse encadeamento é consumer/gate relevante e sua ausência impede reconstruir como a prova entra na CI real.",
+    "BLOQUEANTE — a tabela de força da evidência classifica como PROVADO DIRETAMENTE que SHOW_EXISTING_FOLDER chega à ação registrada usando apenas listener real + chamadas observadas em downloads.search. As assertions não observam resolveActionName, actionRegistry.get nem a identidade de open-existing-folder; uma regressão de wiring que preservasse o mesmo efeito em downloads.search poderia manter a suíte verde. O wiring atual está confirmado pelo source/consumer, mas essa alegação arquitetural precisa ser reclassificada como execução indireta/prova de consumer ou ganhar assertion focal.",
+    "REFUTAÇÃO DA PRIMARY — o blocker que tratava os rótulos OPEN das requests 162-001/162-002 na Bíblia como lifecycle factual stale não se sustenta contra o contrato canônico atual: scripts/validation/bible-coordination.js declara explicitamente que o lifecycle mutável da request é canônico somente no .state e que OPEN/ACCEPTED/etc. dentro da Bíblia são snapshots documentais que não obrigam reescrita a cada triagem. O .state atual mantém ambas como ACCEPTED; isso não é blocker documental por si só."
+  ],
+  "completed_at_utc": "2026-10-01T19:34:24.367Z"
+}

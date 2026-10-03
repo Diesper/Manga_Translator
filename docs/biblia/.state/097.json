@@ -1,0 +1,137 @@
+{
+  "index": 97,
+  "file": "tests/fixtures/manga-page.html",
+  "bible": "docs/biblia/tests/fixtures/manga-page.html/Bíblia.md",
+  "status": "COMPLETED",
+  "agent": null,
+  "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+  "started_at_utc": "2026-09-30T06:15:00Z",
+  "completed_at_utc": "2026-10-01T21:48:33.817Z",
+  "audit_requests": [],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "101/101",
+    "range_blocks": 16,
+    "ranges_contiguous": true,
+    "source_has_final_newline": true,
+    "bible_lines": 238,
+    "direct_e2e_evidence": [
+      "2 páginas elegíveis",
+      "exatamente 2 traduções",
+      "avatar excluído",
+      "banner excluído",
+      "visibilidade simultânea",
+      "restoreIndex page_001/page_002"
+    ],
+    "external_audit_requests_open": 0,
+    "note": "Conclusão documental individual conforme escopo do AGENTE 7; STATUS/CHECKLIST/AUDITORIA globais não foram modificados.",
+    "source_text_lines": 100,
+    "evidence_run": 36815953158,
+    "evidence_summary": "Os shards medium-a/medium-b e o gate E2E focal executaram com sucesso os contratos centrais do fixture; o run global não foi tratado como verde por conter falhas não focais."
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "history": [
+    {
+      "at_utc": "2026-10-01T04:58:55Z",
+      "type": "INDEPENDENT_AUDIT_APPROVED",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+      "auditor": "AGENTE 1",
+      "reason": "Auditoria independente SHA-bound confirmou 101/101 posições, fonte integral exata, wiring/consumers e assertions E2E focais executadas com sucesso."
+    },
+    {
+      "at_utc": "2026-10-01T21:35:53.547Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_STARTED",
+      "from_status": "COMPLETED",
+      "to_status": "IN_PROGRESS",
+      "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+      "reason": "097-REA-001: reclassificar wiring de servidor/assets para prova de consumidor/execução indireta."
+    },
+    {
+      "at_utc": "2026-10-01T21:35:53.547Z",
+      "type": "DISTRIBUTED_AUDIT_CORRECTION_COMPLETED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+      "bible_sha": "3861173aabb790eb8b26b7ef676f77f322e53b7e",
+      "reason": "097-REA-001 corrigido; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "at_utc": "2026-10-01T21:48:33.817Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+      "bible_sha": "3861173aabb790eb8b26b7ef676f77f322e53b7e",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "808025886d0d8873f3e906180f6490943990909f1d0e2bedcac25b3cf9b43712",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "previous_event_hash": "7df193413c387803123ef648e7d199f871f4cdaf177b58a5687f36fa14d864f3",
+      "event_hash": "3c9494de9178b19a74b17eee889995f0472d1e1eebf9ad6d86ed176a0b68c243"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:41.124Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "3c9494de9178b19a74b17eee889995f0472d1e1eebf9ad6d86ed176a0b68c243",
+      "event_hash": "2c02b11d9d44f6a81f16a905966750ad79c235930f043ee0f06138f7b926e5fa"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "2c02b11d9d44f6a81f16a905966750ad79c235930f043ee0f06138f7b926e5fa",
+      "event_hash": "8a82bac202e37a494923f75ad5d595a0bd7faab83e65364995157ff19083e351"
+    }
+  ],
+  "evidence": [
+    {
+      "type": "AUDIT_VERDICT",
+      "source_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+      "verdict": "APPROVED",
+      "auditor": "AGENTE 1",
+      "at_utc": "2026-10-01T04:58:55Z",
+      "note": "Run 36815953158: medium-a/medium-b e gate E2E focal verdes; nenhum audit_request bloqueante."
+    }
+  ],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "71d78eea7eddb51bc93c74bbb3bf652119551ce4",
+  "bible_sha": null,
+  "revision_id": "808025886d0d8873f3e906180f6490943990909f1d0e2bedcac25b3cf9b43712",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual.",
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T21:48:33.817Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "VERIFIED",
+    "caveats": []
+  }
+}

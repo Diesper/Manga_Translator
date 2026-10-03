@@ -1,0 +1,75 @@
+{
+  "schema_version": 2,
+  "index": 10,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 9",
+  "file": "extension/background/actions/download-chapter.js",
+  "bible": "docs/biblia/extension/background/actions/download-chapter.js/Bíblia.md",
+  "source_sha": "8636a03c8a2038ebbb26103db7f63b578699733e",
+  "bible_sha": "3164f33b00015528f4ec812a50d7284907d206d1",
+  "verdict": "CHANGES_REQUIRED",
+  "resolves_divergence": {
+    "primary": {
+      "type": "LEGACY",
+      "auditor": null,
+      "verdict": "APPROVED"
+    },
+    "adversarial": {
+      "auditor": "AGENTE 10",
+      "verdict": "CHANGES_REQUIRED"
+    },
+    "conclusion": "A hipótese ADVERSARIAL resiste à revalidação independente; a aprovação legada não."
+  },
+  "findings": [
+    {
+      "id": "A9-010-R-01",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "UNIT_RANGE_SEMANTIC_MISMATCH",
+      "summary": "A seção U05 declara posições 31–34, mas atribui a essa faixa o comportamento sem anchorId executado nas posições 28–29.",
+      "evidence": [
+        "Source posições 28–30: `} else {`, `fallbackDownload();`, `}` implementam o caminho sem anchorId.",
+        "Tabela da Bíblia classifica posições 28–30 como U04 e posições 31–34 como U05.",
+        "Seção U05, declarada como 31–34, afirma `Sem anchorId, executa diretamente o fallback`, comportamento ausente dessas posições."
+      ],
+      "required_change": "Alinhar a fronteira das unidades/ranges ou reescrever U05 para descrever somente o fechamento das posições 31–34; manter o caminho sem anchorId associado às posições 28–30."
+    },
+    {
+      "id": "A9-010-R-02",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "POSITIONAL_CONTROL_FLOW_ERROR",
+      "summary": "A descrição da posição 25 inclui o caso de anchorId não fornecido, embora essa linha só seja alcançável quando request.anchorId é truthy.",
+      "evidence": [
+        "Source posição 19 abre `if (request.anchorId)`.",
+        "Posição 25 está no `else` interno do resultado de `downloads.search`, portanto representa anchorId fornecido porém não reutilizável.",
+        "Ausência/falsy de anchorId desvia para o `else` externo nas posições 28–29."
+      ],
+      "required_change": "Restringir a posição 25 a anchorId fornecido porém ausente/stale/não reutilizável no resultado da busca; reservar o caso sem anchorId para a posição 29."
+    }
+  ],
+  "passed_points": [
+    "SOURCE_SHA do state, blob real, Bíblia e lease coincide.",
+    "Fonte integral embutida é exata: 34 linhas textuais mais newline final = 35 posições.",
+    "Cobertura posicional enumera 1–35 sem gaps, duplicatas ou extras.",
+    "Aliases DOWNLOAD_CHAPTER_AND_SHOW e OPEN_CHAPTER_FOLDER estão ligados a download-chapter no router real.",
+    "popup.js é consumer real dos aliases e background.js carrega a action/injeta handleMarkerAndShow e downloadImagesAndShow.",
+    "Assertions diretas provam anchor reutilizável e caminho sem anchor com imagens; teste integrado prova reuso de anchor no background completo.",
+    "Lacunas 010-001 e 010-002 permanecem ACCEPTED e são representadas honestamente na Bíblia."
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T20:46:00Z"
+}

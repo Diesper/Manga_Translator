@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "index": 9,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 9",
+  "file": "extension/background/actions/deliver-result.js",
+  "bible": "docs/biblia/extension/background/actions/deliver-result.js/Bíblia.md",
+  "source_sha": "3653bd10c2a0e65c14eb139f906feeafb30411a5",
+  "bible_sha": "f8bc4693ee82bd7156d03420bbff9c7cc378161c",
+  "verdict": "APPROVED",
+  "findings": [],
+  "non_blocking_audit_requests": [
+    "009-001",
+    "009-002",
+    "009-003"
+  ],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T20:40:08Z"
+}

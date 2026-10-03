@@ -1,0 +1,47 @@
+{
+  "index": 221,
+  "file": "tests/unit/popup/version-ui.test.js",
+  "bible": "docs/biblia/tests/unit/popup/version-ui.test.js/Bíblia.md",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
+  "source_sha": "0fcb923f59efbe4705e10dc2c70567ddda939264",
+  "started_at_utc": "2026-09-30T06:17:04.124Z",
+  "completed_at_utc": null,
+  "audit_requests": [
+    {
+      "id": "221-001",
+      "status": "ACCEPTED",
+      "type": "TEST_REQUIRED",
+      "target_file": "tests/integration/options.ui.test.js",
+      "found_while_auditing": "tests/unit/popup/version-ui.test.js",
+      "finding": "O teste atual prova contratos textuais, mas não executa options.js para provar que a versão do Manifest chega ao título e ao #app-title.",
+      "current_evidence": "O mesmo blob passou no run 36577447500, job 109437162616; assertions textuais das linhas 12-19 são diretas.",
+      "missing_evidence": "DOMContentLoaded com getManifest mockado, assertions em document.title/#app-title e fallback sem versão.",
+      "why_needed": "Strings corretas podem sobreviver em fluxo morto/desconectado e manter o teste estático verde.",
+      "requested_action": "Adicionar cenário dinâmico separado usando a implementação real da página de opções.",
+      "expected_evidence": "DOM final usa exatamente a versão retornada pelo Manifest e mantém fallback seguro quando ausente.",
+      "expected_auditor_action": "Confirmar a lacuna e adicionar cobertura dinâmica se exigida.",
+      "possible_regression": "Refatoração pode desconectar versionamento runtime da UI sem quebrar este teste.",
+      "severity": "NORMAL",
+      "audited_by": "AGENTE 23",
+      "audited_at_utc": "2026-09-30T23:18:00Z",
+      "audit_finding": "ACCEPTED. `version-ui.test.js` apenas lê `options.js` como texto e procura `chrome.runtime.getManifest`/template string. `options.ui.test.js` executa a UI real, mas não possui assertion de `document.title` nem `#app-title` com a versão do Manifest.",
+      "auditor_recommended_action": "Adicionar caso de integração carregando options.js real com getManifest controlado e afirmar título/documento e #app-title."
+    }
+  ],
+  "document_quality": {
+    "self_audit": "APPROVED",
+    "source_sha_reconfirmed": true,
+    "embedded_source_exact": true,
+    "documented_positions": "22/22",
+    "bible_lines": 276,
+    "external_audit_requests_open": 1,
+    "evidence_run": 36577447500,
+    "evidence_job": 109437162616
+  },
+  "schema_version": 2,
+  "coordination_status": "OK",
+  "updated_at_utc": null,
+  "history": [],
+  "evidence": []
+}

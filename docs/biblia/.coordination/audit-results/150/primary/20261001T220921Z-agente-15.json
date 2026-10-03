@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "index": 150,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 15",
+  "file": "tests/unit/background/jobs-dom-ack-staging.test.js",
+  "bible": "docs/biblia/tests/unit/background/jobs-dom-ack-staging.test.js/Bíblia.md",
+  "source_sha": "5db47daff53026aa778944c999d7dc922f35ecad",
+  "bible_sha": "90e2cff6554e8fd74e8aec6d2bbf17e97a7dc116",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "A15-150-P01",
+      "severity": "DOCUMENTAL_MATERIAL",
+      "category": "AUDIT_REQUEST_LIFECYCLE",
+      "summary": "A seção de solicitações mantém quatro ações como pedidos ativos, embora o state canônico tenha dois ACCEPTED e dois SUPERSEDED por 026-003.",
+      "evidence": [
+        "Bíblia §6 ainda instrui adicionar/testar 150-001, 150-002, 150-003 e 150-004 sem registrar lifecycle.",
+        "State atual: 150-001=ACCEPTED; 150-003=ACCEPTED; 150-002=SUPERSEDED por 026-003; 150-004=SUPERSEDED por 026-003.",
+        "Manter 150-002/004 como ações independentes duplica trabalho que o protocolo já centralizou em 026-003.",
+        "document_quality.external_audit_requests_open=4 também contradiz os statuses canônicos."
+      ],
+      "required_change": "Atualizar §6 e document_quality para refletir ACCEPTED/SUPERSEDED, incluindo superseded_by=026-003; preservar os findings técnicos, mas não tratá-los como quatro requests OPEN independentes."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T22:09:21Z"
+}

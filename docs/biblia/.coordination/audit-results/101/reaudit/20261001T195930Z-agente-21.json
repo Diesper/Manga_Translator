@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "index": 101,
+  "phase": "REAUDIT",
+  "auditor": "AGENTE 21",
+  "file": "tests/helpers/load-content-gemini-module.js",
+  "bible": "docs/biblia/tests/helpers/load-content-gemini-module.js/Bíblia.md",
+  "source_sha": "d7b72e8fd5c69ccb128269f3b59a31df2ca1ffee",
+  "bible_sha": "f420b5b3e90468040b87681d0e102dac8e6cfe54",
+  "verdict": "APPROVED",
+  "findings": [],
+  "confirmations": {
+    "sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "coverage": "CONFIRMADO_3X",
+    "semantics": "CONFIRMADO_3X",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONFIRMADO_3X",
+    "tests": "CONFIRMADO_3X",
+    "assertions": "CONFIRMADO_3X",
+    "evidence_classification": "CONFIRMADO_3X",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "independence": "CONFIRMADA_AGENTE_7_E_AGENTE_8",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "divergence_resolution": "Os três findings da PRIMARY legada descrevem a revisão pré-reparo. Na revisão atual f420b5b3..., nove globals diretos + selectors indireto, side effects de reload e statuses ACCEPTED estão explicitamente corrigidos e foram revalidados contra source/consumers/mocks.",
+    "embedded_source_exact": true,
+    "documented_positions": "35/35",
+    "nonblocking_requests": [
+      "101-001",
+      "101-002",
+      "101-003",
+      "101-004",
+      "101-005"
+    ],
+    "adversarial_order_challenge": "A ordem linear dos providers não é única por causa de fallbacks CommonJS; a Bíblia atual não afirma unicidade, registra loaders paralelos apenas como semelhantes e declara ausência de teste focal de reordenação."
+  },
+  "passes": "0-15 concluídas",
+  "completed_at_utc": "2026-10-01T19:59:30Z"
+}

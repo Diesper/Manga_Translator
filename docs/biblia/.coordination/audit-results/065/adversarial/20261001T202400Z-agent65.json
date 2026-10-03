@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "index": 65,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 65",
+  "file": ".github/workflows/ci.yml",
+  "bible": "docs/biblia/.github/workflows/ci.yml/Bíblia.md",
+  "source_sha": "9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a",
+  "bible_sha": "bc9634c8e60c95d0cd3c0c187603ded21cd3876f",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "065-ADV65-001",
+      "category": "EVIDENCE_OVERCLASSIFICATION",
+      "severity": "BLOCKING",
+      "summary": "A cobertura linha a linha promove propriedades sem gate focal a `GATE ESTÁTICO ESPECÍFICO`.",
+      "evidence": [
+        "Linha 176 da Bíblia (`uses: codecov/codecov-action@v4`) é marcada como GATE ESTÁTICO ESPECÍFICO, mas `verify-ci-contract.js` não contém esse literal, `codecov-upload` nem `manga-translator-coverage`; no bloco Codecov ele exige somente `CODECOV_TOKEN not configured` e `fail_ci_if_error: true`.",
+        "Linha 541 da Bíblia é uma linha em branco; o próprio texto diz que removê-la não muda a execução, mas ainda a classifica como GATE ESTÁTICO ESPECÍFICO. O mesmo padrão aparece em outras linhas em branco/comentários."
+      ],
+      "required_change": "Reclassificar evidência por propriedade real, sem boilerplate de gate específico em linhas que o verificador não protege."
+    },
+    {
+      "id": "065-ADV65-002",
+      "category": "SEMANTIC_MISMATCH",
+      "severity": "BLOCKING",
+      "summary": "A Linha 182 confunde um input da action Codecov com o nome exibido pelo GitHub para o step.",
+      "evidence": [
+        "No source, Linhas 178–183 estão dentro de `with:` da `codecov/codecov-action@v4`; Linha 182 é `name: manga-translator-coverage`.",
+        "A Bíblia afirma na Linha 182: `GitHub exibe esse texto na lista de jobs/steps`.",
+        "O rótulo do step é a Linha 173 (`- name: Upload cobertura para Codecov`); `with.name` é input da action, não o nome do step do workflow."
+      ],
+      "required_change": "Descrever Linha 182 como nome do upload/relatório consumido pelo Codecov, não como rótulo de job/step do GitHub."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T20:24:00Z"
+}

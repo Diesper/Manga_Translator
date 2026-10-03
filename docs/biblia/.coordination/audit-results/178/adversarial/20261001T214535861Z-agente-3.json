@@ -1,0 +1,101 @@
+{
+  "schema_version": 2,
+  "index": 178,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 3",
+  "file": "tests/unit/content-gemini/editor-submit.test.js",
+  "bible": "docs/biblia/tests/unit/content-gemini/editor-submit.test.js/Bíblia.md",
+  "source_sha": "ccfa4c881543111b13d0bd8f8198f402039b2233",
+  "bible_sha": "d1c0c12eb751eb06be354dd7780c1530370df699",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "178-A3-ADV-001",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "RESIDUAL_EVIDENCE_OVERCLASSIFICATION",
+      "summary": "SEND-05 foi rebaixado no resumo para estado final, mas a linha-a-linha ainda trata assertions pós-operação como prova de ausência de mutação forçada.",
+      "evidence": [
+        "A seção 4 admite que não há observação de mutações transitórias.",
+        "Linha 182 ainda usa `para provar ausência de mutação forçada`; Linha 202 repete a conclusão e a classifica como PROVADO DIRETAMENTE.",
+        "Source linhas 200-202 apenas verificam os valores finais de disabled, atributo disabled e aria-disabled.",
+        "Uma implementação que altere e restaure esses valores antes das assertions continuaria verde."
+      ],
+      "required_change": "Restringir toda a documentação SEND-05 a estado final preservado; não chamar ausência de mutação transitória/forçada de prova direta."
+    },
+    {
+      "id": "178-A3-ADV-002",
+      "severity": "BLOCKING_DOCUMENTATION",
+      "type": "SIMULATION_PRESENTED_AS_DIRECT_FRAMEWORK_PROOF",
+      "summary": "SEND-06 é classificado como prova direta de habilitação `via framework`, embora o reator seja um listener sintético da própria fixture JSDOM.",
+      "evidence": [
+        "Matriz: `nudge pode habilitar via framework | SEND-06 | ✅ PROVADO DIRETAMENTE`.",
+        "Source linhas 213-215 registra listener `input` da fixture e ele próprio faz `button.disabled = false`/removeAttribute.",
+        "A Linha 215 da Bíblia reconhece que a fixture simula o framework.",
+        "Nenhum framework real do Gemini participa deste teste."
+      ],
+      "required_change": "Classificar como prova direta da reação da fixture ao nudge/input e como MOCK_OU_SIMULACAO para o framework real."
+    },
+    {
+      "id": "178-A3-ADV-003",
+      "severity": "MATERIAL",
+      "type": "SEMANTIC_LINE_MAPPING_CONTEXT_DRIFT",
+      "summary": "O mapa é fisicamente 265/265, mas possui contextos semanticamente deslocados nas fronteiras mountSend→mountStop→setup.",
+      "evidence": [
+        "Linha 039 abre mountSend, mas o Contexto ainda é `fixture do editor`.",
+        "Linhas 051-053 pertencem a mountStop, mas continuam em `fixture do botão Send`; a Função da Linha 052 também cita botão Send.",
+        "Linhas 059-062 são describe/beforeEach/reset de DOM e registry, mas continuam em `fixture do botão Stop`.",
+        "Varredura integral encontrou 8 contextos objetivamente fora da unidade semântica e 50 linhas substantivas ainda com template genérico `Compõe o cenário...`.",
+        "Todos os 264 campos Código coincidem com o source; a falha é de interpretação, não de transcrição."
+      ],
+      "required_change": "Realinhar contextos/funções das fronteiras e substituir templates genéricos onde escondem a operação substantiva."
+    },
+    {
+      "id": "178-A3-ADV-004",
+      "severity": "MATERIAL",
+      "type": "CONSUMER_AND_GATE_OMISSION",
+      "summary": "A Bíblia registra CI histórica, mas omite o consumer runtime atual e o wiring estático que descobre/executa esta suíte.",
+      "evidence": [
+        "A Bíblia atual não contém job-runner.js, jest.config.js, run-jest-ci.js, test:ci ou .github/workflows/ci.yml.",
+        "job-runner.js chama editorApi.submitWithConfirmation com observer/getters/maxAttempts/onAttempt/mainWorldFallback.",
+        "jest.config.js inclui tests/unit/content-gemini/**/*.test.js no projeto content-scripts.",
+        "run-jest-ci.js inclui content-scripts em unitProjects; package.json liga test:ci ao runner; ci.yml executa npm run test:ci e o CI Gate depende do job.",
+        "Run 36521561968 foi revalidado como success no SHA e720890c..., e o blob histórico desta suíte é o mesmo SOURCE_SHA atual; isso é evidência histórica, não substituto do wiring corrente."
+      ],
+      "required_change": "Documentar consumer job-runner e cadeia jest.config.js → run-jest-ci.js/package.json → ci.yml/CI Gate, separando runtime, gate estático e run histórico."
+    }
+  ],
+  "confirmations": {
+    "source_sha": "CONFIRMADO_3X",
+    "bible_sha": "CONFIRMADO_3X",
+    "embedded_source": "CONFIRMADO_3X",
+    "positional_coverage": "CONFIRMADO_3X_265_DE_265",
+    "code_fields": "CONFIRMADO_3X_264_DE_264",
+    "semantics": "CONTRADITO",
+    "dependencies": "CONFIRMADO_3X",
+    "consumers": "CONTRADITO_DOCUMENTACAO",
+    "tests_assertions": "CONTRADITO_EM_CLAIMS_ESPECIFICOS",
+    "evidence_classification": "CONTRADITO",
+    "audit_requests": "CONFIRMADO_3X",
+    "history_state": "CONFIRMADO_3X",
+    "phase_independence": "CONFIRMADA_AGENTE_18_VS_AGENTE_3",
+    "final_verdict": "CONFIRMADO_3X"
+  },
+  "audit_notes": {
+    "passes": "0-15 concluídas",
+    "current_primary": "AGENTE 18 / CHANGES_REQUIRED / BIBLE_SHA d1c0c12eb751eb06be354dd7780c1530370df699",
+    "historical_ci_run": 36521561968,
+    "historical_ci_head_sha": "e720890cf34dc9437ee91f3b8172953497d69870",
+    "historical_source_blob": "ccfa4c881543111b13d0bd8f8198f402039b2233",
+    "current_consumer_blob": "1b16fd656e82e64ef2d26977e061f87e469aa3ff",
+    "current_jest_config_blob": "f0b7c55a5c8d87ae213e5821d7f8891b77d8cc",
+    "current_ci_runner_blob": "6d2e36a647aadeadb2b875c1b3f92df24cd2f494",
+    "current_package_blob": "5b5c328f6139eeff920dc65a78014a6c5b6db3a6",
+    "current_ci_workflow_blob": "9ce62e2b116e2204d1689edf9d302e6ee0cf8c3a",
+    "accepted_nonblocking_requests": [
+      "178-001",
+      "178-002",
+      "178-003"
+    ]
+  },
+  "completed_at_utc": "2026-10-01T21:45:35.861Z"
+}

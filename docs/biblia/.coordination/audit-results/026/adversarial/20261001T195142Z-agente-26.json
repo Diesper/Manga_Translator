@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "index": 26,
+  "phase": "ADVERSARIAL",
+  "auditor": "AGENTE 26",
+  "file": "extension/background/jobs-dom-ack.js",
+  "bible": "docs/biblia/extension/background/jobs-dom-ack.js/Bíblia.md",
+  "source_sha": "07b4197a206f85559f2e843d74c71d4858734be7",
+  "bible_sha": "e28013b70cafe7d6e326236fe1be3681b0ab21fd",
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "ADV-026-01",
+      "severity": "BLOCKING",
+      "category": "SEMANTIC_LINE_MAPPING",
+      "location": "Bíblia.md — Rastreabilidade 90/90, posição 075 (U07)",
+      "finding": "A posição 075 descreve o `else` como “Ramo de falha de ACK/entrega”, mas esse `else` é o caminho de sucesso usado quando não há runtime.lastError e `response.ok !== false`; a linha seguinte chama `settle(true, 'ack', response)`. Isso contradiz a própria seção “Classificação de respostas” e torna o mapeamento semântico por posição incorreto.",
+      "evidence": [
+        "Source posições 073–076: `else if (response && response.ok === false)` chama `settle(false, ...)`; o `else` da posição 075 é seguido por `settle(true, 'ack', response)`.",
+        "Bíblia, seção “Classificação de respostas”: “callback sem erro e sem ok:false → sucesso ack”.",
+        "Bíblia, posição 076: “Qualquer callback sem erro e sem ok:false é tratado como ACK positivo.”"
+      ],
+      "requested_document_change": "Corrigir a descrição da posição 075 para identificá-la como o ramo de ACK positivo/default-success (callback sem erro e sem `ok:false`), mantendo coerência com a posição 076 e com a seção de classificação."
+    }
+  ],
+  "completed_at_utc": "2026-10-01T19:51:42.339Z"
+}

@@ -26,12 +26,13 @@ console.log(
   ' | tag=' + group.tag +
   ' | expectedTests=' + group.expectedTests +
   ' | workers=' + group.workers +
-  ' | estimatedSeconds=' + group.estimatedSeconds
+  ' | estimatedWorkSeconds=' + group.estimatedSeconds +
+  ' | estimatedJobSeconds=' + group.estimatedJobSeconds
 );
 
 const child = spawn(
   process.execPath,
-  [playwrightCli, 'test', '--config', path.join(repoRoot, 'playwright.config.js'), '--grep', group.tag],
+  [playwrightCli, 'test', '--config', path.join(repoRoot, 'playwright.config.js'), '--grep', group.grep || group.tag],
   {
     cwd: repoRoot,
     env: {
