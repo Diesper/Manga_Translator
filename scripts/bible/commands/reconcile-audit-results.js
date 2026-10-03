@@ -139,7 +139,7 @@ function replaceProjectionSection(source, section) {
   return source.replace(/\s*$/, '') + '\n\n' + section + '\n';
 }
 
-function buildReconciliation() {
+function buildReconciliationSnapshot() {
   const states = readStates();
   const baseline = core.loadBibleBaseline(repoRoot);
   const legacySource = fs.existsSync(auditPath) ? fs.readFileSync(auditPath, 'utf8') : '# Auditoria\n';
@@ -164,7 +164,7 @@ function buildReconciliation() {
   const auditoria = replaceProjectionSection(legacySource, section);
 
   const auditsForProjection = parseAuditRegistry(auditoria);
-  const derived = buildDerived(projectedStates, auditsForProjection, 'distributed-reconciliation', evaluation.byIndex);
+  const derived = buildDerived(projectedStates, auditsForProjection, 'states-v2', evaluation.byIndex);
 
   return {
     blockers: [...new Set(blockers)],
@@ -176,6 +176,8 @@ function buildReconciliation() {
     checklist: derived.checklist,
   };
 }
+
+function buildReconciliation() { return require('../storage/git').withRevisionSnapshot(repoRoot,buildReconciliationSnapshot); }
 
 function normalized(value) {
   return String(value).replace(/\r\n/g, '\n');

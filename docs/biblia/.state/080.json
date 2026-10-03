@@ -4,7 +4,7 @@
   "bible": "docs/biblia/scripts/validation/playwright-gate-reporter-selftest.js/Bíblia.md",
   "status": "COMPLETED",
   "agent": null,
-  "source_sha": "a9bd151874609bb8529f14379647589b1f7b37e6",
+  "source_sha": "c3574843cf1614c9b705e6940e7502bbeb75e5be",
   "started_at_utc": "2026-09-30T06:06:46.460Z",
   "completed_at_utc": "2026-10-02T20:10:14Z",
   "audit_requests": [
@@ -63,7 +63,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T03:42:01.220Z",
+  "updated_at_utc": "2026-10-03T03:57:41.732Z",
   "history": [
     {
       "at_utc": "2026-10-02T20:10:14Z",
@@ -108,20 +108,44 @@
       "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
       "previous_event_hash": "cbb8f900636c19f41ffa02e366d78f4bd35bb0fc2704ce308a24c2204c02c718",
       "event_hash": "c73d554419fe823f92d4028723196fe6611cf1a47ec417a756f1c60d7898fd78"
+    },
+    {
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "at_utc": "2026-10-03T03:57:41.732Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "READY_FOR_AUDIT",
+      "actor": "Diesper-directed-initial-policy-install",
+      "previous_source_sha": "a9bd151874609bb8529f14379647589b1f7b37e6",
+      "previous_bible_sha": "ec73d1c18fbb0829e8364220f369d3322e9c14c2",
+      "previous_production_sha": null,
+      "previous_revision_id": "99a10c41e43552f7425a460d796cefb3d08aa4652be7545be06762d85fd84a29",
+      "test_sha": "c3574843cf1614c9b705e6940e7502bbeb75e5be",
+      "bible_sha": "f570e4f8b9c8488d3d7f6033d1bfe5a63cc770fa",
+      "production_sha": "07ba7a5bd98f484a20bbe09a55bfc40feb05aa52",
+      "source_sha": "c3574843cf1614c9b705e6940e7502bbeb75e5be",
+      "revision_id": "db4546c4ab18fef837cd4a2e27adc7813b9c30414eba6a4fba94df11a7f15f84",
+      "correction_cycle": 0,
+      "audit_epoch": 2,
+      "handoff_id": "080-e2-c66d0fd54272",
+      "reason": "Ordem direta do humano para implementar o plano no PR 66; completar instalação inicial antes de publicar a política. Nenhuma aprovação humana/auditoria fictícia criada.",
+      "previous_event_hash": "c73d554419fe823f92d4028723196fe6611cf1a47ec417a756f1c60d7898fd78",
+      "event_hash": "bd277518d1e0095ed96a162beeabc33ff055f7e1cbee21b0ed75ace1324f15d2"
     }
   ],
   "evidence": [],
-  "test_sha": "a9bd151874609bb8529f14379647589b1f7b37e6",
-  "bible_sha": "ec73d1c18fbb0829e8364220f369d3322e9c14c2",
-  "production_sha": null,
+  "test_sha": "c3574843cf1614c9b705e6940e7502bbeb75e5be",
+  "bible_sha": "f570e4f8b9c8488d3d7f6033d1bfe5a63cc770fa",
+  "production_sha": "07ba7a5bd98f484a20bbe09a55bfc40feb05aa52",
   "correction_cycle": 0,
   "lifetime_correction_cycles": 0,
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 1,
-  "handoff_id": "080-e1-339f5618a458",
-  "revision_id": "99a10c41e43552f7425a460d796cefb3d08aa4652be7545be06762d85fd84a29",
+  "audit_epoch": 2,
+  "handoff_id": "080-e2-c66d0fd54272",
+  "revision_id": "db4546c4ab18fef837cd4a2e27adc7813b9c30414eba6a4fba94df11a7f15f84",
   "review_status": "READY_FOR_AUDIT",
   "completion": {
     "achieved": true,
@@ -131,7 +155,7 @@
   "completion_quality": {
     "status": "WITH_CAVEATS",
     "caveats": [
-      "WAITING_PRIMARY"
+      "REVALIDATION_REQUIRED"
     ]
   }
 }

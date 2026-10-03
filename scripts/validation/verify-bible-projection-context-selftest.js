@@ -31,6 +31,14 @@ try {
     'scripts/bible/core/human-gate.js',
     'scripts/bible/storage/git.js',
     'scripts/bible/storage/files.js',
+    'scripts/bible/core/unit-transition.js',
+    'scripts/bible/commands/unit-transition.js',
+    'scripts/bible/commands/reconcile-audit-results.js',
+    'scripts/bible/commands/audit-protocol.js',
+    'scripts/bible/storage/units.js',
+    'scripts/bible/storage/unverified-findings.js',
+    'scripts/bible/storage/unverified-finding-events.js',
+    'scripts/bible/storage/human-review.js',
   ]) write(relative, fs.readFileSync(path.join(repoRoot, relative)));
 
   const source = 'fixture/source.js';
@@ -72,6 +80,11 @@ try {
   assert.strictEqual(run.status, 0, 'generator must ignore audits for an older Bible revision:\n' + run.stderr);
   assert.match(fs.readFileSync(path.join(fixture, 'docs/biblia/STATUS.md'), 'utf8'), /READY_FOR_AUDIT/);
   assert.strictEqual(fs.readFileSync(path.join(fixture, bible), 'utf8'), 'new Bible\n');
+  const reconciliation = require(path.join(fixture,'scripts/bible/commands/reconcile-audit-results')).buildReconciliation();
+  assert.deepStrictEqual(reconciliation.blockers,[]);
+  assert.strictEqual(reconciliation.status.replace(/\r\n/g,'\n'),fs.readFileSync(path.join(fixture,'docs/biblia/STATUS.md'),'utf8').replace(/\r\n/g,'\n'));
+  assert.strictEqual(reconciliation.checklist.replace(/\r\n/g,'\n'),fs.readFileSync(path.join(fixture,'docs/biblia/CHECKLIST.md'),'utf8').replace(/\r\n/g,'\n'));
+  console.log('PASS reconciliation and projection generator produce identical compatibility views');
   console.log('PASS projection generator agrees with canonical decision when Bible-only edit supersedes old audits');
 
   // The same records become current when the Bible bytes actually match.

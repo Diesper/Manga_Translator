@@ -2,6 +2,7 @@
 
 const assert = require('assert');
 const PlaywrightGateReporter = require('../ci/playwright-gate-reporter');
+const expectedTests = require('../ci/data/test-baseline.json').e2e.minTests;
 
 function suite(total) {
   return {
@@ -11,7 +12,7 @@ function suite(total) {
   };
 }
 
-async function finish({ total = 21, attempts = [], runStatus = 'passed' }) {
+async function finish({ total = expectedTests, attempts = [], runStatus = 'passed' }) {
   const reporter = new PlaywrightGateReporter();
   reporter.onBegin({}, suite(total));
   for (const attempt of attempts) {
@@ -23,7 +24,7 @@ async function finish({ total = 21, attempts = [], runStatus = 'passed' }) {
   return reporter.onEnd({ status: runStatus });
 }
 
-function passedAttempts(total = 21) {
+function passedAttempts(total = expectedTests) {
   return Array.from({ length: total }, (_, index) => ({
     id: 't' + index,
     status: 'passed',
@@ -36,28 +37,28 @@ function passedAttempts(total = 21) {
 
   {
     const attempts = passedAttempts();
-    attempts[20] = { id: 't20', status: 'skipped', retry: 0 };
+    attempts[expectedTests - 1] = { id: 't' + (expectedTests - 1), status: 'skipped', retry: 0 };
     assert.deepStrictEqual(await finish({ attempts }), { status: 'failed' });
   }
 
   {
-    const attempts = passedAttempts(20);
-    attempts.push({ id: 't20', status: 'failed', retry: 0 });
-    attempts.push({ id: 't20', status: 'passed', retry: 1 });
+    const attempts = passedAttempts(expectedTests - 1);
+    attempts.push({ id: 't' + (expectedTests - 1), status: 'failed', retry: 0 });
+    attempts.push({ id: 't' + (expectedTests - 1), status: 'passed', retry: 1 });
     assert.deepStrictEqual(await finish({ attempts }), { status: 'failed' });
   }
 
   {
-    const attempts = passedAttempts(20);
-    attempts.push({ id: 't20', status: 'timedOut', retry: 0 });
-    attempts.push({ id: 't20', status: 'passed', retry: 1 });
+    const attempts = passedAttempts(expectedTests - 1);
+    attempts.push({ id: 't' + (expectedTests - 1), status: 'timedOut', retry: 0 });
+    attempts.push({ id: 't' + (expectedTests - 1), status: 'passed', retry: 1 });
     assert.deepStrictEqual(await finish({ attempts }), { status: 'failed' });
   }
 
   {
-    const attempts = passedAttempts(20);
+    const attempts = passedAttempts(expectedTests - 1);
     assert.deepStrictEqual(
-      await finish({ total: 20, attempts }),
+      await finish({ total: expectedTests - 1, attempts }),
       { status: 'failed' }
     );
   }
@@ -86,8 +87,8 @@ function passedAttempts(total = 21) {
   }
 
   for (const terminalStatus of ['failed', 'timedOut', 'interrupted']) {
-    const attempts = passedAttempts(20);
-    attempts.push({ id: 't20', status: terminalStatus, retry: 0 });
+    const attempts = passedAttempts(expectedTests - 1);
+    attempts.push({ id: 't' + (expectedTests - 1), status: terminalStatus, retry: 0 });
     assert.deepStrictEqual(
       await finish({ attempts }),
       { status: 'failed' },
