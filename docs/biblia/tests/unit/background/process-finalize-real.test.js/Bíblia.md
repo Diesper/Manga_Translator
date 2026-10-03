@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/unit/background/process-finalize-real.test.js
 
 > **Estado documental:** ✅ CONCLUÍDA  
-> **SHA auditado:** abb1b936fadf0e309933e39b4b705116eb320a1f  
-> **Agente responsável:** AGENTE 26  
+> **SHA auditado:** c242bda9fbae752c90e4b41de971b05f9880595f
+> **Agente responsável:** AGENTE HÍBRIDO 3 — revisão corretiva
 > **Tipo:** suíte Jest de integração unitária com background real instrumentado — lifecycle/finalização  
-> **Linhas textuais:** 687  
-> **Posições documentais:** 688, contando o newline final  
+> **Linhas textuais:** 869
+> **Posições documentais:** 870, contando o newline final
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -29,7 +29,7 @@ O `beforeEach` reseta o cache de módulos, volta a timers reais, instala rastrea
 
 Nos cenários temporais, `flushFakeTimerRounds` avança fake timers em passos pequenos. Isso é importante porque a implementação intercala Promises, callbacks Chrome e timers; um único avanço grande pode mascarar ordem de microtasks diferente entre Node 20 e Node 22.
 
-## 4. Matriz dos 11 cenários
+## 4. Matriz dos 16 cenários
 
 | Linhas | Caso | Contrato principal | Força |
 |---|---|---|---|
@@ -44,10 +44,15 @@ Nos cenários temporais, `flushFakeTimerRounds` avança fake timers em passos pe
 | 469–526 | BG-76b | STOP durante `tabs.create` não ressuscita lote | ✅ direta |
 | 528–618 | BG-77 | staging falha com manga tab fechada e erro finaliza sem falso sucesso | ✅ direta |
 | 620–685 | BG-31c | exclusão da conversa só começa após estado de resultado persistido | ✅ direta |
+| 688–719 | BG-31d | `dedicatedWindow:true` fecha a janela Gemini pelo `windowId`, sem remoção isolada da aba | ✅ direta |
+| 721–749 | BG-16b | reidratação restaura contador do índice vivo e impede conclusão prematura | ✅ direta |
+| 751–867 | BG-76c (3 variações) | substituição A→B após persistência, na revalidação de identidade e depois do watchdog armado; limpa A e preserva a contabilidade de B | ✅ barreiras determinísticas |
 
 ## 5. Concorrência, lote e contabilidade
 
-O primeiro bloco prova três gates independentes: conclusão quando fila/ativos chegam a zero, bloqueio total quando `stopRequested` está ativo e respeito ao `_cachedMaxCon`. O segundo bloco deixa dois jobs serem materializados e depois dispara duas chamadas concorrentes contra uma fila de um único job; a assertion exige exatamente uma criação de aba.
+BG-16b monta `jobQueue:[]`, `activeJobsCount:0` e um job indexado no lote atual; exige que o contador seja recomposto e que `BATCH_COMPLETE` não seja enviado. O primeiro bloco prova três gates independentes: conclusão quando fila/ativos chegam a zero, bloqueio total quando `stopRequested` está ativo e respeito ao `_cachedMaxCon`. O segundo bloco deixa dois jobs serem materializados e depois dispara duas chamadas concorrentes contra uma fila de um único job; a assertion exige exatamente uma criação de aba.
+
+BG-76c usa barreiras no snapshot persistido, na resolução do alias de identidade e na confirmação final do watchdog. Em cada ponto promove B enquanto A está suspenso, exige remoção do índice/job/watchdog/aba de A e preserva os contadores e a aba ativa de B.
 
 O caso BG-76b cria deliberadamente uma Promise pendente em `tabs.create`, envia `STOP_BATCH` enquanto a API está suspensa, libera a criação depois e espera o sistema retornar a `activeJobsCount:0`, `jobIndex:[]`, sem abas e sem chaves `gemini_job_*`/`wd_data_*`.
 
@@ -63,49 +68,53 @@ O segundo P0 monta o estado exato de crash: `jobIndex` ainda contém o job, os c
 
 No caminho padrão `temp_chat`, REG-11/BG-24… prova limpeza contábil e remoção da aba após o delay curto; em `debugMode:true`, a aba não é removida. Com tab ausente e finalização por erro, a contabilidade reduz ativos sem incrementar concluídos.
 
+Em `minimized_window`, BG-31d complementa o cenário de janela compartilhada: para `dedicatedWindow:true` e `windowId` conhecido, exige `chrome.windows.remove(windowId)` e nenhuma chamada a `chrome.tabs.remove`.
+
 `minimized_window` registra a URL em `deleting_urls`, mantém a aba durante a janela de exclusão e, após 18 s, limpa a lista e fecha a superfície. BG-31b fixa a regra de segurança para `dedicatedWindow:false`: mesmo com manga e Gemini na mesma janela, `chrome.windows.remove` não é chamado; apenas a aba Gemini é removida.
 
 `background_delete` exige resultado já em estado `result_committed`/`resultPersisted:true`; BG-31c observa `DELETE_CONVERSATION`, URL em `deleting_urls`, aba ainda viva antes do timeout e remoção apenas depois de 18 s.
 
-## 8. Evidência CI exata
+## 8. Evidência de validação desta revisão
 
-O run **36521561968**, commit `e720890cf34dc9437ee91f3b8172953497d69870`, contém exatamente o blob **abb1b936fadf0e309933e39b4b705116eb320a1f** deste arquivo.
+O código-fonte revisado corresponde ao blob Git `c242bda9fbae752c90e4b41de971b05f9880595f` (869 linhas textuais; 870 posições documentais).
 
-- Node 20.x — job **109255348388**: `PASS background tests/unit/background/process-finalize-real.test.js`; os 11 casos deste arquivo aparecem individualmente com ✓; resultado global **109/109 suítes** e **851/851 testes**.
-- Node 22.x — job **109255348406**: o mesmo arquivo e os mesmos 11 casos aparecem com ✓; resultado global **109/109 suítes** e **851/851 testes**.
-- O CI Gate associado ao run foi o job **109256050280** e concluiu com sucesso.
+- `npx jest --config jest.config.js --runInBand tests/unit/background/process-finalize-real.test.js` — **PASS**, 1 suíte, 16/16 testes.
+- `npm run test:unit:background -- --runInBand` — **PASS**, 45/45 suítes, 233/233 testes.
+- `git diff --check` — **PASS**.
 
-Classificação do arquivo como suíte: ✅ **PROVADO DIRETAMENTE** para os comportamentos efetivamente assertados; branches não focais permanecem classificados abaixo sem extrapolação.
+O run CI **36521561968**, commit `e720890cf34dc9437ee91f3b8172953497d69870`, verificou o blob anterior `abb1b936fadf0e309933e39b4b705116eb320a1f` com 11 casos, Node 20.x e 22.x (109/109 suítes; 851/851 testes). Ele permanece evidência histórica da revisão anterior e não é apresentado como execução do SHA atual.
+
+A conclusão distribuída do SHA novo ainda depende das fases independentes PRIMARY e ADVERSARIAL.
 
 ## 9. Lacunas e solicitações ao auditor
 
-### 160-001 — TEST_REQUIRED — OPEN — NORMAL
+### 160-001 — TEST_REQUIRED — ACCEPTED; cobertura corretiva adicionada — NORMAL
 
 **Encontrado:** `closeGeminiSurface` fecha uma janela inteira quando `job.dedicatedWindow === true` e a tab possui `windowId`. BG-31b prova apenas o complemento `dedicatedWindow:false`.
 
 **Evidência atual:** BG-31b exige que `chrome.windows.remove` não seja chamado e que somente a aba Gemini seja removida em uma janela compartilhada.
 
-**Evidência ausente:** job minimized/background_delete com `dedicatedWindow:true`, tab com `windowId`, avanço do cleanup e assertion explícita de `chrome.windows.remove(windowId)` sem fallback indevido para remoção isolada.
+**Evidência adicionada:** BG-31d persiste job minimized com `dedicatedWindow:true` e `windowId:74`, exige uma chamada a `chrome.windows.remove(74)` e nenhuma chamada a `chrome.tabs.remove`.
 
 **Risco:** uma regressão pode deixar janela dedicada órfã ou trocar o comportamento entre janela dedicada e compartilhada.
 
-### 160-002 — TEST_REQUIRED — OPEN — NORMAL
+### 160-002 — TEST_REQUIRED — ACCEPTED; cobertura corretiva adicionada — NORMAL
 
 **Encontrado:** `processNextJob` possui guard `stillOpen`: quando fila e contador estão em zero, mas o índice durável ainda contém jobs do lote, ele restaura `activeJobsCount` e não declara `BATCH_COMPLETE`.
 
 **Evidência atual:** BG-16 cobre conclusão normal com fila/ativos realmente vazios; os cenários de restart cobrem journal de finalização, mas não este guard específico de índice vivo.
 
-**Evidência ausente:** snapshot com `jobQueue:[]`, `activeJobsCount:0`, `jobIndex` contendo job do lote atual; exigir restauração do contador e ausência de `BATCH_COMPLETE`.
+**Evidência adicionada:** BG-16b monta `jobQueue:[]`, `activeJobsCount:0` e um job no `jobIndex` do lote atual; exige contador persistido restaurado para 1 e ausência de `BATCH_COMPLETE`.
 
 **Risco:** um contador transitório zerado pode finalizar lote enquanto ainda há job indexado.
 
-### 160-003 — TEST_REQUIRED — OPEN — HIGH
+### 160-003 — TEST_REQUIRED — ACCEPTED; cobertura corretiva adicionada — HIGH
 
 **Encontrado:** o lifecycle revalida cancelamento em quatro checkpoints de lançamento: após criação da aba, após persistência/indexação do job, após migração de identidade e após armar watchdog. BG-76b coloca o STOP durante `tabs.create` e prova o primeiro checkpoint (`after_tab_create`), mas não congela os três checkpoints tardios.
 
 **Evidência atual:** BG-76b é prova forte de que uma aba criada depois do STOP é desfeita sem ressuscitar o lote.
 
-**Evidência ausente:** corridas em que STOP/substituição ocorre depois de `gemini_job_*` + índice persistidos, durante rekey/identity ou logo após watchdog; cada uma deve provar cleanup de job/index/watchdog/superfície e preservação dos contadores do lote atual.
+**Evidência adicionada:** BG-76c executa as três substituições A→B em barreiras distintas (persistência/indexação, revalidação de identidade e pós-armamento do watchdog); cada variação exige cleanup completo de A e preservação da contabilidade de B. BG-76b continua cobrindo STOP durante `tabs.create`.
 
 **Risco:** uma mudança futura pode fechar a primeira janela de corrida e reabrir outra mais tardia, deixando job órfão, watchdog residual ou contabilidade contaminada.
 
@@ -798,6 +807,188 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
         expect(storageMock._getStore().deleting_urls).toEqual([]);
     });
 
+
+    test('BG-31d: finalização de janela minimizada fecha a janela dedicada inteira', async () => {
+        const removeWindow = jest.fn((_windowId, callback) => callback?.());
+        global.chrome.windows = { remove: removeWindow };
+        const removeTab = jest.spyOn(tabsMock, 'remove');
+
+        await storageMock.set({
+            debugMode: false,
+            geminiExecutionMode: 'minimized_window',
+            gemini_job_1851: {
+                geminiTabId: 1851,
+                executionMode: 'minimized_window',
+                dedicatedWindow: true,
+            },
+            wd_data_1851: { mangaTabId: 60, index: 5, geminiTabId: 1851 },
+        });
+        tabsMock._tabs.set(1851, {
+            id: 1851,
+            windowId: 74,
+            url: 'https://gemini.google.com/',
+            active: false,
+            status: 'complete',
+            title: '',
+        });
+
+        backgroundModule.__setState({ activeJobsCount: 1, completedJobs: 0 });
+        await backgroundModule.finalizeJob(1851, 60, true);
+        await flush(8);
+
+        expect(removeWindow).toHaveBeenCalledTimes(1);
+        expect(removeWindow).toHaveBeenCalledWith(74, expect.any(Function));
+        expect(removeTab).not.toHaveBeenCalled();
+    });
+
+    test('BG-16b: reidratação do índice impede BATCH_COMPLETE com contador transitório zerado', async () => {
+        const mangaTab = await tabsMock.create({ url: 'https://reader.test/chapter-guard', active: true });
+        const forwardedMessages = [];
+        tabsMock._registerMessageHandler(mangaTab.id, (message, _sender, sendResponse) => {
+            forwardedMessages.push(message);
+            sendResponse({ ok: true });
+        });
+        backgroundModule.__setState({
+            jobQueue: [],
+            isProcessing: true,
+            stopRequested: false,
+            activeMangaTabId: mangaTab.id,
+            currentBatchId: 'batch-still-indexed',
+            completionClaimedBatchId: null,
+            extractionTabs: {},
+            totalJobs: 1,
+            completedJobs: 0,
+            activeJobsCount: 0,
+            jobIndex: [{ geminiTabId: 1950, batchId: 'batch-still-indexed', jobId: 'job-still-open' }],
+        });
+
+        await backgroundModule.processNextJob();
+        await flush(6);
+
+        expect(backgroundModule.__getState().activeJobsCount).toBe(1);
+        expect((await storageMock.get('mt_state')).mt_state.activeJobsCount).toBe(1);
+        expect(forwardedMessages).not.toContainEqual(expect.objectContaining({ action: 'BATCH_COMPLETE' }));
+        expect(backgroundModule.__getState().jobIndex).toHaveLength(1);
+    });
+
+    test.each(['after_job_persist', 'after_tab_identity', 'after_watchdog_arm'])(
+        'BG-76c: substituição do lote limpa lançamento cancelado em %s sem tocar na contabilidade do novo lote',
+        async phase => {
+            await storageMock.set({
+                geminiBaseUrl: 'https://example.com/mock',
+                geminiExecutionMode: 'temp_chat',
+            });
+            const gateEntered = (() => {
+                let resolve;
+                const promise = new Promise(done => { resolve = done; });
+                return { promise, resolve };
+            })();
+            const gateReleased = (() => {
+                let resolve;
+                const promise = new Promise(done => { resolve = done; });
+                return { promise, resolve };
+            })();
+            const originalSet = storageMock.set.bind(storageMock);
+            const originalGet = storageMock.get.bind(storageMock);
+            let gated = false;
+            let indexedAliasReads = 0;
+            const shouldGate = (keys, value) => {
+                if (gated) return false;
+                if (phase === 'after_job_persist') {
+                    return Boolean(value?.mt_state?.jobIndex?.some(entry => entry.batchId === 'batch-A'));
+                }
+                const requested = Array.isArray(keys) ? keys : [keys];
+                const isAliasRead = requested.some(key =>
+                    typeof key === 'string' && key.startsWith('gemini_tab_alias_'));
+                const isIndexedLaunch = backgroundModule.__getState().jobIndex
+                    .some(entry => entry.batchId === 'batch-A');
+                if (!isAliasRead || !isIndexedLaunch) return false;
+                indexedAliasReads += 1;
+                // Após indexação, a primeira leitura pertence ao recheck de
+                // identidade; a quarta é a confirmação final de armWatchdog,
+                // depois de o alarme e o payload durável já existirem.
+                return phase === 'after_tab_identity'
+                    ? indexedAliasReads === 1
+                    : indexedAliasReads === 4;
+            };
+            storageMock.set = async (value, callback) => {
+                const result = await originalSet(value, callback);
+                if (shouldGate(null, value)) {
+                    gated = true;
+                    gateEntered.resolve();
+                    await gateReleased.promise;
+                }
+                return result;
+            };
+            storageMock.get = async (keys, callback) => {
+                if (shouldGate(keys, null)) {
+                    gated = true;
+                    gateEntered.resolve();
+                    await gateReleased.promise;
+                }
+                return originalGet(keys, callback);
+            };
+
+            backgroundModule.__setState({
+                jobQueue: [{ mangaTabId: 55, index: 1, prompt: 'A', batchId: 'batch-A' }],
+                isProcessing: true,
+                stopRequested: false,
+                activeMangaTabId: 55,
+                currentBatchId: 'batch-A',
+                completionClaimedBatchId: null,
+                pendingBatches: [],
+                jobIndex: [],
+                activeJobsCount: 0,
+                completedJobs: 0,
+                totalJobs: 1,
+                _cachedMaxCon: 1,
+            });
+
+            const launch = backgroundModule.processNextJob();
+            try {
+                await waitFor(() => gated || null);
+                await gateEntered.promise;
+                expect(backgroundModule.__getState().jobIndex.some(entry => entry.batchId === 'batch-A')).toBe(true);
+                if (phase === 'after_watchdog_arm') {
+                    expect((await alarmsMock.getAll()).some(alarm => alarm.name.startsWith('watchdog_'))).toBe(true);
+                    expect(Object.keys(await storageMock.get(null)).some(key => key.startsWith('wd_data_'))).toBe(true);
+                }
+
+                // Simula a promoção concorrente de B enquanto o lançamento de A
+                // está parado exatamente antes do checkpoint selecionado.
+                backgroundModule.__setState({
+                    currentBatchId: 'batch-B',
+                    activeMangaTabId: 56,
+                    activeJobsCount: 1,
+                    totalJobs: 3,
+                    completedJobs: 2,
+                });
+                gateReleased.resolve();
+                await launch;
+                await flush(10);
+
+                const state = backgroundModule.__getState();
+                const stored = await storageMock.get(null);
+                const launchedTabIds = Array.from(tabsMock._tabs.keys()).filter(id => id >= 1000);
+                expect(state).toEqual(expect.objectContaining({
+                    currentBatchId: 'batch-B',
+                    activeMangaTabId: 56,
+                    activeJobsCount: 1,
+                    totalJobs: 3,
+                    completedJobs: 2,
+                    jobIndex: [],
+                }));
+                expect(Object.keys(stored).filter(key => key.startsWith('gemini_job_'))).toEqual([]);
+                expect(Object.keys(stored).filter(key => key.startsWith('wd_data_'))).toEqual([]);
+                expect(await alarmsMock.getAll()).toEqual([]);
+                expect(launchedTabIds.every(id => !tabsMock._tabs.has(id))).toBe(true);
+            } finally {
+                gateReleased.resolve();
+                storageMock.set = originalSet;
+                storageMock.get = originalGet;
+            }
+        }
+    );
 });
 ```
 
@@ -5607,12 +5798,1286 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
 
 ### Linha 687
 
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 688
+
+- **Código:** `    test('BG-31d: finalização de janela minimizada fecha a janela dedicada inteira', async () => {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 689
+
+- **Código:** `        const removeWindow = jest.fn((_windowId, callback) => callback?.());`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 690
+
+- **Código:** `        global.chrome.windows = { remove: removeWindow };`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 691
+
+- **Código:** `        const removeTab = jest.spyOn(tabsMock, 'remove');`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 692
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 693
+
+- **Código:** `        await storageMock.set({`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 694
+
+- **Código:** `            debugMode: false,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 695
+
+- **Código:** `            geminiExecutionMode: 'minimized_window',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 696
+
+- **Código:** `            gemini_job_1851: {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 697
+
+- **Código:** `                geminiTabId: 1851,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 698
+
+- **Código:** `                executionMode: 'minimized_window',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 699
+
+- **Código:** `                dedicatedWindow: true,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 700
+
+- **Código:** `            },`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 701
+
+- **Código:** `            wd_data_1851: { mangaTabId: 60, index: 5, geminiTabId: 1851 },`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 702
+
+- **Código:** `        });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 703
+
+- **Código:** `        tabsMock._tabs.set(1851, {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 704
+
+- **Código:** `            id: 1851,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 705
+
+- **Código:** `            windowId: 74,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 706
+
+- **Código:** `            url: 'https://gemini.google.com/',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 707
+
+- **Código:** `            active: false,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 708
+
+- **Código:** `            status: 'complete',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 709
+
+- **Código:** `            title: '',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 710
+
+- **Código:** `        });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 711
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 712
+
+- **Código:** `        backgroundModule.__setState({ activeJobsCount: 1, completedJobs: 0 });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 713
+
+- **Código:** `        await backgroundModule.finalizeJob(1851, 60, true);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 714
+
+- **Código:** `        await flush(8);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 715
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 716
+
+- **Código:** `        expect(removeWindow).toHaveBeenCalledTimes(1);`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 717
+
+- **Código:** `        expect(removeWindow).toHaveBeenCalledWith(74, expect.any(Function));`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 718
+
+- **Código:** `        expect(removeTab).not.toHaveBeenCalled();`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 719
+
+- **Código:** `    });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-31d — fechamento de janela Gemini dedicada.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 720
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 721
+
+- **Código:** `    test('BG-16b: reidratação do índice impede BATCH_COMPLETE com contador transitório zerado', async () => {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 722
+
+- **Código:** `        const mangaTab = await tabsMock.create({ url: 'https://reader.test/chapter-guard', active: true });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 723
+
+- **Código:** `        const forwardedMessages = [];`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 724
+
+- **Código:** `        tabsMock._registerMessageHandler(mangaTab.id, (message, _sender, sendResponse) => {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 725
+
+- **Código:** `            forwardedMessages.push(message);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 726
+
+- **Código:** `            sendResponse({ ok: true });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 727
+
+- **Código:** `        });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 728
+
+- **Código:** `        backgroundModule.__setState({`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 729
+
+- **Código:** `            jobQueue: [],`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 730
+
+- **Código:** `            isProcessing: true,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 731
+
+- **Código:** `            stopRequested: false,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 732
+
+- **Código:** `            activeMangaTabId: mangaTab.id,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 733
+
+- **Código:** `            currentBatchId: 'batch-still-indexed',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 734
+
+- **Código:** `            completionClaimedBatchId: null,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 735
+
+- **Código:** `            extractionTabs: {},`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 736
+
+- **Código:** `            totalJobs: 1,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 737
+
+- **Código:** `            completedJobs: 0,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 738
+
+- **Código:** `            activeJobsCount: 0,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 739
+
+- **Código:** `            jobIndex: [{ geminiTabId: 1950, batchId: 'batch-still-indexed', jobId: 'job-still-open' }],`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 740
+
+- **Código:** `        });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 741
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 742
+
+- **Código:** `        await backgroundModule.processNextJob();`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 743
+
+- **Código:** `        await flush(6);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 744
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 745
+
+- **Código:** `        expect(backgroundModule.__getState().activeJobsCount).toBe(1);`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 746
+
+- **Código:** `        expect((await storageMock.get('mt_state')).mt_state.activeJobsCount).toBe(1);`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 747
+
+- **Código:** `        expect(forwardedMessages).not.toContainEqual(expect.objectContaining({ action: 'BATCH_COMPLETE' }));`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 748
+
+- **Código:** `        expect(backgroundModule.__getState().jobIndex).toHaveLength(1);`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 749
+
+- **Código:** `    });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-16b — guarda de job indexado durante reidratação.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 750
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 751
+
+- **Código:** `    test.each(['after_job_persist', 'after_tab_identity', 'after_watchdog_arm'])(`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 752
+
+- **Código:** `        'BG-76c: substituição do lote limpa lançamento cancelado em %s sem tocar na contabilidade do novo lote',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 753
+
+- **Código:** `        async phase => {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 754
+
+- **Código:** `            await storageMock.set({`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 755
+
+- **Código:** `                geminiBaseUrl: 'https://example.com/mock',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 756
+
+- **Código:** `                geminiExecutionMode: 'temp_chat',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 757
+
+- **Código:** `            });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 758
+
+- **Código:** `            const gateEntered = (() => {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 759
+
+- **Código:** `                let resolve;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 760
+
+- **Código:** `                const promise = new Promise(done => { resolve = done; });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 761
+
+- **Código:** `                return { promise, resolve };`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 762
+
+- **Código:** `            })();`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 763
+
+- **Código:** `            const gateReleased = (() => {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 764
+
+- **Código:** `                let resolve;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 765
+
+- **Código:** `                const promise = new Promise(done => { resolve = done; });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 766
+
+- **Código:** `                return { promise, resolve };`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 767
+
+- **Código:** `            })();`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 768
+
+- **Código:** `            const originalSet = storageMock.set.bind(storageMock);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 769
+
+- **Código:** `            const originalGet = storageMock.get.bind(storageMock);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 770
+
+- **Código:** `            let gated = false;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 771
+
+- **Código:** `            let indexedAliasReads = 0;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 772
+
+- **Código:** `            const shouldGate = (keys, value) => {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 773
+
+- **Código:** `                if (gated) return false;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 774
+
+- **Código:** `                if (phase === 'after_job_persist') {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 775
+
+- **Código:** `                    return Boolean(value?.mt_state?.jobIndex?.some(entry => entry.batchId === 'batch-A'));`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 776
+
+- **Código:** `                }`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 777
+
+- **Código:** `                const requested = Array.isArray(keys) ? keys : [keys];`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 778
+
+- **Código:** `                const isAliasRead = requested.some(key =>`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 779
+
+- **Código:** `                    typeof key === 'string' && key.startsWith('gemini_tab_alias_'));`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 780
+
+- **Código:** `                const isIndexedLaunch = backgroundModule.__getState().jobIndex`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 781
+
+- **Código:** `                    .some(entry => entry.batchId === 'batch-A');`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 782
+
+- **Código:** `                if (!isAliasRead || !isIndexedLaunch) return false;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 783
+
+- **Código:** `                indexedAliasReads += 1;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 784
+
+- **Código:** `                // Após indexação, a primeira leitura pertence ao recheck de`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 785
+
+- **Código:** `                // identidade; a quarta é a confirmação final de armWatchdog,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 786
+
+- **Código:** `                // depois de o alarme e o payload durável já existirem.`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 787
+
+- **Código:** `                return phase === 'after_tab_identity'`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 788
+
+- **Código:** `                    ? indexedAliasReads === 1`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 789
+
+- **Código:** `                    : indexedAliasReads === 4;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 790
+
+- **Código:** `            };`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 791
+
+- **Código:** `            storageMock.set = async (value, callback) => {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 792
+
+- **Código:** `                const result = await originalSet(value, callback);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 793
+
+- **Código:** `                if (shouldGate(null, value)) {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 794
+
+- **Código:** `                    gated = true;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 795
+
+- **Código:** `                    gateEntered.resolve();`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 796
+
+- **Código:** `                    await gateReleased.promise;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 797
+
+- **Código:** `                }`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 798
+
+- **Código:** `                return result;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 799
+
+- **Código:** `            };`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 800
+
+- **Código:** `            storageMock.get = async (keys, callback) => {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 801
+
+- **Código:** `                if (shouldGate(keys, null)) {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 802
+
+- **Código:** `                    gated = true;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 803
+
+- **Código:** `                    gateEntered.resolve();`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 804
+
+- **Código:** `                    await gateReleased.promise;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 805
+
+- **Código:** `                }`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 806
+
+- **Código:** `                return originalGet(keys, callback);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 807
+
+- **Código:** `            };`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 808
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 809
+
+- **Código:** `            backgroundModule.__setState({`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 810
+
+- **Código:** `                jobQueue: [{ mangaTabId: 55, index: 1, prompt: 'A', batchId: 'batch-A' }],`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 811
+
+- **Código:** `                isProcessing: true,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 812
+
+- **Código:** `                stopRequested: false,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 813
+
+- **Código:** `                activeMangaTabId: 55,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 814
+
+- **Código:** `                currentBatchId: 'batch-A',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 815
+
+- **Código:** `                completionClaimedBatchId: null,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 816
+
+- **Código:** `                pendingBatches: [],`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 817
+
+- **Código:** `                jobIndex: [],`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 818
+
+- **Código:** `                activeJobsCount: 0,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 819
+
+- **Código:** `                completedJobs: 0,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 820
+
+- **Código:** `                totalJobs: 1,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 821
+
+- **Código:** `                _cachedMaxCon: 1,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 822
+
+- **Código:** `            });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 823
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 824
+
+- **Código:** `            const launch = backgroundModule.processNextJob();`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 825
+
+- **Código:** `            try {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 826
+
+- **Código:** `                await waitFor(() => gated || null);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 827
+
+- **Código:** `                await gateEntered.promise;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 828
+
+- **Código:** `                expect(backgroundModule.__getState().jobIndex.some(entry => entry.batchId === 'batch-A')).toBe(true);`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 829
+
+- **Código:** `                if (phase === 'after_watchdog_arm') {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 830
+
+- **Código:** `                    expect((await alarmsMock.getAll()).some(alarm => alarm.name.startsWith('watchdog_'))).toBe(true);`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 831
+
+- **Código:** `                    expect(Object.keys(await storageMock.get(null)).some(key => key.startsWith('wd_data_'))).toBe(true);`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 832
+
+- **Código:** `                }`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 833
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 834
+
+- **Código:** `                // Simula a promoção concorrente de B enquanto o lançamento de A`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 835
+
+- **Código:** `                // está parado exatamente antes do checkpoint selecionado.`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 836
+
+- **Código:** `                backgroundModule.__setState({`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 837
+
+- **Código:** `                    currentBatchId: 'batch-B',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 838
+
+- **Código:** `                    activeMangaTabId: 56,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 839
+
+- **Código:** `                    activeJobsCount: 1,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 840
+
+- **Código:** `                    totalJobs: 3,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 841
+
+- **Código:** `                    completedJobs: 2,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 842
+
+- **Código:** `                });`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 843
+
+- **Código:** `                gateReleased.resolve();`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 844
+
+- **Código:** `                await launch;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 845
+
+- **Código:** `                await flush(10);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 846
+
+- **Código:** *(linha vazia)*
+- **Função:** Separa blocos lógicos e não altera o comportamento executado.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 847
+
+- **Código:** `                const state = backgroundModule.__getState();`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 848
+
+- **Código:** `                const stored = await storageMock.get(null);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 849
+
+- **Código:** `                const launchedTabIds = Array.from(tabsMock._tabs.keys()).filter(id => id >= 1000);`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 850
+
+- **Código:** `                expect(state).toEqual(expect.objectContaining({`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 851
+
+- **Código:** `                    currentBatchId: 'batch-B',`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 852
+
+- **Código:** `                    activeMangaTabId: 56,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 853
+
+- **Código:** `                    activeJobsCount: 1,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 854
+
+- **Código:** `                    totalJobs: 3,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 855
+
+- **Código:** `                    completedJobs: 2,`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 856
+
+- **Código:** `                    jobIndex: [],`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 857
+
+- **Código:** `                }));`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 858
+
+- **Código:** `                expect(Object.keys(stored).filter(key => key.startsWith('gemini_job_'))).toEqual([]);`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 859
+
+- **Código:** `                expect(Object.keys(stored).filter(key => key.startsWith('wd_data_'))).toEqual([]);`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 860
+
+- **Código:** `                expect(await alarmsMock.getAll()).toEqual([]);`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 861
+
+- **Código:** `                expect(launchedTabIds.every(id => !tabsMock._tabs.has(id))).toBe(true);`
+- **Função:** Assertion focal que falha quando o efeito observável do contrato não ocorre.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** ✅ PROVADO DIRETAMENTE — assertion do próprio caso falha se este resultado não ocorrer.
+
+### Linha 862
+
+- **Código:** `            } finally {`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 863
+
+- **Código:** `                gateReleased.resolve();`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 864
+
+- **Código:** `                storageMock.set = originalSet;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 865
+
+- **Código:** `                storageMock.get = originalGet;`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 866
+
+- **Código:** `            }`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 867
+
+- **Código:** `        }`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 868
+
+- **Código:** `    );`
+- **Função:** Prepara, sincroniza ou verifica a barreira assíncrona do cenário de regressão.
+- **Contexto:** BG-76c — substituição adversarial A→B em checkpoint de lançamento.
+- **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — integra o cenário real; sem assertion isolada exclusiva para esta linha.
+
+### Linha 869
+
 - **Código:** `});`
 - **Função:** Fecha o bloco sintático iniciado anteriormente; mantém a estrutura do cenário/harness sem introduzir comportamento autônomo.
 - **Contexto:** estrutura da suíte.
 - **Evidência:** 🟨 EXECUTADO INDIRETAMENTE — participa de cenário verde da implementação real, sem assertion isolada exclusiva para esta linha.
 
-### Posição 688 — newline final
+### Posição 870 — newline final
 
 - **Código:** newline final após a última linha textual.
 - **Função:** encerra o arquivo de forma POSIX e preserva a representação textual canônica usada no blob auditado.
@@ -5620,6 +7085,6 @@ describe('background.js - processNextJob e finalizeJob reais', () => {
 
 ## 12. Conclusão documental
 
-A fonte integral foi preservada, todas as **687 linhas textuais** e a posição **688** do newline final estão documentadas. As alegações de comportamento distinguem assertions diretas, execução indireta e branches sem prova focal.
+A fonte integral foi preservada, todas as **869 linhas textuais** e a posição **870** do newline final estão documentadas. As alegações de comportamento distinguem assertions diretas, execução indireta e branches sem prova focal.
 
-A suíte tem prova CI exata em Node 20 e Node 22 para o mesmo blob. As três lacunas registradas não invalidam os 11 contratos que a suíte realmente prova; elas delimitam ramos relevantes que ainda merecem testes focais externos.
+O CI histórico cobriu o blob anterior em Node 20 e Node 22. Nesta revisão, 16 testes do arquivo e a suíte relacionada inteira passaram; os três pedidos corretivos receberam cobertura, mas o SHA atualizado ainda aguarda PRIMARY e ADVERSARIAL independentes.
