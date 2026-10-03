@@ -2,8 +2,8 @@
   "index": 179,
   "file": "tests/unit/content-gemini/helpers-and-regressions-real.test.js",
   "bible": "docs/biblia/tests/unit/content-gemini/helpers-and-regressions-real.test.js/Bíblia.md",
-  "status": "IN_PROGRESS",
-  "agent": "AGENTE HÍBRIDO 3",
+  "status": "READY_FOR_AUDIT",
+  "agent": null,
   "source_sha": "4fd9efcb7d63fedfdc9843af1205cd9a805024a7",
   "started_at_utc": "2026-09-30T15:40:00Z",
   "completed_at_utc": null,
@@ -128,7 +128,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T09:14:04.923Z",
+  "updated_at_utc": "2026-10-03T09:24:56.230Z",
   "history": [
     {
       "at_utc": "2026-10-01T18:52:55.822Z",
@@ -316,6 +316,21 @@
       "revision_id": "8bf07e0cf6ee6bcf5df6dbb34cb9ef3468baedc4bb08e3b361cee5f6bbc65258",
       "previous_event_hash": "d71ac3bae1b2f8f2ab47f5492a24eea3cb2736c901e35d904a47c4f8afe641ba",
       "event_hash": "d9329c2df63c08e36d162cc9a29d1cd71147087ae1b924ffe6ba87ccd711c305"
+    },
+    {
+      "at_utc": "2026-10-03T09:24:56.230Z",
+      "type": "PROTECTED_HANDOFF_UNAUTHORIZED_CORRECTION_ABORTED",
+      "from_status": "IN_PROGRESS",
+      "to_status": "READY_FOR_AUDIT",
+      "source_sha": "4fd9efcb7d63fedfdc9843af1205cd9a805024a7",
+      "bible_sha": "43c4f723e46d32c43de98a85b601a4d38e490476",
+      "reopen_at_utc": null,
+      "correction_token_id": null,
+      "reservation_path": "docs/biblia/.reservas/tests/unit/content-gemini/helpers-and-regressions-real.test.js.lock.md",
+      "actor": "AGENTE HÍBRIDO 3",
+      "reason": "Pausar #179 e liberar reserva: a correção depende de alteração da unidade COMPLETED #045, sujeita à autorização humana prevista em COMPLETION_POLICY.md.",
+      "previous_event_hash": "d9329c2df63c08e36d162cc9a29d1cd71147087ae1b924ffe6ba87ccd711c305",
+      "event_hash": "e5513624c75c3094d543f42a6910e0299198626edb6fa22b74fedade74ede23d"
     }
   ],
   "evidence": [],
