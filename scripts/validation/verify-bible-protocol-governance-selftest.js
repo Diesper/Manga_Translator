@@ -126,6 +126,19 @@ function rejectShardMutation(name, key, transform) {
   assert.ok(problems.length, 'governance accepted shard weakening: ' + name);
   console.log('PASS shard mutation rejected: ' + name);
 }
+function replaceJob(source, id, transform) {
+  const start = source.indexOf('\n  ' + id + ':\n');
+  assert.ok(start >= 0, 'job fixture missing: ' + id);
+  const next = source.slice(start + 1).search(/\n  [A-Za-z0-9_-]+:\n/);
+  const end = next < 0 ? source.length : start + 1 + next;
+  return source.slice(0,start) + transform(source.slice(start,end)) + source.slice(end);
+}
+rejectShardMutation('remove entire live post-gates job','protocol',s => replaceJob(s,'protocol-post-gates',()=>''));
+for (const os of ['ubuntu-latest','windows-latest']) {
+  rejectShardMutation('coverage removes '+os,'structure',s => replaceJob(s,'coverage',block => block.replace('os: [ubuntu-latest, windows-latest]', 'os: ['+(os==='ubuntu-latest'?'windows-latest':'ubuntu-latest')+']')));
+}
+rejectShardMutation('remove integral coverage verifier','structure',s => replaceJob(s,'coverage',block=>block.replace(' && npm run test:coverage:verify','')));
+rejectShardMutation('remove entire blocking mutation job','structure',s => replaceJob(s,'mutation',()=>''));
 for (const key of ['protocol','structure']) {
   const rows = [...sources[key].matchAll(/^          - id: [^\n]+\n            command: [^\n]+\n/gm)].map(m => m[0]);
   for (const [position, row] of [['first',rows[0]],['middle',rows[Math.floor(rows.length/2)]],['last',rows.at(-1)]]) {
@@ -195,7 +208,23 @@ for (const name of Object.keys(sharding.baseline.aggregates)) {
   rejectShardMutation('aggregate inventory ' + name,'package',s => {
     const pkg = JSON.parse(s); pkg.scripts[name] = pkg.scripts[name].split(' && ').slice(0,-1).join(' && '); return JSON.stringify(pkg);
   });
+  rejectShardMutation('duplicate alias and omit sibling '+name,'package',s => {
+    const pkg=JSON.parse(s),parts=pkg.scripts[name].split(' && ');
+    parts[1]=parts[0];pkg.scripts[name]=parts.join(' && ');return JSON.stringify(pkg);
+  });
 }
+for (const metric of ['statements','branches','functions','lines']) {
+  rejectShardMutation('reduce global coverage threshold '+metric,'coverageBaseline',s=>{
+    const value=JSON.parse(s);value.coverage.minimum[metric]-=1;return JSON.stringify(value);
+  });
+  rejectShardMutation('reduce critical coverage threshold '+metric,'coverageBaseline',s=>{
+    const value=JSON.parse(s);value.coverage.criticalMinimum['extension/background.js'][metric]-=1;return JSON.stringify(value);
+  });
+}
+rejectShardMutation('reduce instrumented file minimum','coverageBaseline',s=>{
+  const value=JSON.parse(s);value.coverage.minInstrumentedFiles-=1;return JSON.stringify(value);
+});
+rejectShardMutation('exclude extension from coverage','coverageConfig',s=>s.replace("collectCoverageFrom: ['<rootDir>/extension/**/*.js']",'collectCoverageFrom: []'));
 // Exercise aggregate behavior with every terminal dependency result. The exact
 // executable expression is validated above; these assertions check its truth table.
 const { spawnSync } = require('child_process');
