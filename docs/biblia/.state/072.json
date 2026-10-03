@@ -2,11 +2,11 @@
   "index": 72,
   "file": "scripts/ci/playwright-gate-reporter.js",
   "bible": "docs/biblia/scripts/ci/playwright-gate-reporter.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "16bddbd559f0c8def18b3d7923695ca693332391",
   "started_at_utc": "2026-09-30T03:30:21Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-02T19:51:21Z",
   "audit_requests": [
     {
       "id": "072-001",
@@ -66,7 +66,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T19:51:21Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-02T19:51:21Z",
@@ -89,6 +89,28 @@
       "reason": "Reporter E2E e Bíblia sincronizados; auditoria da revisão anterior invalidada.",
       "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
       "event_hash": "e6cfa5f4f82a3c5438b4705f3353ebfa6e62e6f13956e1cdaba0d0c0c4288865"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:40.508Z",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "e6cfa5f4f82a3c5438b4705f3353ebfa6e62e6f13956e1cdaba0d0c0c4288865",
+      "event_hash": "78e68222bd295e61e817f52f202c55015d22f6a40e9e1a69eb6fa716c581e5bd"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "78e68222bd295e61e817f52f202c55015d22f6a40e9e1a69eb6fa716c581e5bd",
+      "event_hash": "6bfcaa1dba1f7878804b299cd61216b4eae148c2fa6df3fcc3a847c1a0d21a6c"
     }
   ],
   "evidence": [],
@@ -111,5 +133,17 @@
     "bible_lines": 275,
     "external_audit_requests_open": 0,
     "note": "Reporter focal/global sincronizado; nova auditoria distribuída obrigatória."
+  },
+  "review_status": "READY_FOR_AUDIT",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-02T19:51:21Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_PRIMARY"
+    ]
   }
 }

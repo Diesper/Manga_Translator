@@ -2,11 +2,11 @@
   "index": 83,
   "file": "scripts/validation/verify-ci-contract.js",
   "bible": "docs/biblia/scripts/validation/verify-ci-contract.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
-  "source_sha": "d397389e3e7f5168bbbeca2c6e5ba8c1b07ebb8a",
+  "source_sha": "54079e7865fc1889fd48b75a5e18175ce3869459",
   "started_at_utc": "2026-09-30T06:08:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T04:07:00Z",
   "audit_requests": [
     {
       "id": "083-001",
@@ -67,7 +67,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T20:10:31Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:07:00Z",
@@ -99,6 +99,52 @@
       "reason": "Sincroniza a Bíblia #083 ao verificador atual do contrato de CI; aprovação histórica não é reutilizada.",
       "previous_event_hash": "78d8f7ffb7a6eead9c5eed42a9ca8e9ac590723b0bb235353a045d3a1ac4ee4b",
       "event_hash": "e189dfebff6e5c444bfeade481696ce607cffe25fcd53796dae784c9812a1d44"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:40.822Z",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "e189dfebff6e5c444bfeade481696ce607cffe25fcd53796dae784c9812a1d44",
+      "event_hash": "e3c5af2187083ee10e86f738c421ce0436580d56f70b6705e0e620e441012e2b"
+    },
+    {
+      "at_utc": "2026-10-03T03:41:50.642Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "actor": "Diesper-directed-structure-review",
+      "previous_source_sha": "d397389e3e7f5168bbbeca2c6e5ba8c1b07ebb8a",
+      "previous_bible_sha": "b73a637d69e192ab62e9e279ed05ed8e3523d7e8",
+      "previous_production_sha": null,
+      "previous_revision_id": "3e076e8434ff54d5d3ac38c9cd268396b6cb45bdc90eeaa2d7751fcaab9d3ae3",
+      "source_sha": "54079e7865fc1889fd48b75a5e18175ce3869459",
+      "test_sha": "54079e7865fc1889fd48b75a5e18175ce3869459",
+      "bible_sha": "429fceb1c10c2520e9d252a14ba7cf066577605a",
+      "production_sha": "3b91a9900c9e82cbf5432fbb40d74aca5c842918",
+      "revision_id": "b09d65d8f1d55edc37b0ec91123f1ab3f65ebd769c1e977868bb4f16a8de7c29",
+      "correction_cycle": 0,
+      "audit_epoch": 2,
+      "handoff_id": "083-e2-fca3e306c4bc",
+      "reason": "Implementação do plano diretamente no PR 66 por instrução explícita do usuário; atualizar vínculo sem aprovação automática.",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "previous_event_hash": "e3c5af2187083ee10e86f738c421ce0436580d56f70b6705e0e620e441012e2b",
+      "event_hash": "5381413d068c02340ba6e04a385456fb5a32243d87352862c7d4ba20dc0b4d80"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "5381413d068c02340ba6e04a385456fb5a32243d87352862c7d4ba20dc0b4d80",
+      "event_hash": "f72a926284b2e923e7e340020e459157cb28d4def80bc6df4f1e94d3f6402d3c"
     }
   ],
   "evidence": [
@@ -111,15 +157,27 @@
       "note": "Requests 083-001..002 permanecem ACCEPTED; aprovação documental não as converte em prova funcional."
     }
   ],
-  "test_sha": "d397389e3e7f5168bbbeca2c6e5ba8c1b07ebb8a",
-  "bible_sha": "b73a637d69e192ab62e9e279ed05ed8e3523d7e8",
-  "production_sha": null,
+  "test_sha": "54079e7865fc1889fd48b75a5e18175ce3869459",
+  "bible_sha": "429fceb1c10c2520e9d252a14ba7cf066577605a",
+  "production_sha": "3b91a9900c9e82cbf5432fbb40d74aca5c842918",
   "correction_cycle": 0,
   "lifetime_correction_cycles": 0,
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 1,
-  "handoff_id": "083-e1-18d2e21977c4",
-  "revision_id": "3e076e8434ff54d5d3ac38c9cd268396b6cb45bdc90eeaa2d7751fcaab9d3ae3"
+  "audit_epoch": 2,
+  "handoff_id": "083-e2-fca3e306c4bc",
+  "revision_id": "b09d65d8f1d55edc37b0ec91123f1ab3f65ebd769c1e977868bb4f16a8de7c29",
+  "review_status": "READY_FOR_AUDIT",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T04:07:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_PRIMARY"
+    ]
+  }
 }

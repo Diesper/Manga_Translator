@@ -2,11 +2,11 @@
   "index": 80,
   "file": "scripts/validation/playwright-gate-reporter-selftest.js",
   "bible": "docs/biblia/scripts/validation/playwright-gate-reporter-selftest.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "a9bd151874609bb8529f14379647589b1f7b37e6",
   "started_at_utc": "2026-09-30T06:06:46.460Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-02T20:10:14Z",
   "audit_requests": [
     {
       "id": "080-001",
@@ -63,7 +63,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T20:10:14Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-02T20:10:14Z",
@@ -86,6 +86,28 @@
       "reason": "Sincroniza a Bíblia #080 ao self-test atual do Playwright gate; aprovação histórica não é reutilizada.",
       "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
       "event_hash": "0b5bf0d86b4bc2d6bbe0e41cbbf7f023eaff63b8e09753af6e08202aabc910c1"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:40.637Z",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "0b5bf0d86b4bc2d6bbe0e41cbbf7f023eaff63b8e09753af6e08202aabc910c1",
+      "event_hash": "cbb8f900636c19f41ffa02e366d78f4bd35bb0fc2704ce308a24c2204c02c718"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "cbb8f900636c19f41ffa02e366d78f4bd35bb0fc2704ce308a24c2204c02c718",
+      "event_hash": "c73d554419fe823f92d4028723196fe6611cf1a47ec417a756f1c60d7898fd78"
     }
   ],
   "evidence": [],
@@ -99,5 +121,17 @@
   "human_approval_required": false,
   "audit_epoch": 1,
   "handoff_id": "080-e1-339f5618a458",
-  "revision_id": "99a10c41e43552f7425a460d796cefb3d08aa4652be7545be06762d85fd84a29"
+  "revision_id": "99a10c41e43552f7425a460d796cefb3d08aa4652be7545be06762d85fd84a29",
+  "review_status": "READY_FOR_AUDIT",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-02T20:10:14Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_PRIMARY"
+    ]
+  }
 }

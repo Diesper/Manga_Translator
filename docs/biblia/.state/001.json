@@ -4,7 +4,7 @@
   "bible": "docs/biblia/extension/manifest.json/Bíblia.md",
   "status": "COMPLETED",
   "agent": null,
-  "source_sha": "841fe70c183350e4110bc8ff57ab69b157169c36",
+  "source_sha": "c830ce3a8baac3d49268e64ae4e8218144f3ef2e",
   "started_at_utc": "2026-09-30T12:50:00Z",
   "completed_at_utc": "2026-10-01T03:21:00Z",
   "audit_requests": [
@@ -62,7 +62,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T03:21:00Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:28:00Z",
@@ -78,8 +78,77 @@
       "to_status": "COMPLETED",
       "source_sha": "841fe70c183350e4110bc8ff57ab69b157169c36",
       "reason": "Auditoria independente confirmou fidelidade documental, fonte/coverage e evidências no SHA atual; lacunas externas ACCEPTED permanecem abertas."
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:39.061Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "9b35e6af89e5794fce5aa6b624e9abb7c664131d69baca267e2f5b44f2788896",
+      "event_hash": "535dcbc9743c1114487b67a4f6ca880fe17afa06596f706c6dfe5218fe5b7eb2"
+    },
+    {
+      "at_utc": "2026-10-03T03:41:42.561Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "actor": "Diesper-directed-structure-review",
+      "previous_source_sha": "841fe70c183350e4110bc8ff57ab69b157169c36",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "eca4a2fd756576b52e8c9b8cbbe010665bc03a738c8726a33ee08fd7875767d0",
+      "source_sha": "c830ce3a8baac3d49268e64ae4e8218144f3ef2e",
+      "test_sha": "c830ce3a8baac3d49268e64ae4e8218144f3ef2e",
+      "bible_sha": "0d845d1247c71f55d6f7f7656fb6846e31386dba",
+      "production_sha": "224fabf79cfa5e836777e7847aa4df826c752af7",
+      "revision_id": "26daa1c695cc675535569d813768e8f7c488c685f524a2c2f8a349e424f64187",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "001-e1-3ec5eec4ea17",
+      "reason": "Implementação do plano diretamente no PR 66 por instrução explícita do usuário; atualizar vínculo sem aprovação automática.",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "READY_FOR_AUDIT",
+      "previous_event_hash": "535dcbc9743c1114487b67a4f6ca880fe17afa06596f706c6dfe5218fe5b7eb2",
+      "event_hash": "5949d9e5eaeacd20c8701cea521aafb9448be3ac516a008047c39dd2e6b1337c"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "5949d9e5eaeacd20c8701cea521aafb9448be3ac516a008047c39dd2e6b1337c",
+      "event_hash": "17a929063e41998a957ffb00a6fc4ec05ea1ce5143f7a031bb99bcee992b22db"
     }
   ],
   "evidence": [],
-  "progress_note": "Reauditoria independente SHA-bound aprovada; requests 001-001, 001-002 permanecem ACCEPTED e não são mascaradas como resolvidas."
+  "progress_note": "Reauditoria independente SHA-bound aprovada; requests 001-001, 001-002 permanecem ACCEPTED e não são mascaradas como resolvidas.",
+  "review_status": "READY_FOR_AUDIT",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T03:21:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_PRIMARY"
+    ]
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 1,
+  "handoff_id": "001-e1-3ec5eec4ea17",
+  "production_sha": "224fabf79cfa5e836777e7847aa4df826c752af7",
+  "test_sha": "c830ce3a8baac3d49268e64ae4e8218144f3ef2e",
+  "bible_sha": "0d845d1247c71f55d6f7f7656fb6846e31386dba",
+  "revision_id": "26daa1c695cc675535569d813768e8f7c488c685f524a2c2f8a349e424f64187"
 }

@@ -170,8 +170,7 @@ if (!window.__manga_translator_content_injected) {
     let _failedPersistenceUpdateKeys = new Set();
     let _failedPersistenceUpdateMeta = new Map();
     let _pendingPersistenceUpdates = new Map();
-    let _persistedUpdatePayloads = new Map();
-    let _persistedUpdatePayloadTimes = new Map();
+    const _persistedUpdateDeliveries = new Map();
     const PERSISTED_UPDATE_REPLAY_TTL_MS = 120_000;
     let _currentBatchId = null;
     let _localBatchStatus = 'idle';
@@ -179,13 +178,11 @@ if (!window.__manga_translator_content_injected) {
     // Um contexto por página é importante: Chromium impõe um limite baixo de
     // AudioContexts simultâneos. Criar um a cada lote fazia o som parar depois
     // de algumas traduções e o catch abaixo escondia a causa.
-    let notificationAudioContext = null;
 
     function prunePersistedUpdatePayloads(now = Date.now()) {
-        for (const [key, persistedAt] of _persistedUpdatePayloadTimes.entries()) {
+        for (const [key, { persistedAt }] of _persistedUpdateDeliveries.entries()) {
             if (now - persistedAt <= PERSISTED_UPDATE_REPLAY_TTL_MS) continue;
-            _persistedUpdatePayloadTimes.delete(key);
-            _persistedUpdatePayloads.delete(key);
+            _persistedUpdateDeliveries.delete(key);
         }
     }
 
@@ -193,123 +190,30 @@ if (!window.__manga_translator_content_injected) {
         if (!key) return;
         const now = Date.now();
         prunePersistedUpdatePayloads(now);
-        _persistedUpdatePayloads.set(key, dataUrl);
-        _persistedUpdatePayloadTimes.set(key, now);
+        _persistedUpdateDeliveries.set(key, { payload: dataUrl, persistedAt: now });
     }
 
     function getPersistedUpdatePayload(key) {
         if (!key) return undefined;
-        const persistedAt = _persistedUpdatePayloadTimes.get(key);
+        const persistedAt = _persistedUpdateDeliveries.get(key)?.persistedAt;
         if (
             typeof persistedAt === 'number'
             && Date.now() - persistedAt > PERSISTED_UPDATE_REPLAY_TTL_MS
         ) {
-            _persistedUpdatePayloadTimes.delete(key);
-            _persistedUpdatePayloads.delete(key);
+            _persistedUpdateDeliveries.delete(key);
             return undefined;
         }
-        return _persistedUpdatePayloads.get(key);
+        return _persistedUpdateDeliveries.get(key)?.payload;
     }
 
-    function getNotificationAudioContext() {
-        if (notificationAudioContext && notificationAudioContext.state !== 'closed') {
-            return { audioCtx: notificationAudioContext, created: false };
-        }
-        const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextCtor) return { audioCtx: null, created: false };
-        notificationAudioContext = new AudioContextCtor();
-        return { audioCtx: notificationAudioContext, created: true };
+    let notificationAudio = null;
+    function getNotificationAudio() {
+        if (!notificationAudio) notificationAudio = window.MangaTranslatorAudio.createNotificationAudio({ window, sendAudioLog });
+        return notificationAudio;
     }
-
-    function audioErrorExtra(error) {
-        return {
-            errorName: error && error.name ? error.name : 'Error',
-            errorMessage: error && error.message ? String(error.message).slice(0, 160) : '',
-        };
-    }
-
-    function getLoggedNotificationAudioContext(trigger) {
-        const result = getNotificationAudioContext();
-        if (result.created) {
-            sendAudioLog('info', 'AUDIO_CONTEXT_CREATED', 'Contexto de áudio criado para notificações.', {
-                trigger,
-                contextState: result.audioCtx.state,
-            });
-        }
-        if (!result.audioCtx) {
-            sendAudioLog('error', 'AUDIO_UNAVAILABLE', 'O navegador não disponibilizou AudioContext.', { trigger });
-        }
-        return result.audioCtx;
-    }
-
-    // Deve ser chamado no clique real que inicia o lote, enquanto a ativação do
-    // usuário ainda é válida para a política de autoplay do navegador.
-    function unlockNotificationAudio() {
-        try {
-            const audioCtx = getLoggedNotificationAudioContext('reader_button');
-            if (!audioCtx) return;
-            if (audioCtx.state === 'running') {
-                sendAudioLog('success', 'AUDIO_UNLOCKED', 'Áudio já estava liberado pelo gesto do usuário.', { contextState: audioCtx.state });
-            } else if (audioCtx.state === 'suspended') {
-                Promise.resolve(audioCtx.resume()).then(() => {
-                    if (audioCtx.state === 'running') {
-                        sendAudioLog('success', 'AUDIO_UNLOCKED', 'Áudio liberado pelo gesto do usuário.', { contextState: audioCtx.state });
-                    } else {
-                        sendAudioLog('warn', 'AUDIO_UNLOCK_INCOMPLETE', 'A retomada terminou, mas o contexto não ficou em execução.', { contextState: audioCtx.state });
-                    }
-                }).catch((error) => {
-                    sendAudioLog('warn', 'AUDIO_UNLOCK_FAILED', 'O navegador recusou liberar o áudio no gesto do usuário.', audioErrorExtra(error));
-                });
-            } else {
-                sendAudioLog('warn', 'AUDIO_UNLOCK_INCOMPLETE', 'O contexto de áudio não está disponível para reprodução.', { contextState: audioCtx.state });
-            }
-        } catch (error) {
-            sendAudioLog('error', 'AUDIO_UNLOCK_FAILED', 'Falha ao preparar o áudio de notificação.', audioErrorExtra(error));
-        }
-    }
-
-    function scheduleSuccessSound(audioCtx) {
-        try {
-            let lastOscillator = null;
-            [0, 0.18, 0.36].forEach((t, i) => {
-                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.type = 'sine'; osc.frequency.setValueAtTime([660, 880, 1100][i], audioCtx.currentTime + t);
-                gain.gain.setValueAtTime(0, audioCtx.currentTime + t); gain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + t + 0.04); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + t + 0.28);
-                osc.start(audioCtx.currentTime + t); osc.stop(audioCtx.currentTime + t + 0.3);
-                lastOscillator = osc;
-            });
-            if (lastOscillator) {
-                lastOscillator.onended = () => {
-                    sendAudioLog('success', 'AUDIO_SUCCESS_FINISHED', 'Som de conclusão terminou sem erro.', { contextState: audioCtx.state, notes: 3 });
-                };
-            }
-            sendAudioLog('success', 'AUDIO_SUCCESS_SCHEDULED', 'Som de conclusão agendado com sucesso.', { contextState: audioCtx.state, notes: 3 });
-        } catch (error) {
-            sendAudioLog('error', 'AUDIO_SUCCESS_FAILED', 'Não foi possível agendar o som de conclusão.', audioErrorExtra(error));
-        }
-    }
-
-    function playSuccessSound() {
-        try {
-            const audioCtx = getLoggedNotificationAudioContext('batch_complete');
-            if (!audioCtx) return;
-            if (audioCtx.state === 'running') {
-                scheduleSuccessSound(audioCtx);
-            } else if (audioCtx.state === 'suspended') {
-                Promise.resolve(audioCtx.resume()).then(() => {
-                    if (audioCtx.state === 'running') scheduleSuccessSound(audioCtx);
-                    else sendAudioLog('warn', 'AUDIO_SUCCESS_SKIPPED', 'Som não foi agendado: contexto permaneceu suspenso.', { contextState: audioCtx.state });
-                }).catch((error) => {
-                    sendAudioLog('error', 'AUDIO_SUCCESS_FAILED', 'O navegador recusou retomar o áudio de conclusão.', audioErrorExtra(error));
-                });
-            } else {
-                sendAudioLog('warn', 'AUDIO_SUCCESS_SKIPPED', 'Som não foi agendado: contexto indisponível.', { contextState: audioCtx.state });
-            }
-        } catch (error) {
-            sendAudioLog('error', 'AUDIO_SUCCESS_FAILED', 'Falha inesperada ao preparar o som de conclusão.', audioErrorExtra(error));
-        }
-    }
+    function unlockNotificationAudio() { getNotificationAudio().unlockNotificationAudio(); }
+    function playSuccessSound() { getNotificationAudio().playSuccessSound(); }
+    function playErrorSound() { getNotificationAudio().playErrorSound(); }
 
     // Mantém os pontos de chamada do pipeline enquanto a implementação DOM
     // permanece isolada em cm-dom-replace.js.
@@ -1171,21 +1075,6 @@ if (!window.__manga_translator_content_injected) {
             }
             clearTimeout(_restoreDebounceTimer);
             _restoreDebounceTimer = null;
-        }
-
-        function playErrorSound() {
-            try {
-                const audioCtx = getLoggedNotificationAudioContext('integrated_error'); if (!audioCtx) return;
-                const schedule = () => [0, 0.2].forEach((t, i) => {
-                    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-                    osc.connect(gain); gain.connect(audioCtx.destination);
-                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime([300, 150][i], audioCtx.currentTime + t);
-                    gain.gain.setValueAtTime(0, audioCtx.currentTime + t);
-                    gain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + t + 0.04);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + t + 0.28);
-                    osc.start(audioCtx.currentTime + t); osc.stop(audioCtx.currentTime + t + 0.3);
-                }); if (audioCtx.state === 'running') schedule(); else if (audioCtx.state === 'suspended') Promise.resolve(audioCtx.resume()).then(() => { if (audioCtx.state === 'running') schedule(); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto permaneceu suspenso.', { contextState: audioCtx.state }); }).catch(error => sendAudioLog('warn', 'AUDIO_ERROR_FAILED', 'Não foi possível retomar o áudio de erro.', audioErrorExtra(error))); else sendAudioLog('warn', 'AUDIO_ERROR_SKIPPED', 'Som de erro não foi agendado: contexto indisponível.', { contextState: audioCtx.state });
-            } catch (error) { sendAudioLog('warn', 'AUDIO_ERROR_FAILED', 'Falha ao preparar ou agendar o áudio de erro.', audioErrorExtra(error)); }
         }
 
         function showIntegratedError(errorMsg, imgIndex, isDebug) {
@@ -2558,7 +2447,7 @@ if (!window.__manga_translator_content_injected) {
             }).catch(() => {});
         }
 
-        function persistTranslatedUpdateWithSideEffects(pageIndex, dataUrl, meta = {}) {
+        function scheduleTranslatedUpdateCache(dataUrl, meta) {
             const gtc = meta.gtc || {};
             if (gtc.hash) {
                 saveGlobalTranslationCacheEntry(gtc.hash, dataUrl, {
@@ -2576,6 +2465,11 @@ if (!window.__manga_translator_content_injected) {
                 }).catch(() => {});
             }
 
+
+        }
+
+        function persistTranslatedUpdateWithSideEffects(pageIndex, dataUrl, meta = {}) {
+            scheduleTranslatedUpdateCache(dataUrl, meta);
             return persistTranslatedPage(pageIndex, dataUrl, meta).then((result) => {
                 const { chapterId, chapter } = result;
                 chrome.storage.local.get(['autoDownload'], (settings) => {
@@ -3116,4 +3010,3 @@ if (!window.__manga_translator_content_injected) {
         });
     }
 }
-

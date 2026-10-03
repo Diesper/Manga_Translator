@@ -12,7 +12,7 @@ const {
 } = require('./bible-audit-pipeline');
 const {
   loadModel: loadDistributedAuditModel,
-} = require('../../docs/biblia/.coordination/audit-protocol');
+} = require('../bible/commands/audit-protocol');
 
 const root = path.resolve(__dirname, '../..');
 const bibleRoot = path.join(root, 'docs', 'biblia');

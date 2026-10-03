@@ -1,6 +1,6 @@
 'use strict';
 
-const core = require('../../docs/biblia/.coordination/audit-core');
+const core = require('../bible/core/audit-core');
 
 // Adaptador de compatibilidade. A implementação canônica do protocolo
 // distribuído vive fora do corpus congelado, em docs/biblia/.coordination.

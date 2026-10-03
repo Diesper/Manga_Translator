@@ -7,7 +7,7 @@ on:
       - 'extension/background/router.js'
       - 'tests/mocks/**'
       - 'jest.config.js'
-      - 'docs/biblia/.coordination/check-extraction-tab-selftest.js'
+      - 'tests/infra/bible/check-extraction-tab-selftest.js'
       - '.github/workflows/check-extraction-tab-selftest.yml'
   workflow_dispatch:
 
@@ -29,7 +29,7 @@ jobs:
         run: npm ci
 
       - name: Run extraction-tab focal selftest
-        run: node docs/biblia/.coordination/check-extraction-tab-selftest.js
+        run: node tests/infra/bible/check-extraction-tab-selftest.js
 
       - name: Run background unit suite with open-handle detection
         run: npx jest --config jest.config.js --selectProjects background --runInBand --detectOpenHandles

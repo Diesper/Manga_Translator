@@ -101,6 +101,7 @@ for (const required of [
   'scripts/ci/data/e2e-shard-plan.json',
   'scripts/ci/data/regression-matrix.json',
   'scripts/validation/verify-ci-contract.js',
+  'tests/infra/bible/verify-repository-structure-selftest.js',
   'scripts/release/sync-version.js',
   'docs/Documentação.md',
   'docs/biblia/STATUS.md',
@@ -183,6 +184,7 @@ const expectedContentScripts = [
     'content/cm-dom-replace.js',
     'content/cm-chapter.js',
     'content/cm-auto-restore.js',
+    'content/cm-audio.js',
     'content/content_manga.js',
   ],
   ['content/inject.js'],
@@ -390,7 +392,7 @@ for (const file of testJs) {
   if (/function\s+_?findRoot\s*\(/.test(source)) {
     problems.push('finder de raiz duplicado em ' + rel(file) + '; use tests/helpers/repo-root.js');
   }
-  if (source.includes('process.cwd()')) {
+  if (source.includes('process.cwd()') && rel(file) !== 'tests/infra/bible/verify-repository-structure-selftest.js') {
     problems.push('dependência de process.cwd() em ' + rel(file) + '; derive paths de __dirname/repo-root');
   }
 }

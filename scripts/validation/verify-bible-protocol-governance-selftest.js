@@ -81,8 +81,8 @@ console.log('PASS required protocol step cannot be disabled with if:false');
 const tolerantHandoff={
   ...sources,
   handoff:sources.handoff.replace(
-    '      - name: Validate current protected handoffs\n        run: node docs/biblia/.coordination/handoff-guard.js',
-    '      - name: Validate current protected handoffs\n        continue-on-error: true\n        run: node docs/biblia/.coordination/handoff-guard.js'
+    '      - name: Validate current protected handoffs\n        run: node scripts/bible/commands/handoff-guard.js',
+    '      - name: Validate current protected handoffs\n        continue-on-error: true\n        run: node scripts/bible/commands/handoff-guard.js'
   ),
 };
 assert.ok(
@@ -115,3 +115,5 @@ assert.ok(
 console.log('PASS CI anti-loop governance step cannot be continue-on-error');
 
 console.log('Bible protocol governance self-test: SUCCESS');
+
+require('./verify-reconcile-refresh-selftest');

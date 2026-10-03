@@ -4,7 +4,7 @@
 
     function canonicalTitle(value) {
         return (value || '')
-            .replace(/^\d+[\s.\-–—:|]+/, '')
+            .replace(/^(?:[A-Za-z]+\.?\s+)?\d+[\s.\-–—:|]+/, '')
             .replace(/[|–—•·\[\]()\u00AB\u00BB]/g, ' ')
             .replace(/\s*[-:]\s*$/, '')
             .replace(/\s{2,}/g, ' ')

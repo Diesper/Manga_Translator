@@ -81,7 +81,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T03:56:00Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-01T03:56:00Z",
@@ -91,6 +91,28 @@
       "source_sha": "9bc8fa5ae3fb127698e6f35988fd6efab7e56c07",
       "auditor": "AGENTE 23",
       "reason": "Auditoria independente SHA-bound confirmou integridade documental, cobertura 173/173 e classificação correta das lacunas 078-001..003."
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:40.604Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "9bbefa40dc4e3361b3657efa473fd338239783c8bc4c4f2fa3cd827b67d5d68a",
+      "event_hash": "4f4b224508ae87a761bded8d70a4f56cd98777e9a26cdb1cc68489e6a0a258ec"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "4f4b224508ae87a761bded8d70a4f56cd98777e9a26cdb1cc68489e6a0a258ec",
+      "event_hash": "9e881a1ce919fb73cb22ebe1aab1f061b077e0cc531f774b35288445c0c219d9"
     }
   ],
   "evidence": [
@@ -102,5 +124,28 @@
       "at_utc": "2026-10-01T03:56:00Z",
       "note": "Requests 078-001..003 permanecem ACCEPTED como trabalho separado."
     }
-  ]
+  ],
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T03:56:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_ADVERSARIAL"
+    ]
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "9bc8fa5ae3fb127698e6f35988fd6efab7e56c07",
+  "bible_sha": null,
+  "revision_id": "6a5a02246c646516c0e4dc00935ff86b1b199ed6276ced8359dfa8390512645b"
 }

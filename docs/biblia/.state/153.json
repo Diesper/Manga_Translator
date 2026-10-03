@@ -69,7 +69,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T03:10:00Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-01T01:44:00Z",
@@ -92,7 +92,52 @@
       "status": "COMPLETED",
       "source_sha": "2102182a1e313a02cdb511846a4561c3a0f607eb",
       "reason": "Fonte integral exata adicionada à Bíblia após o gate V2 detectar ausência da seção canônica; sem mudança de fonte, evidência funcional, veredito ou request 153-001."
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:41.351Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "a85f7eb97d620fc03848dd378a5b43ef10d3a5574df9f8d691a1315588ad7432",
+      "event_hash": "f8497a8057a51df2360922e09131d4649f8b5d0bbf77af41b0c4a2a2c4832470"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "f8497a8057a51df2360922e09131d4649f8b5d0bbf77af41b0c4a2a2c4832470",
+      "event_hash": "893cabd64defd6a10cb6cea8f266075d247f940a6a89dbd410d9761c42c10672"
     }
   ],
-  "evidence": []
+  "evidence": [],
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T03:06:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_ADVERSARIAL"
+    ]
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "2102182a1e313a02cdb511846a4561c3a0f607eb",
+  "bible_sha": null,
+  "revision_id": "cd41f66768bbf276a054265248938fc8bc366c95e440834e6bbb1a6b4de75c49"
 }

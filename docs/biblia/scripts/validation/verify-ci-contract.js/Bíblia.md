@@ -1,112 +1,24 @@
-# Bíblia técnica — scripts/validation/verify-ci-contract.js
+# Bíblia técnica — `scripts/validation/verify-ci-contract.js`
 
-> **Estado documental:** ✅ CONCLUÍDA PELO AGENTE 7 — consolidação global fora do escopo deste agente  
-> **SHA auditado:** `d397389e3e7f5168bbbeca2c6e5ba8c1b07ebb8a`  
-> **Agente responsável:** AGENTE 7  
-> **Tipo:** meta-gate Node.js de contratos da CI  
-> **Linhas textuais / posições:** **508**; o arquivo **não possui newline terminal**  
-> **PR:** #66  
-> **Branch:** docs/project-bible
+> **Schema da Bíblia:** 2
+> **Índice:** 83
+> **Fonte:** `scripts/validation/verify-ci-contract.js`
+> **SHA da revisão pendente:** `54079e7865fc1889fd48b75a5e18175ce3869459`
+> **Posições da fonte:** 526
+> **Status:** COMPLETED
+> **Revisão:** READY_FOR_AUDIT — requer auditoria independente.
 
-## 1. Papel arquitetural
+## Mudança e invariantes
 
-`verify-ci-contract.js` é o meta-gate estático que impede que a infraestrutura de teste/publicação perca proteções consideradas obrigatórias. Ele não executa Jest, Playwright ou os demais verificadores; lê seus arquivos/configurações e o workflow, cruza aliases e marcadores, valida a matriz de regressão e o plano E2E, acumula violações em `problems` e encerra com código 1 quando qualquer contrato é quebrado.
+Referências operacionais atualizadas junto à mudança de diretórios; contratos de execução preservados.
 
-Seu escopo é deliberadamente transversal: versionamento, estrutura, anti-skip, publish, jobs de diagnóstico, gatilhos/concurrency, portabilidade Windows, fresh-developer-flow, sharding E2E, coverage, partição Jest, baseline e reporter E2E. Por isso ele funciona como proteção contra regressão da própria CI, mas muitas garantias são textuais/estruturais e não equivalem à execução funcional das suítes protegidas.
+## Evidência e limites
 
-## 2. Dependências, consumidores e efeitos colaterais
+A sincronização abaixo é mecânica. Não concede APPROVED nem reaproveita auditoria de outro SHA. A análise documental anterior está preservada em `.coordination/structure-review-history/083-a035e81cc9168e4e6ced1cc127dd261b67af24fc.md`. A cobertura de linhas deve receber revisão semântica independente.
 
-- **Dependências Node:** `fs` e `path`.
-- **Entradas lidas:** `.github/workflows/ci.yml`, `playwright.config.js`, `jest.config.js`, `package.json`, `test-baseline.json`, `regression-matrix.json`, `e2e-shard-plan.json`, runners e verificadores auxiliares listados nas linhas 7–23 e 422.
-- **Consumidores diretos:** `package.json#validate` e o job `ci-contract` de `.github/workflows/ci.yml`.
-- **Self-test focal:** `scripts/validation/verify-ci-contract-selftest.js`, também ligado por `package.json#test:ci-contract:infra` e pelo job `ci-contract`.
-- **Efeitos colaterais:** somente stdout/stderr e término do processo; o verifier não grava o workspace.
-- **Trust boundary:** o gate confia que presença textual/regex nos arquivos representa o contrato que pretende proteger; essa aproximação é explicitamente tratada como risco, não como prova funcional.
+## Fonte integral exata
 
-## 3. Fluxo de execução
-
-1. resolve a raiz e carrega os artefatos canônicos;
-2. cria `problems` e executa grupos de checks estáticos;
-3. parseia a matriz com tratamento local de erro e valida suas entradas/markers;
-4. extrai jobs do YAML por `jobBlock` e verifica existência, wiring e condições;
-5. cruza package scripts, configs, baseline, plano E2E e fontes auxiliares;
-6. se houver qualquer problema, imprime todos e chama `process.exit(1)`;
-7. sem problemas, imprime a mensagem de contrato validado.
-
-## 4. Evidência automatizada
-
-| Contrato | Evidência encontrada | Classificação |
-|---|---|---|
-| Rejeita remoção do job visual | verify-ci-contract-selftest.js executa este verifier real em sandbox e exige mensagem `job obrigatório ausente: visual` | ✅ PROVADO DIRETAMENTE |
-| Rejeita `forbidOnly` enfraquecido | self-test troca `forbidOnly: isCi` por `false`, executa o verifier real e exige mensagem específica | ✅ PROVADO DIRETAMENTE |
-| Rejeita marcador de regressão removido | self-test remove um marcador real escolhido da matriz e exige `marcador obrigatório ausente` | ✅ PROVADO DIRETAMENTE |
-| Wiring do verifier na CI | ci.yml job `ci-contract` contém `node scripts/validation/verify-ci-contract.js`; package `validate` também o chama | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| Wiring do self-test | ci.yml chama `npm run test:ci-contract:infra`; package aponta para `verify-ci-contract-selftest.js` | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| 23 entradas da matriz e presença de markers | o próprio verifier lê regression-matrix.json, exige >=20, unicidade, arquivo existente e marker literal | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| Plano E2E 5 grupos / 21 testes | o verifier compara IDs, expectedTests/workers e soma com baseline.e2e.minTests | 🟦 GATE ESTÁTICO ESPECÍFICO |
-| Demais branches negativos do verifier | nenhum cenário focal correspondente foi localizado no self-test atual | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| Resistência a comentário/dead text e YAML equivalente | não localizada; predominam includes/regex e parser textual simples | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-
-A presença do verifier no workflow/package prova wiring estático; não foi promovida a prova de cada regra negativa. As únicas três falhas negativas diretamente exercitadas pelo self-test atual são as registradas como `✅ PROVADO DIRETAMENTE`.
-
-## 5. Invariantes principais
-
-1. Os 16 jobs de `requiredJobs` devem continuar materializados no formato que `jobBlock` reconhece.
-2. `version-integrity` preserva `version:check` e `--print-env`.
-3. Política anti-skip, publish e self-tests permanecem ligados ao workflow e aos aliases npm canônicos.
-4. A matriz de regressão mantém ao menos 20 entradas válidas, IDs únicos, arquivos existentes e markers presentes.
-5. Jobs funcionais e diagnósticos não podem mascarar falhas com `continue-on-error: true`.
-6. `windows-portability` e `fresh-developer-flow` preservam as sequências de validação exigidas.
-7. O E2E usa cinco grupos explícitos, workers vindos do plano, cobertura total igual ao baseline e cinco blob reports no merge.
-8. `ci-gate` usa `always() && !cancelled()` e depende de todos os jobs obrigatórios anteriores.
-9. Jest usa o runner auditável, partição unit/integration canônica e não reintroduz `--forceExit`.
-10. Coverage mantém provider V8, escopo extension/**/*.js, reporters e verificadores/self-tests esperados.
-11. Baseline selecionado mantém inteiros positivos e `e2e.maxFlaky` inteiro não-negativo.
-12. O reporter E2E continua rastreando tentativas/flaky e estados terminais reprovados.
-
-## 6. Casos-limite, riscos e análise crítica
-
-- **Parser YAML simplificado:** `jobBlock` reconhece somente chaves de job em formato textual específico; um YAML semanticamente equivalente pode ser rejeitado.
-- **Presença não é semântica:** vários `includes` podem ser satisfeitos por comentário, string morta ou trecho fora do caminho executável.
-- **Falhas de bootstrap:** `package.json`, `test-baseline.json` e `e2e-shard-plan.json` são parseados sem `try/catch`; JSON inválido reprova de forma fail-closed por exceção, mas sem diagnóstico agregado.
-- **Matriz:** o gate prova cardinalidade mínima/shape/markers, não que cada marker represente semanticamente a regressão declarada.
-- **Baseline parcial:** somente seis mínimos e `e2e.maxFlaky` recebem validação de tipo/faixa aqui; outros campos são responsabilidade dos consumidores.
-- **Acoplamento a mensagens:** self-tests negativos verificam mensagens específicas; refactor textual legítimo exige atualizar o teste, o que é aceitável desde que o contrato seja preservado.
-- **Ponto forte:** a falha final agrega múltiplas violações, fornecendo diagnóstico amplo em uma única execução.
-
-## 7. Solicitações ao auditor
-
-### 083-001 — TEST_REQUIRED — OPEN
-- **Encontrado:** O self-test executa a implementação real, porém cobre diretamente somente três falhas negativas: job visual removido, forbidOnly enfraquecido e marcador da matriz removido.
-- **Arquivo relacionado:** `scripts/validation/verify-ci-contract-selftest.js`
-- **Evidência atual:** O sandbox copia o verifier real e seus artefatos, muta uma condição por cenário, executa o verifier em child_process e exige exit não-zero + mensagem específica.
-- **Evidência ausente:** Não há prova focal encontrada para os demais branches, incluindo parser jobBlock, diagnósticos/continue-on-error, concurrency/triggers, Windows, topology E2E, coverage, aliases Jest/coverage, shape do baseline e reporter.
-- **Por que importa:** O arquivo possui dezenas de regras independentes; alterações acidentais em mensagens/condições não cobertas podem enfraquecer um gate sem quebrar os três cenários atuais.
-- **Ação solicitada:** Ampliar o self-test em mudança separada com cenários negativos representativos por família de contrato, executando sempre o verifier real em sandbox.
-- **Evidência esperada:** Cada mutação relevante deve causar exit não-zero e mensagem específica correspondente ao contrato removido/enfraquecido.
-- **Ação esperada do auditor:** Confirmar a lacuna e priorizar cobertura das famílias de maior risco sem alterar esta Bíblia como forma de produzir prova retroativa.
-- **Regressão possível:** Uma regra não exercitada pode parar de detectar drift e a infraestrutura permanecer verde enquanto o self-test atual ainda passa.
-- **Impacto:** Reduz confiança de regressão negativa sobre o meta-gate; não invalida as três provas diretas existentes.
-- **Severidade:** NORMAL
-
-### 083-002 — ROBUSTNESS_REVIEW — OPEN
-- **Encontrado:** Grande parte do contrato é validada por String.includes e regex sobre YAML/JavaScript, e jobBlock depende de formatação textual exata de jobs com dois espaços.
-- **Arquivo relacionado:** `scripts/validation/verify-ci-contract.js`
-- **Evidência atual:** Linhas 26-65, 110-195, 237-383, 414-478 e 494-500 usam presença literal/regex; jobBlock localiza chaves por igualdade exata e regex de linha.
-- **Evidência ausente:** Não foi encontrada prova de resistência a comentários/dead text que contenham o marcador nem a variações YAML semanticamente equivalentes, como formatação/chaves válidas diferentes.
-- **Por que importa:** Checks textuais podem produzir falso positivo por marcador presente fora do caminho executável ou falso negativo após refactor de formatação sem mudança semântica.
-- **Ação solicitada:** Avaliar se o contrato textual estrito é intencional. Se não for, considerar parser YAML/inspeção estrutural ou verificações mais contextuais, acompanhadas de regressões negativas e positivas.
-- **Evidência esperada:** Testes demonstrando rejeição de marcador apenas em comentário/dead text e aceitação/rejeição consciente de formatações YAML equivalentes conforme o contrato decidido.
-- **Ação esperada do auditor:** Classificar quais checks devem continuar textuais e quais exigem validação estrutural antes de qualquer mudança funcional.
-- **Regressão possível:** A CI pode aceitar uma proteção apenas comentada ou rejeitar refactor seguro de formatação.
-- **Impacto:** Robustez do meta-gate e manutenção futura; o estado atual continua verificável pelo contrato textual existente.
-- **Severidade:** NORMAL
-
-## 8. Fonte integral exata
-
-O bloco abaixo transcreve integralmente o blob `636e4bfbaa0646cd8259e1f27f09004a92541294`. O arquivo termina na linha 508 **sem newline terminal**; a quebra usada para separar o conteúdo da fence Markdown é editorial e não pertence ao fonte.
-
-```javascript
+~~~js
 'use strict';
 
 const fs = require('fs');
@@ -307,7 +219,7 @@ for (const diagnosticJob of [
   }
 }
 
-if (!/cancel-in-progress:\s*\$\{\{\s*github\.ref\s*!=\s*'refs\/heads\/main'\s*\}\}/.test(workflow)) {
+if (!/cancel-in-progress:\s*(?:false\b|\$\{\{\s*github\.ref\s*!=\s*'refs\/heads\/main'\s*\}\})/.test(workflow)) {
   problems.push('concurrency: execuções da main não podem ser canceladas por um merge posterior');
 }
 if (!/push:\s*\n\s*branches:\s*\n\s*- main/.test(workflow)) {
@@ -516,7 +428,7 @@ if (!Array.isArray(e2ePlan.groups) || e2ePlan.groups.length !== 5) {
     ['attachment', { tests: 3, workers: 3 }],
     ['medium-a', { tests: 4, workers: 2 }],
     ['medium-b', { tests: 4, workers: 2 }],
-    ['fast', { tests: 9, workers: 3 }],
+    ['fast', { tests: 10, workers: 3 }],
   ]);
   let total = 0;
   for (const group of e2ePlan.groups) {
@@ -633,133 +545,8 @@ if (problems.length) {
 }
 
 console.log('Contrato da CI validado: gates obrigatórios, regressões e verificação completa pós-merge da main protegidos.');
-```
+~~~
 
-## 9. Cobertura documental por faixas contíguas
+## Cobertura documental de linhas
 
-As 508 linhas são cobertas pelas 34 faixas abaixo, em ordem, sem lacunas nem sobreposição. Cada faixa descreve o papel semântico do trecho e não converte sua mera presença em prova automatizada.
-
-### Bloco 01 — linhas 1–1
-Ativa strict mode para o módulo inteiro; evita semânticas permissivas acidentais do CommonJS e faz erros de atribuição/this emergirem cedo.
-
-### Bloco 02 — linhas 2–5
-Separa o cabeçalho e importa fs/path, as únicas dependências Node necessárias para ler o workspace e resolver caminhos canônicos.
-
-### Bloco 03 — linhas 6–23
-Resolve a raiz do repositório e carrega, de forma síncrona, todos os artefatos que constituem o contrato: workflow CI, configs Playwright/Jest, verificadores auxiliares, self-tests, plano E2E, runner de grupos, diagnóstico Jest, package.json, baseline e caminho da matriz de regressão. JSON de plano/package/baseline é parseado já no bootstrap.
-
-### Bloco 04 — linhas 24–25
-Abre a fase de validação e cria o acumulador problems. O design coleta várias violações antes de reprovar, em vez de sair no primeiro mismatch.
-
-### Bloco 05 — linhas 26–32
-Exige que ci.yml invoque o gate estrutural e que verify-repository-structure.js continue contendo os marcadores usados para detectar referências operacionais legadas.
-
-### Bloco 06 — linhas 33–44
-Protege a política anti-skip em duas camadas: wiring do workflow e aliases exatos de package.json tanto para o verificador quanto para seu self-test.
-
-### Bloco 07 — linhas 45–49
-Percorre três cenários nominais do self-test anti-skip e exige que os respectivos textos continuem presentes; é um contrato textual sobre a abrangência mínima daquele self-test.
-
-### Bloco 08 — linhas 50–60
-Protege o gate de publicação: exige execução no workflow, alias npm canônico e três marcadores do verificador de publish ligados à cópia da extensão, documentação canônica e sync-version.
-
-### Bloco 09 — linhas 61–65
-Exige que verify-test-policy.js continue reconhecendo seis escape hatches: skip, only, todo, forceExit, passWithNoTests e mascaramento com || true.
-
-### Bloco 10 — linhas 66–72
-Tenta carregar regression-matrix.json com tratamento próprio de erro. Diferentemente de outros JSONs do bootstrap, falha de parse/ausência vira item de problems e permite acumular outros diagnósticos.
-
-### Bloco 11 — linhas 73–90
-Declara a lista canônica de 16 jobs que formam o contrato da CI: versionamento, sintaxe, manifesto, contrato, suítes, coverage, E2E, diagnósticos, Windows, fluxo fresh e gate final.
-
-### Bloco 12 — linhas 91–104
-Implementa jobBlock(id): divide o YAML por linhas, localiza exatamente uma chave de job com dois espaços, determina o próximo job de mesmo nível e devolve o bloco textual. A função é um parser deliberadamente simples e sensível ao formato textual canônico.
-
-### Bloco 13 — linhas 105–108
-Valida a existência de cada job obrigatório usando jobBlock; qualquer bloco vazio gera problema nominando o job ausente.
-
-### Bloco 14 — linhas 109–116
-Inspeciona version-integrity e exige tanto npm run version:check quanto sync-version.js --print-env, preservando os dois lados do contrato de versionamento.
-
-### Bloco 15 — linhas 117–143
-Inspeciona fresh-developer-flow: restringe-o a workflow_dispatch, exige a sequência oficial npm ci/unit/integration/smoke/visual/E2E/coverage/npm test, instalação de Chromium e execução E2E via Xvfb no Linux.
-
-### Bloco 16 — linhas 144–185
-Valida três jobs de diagnóstico. Cada um deve existir, rodar em workflow_dispatch e push da main, não mascarar falha com continue-on-error no job/passo e conter o comando npm de diagnóstico esperado.
-
-### Bloco 17 — linhas 186–195
-Protege gatilhos/concurrency: main não pode ser cancelada por merge posterior, push automático fica limitado à main e pull_request + workflow_dispatch devem permanecer declarados.
-
-### Bloco 18 — linhas 196–235
-Valida a matriz de regressão: exige array com pelo menos 20 entradas, IDs presentes/únicos, arquivo alvo válido/existente, pelo menos um marcador por entrada e presença literal de cada marcador no fonte indicado.
-
-### Bloco 19 — linhas 236–242
-Proíbe continue-on-error: true em sete jobs funcionais centrais, evitando que smoke/visual/Jest/coverage/E2E/Windows fiquem verdes após falha.
-
-### Bloco 20 — linhas 243–260
-Inspeciona windows-portability: exige runner windows-latest e a sequência npm ci, validate, test:ci, smoke, visual e coverage + verifier.
-
-### Bloco 21 — linhas 261–286
-Define contratos do E2E: shards independentes, gate agregado dependente dos shards, merge de blob reports com config própria, cinco grupos explícitos, MANGA_E2E_SHARD ativo, workers não hardcoded no YAML e runner lendo workers do plano.
-
-### Bloco 22 — linhas 287–302
-Protege saída do diagnóstico Jest em /.ci-results, impede regressão para tests/.ci-results, proíbe --shard= automático, exige test:e2e:plan e exatamente cinco blob reports antes do merge.
-
-### Bloco 23 — linhas 303–323
-Bloqueia mascaramento geral de testes com || true e valida o job coverage: geração e verificação bloqueantes, sem || true, ausência de token Codecov reportada como SKIPPED e upload configurado para reportar falha própria.
-
-### Bloco 24 — linhas 324–340
-Documenta e implementa a política do ci-gate: sobreviver a falhas/skips de dependências com always() sem ressuscitar após cancelamento, rejeitar always() puro e depender de todos os requiredJobs exceto ele próprio.
-
-### Bloco 25 — linhas 341–358
-Exige marcadores do gate pós-merge para decidir diagnósticos completos, resultados de três diagnósticos, Windows e fresh-developer-flow; a ausência de qualquer marcador enfraquece o gate final.
-
-### Bloco 26 — linhas 359–383
-Protege Playwright/package E2E: forbidOnly em CI, fullyParallel, retries zero em CI, reporter de gate, runner de grupos, hooks de fixtures e verificador do plano via scripts npm exatos.
-
-### Bloco 27 — linhas 384–413
-Valida o plano E2E estruturalmente: exatamente cinco grupos, IDs/contagens/workers esperados, rejeição de grupo inesperado e soma expectedTests exatamente igual ao baseline e2e.minTests.
-
-### Bloco 28 — linhas 414–418
-Exige que verify-e2e-shard-plan.js continue contendo três invariantes textuais ligados a cobertura exata, duplicidade e testes sem grupo.
-
-### Bloco 29 — linhas 419–438
-Protege o runner Jest e a partição unit/integration: alias test:ci, detecção de worker forçado, marcador da prova de partição, scripts unit/integration canônicos e presença do self-test de worker no workflow.
-
-### Bloco 30 — linhas 439–457
-Protege o self-test do próprio CI Contract, ausência de --forceExit no runner e os aliases de coverage/coverage verifier/coverage self-test.
-
-### Bloco 31 — linhas 458–478
-Valida a configuração de coverage e a infraestrutura associada: provider V8, inclusão extension/**/*.js, três reporters, três invariantes no verifier e cinco cenários no self-test de coverage.
-
-### Bloco 32 — linhas 479–493
-Valida shape mínimo do baseline: seis métricas devem ser inteiros positivos; e2e.maxFlaky deve ser inteiro não-negativo. Outros campos do baseline não são validados aqui.
-
-### Bloco 33 — linhas 494–500
-Protege o reporter E2E por marcadores que preservam tentativas/flaky e reprovação de estados terminais failed/timedOut/interrupted.
-
-### Bloco 34 — linhas 501–508
-Finaliza o gate: se problems não estiver vazio, imprime cabeçalho e todos os problemas e encerra com código 1; caso contrário imprime a mensagem única de aprovação. A linha 508 é o fim físico do arquivo, sem newline terminal.
-
-## 10. Verificação final desta Bíblia
-
-- SHA do fonte reconfirmado: `636e4bfbaa0646cd8259e1f27f09004a92541294`.
-- Fonte integral incorporada: **sim**.
-- Linhas/posições cobertas: **508/508**, sem newline terminal.
-- Faixas documentais: **34**, contíguas, sem gaps e sem overlap.
-- Self-test real lido integralmente e três provas diretas identificadas.
-- Consumers/wiring `package.json` + `ci.yml` cruzados.
-- Matriz atual observada: **23** regressões.
-- Plano E2E atual observado: **5** grupos, **21** testes esperados.
-- Lacunas de prova não foram mascaradas; duas solicitações ao auditor foram registradas no state.
-- Nenhum código, teste, fixture, workflow, config ou arquivo de outro agente foi alterado.
-
-## Cobertura documental de linhas/posições — revisão atual
-
-Cobertura canônica da revisão atual. Os mapas históricos anteriores são preservados como contexto, mas esta seção é a referência estrutural para o blob vigente.
-
-| Linhas/posição | Escopo | Evidência |
-|---:|---|---|
-| 1–526 | Blob integral atual `d397389e3e7f5168bbbeca2c6e5ba8c1b07ebb8a` (526 linhas textuais + terminador final quando aplicável). | fonte integral embutida + SHA Git do source |
-
-Esta sincronização documental **não concede aprovação**: a revisão atual deve passar novamente por PRIMARY + ADVERSARIAL independentes.
+- 1–526: snapshot integral da revisão acima; revisão semântica independente pendente.

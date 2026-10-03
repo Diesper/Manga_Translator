@@ -198,7 +198,7 @@ for (const diagnosticJob of [
   }
 }
 
-if (!/cancel-in-progress:\s*\$\{\{\s*github\.ref\s*!=\s*'refs\/heads\/main'\s*\}\}/.test(workflow)) {
+if (!/cancel-in-progress:\s*(?:false\b|\$\{\{\s*github\.ref\s*!=\s*'refs\/heads\/main'\s*\}\})/.test(workflow)) {
   problems.push('concurrency: execuções da main não podem ser canceladas por um merge posterior');
 }
 if (!/push:\s*\n\s*branches:\s*\n\s*- main/.test(workflow)) {
@@ -407,7 +407,7 @@ if (!Array.isArray(e2ePlan.groups) || e2ePlan.groups.length !== 5) {
     ['attachment', { tests: 3, workers: 3 }],
     ['medium-a', { tests: 4, workers: 2 }],
     ['medium-b', { tests: 4, workers: 2 }],
-    ['fast', { tests: 9, workers: 3 }],
+    ['fast', { tests: 10, workers: 3 }],
   ]);
   let total = 0;
   for (const group of e2ePlan.groups) {

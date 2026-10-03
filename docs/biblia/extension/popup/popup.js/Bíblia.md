@@ -1,8 +1,24 @@
+# Bíblia técnica — `extension/popup/popup.js`
 
+> **Schema da Bíblia:** 2
+> **Índice:** 54
+> **Fonte:** `extension/popup/popup.js`
+> **SHA da revisão pendente:** `1192f46e61b11f59199d68b9e0830f442a3852a3`
+> **Posições da fonte:** 2035
+> **Status:** COMPLETED
+> **Revisão:** READY_FOR_AUDIT — requer auditoria independente.
 
-## Fonte integral auditada
+## Mudança e invariantes
 
-~~~
+O unload normaliza logPoller para null mesmo sem timer ativo, preservando remoção do listener e flag de ownership.
+
+## Evidência e limites
+
+A sincronização abaixo é mecânica. Não concede APPROVED nem reaproveita auditoria de outro SHA. A análise documental anterior está preservada em `.coordination/structure-review-history/054-cb11d76f60fffaec838eb474cd7966a4794db35d.md`. A cobertura de linhas deve receber revisão semântica independente.
+
+## Fonte integral exata
+
+~~~js
 // popup.js — Manga Translator
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -2029,7 +2045,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     window.addEventListener('beforeunload', () => {
-        if (window.logPoller) { clearInterval(window.logPoller); window.logPoller = null; } if (window.logStorageListener && chrome?.storage?.onChanged?.removeListener) { chrome.storage.onChanged.removeListener(window.logStorageListener); window.logStorageListener = null; window.logListenerAdded = false; }
+        if (window.logPoller) clearInterval(window.logPoller);
+        window.logPoller = null;
+        if (window.logStorageListener && chrome?.storage?.onChanged?.removeListener) { chrome.storage.onChanged.removeListener(window.logStorageListener); window.logStorageListener = null; window.logListenerAdded = false; }
     });
 
 });
@@ -2037,6 +2055,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 ~~~
 
-## Cobertura documental de linhas — sincronização mecânica da revisão atual
+## Cobertura documental de linhas
 
-- 1–2033: cobertura integral da revisão `fdc274042b677654ff6934a22e747f571355f9da`; o estado permanece **READY_FOR_AUDIT** e exige auditoria independente da nova revisão.
+- 1–2035: snapshot integral da revisão acima; revisão semântica independente pendente.

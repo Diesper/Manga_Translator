@@ -8,7 +8,7 @@ on:
       - 'extension/background/actions/deliver-result-from-tab.js'
       - 'tests/mocks/**'
       - 'jest.config.js'
-      - 'docs/biblia/.coordination/jobs-dom-ack-selftest.js'
+      - 'tests/infra/bible/jobs-dom-ack-selftest.js'
       - '.github/workflows/jobs-dom-ack-selftest.yml'
   workflow_dispatch:
 
@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Run DOM ACK focal selftest
-        run: node docs/biblia/.coordination/jobs-dom-ack-selftest.js
+        run: node tests/infra/bible/jobs-dom-ack-selftest.js
 
       - name: Run background unit suite with open-handle detection
         run: npx jest --config jest.config.js --selectProjects background --runInBand --detectOpenHandles

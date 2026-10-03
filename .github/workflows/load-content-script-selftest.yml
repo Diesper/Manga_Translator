@@ -6,7 +6,7 @@ on:
       - 'tests/helpers/load-content-script.js'
       - 'extension/manifest.json'
       - 'jest.config.js'
-      - 'docs/biblia/.coordination/load-content-script-selftest.test.js'
+      - 'tests/infra/bible/load-content-script-selftest.test.js'
       - '.github/workflows/load-content-script-selftest.yml'
   workflow_dispatch:
 
@@ -39,7 +39,7 @@ jobs:
           const focal = {
             ...project,
             rootDir: process.cwd(),
-            testMatch: ['<rootDir>/docs/biblia/.coordination/load-content-script-selftest.test.js'],
+            testMatch: ['<rootDir>/tests/infra/bible/load-content-script-selftest.test.js'],
             transform: {},
           };
           fs.writeFileSync(

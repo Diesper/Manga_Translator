@@ -2,11 +2,11 @@
   "index": 87,
   "file": "scripts/validation/verify-jest-worker-warning-selftest.js",
   "bible": "docs/biblia/scripts/validation/verify-jest-worker-warning-selftest.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
   "started_at_utc": "2026-09-30T06:11:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T04:18:37Z",
   "audit_requests": [
     {
       "id": "087-001",
@@ -41,7 +41,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T15:47:34Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:18:37Z",
@@ -86,6 +86,28 @@
       "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
       "previous_event_hash": "7d8eb6eb6081fd736c4321f26be30a3c4c6776d8cdd11931540f25118d550fcc",
       "event_hash": "62858f5d2a7831a3c9c126b1a54066e0f19105b49b3d115d4ee7bff9e2451300"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:40.976Z",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "COMPLETED",
+      "from_review_status": "CHANGES_REQUIRED",
+      "to_review_status": "CHANGES_REQUIRED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "62858f5d2a7831a3c9c126b1a54066e0f19105b49b3d115d4ee7bff9e2451300",
+      "event_hash": "885b4b23b1086a6ea32d9b4aedfc13441382edd5ba40e24a73973d430a5603f7"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "CHANGES_REQUIRED",
+      "to_review_status": "CHANGES_REQUIRED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "885b4b23b1086a6ea32d9b4aedfc13441382edd5ba40e24a73973d430a5603f7",
+      "event_hash": "8421945f9681fbec2c924a1b9c1a8eb75bd460b62aaff334430f9a4acddd2d1a"
     }
   ],
   "evidence": [
@@ -109,5 +131,17 @@
   "test_sha": "4c8ce078abcf58f66ded7918650b2f54d9fa40cf",
   "bible_sha": null,
   "revision_id": "00e0b3839d71a326a0228a3ebc86578cc9896a909047d1eb97debd064edd09a2",
-  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.",
+  "review_status": "CHANGES_REQUIRED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T04:18:37Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "CHANGES_REQUIRED"
+    ]
+  }
 }

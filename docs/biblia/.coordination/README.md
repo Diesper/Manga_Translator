@@ -1,3 +1,5 @@
+> Política vigente: [conclusão permanente, ordem humana e reparo de SHA](COMPLETION_POLICY.md).
+
 # Coordenação multiagente das Bíblias
 
 Este diretório implementa coordenação **particionada por Bíblia e por fase de auditoria**.

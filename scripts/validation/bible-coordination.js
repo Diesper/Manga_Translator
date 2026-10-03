@@ -4,6 +4,10 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const childProcess = require('child_process');
+const completion = require('../bible/core/completion');
+const storage = require('../bible/storage/files');
+const completedAccess = require('../bible/core/completed-access');
+const humanGate = require('../bible/core/human-gate');
 const {
   loadAuditResults,
   evaluateAuditPipelines,
@@ -31,19 +35,7 @@ function gitBlobSha(source) {
   const buffer = Buffer.from(source, 'utf8');
   return crypto.createHash('sha1').update('blob ' + buffer.length + '\0').update(buffer).digest('hex');
 }
-function trackedBlobSha(root, sourcePath, fallbackSource) {
-  try {
-    const value = childProcess.execFileSync(
-      'git',
-      ['rev-parse', 'HEAD:' + slash(sourcePath)],
-      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
-    ).trim();
-    if (/^[0-9a-f]{40}$/i.test(value)) return value;
-  } catch (_) {
-    // Self-tests use temporary non-Git roots; fall back to exact fixture bytes.
-  }
-  return gitBlobSha(fallbackSource);
-}
+const { headBlobSha: trackedBlobSha, clearGitSnapshotCache } = require('../bible/storage/git');
 const normalizeText = (s) => s.replace(/\r\n/g, '\n');
 
 function extractIntegralSource(bible) {
@@ -342,34 +334,30 @@ function buildDerived(states, audits, headLabel, auditPipelines = null) {
   for (const s of LIFECYCLE) statusLines.push('- ' + s + ': **' + counters[s] + '**');
   for (const s of REQUEST_STATUSES) statusLines.push('- requests ' + s + ': **' + requestCounters[s] + '**');
   statusLines.push('- snapshot/HEAD: ' + String.fromCharCode(96) + (headLabel || 'working-tree') + String.fromCharCode(96));
-  statusLines.push('', '## Itens', '', '| # | arquivo | status | auditoria | owner | SHA | requests |', '|---:|---|---|---|---|---|---:|');
+  statusLines.push('', '## Itens', '', '| # | arquivo | status | revisão | qualidade | auditoria | owner | SHA | requests |', '|---:|---|---|---|---|---|---|---|---:|');
   for (const state of states) {
     const audit = audits.get(state.index);
     const pipeline = auditPipelines instanceof Map ? auditPipelines.get(state.index) : null;
     const auditStatus = pipeline ? displayAuditStatus(pipeline, audit) : auditResultForSource(audit, state.source_sha || '');
     statusLines.push('| ' + String(state.index).padStart(3,'0') + ' | ' + state.file + ' | ' + state.status + ' | '
-      + auditStatus + ' | ' + (state.status === 'IN_PROGRESS' ? (state.agent || 'MISSING') : '-')
+      + completion.reviewStatus(state) + ' | ' + (state.status === 'COMPLETED' ? JSON.stringify(completion.completionQuality(state, pipeline)) : '-') + ' | ' + auditStatus + ' | ' + (completion.reviewStatus(state) === 'IN_PROGRESS' ? (state.agent || 'MISSING') : '-')
       + ' | ' + (state.source_sha || '-') + ' | ' + (state.audit_requests || []).length + ' |');
   }
 
   const checklistLines = [
     '# Checklist — Bíblias técnicas',
     '',
-    '> Gerado deterministicamente. [x] exige COMPLETED + auditoria APPROVED válida para o SHA atual + Bíblia existente.',
+    '> [x] preserva a conclusão histórica. Ressalvas mostram a revisão pendente; o gate final exige aprovação válida da revisão atual.',
     '',
   ];
   for (const state of states) {
     const audit = audits.get(state.index);
     const pipeline = auditPipelines instanceof Map ? auditPipelines.get(state.index) : null;
-    const pipelineApproved = Boolean(pipeline?.hasDistributed && pipeline.decision === 'APPROVED');
-    const legacyPipelineApproved = Boolean(pipeline?.primary?.legacy && pipeline.primary.verdict === 'APPROVED');
-    const checked = state.status === 'COMPLETED' && (
-      pipeline
-        ? (pipelineApproved || legacyPipelineApproved)
-        : approvalMatches(audit, state.source_sha || '')
-    );
+    const checked = state.status === 'COMPLETED';
+    const caveats = checked ? completion.completionQuality(state, pipeline) : null;
     checklistLines.push('- [' + (checked ? 'x' : ' ') + '] ' + String(state.index).padStart(3,'0')
-      + ' — ' + String.fromCharCode(96) + state.file + String.fromCharCode(96) + ' — ' + state.status);
+      + ' — ' + String.fromCharCode(96) + state.file + String.fromCharCode(96) + ' — ' + state.status
+      + (caveats?.status === 'WITH_CAVEATS' ? ' — com ressalvas: ' + caveats.caveats.join(', ') : ''));
   }
   return {
     status: statusLines.join('\n') + '\n',
@@ -380,8 +368,12 @@ function buildDerived(states, audits, headLabel, auditPipelines = null) {
 }
 
 function validateBibleCoordination(root, options = {}) {
+  clearGitSnapshotCache(root);
   const problems = [];
   const enforceSingleAuditClaimPerAuditor = options.enforceSingleAuditClaimPerAuditor === true;
+  for (const transaction of storage.pendingTransactions(root)) problems.push('transação incompleta exige recuperação: #' + transaction.index + '/' + transaction.id);
+  const writerLocks = path.join(root, 'docs/biblia/.coordination/write-locks');
+  if (fs.existsSync(writerLocks)) for (const file of fs.readdirSync(writerLocks)) problems.push('writer lock ativo exige inspeção: ' + file);
   const bibleRoot = path.join(root, 'docs', 'biblia');
   const stateRoot = path.join(bibleRoot, '.state');
   const reserveRoot = path.join(bibleRoot, '.reservas');
@@ -416,6 +408,7 @@ function validateBibleCoordination(root, options = {}) {
     seenSources.add(state.file);
 
     if (!LIFECYCLE.has(state.status)) problems.push(stateFile + ': lifecycle inválido=' + state.status);
+    for (const problem of completion.completionProblems(state)) problems.push(stateFile + ': ' + problem);
     if (state.schema_version === 2 && !COORDINATION.has(state.coordination_status)) problems.push(stateFile + ': coordination_status inválido/ausente em schema v2');
     if (state.schema_version !== undefined && state.schema_version !== 1 && state.schema_version !== 2) problems.push(stateFile + ': schema_version inválido=' + state.schema_version);
 
@@ -457,8 +450,8 @@ function validateBibleCoordination(root, options = {}) {
       // Textos OPEN/ACCEPTED/etc. dentro da Bíblia são snapshots documentais
       // e não devem obrigar reescrita de uma Bíblia já auditada a cada triagem.
     }
-    if (state.status === 'IN_PROGRESS' && !state.agent) problems.push(stateFile + ': IN_PROGRESS sem agent');
-    if (state.status !== 'IN_PROGRESS' && state.agent) problems.push(stateFile + ': agent deve ser null fora de IN_PROGRESS');
+    if (completion.reviewStatus(state) === 'IN_PROGRESS' && !state.agent) problems.push(stateFile + ': IN_PROGRESS sem agent');
+    if (completion.reviewStatus(state) !== 'IN_PROGRESS' && state.agent) problems.push(stateFile + ': agent deve ser null fora de IN_PROGRESS');
     states.push(state);
   }
   states.sort((a,b) => a.index - b.index);
@@ -484,14 +477,14 @@ function validateBibleCoordination(root, options = {}) {
     const state = states.find((item) => item.file === sourcePath);
     if (!state) problems.push('lock de arquivo fora do corpus: ' + sourcePath);
     else {
-      if (state.status !== 'IN_PROGRESS') problems.push('lock existe para state não-IN_PROGRESS: ' + sourcePath + '/' + state.status);
+      if (completion.reviewStatus(state) !== 'IN_PROGRESS') problems.push('lock existe para state não-IN_PROGRESS: ' + sourcePath + '/' + state.status);
       if (state.agent !== agent) problems.push('lock não satisfaz ownership do state: ' + sourcePath);
     }
   }
   for (const state of states) {
     const lock = locksByFile.get(state.file);
-    if (state.status === 'IN_PROGRESS' && !lock) problems.push('IN_PROGRESS sem lock: ' + state.file);
-    if (state.status === 'COMPLETED' && lock) problems.push('COMPLETED com lock proibido: ' + state.file);
+    if (completion.reviewStatus(state) === 'IN_PROGRESS' && !lock) problems.push('IN_PROGRESS sem lock: ' + state.file);
+    if (completion.reviewStatus(state) === 'COMPLETED' && lock) problems.push('COMPLETED com lock proibido: ' + state.file);
   }
 
   // Claims de auditoria são leases particionados por índice e fase.
@@ -503,6 +496,8 @@ function validateBibleCoordination(root, options = {}) {
     .sort();
   const auditClaimsByIndex = new Map();
   const auditClaimsByAuditor = new Map();
+  const completedApprovals = humanGate.loadHumanApprovals(root);
+  problems.push(...completedApprovals.problems);
   for (const claimFile of auditClaims) {
     const basename = path.basename(claimFile);
     const canonicalName = /^(\d{3})\.lock\.md$/.exec(basename);
@@ -562,8 +557,9 @@ function validateBibleCoordination(root, options = {}) {
       continue;
     }
     const allowedStatus = phase === 'PRIMARY'
-      ? state.status === 'READY_FOR_AUDIT'
-      : ['READY_FOR_AUDIT', 'COMPLETED'].includes(state.status);
+      ? completion.reviewStatus(state) === 'READY_FOR_AUDIT'
+      : ['READY_FOR_AUDIT', 'COMPLETED'].includes(completion.reviewStatus(state));
+    if (completion.hasCompleted(state) && !completedAccess.orderFor(state, completedApprovals.approvals)) problems.push('audit claim COMPLETED exige ordem humana direta: #' + index);
     if (!allowedStatus) {
       problems.push('audit claim ' + phase + ' incompatível com status: #' + index + '/' + state.status);
     }
@@ -583,15 +579,6 @@ function validateBibleCoordination(root, options = {}) {
   for (const problem of pipelineEvaluation.problems) problems.push(problem);
   for (const problem of postHandoffCorrectionProblems(states, distributed.records, { root })) {
     problems.push(problem);
-  }
-
-  for (const state of states) {
-    const pipeline = pipelineEvaluation.byIndex.get(state.index);
-    const legacyApproved = Boolean(pipeline?.primary?.legacy && pipeline.primary.verdict === 'APPROVED');
-    const pipelineApproved = pipeline?.decision === 'APPROVED';
-    if (state.status === 'COMPLETED' && !legacyApproved && !pipelineApproved) {
-      problems.push('COMPLETED sem auditoria APPROVED para source+bible atuais: #' + state.index + ' ' + state.file);
-    }
   }
 
   if (options.checkDerived && states.length === 233) {
@@ -619,6 +606,9 @@ function evaluateMergeReadiness(validation, options = {}) {
     blockers.push('states não-COMPLETED=' + nonCompleted.length + ': '
       + nonCompleted.map((state) => String(state.index).padStart(3, '0') + '/' + state.status).join(', '));
   }
+
+  const unverified = states.filter(state => completion.completionQuality(state, validation.auditPipelines?.get(state.index)).status !== 'VERIFIED');
+  if (unverified.length) blockers.push('conclusões com ressalvas=' + unverified.length + ': ' + unverified.map(state => String(state.index).padStart(3, '0')).join(', '));
 
   const repairRequired = states.filter((state) => state.coordination_status !== 'OK');
   if (repairRequired.length) {

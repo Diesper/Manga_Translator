@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const metrics = require('./bible-lifecycle-metrics');
-const life = require('../../docs/biblia/.coordination/lifecycle-core');
+const life = require('../bible/core/lifecycle-core');
 
 function state(index, handoffs, options = {}) {
   const history = [];

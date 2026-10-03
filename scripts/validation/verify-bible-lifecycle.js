@@ -2,10 +2,10 @@
 
 const fs=require('fs');
 const path=require('path');
-const life=require('../../docs/biblia/.coordination/lifecycle-core');
-const findings=require('../../docs/biblia/.coordination/unverified-findings');
-const human=require('../../docs/biblia/.coordination/human-gate');
-const transition=require('../../docs/biblia/.coordination/unit-transition');
+const life=require('../bible/core/lifecycle-core');
+const findings=require('../bible/storage/unverified-findings');
+const human=require('../bible/core/human-gate');
+const transition=require('../bible/commands/unit-transition');
 
 const root=path.resolve(__dirname,'../..');
 const stateRoot=path.join(root,'docs','biblia','.state');

@@ -131,7 +131,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T03:21:00Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-01T03:21:00Z",
@@ -140,8 +140,53 @@
       "to_status": "COMPLETED",
       "source_sha": "008c9a054ae417e0f31224617346e24fc9dbc1b4",
       "reason": "Auditoria independente confirmou fidelidade documental, fonte/coverage e evidências no SHA atual; lacunas externas ACCEPTED permanecem abertas."
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:39.654Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "d9e3da73d1b66290fd8740f170599800968f53b46ccbdafd181df584fcf7af0c",
+      "event_hash": "6be8f652dbd87b97d978ac5af3a426c1794c74db1e47c3c858c35b0e5de87d91"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "6be8f652dbd87b97d978ac5af3a426c1794c74db1e47c3c858c35b0e5de87d91",
+      "event_hash": "d48e42a4d9948368043622ec2c7ff296c06d2870d0161350abb8aef2dfeec55b"
     }
   ],
   "evidence": [],
-  "progress_note": "Reauditoria independente SHA-bound aprovada; requests 033-001, 033-002, 033-003, 033-004, 033-005, 033-006 permanecem ACCEPTED e não são mascaradas como resolvidas."
+  "progress_note": "Reauditoria independente SHA-bound aprovada; requests 033-001, 033-002, 033-003, 033-004, 033-005, 033-006 permanecem ACCEPTED e não são mascaradas como resolvidas.",
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T03:21:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "REAUDIT_REQUIRED"
+    ]
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "008c9a054ae417e0f31224617346e24fc9dbc1b4",
+  "bible_sha": null,
+  "revision_id": "cfb697c0d9aae6b95c0f59730022e224e8fac2a9822a50381c19c873daf8f837"
 }

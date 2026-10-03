@@ -2,11 +2,11 @@
   "index": 93,
   "file": "tests/e2e/reader-offline.spec.js",
   "bible": "docs/biblia/tests/e2e/reader-offline.spec.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "2837775deacca5123fa99232633b4652774abf96",
   "started_at_utc": null,
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T04:30:20Z",
   "audit_requests": [
     {
       "id": "093-001",
@@ -88,7 +88,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T20:11:39Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:30:20Z",
@@ -169,6 +169,28 @@
       "reason": "Sincroniza a Bíblia #093 com a revisão atual; auditorias antigas não são reutilizadas.",
       "previous_event_hash": "94b33d332a7586977be96e366e639df37a923aafab7e88c84a3719a89ae1a559",
       "event_hash": "750a71f68bfd138e426bc5e21a518bdb261d71a9a8209cdc5c2af4956ae6197d"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:41.056Z",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "750a71f68bfd138e426bc5e21a518bdb261d71a9a8209cdc5c2af4956ae6197d",
+      "event_hash": "a81b662340ad7d3f262b97552583c773df246b8e3f2660c04569c89cab8f5f18"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "a81b662340ad7d3f262b97552583c773df246b8e3f2660c04569c89cab8f5f18",
+      "event_hash": "f808c06bdae7cd018139e5c43fd16447fd0376567e6fb4fb18121f6b5bbb768d"
     }
   ],
   "evidence": [
@@ -191,5 +213,17 @@
   "human_approval_required": false,
   "audit_epoch": 1,
   "handoff_id": "093-e1-21d126f5bf7c",
-  "revision_id": "9f3f4e1ed4118ebc149420dfbe542b8d0f75d178fe8388acecca4c56e0a5e096"
+  "revision_id": "9f3f4e1ed4118ebc149420dfbe542b8d0f75d178fe8388acecca4c56e0a5e096",
+  "review_status": "READY_FOR_AUDIT",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T04:30:20Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_PRIMARY"
+    ]
+  }
 }

@@ -1,8 +1,9 @@
 'use strict';
+const completion = require('../bible/core/completion');
 
 const fs = require('fs');
 const path = require('path');
-const life = require('../../docs/biblia/.coordination/lifecycle-core');
+const life = require('../bible/core/lifecycle-core');
 
 const root = path.resolve(__dirname, '../..');
 
@@ -63,7 +64,7 @@ function handoffDecisionDurationsMinutes(state) {
 
 function correctionStartCount(state) {
   return historyOf(state).filter((entry) => (
-    entry?.to_status === 'IN_PROGRESS'
+    completion.eventReviewStatus(entry) === 'IN_PROGRESS'
     || entry?.type === 'EDITOR_CORRECTION_STARTED'
     || entry?.type === 'HUMAN_AUTHORIZED_CORRECTION_STARTED'
   )).length;

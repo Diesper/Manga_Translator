@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/validation/verify-repository-structure.js'
-      - 'docs/biblia/.coordination/verify-repository-structure-selftest.js'
+      - 'tests/infra/bible/verify-repository-structure-selftest.js'
       - '.github/workflows/repository-structure-selftest.yml'
   workflow_dispatch:
 
@@ -24,4 +24,4 @@ jobs:
           node-version: '20'
 
       - name: Run repository structure adversarial selftest
-        run: node docs/biblia/.coordination/verify-repository-structure-selftest.js
+        run: node tests/infra/bible/verify-repository-structure-selftest.js

@@ -38,7 +38,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T16:08:15.385Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-02T16:08:15.385Z",
@@ -57,6 +57,28 @@
       "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
       "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
       "event_hash": "9c4c64dc122755cb7637f26219a5958c4a7f0c26812e2f044136be419b5c872f"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:40.491Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "9c4c64dc122755cb7637f26219a5958c4a7f0c26812e2f044136be419b5c872f",
+      "event_hash": "1be7432320d7758a9ab6ab25c80c0a967cff67f7d12ed02d52a1dd5b8ec945b1"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "1be7432320d7758a9ab6ab25c80c0a967cff67f7d12ed02d52a1dd5b8ec945b1",
+      "event_hash": "9c4257338b2bffbb7af7bd7e1dabb0af560c137ee9797f395bf946b386e39ae2"
     }
   ],
   "evidence": [],
@@ -71,5 +93,15 @@
   "test_sha": "b1379b6811e5513b955ebbbef4450ca4ca1e77da",
   "bible_sha": null,
   "revision_id": "c3622cf8f91df832ab93d6cb4d940a55d984253b32920d25570671ebe9ddd0cb",
-  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual."
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual.",
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-02T16:08:15.385Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "VERIFIED",
+    "caveats": []
+  }
 }

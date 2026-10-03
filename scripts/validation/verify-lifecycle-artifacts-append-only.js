@@ -3,8 +3,9 @@
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const humanGate = require('../../docs/biblia/.coordination/human-gate');
-const lifecycle = require('../../docs/biblia/.coordination/lifecycle-core');
+const humanGate = require('../bible/core/human-gate');
+const lifecycle = require('../bible/core/lifecycle-core');
+const completion = require('../bible/core/completion');
 
 const root = path.resolve(__dirname, '../..');
 const TRUSTED_COMMITTER_EMAIL = '41898282+github-actions[bot]@users.noreply.github.com';
@@ -53,7 +54,7 @@ function approvalStateBindingProblems(approval, state, rel = '<approval>') {
     return problems;
   }
   const snapshot = lifecycle.lifecycleSnapshot(state);
-  if (!snapshot.human_locked || state.status !== 'HUMAN_LOCKED') {
+  if (approval?.decision === 'ALLOW_COMPLETED_WORK' ? !completion.hasCompleted(state) : (!snapshot.human_locked || completion.reviewStatus(state) !== 'HUMAN_LOCKED')) {
     problems.push(rel + ': branch_head_sha não aponta para unidade HUMAN_LOCKED');
   }
   if (Number(approval?.locked_cycle) !== Number(snapshot.current_escalation_cycle)) {

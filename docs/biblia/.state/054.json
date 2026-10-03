@@ -2,10 +2,10 @@
   "index": 54,
   "file": "extension/popup/popup.js",
   "bible": "docs/biblia/extension/popup/popup.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
-  "source_sha": "fdc274042b677654ff6934a22e747f571355f9da",
-  "completed_at_utc": null,
+  "source_sha": "1192f46e61b11f59199d68b9e0830f442a3852a3",
+  "completed_at_utc": "2026-10-02T01:34:00Z",
   "audit_requests": [
     {
       "id": "054-001",
@@ -68,7 +68,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T21:30:03Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "started_at_utc": "2026-10-02T01:34:00Z",
   "history": [
     {
@@ -159,6 +159,52 @@
       "reason": "Sincroniza a Bíblia #054 com popup.js atual após hardening de mensagens de erro; auditorias anteriores são invalidadas.",
       "previous_event_hash": "2d6e0815ea50a4233815a6471904ef9139c41ea294984ab4c4923d815e55d696",
       "event_hash": "6a1166d58add7aa341a9f8725adf62c11ebb349d27004df0d972c77bd56723bb"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:40.188Z",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "6a1166d58add7aa341a9f8725adf62c11ebb349d27004df0d972c77bd56723bb",
+      "event_hash": "783f1efed4e73fad5ea8980d4e25b5abc3956af779c6ffb0cc02f20e703a6eee"
+    },
+    {
+      "at_utc": "2026-10-03T03:41:45.810Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "actor": "Diesper-directed-structure-review",
+      "previous_source_sha": "fdc274042b677654ff6934a22e747f571355f9da",
+      "previous_bible_sha": "76b84f957fdc2eb53dc90ad0f433df0bf890947f",
+      "previous_production_sha": null,
+      "previous_revision_id": "7aec28b470e9156d31148ec0b5a952aa410bde54375e0e7c2b86e8a87d9ed9a5",
+      "source_sha": "1192f46e61b11f59199d68b9e0830f442a3852a3",
+      "test_sha": "1192f46e61b11f59199d68b9e0830f442a3852a3",
+      "bible_sha": "6a50f20c78f26071d25af0603cf5f13377ae7d3e",
+      "production_sha": null,
+      "revision_id": "4baff96ed89116be5dd8b73d9d5c12c47dcdfb8af7bb801fd573ff2de2b2027f",
+      "correction_cycle": 0,
+      "audit_epoch": 4,
+      "handoff_id": "054-e4-0d43361b5553",
+      "reason": "Implementação do plano diretamente no PR 66 por instrução explícita do usuário; atualizar vínculo sem aprovação automática.",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "previous_event_hash": "783f1efed4e73fad5ea8980d4e25b5abc3956af779c6ffb0cc02f20e703a6eee",
+      "event_hash": "43da2d392f4782e30c7a5a92192a9e0102475a4e7e01606da850a5a3ef07e72a"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "43da2d392f4782e30c7a5a92192a9e0102475a4e7e01606da850a5a3ef07e72a",
+      "event_hash": "4c2234da07aa3974a90a02807f157663a188f9fc42cf380b80058ec3fad2e04c"
     }
   ],
   "evidence": [],
@@ -167,10 +213,22 @@
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 3,
-  "handoff_id": "054-e3-bf012fb51cd3",
+  "audit_epoch": 4,
+  "handoff_id": "054-e4-0d43361b5553",
   "production_sha": null,
-  "test_sha": "fdc274042b677654ff6934a22e747f571355f9da",
-  "bible_sha": "76b84f957fdc2eb53dc90ad0f433df0bf890947f",
-  "revision_id": "7aec28b470e9156d31148ec0b5a952aa410bde54375e0e7c2b86e8a87d9ed9a5"
+  "test_sha": "1192f46e61b11f59199d68b9e0830f442a3852a3",
+  "bible_sha": "6a50f20c78f26071d25af0603cf5f13377ae7d3e",
+  "revision_id": "4baff96ed89116be5dd8b73d9d5c12c47dcdfb8af7bb801fd573ff2de2b2027f",
+  "review_status": "READY_FOR_AUDIT",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-02T01:34:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_PRIMARY"
+    ]
+  }
 }

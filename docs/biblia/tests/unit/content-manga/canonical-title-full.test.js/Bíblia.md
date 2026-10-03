@@ -1,171 +1,24 @@
-# Bíblia técnica — tests/unit/content-manga/canonical-title-full.test.js
+# Bíblia técnica — `tests/unit/content-manga/canonical-title-full.test.js`
 
-> **Estado documental:** ✅ CONCLUÍDO — AUTOAUDITORIA APROVADA  
-> **SHA auditado:** `1b46903dbe4affda36a20b7fc140af2dc890a4dd`  
-> **Agente responsável:** AGENTE 25  
-> **Tipo:** suíte Jest de normalização de título baseada em helper espelho  
-> **Linhas textuais:** **202**  
-> **Posições documentais:** **203**, contando o newline final  
-> **PR:** #66  
-> **Branch:** `docs/project-bible`
+> **Schema da Bíblia:** 2
+> **Índice:** 196
+> **Fonte:** `tests/unit/content-manga/canonical-title-full.test.js`
+> **SHA da revisão pendente:** `12c203636749f69c09448a063be5384bf221e2b8`
+> **Posições da fonte:** 204
+> **Status:** CHANGES_REQUIRED
+> **Revisão:** READY_FOR_AUDIT — requer auditoria independente.
 
-## 1. Papel arquitetural
+## Mudança e invariantes
 
-A suíte pretende proteger `canonicalTitle()`, normalizador usado na identidade/deduplicação de capítulos. Ela cobre entradas nulas, lower-case, trim, prefixos, separadores, espaços, truncamento, deduplicação nominal e edge cases.
+A suíte completa carrega canonicalTitle de cm-chapter.js. O mutante da regra Cap 5 na produção derruba esta suíte.
 
-Contudo, o arquivo **não executa a implementação de produção**. Ele importa `canonicalTitle` de `tests/helpers/extracted-functions.js`, cujo próprio cabeçalho declara ser uma reimplementação/espelho de funções do content script. A implementação atual de produção está em `extension/content/cm-chapter.js` e é exportada como `MangaTranslatorChapter.canonicalTitle`.
+## Evidência e limites
 
-A comparação linha a linha revelou **drift funcional já existente** entre o helper e produção. Portanto, assertions desta suíte são prova direta do helper, mas não podem ser atribuídas automaticamente ao comportamento real da extensão.
+A sincronização abaixo é mecânica. Não concede APPROVED nem reaproveita auditoria de outro SHA. A análise documental anterior está preservada em `.coordination/structure-review-history/196-ed5a57b5cef73e2de72c146d27b3ee2fd17916ff.md`. A cobertura de linhas deve receber revisão semântica independente.
 
-## 2. Dependências e wiring
+## Fonte integral exata
 
-### Dependências diretas
-
-- Node `path` para resolver o helper.
-- `tests/helpers/repo-root.js` para achar a raiz.
-- `tests/helpers/extracted-functions.js` — SHA `ccbf20485608a223c723adf638860cb7151c8886`; fornece a função efetivamente testada.
-- Jest (`describe`, `test`, `expect`).
-- `fs` é importado na linha 19, mas não é usado.
-
-### Implementação de produção correlata
-
-`extension/content/cm-chapter.js` — SHA `44b621d570b6492ef08982ec4e093ffcfe6d24f8` — define e exporta `canonicalTitle` no objeto `MangaTranslatorChapter`. `extension/content/content_manga.js` consome `createChapterManager` desse módulo.
-
-### Descoberta Jest
-
-`jest.config.js` inclui `tests/unit/content-manga/**/*.test.js` no projeto `content-scripts` com ambiente `jsdom`. O gate CI de inventário verifica a partição dos testes. O AGENTE 25 não executou a suíte nesta auditoria.
-
-## 3. Drift helper × produção
-
-### Helper testado (`tests/helpers/extracted-functions.js`)
-
-O helper aplica, em ordem:
-1. regex de prefixo que aceita **palavra textual opcional** antes do número, como `Cap 5:`;
-2. regex que remove **sufixo de site** separado por `-`, `|`, `–` ou `—`;
-3. substituição de separadores por espaço;
-4. remoção de traço/dois-pontos final;
-5. colapso de espaços, trim, lowercase e truncamento em 80.
-
-### Produção (`extension/content/cm-chapter.js`)
-
-A produção atual:
-1. remove apenas prefixo iniciado diretamente por **dígitos**;
-2. **não possui** a regex de remoção de sufixo de site;
-3. mantém as etapas de separadores, trailing `-/:`, espaços, trim, lowercase e slice.
-
-Consequências concretas:
-- `canonicalTitle('Cap 5: Dragon Ball')` passa na expectativa desta suíte usando o helper, mas a produção preserva o prefixo textual;
-- títulos com sufixos de sites diferentes podem produzir formas diferentes na produção, apesar do cabeçalho desta suíte afirmar que o bug de duplicação foi corrigido;
-- o comentário do helper afirma que a suíte detectará divergências futuras, porém a suíte não compara helper e produção e a divergência atual já prova o contrário.
-
-## 4. Qualidade das assertions
-
-### Casos fortes
-
-Asserções de entrada nula, lower-case, trim, colapso de espaços e diferenças entre capítulos/obras verificam propriedades objetivas do helper.
-
-### Casos que superestimam o que provam
-
-**‘Mesma chave’.** Linhas 138–150 criam duas chaves normalizadas, mas nunca fazem `expect(norm1).toBe(norm2)`. Elas só exigem que ambas comecem com `one_piece`. Duas chaves diferentes continuam verdes.
-
-**‘NÃO remove número que faz parte do título’.** Linhas 70–75 afirmam que `7 Deadly Sins` deve manter o número, mas a assertion só procura `deadly sins`; ela não exige que `7` permaneça. A própria regex considera o espaço após `7` um separador e pode remover o número sem falhar o teste.
-
-**‘trunca para 80’.** O caso longo verifica `<= 80`, não exatamente 80 nem preservação do prefixo; uma implementação que truncasse excessivamente ainda satisfaria essa assertion.
-
-**Variação entre sessões.** Linhas 164–174 verificam tokens presentes, não equivalência entre as duas formas. Assim não provam a deduplicação prometida no título da seção.
-
-## 5. Matriz de evidência
-
-| Propriedade | Evidência | Classificação |
-|---|---|---|
-| Helper retorna vazio para undefined/null/'' | linhas 31–35 | ✅ PROVADO DIRETAMENTE para o helper |
-| Helper lowercases e trim | linhas 37–44 | ✅ PROVADO DIRETAMENTE para o helper |
-| Helper remove prefixos numéricos | linhas 49–68 | ✅ PROVADO DIRETAMENTE para o helper |
-| Helper remove `Cap 5:` | linhas 60–63 | ✅ PROVADO DIRETAMENTE para o helper; ⚠️ divergente da produção |
-| Número inicial sem separador é preservado | linha 74 só procura texto posterior | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| Separadores `| — • [ ] ( )` deixam de aparecer | linhas 80–105 | ✅ PROVADO DIRETAMENTE para o helper |
-| Espaços múltiplos colapsam | linhas 110–118 | ✅ PROVADO DIRETAMENTE para o helper |
-| Saída longa tem no máximo 80 | linhas 123–127 | ✅ PROVADO DIRETAMENTE para limite superior; não para truncamento exato |
-| Mesmas visitas produzem **a mesma chave** | nenhuma equality entre `norm1` e `norm2` | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| Capítulos/obras distintos geram strings distintas | linhas 152–162 | ✅ PROVADO DIRETAMENTE para o helper |
-| Variações de separador entre sessões deduplicam | apenas tokens são verificados | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-| Edge cases retornam string/retiram guillemets | linhas 179–200 | ✅ PROVADO DIRETAMENTE para o helper |
-| Produção `cm-chapter.js` implementa o mesmo algoritmo do helper | comparação estática mostra diferença | ⚠️ CONTRADITO PELO ESTADO ATUAL; não é evidência válida |
-| Produção canonicaliza diretamente casos BUG #12 desta suíte | não foi encontrado teste focal que chame `MangaTranslatorChapter.canonicalTitle` com esses casos | ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO |
-
-## 6. Relação com outros testes
-
-`canonical-title.test.js` também importa o mesmo helper espelho; portanto não fornece independência contra drift.
-
-`chapter-id-cache.test.js` implementa localmente um sistema simplificado e não chama o `canonicalTitle` de produção.
-
-`chapter-id-rejection.test.js` contém outra implementação espelho local e não substitui prova do `cm-chapter.js` real.
-
-`tests/helpers/load-content-script.js` carrega `cm-chapter.js` real antes de `content_manga.js`, o que torna possível construir teste consumer-level, mas a busca atual não encontrou assertion focal dos casos BUG #12 contra o export real.
-
-## 7. Invariantes pretendidos pela suíte
-
-1. Entradas ausentes não devem quebrar e normalizam para string vazia.
-2. Saída deve ser trimmed, lowercase e limitada a 80 caracteres.
-3. Prefixos de numeração usados por sites devem ser removidos sem destruir números que pertencem ao título.
-4. Separadores editoriais devem ser neutralizados.
-5. Variações irrelevantes de título da mesma página devem convergir para identidade comparável.
-6. Capítulos e obras realmente diferentes devem permanecer distinguíveis.
-7. Unicode/acentuação não deve causar throw.
-
-As invariantes 3 e 5 são justamente as mais frágeis no estado atual: o helper diverge da produção e algumas assertions não verificam a propriedade descrita.
-
-## 8. Solicitações ao auditor
-
-### 196-001 — IMPLEMENTATION_DRIFT — OPEN
-
-**Encontrado:** `tests/helpers/extracted-functions.js#canonicalTitle` e `extension/content/cm-chapter.js#canonicalTitle` divergem. O helper aceita prefixo textual opcional (`Cap 5:` etc.) e remove sufixo de site; a produção atual não possui essas duas transformações.
-
-**Contexto:** esta suíte importa exclusivamente o helper, embora o cabeçalho a apresente como suíte completa da função usada pela aplicação.
-
-**Evidência atual:** comparação estática direta dos SHAs `ccbf2048…` (helper) e `44b621d5…` (produção). O caso `Cap 5: Dragon Ball` depende especificamente de uma regra ausente na produção.
-
-**Evidência ausente:** teste focal executando `MangaTranslatorChapter.canonicalTitle` real com a matriz desta suíte, ou gate de paridade entre helper e produção.
-
-**Necessário:** auditor deve decidir qual algoritmo é o contrato correto. Preferencialmente migrar os testes para o export real de `cm-chapter.js`; se a regra do helper for intencional, corrigir produção em alteração separada e adicionar regressões reais. Se a produção atual for intencional, alinhar helper/documentação.
-
-**Risco:** falso verde permanente; deduplicação pode regredir na extensão enquanto a suíte continua protegendo apenas uma cópia mais forte.
-
-**Severidade:** HIGH.
-
-### 196-002 — TEST_ASSERTION_QUALITY — OPEN
-
-**Encontrado:** os cenários mais importantes de deduplicação não provam o claim dos títulos. ‘mesma chave’ não compara `norm1 === norm2`; a variação entre sessões não compara resultados; ‘NÃO remove 7’ não verifica presença de `7`.
-
-**Evidência atual:** linhas 138–150 só testam prefixo `one_piece`; linhas 164–174 só testam tokens; linhas 70–75 só procuram `deadly sins`.
-
-**Evidência ausente:** equality explícita para a mesma identidade e assertion explícita de preservação do número que pertence ao título.
-
-**Necessário:** fortalecer assertions contra a implementação real: mesma entrada semântica deve produzir a mesma chave completa, capítulos distintos devem divergir e títulos iniciados por numeral legítimo devem preservar o numeral conforme contrato.
-
-**Risco:** comportamento oposto ao descrito pode passar sem falhar a suíte.
-
-**Severidade:** HIGH.
-
-### 196-003 — TEST_MAINTENANCE — OPEN
-
-**Encontrado:** metadados/documentação do teste estão desatualizados: cabeçalho fala v3.1 e ‘stub ... (1 teste)’, enquanto o helper se declara v3.2 e `canonical-title.test.js` atual possui quatro testes; `fs` é importado e não usado.
-
-**Evidência atual:** linhas 4, 13, 15 e 19 do arquivo auditado, combinadas com a versão atual dos arquivos lidos.
-
-**Evidência ausente:** nenhuma; é dívida de manutenção, não prova funcional.
-
-**Necessário:** alinhar comentários/versões ao contrato atual e remover import morto em alteração separada, após resolver qual implementação é autoritativa.
-
-**Risco:** documentação induz auditoria a atribuir à suíte uma cobertura/versão que ela não possui.
-
-**Severidade:** LOW.
-
-## 9. Fonte integral exata
-
-O bloco abaixo é o arquivo auditado no SHA registrado, sem correções locais.
-
-```js
+~~~js
 /**
  * canonical-title-full.test.js
  * ─────────────────────────────────────────────────────────────────────────────
@@ -190,7 +43,8 @@ const fs   = require('fs');
 const { findRepoRoot } = require('../../helpers/repo-root');
 const ROOT = findRepoRoot(__dirname);
 
-const { canonicalTitle } = require(path.join(ROOT, 'tests/helpers/extracted-functions.js'));
+require(path.join(ROOT, 'extension/content/cm-chapter.js'));
+const { canonicalTitle } = globalThis.MangaTranslatorChapter;
 
 describe('CM-05/CM-06/CM-07/CM-08: canonicalTitle() — Normalização de Títulos de Capítulos', () => {
 
@@ -368,89 +222,8 @@ describe('CM-05/CM-06/CM-07/CM-08: canonicalTitle() — Normalização de Títul
         });
     });
 });
-```
+~~~
 
-## 10. Cobertura documental por linha/posição
+## Cobertura documental de linhas
 
-As faixas cobrem **1–203** de forma contígua; 203 é o newline terminal.
-
-### Posições 1–16 — cabeçalho histórico
-Declara suíte completa, contexto v3.0/v3.1, motivação de deduplicação e relação com stub. Há metadados stale: helper atual se chama v3.2 e stub não tem mais um único teste. **Evidência:** 🟦 GATE ESTÁTICO somente para presença do texto; claims históricos não são provas runtime.
-
-### Posição 17 — separador
-Linha vazia. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
-
-### Posições 18–25 — imports e função efetivamente testada
-Resolve raiz e importa `canonicalTitle` de `tests/helpers/extracted-functions.js`. Esse detalhe define todo o valor probatório da suíte: é um mirror, não o export de produção. `fs` é morto. **Evidência:** 🟨 EXECUTADO INDIRETAMENTE pelo setup.
-
-### Posição 26 — separador
-Linha vazia. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
-
-### Posições 27–28 — abertura da suíte
-Abrem o `describe` CM-05/06/07/08. **Evidência:** 🟨 estrutura Jest.
-
-### Posições 29–45 — entrada básica
-Testam vazio para undefined/null/'', lowercase e trim. Assertions são exatas para o helper. **Evidência:** ✅ PROVADO DIRETAMENTE para o helper.
-
-### Posição 46 — separador
-Linha vazia. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
-
-### Posições 47–69 — prefixos removidos
-Exercitam `1050 -`, `12.`, `Cap 5:` e `100–`. O caso textual `Cap 5:` é prova do helper e evidencia drift porque produção não possui o grupo textual opcional. **Evidência:** ✅ helper; ⚠️ produção.
-
-### Posições 70–76 — número integrante do título
-O título diz que `7` não deve ser removido, mas a assertion apenas exige `deadly sins`. Ela não falharia se o `7` desaparecesse. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para preservação do numeral.
-
-### Posição 77 — separador
-Linha vazia. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
-
-### Posições 78–106 — substituição de separadores
-Casos para pipe, em dash, bullet, colchetes e parênteses exigem ausência dos caracteres. Provam remoção/substituição no helper, mas não o valor final completo. **Evidência:** ✅ PROVADO DIRETAMENTE para ausência dos separadores no helper.
-
-### Posição 107 — separador
-Linha vazia. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
-
-### Posições 108–119 — colapso de espaços
-Exigem valor exato em múltiplos espaços e ausência de dois espaços após separadores. **Evidência:** ✅ PROVADO DIRETAMENTE para o helper.
-
-### Posição 120 — separador
-Linha vazia. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
-
-### Posições 121–134 — truncamento
-Título longo exige apenas `length <= 80`; título curto exige <=80 e contém `one piece`. Limite superior é provado, truncamento exato/preservação até 80 não. **Evidência:** ✅ limite superior; ⚠️ propriedade mais forte.
-
-### Posição 135 — separador
-Linha vazia. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
-
-### Posições 136–150 — caso crítico de ‘mesma chave’
-Normaliza duas visitas e calcula `norm1/norm2`, mas assertions verificam somente prefixo comum; igualdade completa nunca é comparada. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para deduplicação declarada.
-
-### Posições 151–162 — diferenças legítimas
-Comparam strings de capítulos 1050/1051 e Naruto/Bleach e exigem desigualdade. **Evidência:** ✅ PROVADO DIRETAMENTE para o helper.
-
-### Posições 163–175 — variação entre sessões
-Dois títulos de Berserk são reduzidos, mas apenas tokens esperados são procurados; não há igualdade de chave/resultado. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO para convergência/deduplicação.
-
-### Posição 176 — separador
-Linha vazia. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
-
-### Posições 177–201 — edge cases
-Testam número puro sem throw, somente separadores, Unicode PT-BR e guillemets. As properties verificadas são tipo string, limite e ausência de «». **Evidência:** ✅ PROVADO DIRETAMENTE para o helper nos termos exatos das assertions.
-
-### Posição 202 — fechamento
-Fecha a suíte. **Evidência:** 🟨 EXECUTADO INDIRETAMENTE pelo parser/Jest.
-
-### Posição 203 — newline final
-Terminador textual final. **Evidência:** ⚠️ SEM TESTE PROBATÓRIO ESPECÍFICO.
-
-## 11. Autoauditoria documental
-
-- SHA reconfirmado: `1b46903dbe4affda36a20b7fc140af2dc890a4dd`.
-- Fonte integral embutida diretamente do blob.
-- **203/203 posições** cobertas: 1–16, 17, 18–25, 26, 27–28, 29–45, 46, 47–69, 70–76, 77, 78–106, 107, 108–119, 120, 121–134, 135, 136–150, 151–162, 163–175, 176, 177–201, 202, 203.
-- Evidência do helper foi explicitamente separada da implementação real.
-- Drift helper/produção foi registrado como solicitação, sem alterar nenhum dos dois.
-- Nenhuma execução de teste foi alegada nesta sessão.
-- `STATUS.md`, `CHECKLIST.md`, `AUDITORIA.md`, helper e produção permaneceram read-only.
-
-**Resultado da autoauditoria:** ✅ APROVADO documentalmente, com três `audit_requests` externos abertos.
+- 1–204: snapshot integral da revisão acima; revisão semântica independente pendente.

@@ -9,7 +9,7 @@ on:
       - 'tests/mocks/**'
       - 'tests/unit/background/claim-gemini-job-action.test.js'
       - 'jest.config.js'
-      - 'docs/biblia/.coordination/claim-gemini-job-selftest.js'
+      - 'tests/infra/bible/claim-gemini-job-selftest.js'
       - '.github/workflows/claim-gemini-job-selftest.yml'
   workflow_dispatch:
 
@@ -31,7 +31,7 @@ jobs:
         run: npm ci
 
       - name: Run claim focal selftest
-        run: node docs/biblia/.coordination/claim-gemini-job-selftest.js
+        run: node tests/infra/bible/claim-gemini-job-selftest.js
 
       - name: Run background unit suite with open-handle detection
         run: npx jest --config jest.config.js --selectProjects background --runInBand --detectOpenHandles

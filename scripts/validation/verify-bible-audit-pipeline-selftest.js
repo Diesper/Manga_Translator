@@ -1,6 +1,6 @@
 'use strict';
 
-const lifecycleCore = require('../../docs/biblia/.coordination/lifecycle-core');
+const lifecycleCore = require('../bible/core/lifecycle-core');
 
 const {
   resolveAuditPipeline,

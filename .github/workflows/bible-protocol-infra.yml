@@ -6,9 +6,9 @@ on:
     branches:
       - docs/project-bible
     paths:
-      - 'docs/biblia/.coordination/audit-core.js'
-      - 'docs/biblia/.coordination/audit-result.js'
-      - 'docs/biblia/.coordination/audit-result-selftest.js'
+      - 'scripts/bible/core/audit-core.js'
+      - 'scripts/bible/commands/audit-result.js'
+      - 'tests/infra/bible/audit-result-selftest.js'
       - 'scripts/validation/verify-lifecycle-artifacts-append-only.js'
       - 'docs/biblia/.state/**'
       - 'docs/biblia/.reservas/**'
@@ -20,32 +20,32 @@ on:
       - 'docs/biblia/.coordination/unverified-findings/**'
       - 'docs/biblia/.coordination/unverified-finding-events/**'
       - 'docs/biblia/.coordination/unverified-findings-legacy-baseline.json'
-      - 'docs/biblia/.coordination/audit-core-git-selftest.js'
-      - 'docs/biblia/.coordination/audit-protocol.js'
-      - 'docs/biblia/.coordination/audit-protocol-selftest.js'
-      - 'docs/biblia/.coordination/reconcile-audit-results.js'
-      - 'docs/biblia/.coordination/reconcile-audit-results-selftest.js'
-      - 'docs/biblia/.coordination/audit-lease-gc.js'
-      - 'docs/biblia/.coordination/audit-summary.js'
-      - 'docs/biblia/.coordination/handoff-guard.js'
-      - 'docs/biblia/.coordination/bible-correction-work-plan.js'
-      - 'docs/biblia/.coordination/bible-correction-work-plan-selftest.js'
-      - 'docs/biblia/.coordination/lifecycle-core.js'
-      - 'docs/biblia/.coordination/lifecycle-core-selftest.js'
-      - 'docs/biblia/.coordination/human-gate.js'
-      - 'docs/biblia/.coordination/human-gate-selftest.js'
-      - 'docs/biblia/.coordination/human-approval.js'
-      - 'docs/biblia/.coordination/human-review.js'
-      - 'docs/biblia/.coordination/human-review-selftest.js'
-      - 'docs/biblia/.coordination/unverified-findings.js'
-      - 'docs/biblia/.coordination/unverified-findings-selftest.js'
-      - 'docs/biblia/.coordination/unverified-finding-events.js'
-      - 'docs/biblia/.coordination/unverified-finding-events-selftest.js'
-      - 'docs/biblia/.coordination/unverified-finding-transition.js'
-      - 'docs/biblia/.coordination/unit-transition.js'
-      - 'docs/biblia/.coordination/unit-transition-selftest.js'
-      - 'docs/biblia/.coordination/anti-loop-adversarial-selftest.js'
-      - 'docs/biblia/.coordination/anti-loop-integration-selftest.js'
+      - 'tests/infra/bible/audit-core-git-selftest.js'
+      - 'scripts/bible/commands/audit-protocol.js'
+      - 'tests/infra/bible/audit-protocol-selftest.js'
+      - 'scripts/bible/commands/reconcile-audit-results.js'
+      - 'tests/infra/bible/reconcile-audit-results-selftest.js'
+      - 'scripts/bible/commands/audit-lease-gc.js'
+      - 'scripts/bible/commands/audit-summary.js'
+      - 'scripts/bible/commands/handoff-guard.js'
+      - 'scripts/bible/commands/bible-correction-work-plan.js'
+      - 'tests/infra/bible/bible-correction-work-plan-selftest.js'
+      - 'scripts/bible/core/lifecycle-core.js'
+      - 'tests/infra/bible/lifecycle-core-selftest.js'
+      - 'scripts/bible/core/human-gate.js'
+      - 'tests/infra/bible/human-gate-selftest.js'
+      - 'scripts/bible/commands/human-approval.js'
+      - 'scripts/bible/storage/human-review.js'
+      - 'tests/infra/bible/human-review-selftest.js'
+      - 'scripts/bible/storage/unverified-findings.js'
+      - 'tests/infra/bible/unverified-findings-selftest.js'
+      - 'scripts/bible/storage/unverified-finding-events.js'
+      - 'tests/infra/bible/unverified-finding-events-selftest.js'
+      - 'scripts/bible/commands/unverified-finding-transition.js'
+      - 'scripts/bible/commands/unit-transition.js'
+      - 'tests/infra/bible/unit-transition-selftest.js'
+      - 'tests/infra/bible/anti-loop-adversarial-selftest.js'
+      - 'tests/infra/bible/anti-loop-integration-selftest.js'
       - 'scripts/validation/verify-human-protected-diff.js'
       - 'scripts/validation/verify-human-protected-diff-selftest.js'
       - 'scripts/validation/verify-bible-state-history-append-only.js'
@@ -102,25 +102,25 @@ jobs:
 
       - name: Syntax check coordination modules
         run: |
-          node --check docs/biblia/.coordination/audit-core.js
-          node --check docs/biblia/.coordination/audit-result.js
-          node --check docs/biblia/.coordination/audit-core-git-selftest.js
-          node --check docs/biblia/.coordination/audit-protocol.js
-          node --check docs/biblia/.coordination/reconcile-audit-results.js
-          node --check docs/biblia/.coordination/audit-lease-gc.js
-          node --check docs/biblia/.coordination/audit-summary.js
-          node --check docs/biblia/.coordination/handoff-guard.js
-          node --check docs/biblia/.coordination/bible-correction-work-plan.js
-          node --check docs/biblia/.coordination/lifecycle-core.js
-          node --check docs/biblia/.coordination/human-gate.js
-          node --check docs/biblia/.coordination/human-approval.js
-          node --check docs/biblia/.coordination/human-review.js
-          node --check docs/biblia/.coordination/unverified-findings.js
-          node --check docs/biblia/.coordination/unverified-finding-events.js
-          node --check docs/biblia/.coordination/unverified-finding-transition.js
-          node --check docs/biblia/.coordination/unit-transition.js
-          node --check docs/biblia/.coordination/anti-loop-integration-selftest.js
-          node --check docs/biblia/.coordination/anti-loop-adversarial-selftest.js
+          node --check scripts/bible/core/audit-core.js
+          node --check scripts/bible/commands/audit-result.js
+          node --check tests/infra/bible/audit-core-git-selftest.js
+          node --check scripts/bible/commands/audit-protocol.js
+          node --check scripts/bible/commands/reconcile-audit-results.js
+          node --check scripts/bible/commands/audit-lease-gc.js
+          node --check scripts/bible/commands/audit-summary.js
+          node --check scripts/bible/commands/handoff-guard.js
+          node --check scripts/bible/commands/bible-correction-work-plan.js
+          node --check scripts/bible/core/lifecycle-core.js
+          node --check scripts/bible/core/human-gate.js
+          node --check scripts/bible/commands/human-approval.js
+          node --check scripts/bible/storage/human-review.js
+          node --check scripts/bible/storage/unverified-findings.js
+          node --check scripts/bible/storage/unverified-finding-events.js
+          node --check scripts/bible/commands/unverified-finding-transition.js
+          node --check scripts/bible/commands/unit-transition.js
+          node --check tests/infra/bible/anti-loop-integration-selftest.js
+          node --check tests/infra/bible/anti-loop-adversarial-selftest.js
           node --check scripts/validation/verify-human-protected-diff.js
           node --check scripts/validation/verify-lifecycle-artifacts-append-only.js
           node --check scripts/validation/verify-lifecycle-artifacts-append-only-selftest.js
@@ -147,15 +147,15 @@ jobs:
 
       - name: Anti-loop lifecycle self-tests
         run: |
-          node docs/biblia/.coordination/lifecycle-core-selftest.js
-          node docs/biblia/.coordination/human-gate-selftest.js
-          node docs/biblia/.coordination/unverified-findings-selftest.js
-          node docs/biblia/.coordination/unverified-finding-events-selftest.js
-          node docs/biblia/.coordination/unit-transition-selftest.js
-          node docs/biblia/.coordination/anti-loop-integration-selftest.js
-          node docs/biblia/.coordination/anti-loop-adversarial-selftest.js
-          node docs/biblia/.coordination/human-review-selftest.js
-          node docs/biblia/.coordination/audit-result-selftest.js
+          node tests/infra/bible/lifecycle-core-selftest.js
+          node tests/infra/bible/human-gate-selftest.js
+          node tests/infra/bible/unverified-findings-selftest.js
+          node tests/infra/bible/unverified-finding-events-selftest.js
+          node tests/infra/bible/unit-transition-selftest.js
+          node tests/infra/bible/anti-loop-integration-selftest.js
+          node tests/infra/bible/anti-loop-adversarial-selftest.js
+          node tests/infra/bible/human-review-selftest.js
+          node tests/infra/bible/audit-result-selftest.js
           node scripts/validation/verify-lifecycle-artifacts-append-only-selftest.js
           node scripts/validation/verify-human-protected-diff-selftest.js
           node scripts/validation/verify-bible-state-history-append-only-selftest.js
@@ -164,6 +164,9 @@ jobs:
           node scripts/validation/bible-anti-loop-adversarial-selftest.js
           node scripts/validation/verify-bible-protocol-governance.js
           node scripts/validation/verify-bible-protocol-governance-selftest.js
+
+      - name: Permanent completion, human freeze, SHA progress and atomic storage self-tests
+        run: npm run test:bible-completion:infra
 
       - name: Validate anti-loop lifecycle
         run: npm run bible:lifecycle:verify
@@ -198,12 +201,12 @@ jobs:
 
       - name: Validate live distributed model
         if: ${{ always() }}
-        run: node docs/biblia/.coordination/audit-protocol.js status > audit-protocol-status.txt
+        run: node scripts/bible/commands/audit-protocol.js status > audit-protocol-status.txt
 
       - name: Classify claim and lease garbage safely
         if: ${{ always() }}
-        run: node docs/biblia/.coordination/audit-lease-gc.js
+        run: node scripts/bible/commands/audit-lease-gc.js
 
       - name: Summarize live distributed model
         if: ${{ always() }}
-        run: node docs/biblia/.coordination/audit-summary.js
+        run: node scripts/bible/commands/audit-summary.js

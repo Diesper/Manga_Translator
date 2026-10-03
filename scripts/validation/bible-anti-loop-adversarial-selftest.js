@@ -5,9 +5,9 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const life = require('../../docs/biblia/.coordination/lifecycle-core');
-const transition = require('../../docs/biblia/.coordination/unit-transition');
-const humanGate = require('../../docs/biblia/.coordination/human-gate');
+const life = require('../bible/core/lifecycle-core');
+const transition = require('../bible/commands/unit-transition');
+const humanGate = require('../bible/core/human-gate');
 const humanDiff = require('./verify-human-protected-diff');
 const stateHistory = require('./verify-bible-state-history-append-only');
 

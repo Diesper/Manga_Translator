@@ -3,9 +3,10 @@
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { LIFECYCLE_POLICY_EFFECTIVE_AT_UTC, sha256 } = require('../../docs/biblia/.coordination/lifecycle-core');
+const { LIFECYCLE_POLICY_EFFECTIVE_AT_UTC, sha256 } = require('../bible/core/lifecycle-core');
 
 const root = path.resolve(__dirname, '../..');
+const completion = require('../bible/core/completion');
 const ZERO_SHA = '0'.repeat(40);
 
 function git(args) {
@@ -80,8 +81,11 @@ function hashOnlyRepairAllowed(beforeEvent, currentEvent) {
   return beforeEvent?.event_hash !== expected && currentEvent?.event_hash === expected;
 }
 
-function historyAppendOnlyProblems(before, current) {
+function historyAppendOnlyProblems(before, current, options = {}) {
   const problems = [];
+  if (options.enforceCompletion !== false && completion.hasCompleted(before) && current?.status !== 'COMPLETED') problems.push('COMPLETED_STATUS_REGRESSION');
+  if (options.enforceCompletion !== false && completion.hasCompleted(before) && before.completed_at_utc && current.completed_at_utc !== before.completed_at_utc) problems.push('FIRST_COMPLETION_TIMESTAMP_CHANGED');
+  if (before.completion?.human_order_required_since_utc && current.completion?.human_order_required_since_utc !== before.completion.human_order_required_since_utc) problems.push('COMPLETED_HUMAN_FREEZE_REMOVED_OR_REDATED');
   const index = Number(current?.index ?? before?.index ?? 0);
   const label = '#' + String(index).padStart(3, '0');
   const oldHistory = Array.isArray(before?.history) ? before.history : [];
@@ -174,7 +178,7 @@ function verifyRepositoryHistory() {
     try {
       const before = stateFromBlob(change.oldSha);
       const current = stateFromBlob(change.newSha);
-      for (const problem of historyAppendOnlyProblems(before, current)) {
+      for (const problem of historyAppendOnlyProblems(before, current, { enforceCompletion: Boolean(before.completion?.achieved || current.completion?.achieved) })) {
         problems.push(change.file + ': ' + problem);
       }
     } catch (error) {

@@ -2,11 +2,11 @@
   "index": 191,
   "file": "tests/unit/content-manga/audio-synthesis-full.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis-full.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38",
   "started_at_utc": "2026-10-02T05:30:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-02T02:27:00Z",
   "audit_requests": [
     {
       "id": "191-001",
@@ -1272,7 +1272,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T21:43:00.301Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-02T00:51:00Z",
@@ -2003,6 +2003,28 @@
       "reason": "Production changed after the prior audio audit binding; refresh the exact live revision before accepting a correction authorization.",
       "previous_event_hash": "6650c5fd640d3366328d1f298949264e022f801a7f6679029a693b2f5514077f",
       "event_hash": "3d326d76c876f0ad6f7b7c3fcc2c620755afb4511d4f7b7215107138d41d58ee"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:41.392Z",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "3d326d76c876f0ad6f7b7c3fcc2c620755afb4511d4f7b7215107138d41d58ee",
+      "event_hash": "ddab053fd05604042f456d8ab3ed66d0cf38dbc92922b166cc24daf409992166"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "ddab053fd05604042f456d8ab3ed66d0cf38dbc92922b166cc24daf409992166",
+      "event_hash": "856e4e7bd7178edc1ce378497f50c96afc7e68fee072dd9ec055bcf263171743"
     }
   ],
   "evidence": [
@@ -2196,5 +2218,17 @@
   "human_approval_required": false,
   "audit_epoch": 6,
   "handoff_id": "191-e6-0f091ffea031",
-  "revision_id": "ac3c4d0b1ec9a4a1d68d03b2a18f177ab0152055f1fc89db577457b16279f520"
+  "revision_id": "ac3c4d0b1ec9a4a1d68d03b2a18f177ab0152055f1fc89db577457b16279f520",
+  "review_status": "READY_FOR_AUDIT",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-02T02:27:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_ADVERSARIAL"
+    ]
+  }
 }

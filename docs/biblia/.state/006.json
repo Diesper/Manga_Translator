@@ -2,11 +2,11 @@
   "index": 6,
   "file": "extension/background/actions/commit-result.js",
   "bible": "docs/biblia/extension/background/actions/commit-result.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
   "started_at_utc": null,
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T19:37:06.126Z",
   "audit_requests": [
     {
       "id": "006-001",
@@ -94,7 +94,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T00:02:00Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-01T19:37:06.126Z",
@@ -136,6 +136,28 @@
       "job_id": 110641150397,
       "agent": "AGENTE HÍBRIDO",
       "reason": "Findings distribuídos corrigidos; 006-001/002 resolvidos. Focal PASS; background 45/45 suites e 225/225 testes."
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:39.168Z",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "85cd160e8a064206739c59aa8854074372e8c18dec754a1492deb43bd2568333",
+      "event_hash": "64009d35d5661f84f4dd27c011000cc8ceb8ce844af77f57bbd2e9e2aaac51f5"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "64009d35d5661f84f4dd27c011000cc8ceb8ce844af77f57bbd2e9e2aaac51f5",
+      "event_hash": "28930f9e2a27341f0141c8c29ed075d59c9b85af5c1418c6f4d4a220fdb982e9"
     }
   ],
   "evidence": [
@@ -155,5 +177,28 @@
       "open_handles": "--detectOpenHandles enabled"
     }
   ],
-  "progress_note": "Correção híbrida validada; requests 006-001/002 RESOLVED. Nova revisão aguarda PRIMARY + ADVERSARIAL independentes."
+  "progress_note": "Correção híbrida validada; requests 006-001/002 RESOLVED. Nova revisão aguarda PRIMARY + ADVERSARIAL independentes.",
+  "review_status": "READY_FOR_AUDIT",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T19:37:06.126Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_ADVERSARIAL"
+    ]
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "32270d1c4ade42b7e6decd5ef124d71745c2a5b0",
+  "bible_sha": null,
+  "revision_id": "760f041aa97bb688812bb1f345a910f94d608f6dc30cf2eea21e8dd220c702a5"
 }

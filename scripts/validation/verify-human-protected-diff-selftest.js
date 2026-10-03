@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const life = require('../../docs/biblia/.coordination/lifecycle-core');
+const life = require('../bible/core/lifecycle-core');
 const guard = require('./verify-human-protected-diff');
 
 function clone(value) {

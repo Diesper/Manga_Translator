@@ -8,7 +8,7 @@ on:
       - 'extension/background.js'
       - 'tests/mocks/**'
       - 'jest.config.js'
-      - 'docs/biblia/.coordination/commit-result-selftest.js'
+      - 'tests/infra/bible/commit-result-selftest.js'
       - '.github/workflows/commit-result-selftest.yml'
   workflow_dispatch:
 
@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Run commit-result focal selftest
-        run: node docs/biblia/.coordination/commit-result-selftest.js
+        run: node tests/infra/bible/commit-result-selftest.js
 
       - name: Run background unit suite with open-handle detection
         run: npx jest --config jest.config.js --selectProjects background --runInBand --detectOpenHandles

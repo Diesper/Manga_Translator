@@ -1,0 +1,125 @@
+'use strict';
+
+const childProcess = require('child_process');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+
+const {
+  clearGitSnapshotCache,
+  gitWorkingTreeBlobSha,
+  productionFilesForState,
+  currentProductionSha,
+} = require('../../../scripts/bible/core/audit-core');
+
+function git(root, args, options = {}) {
+  return childProcess.execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: options.stdio || ['ignore', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function assert(name, condition, detail = '') {
+  if (!condition) throw new Error(name + (detail ? ': ' + detail : ''));
+  console.log('PASS ' + name);
+}
+
+const root = fs.mkdtempSync(path.join(os.tmpdir(), 'manga-bible-git-selftest-'));
+const rel = 'docs/biblia/fixture/Bíblia.md';
+const abs = path.join(root, rel);
+
+try {
+  git(root, ['init']);
+  git(root, ['config', 'user.email', 'selftest@example.invalid']);
+  git(root, ['config', 'user.name', 'Bible Selftest']);
+
+  fs.mkdirSync(path.dirname(abs), { recursive: true });
+  fs.writeFileSync(path.join(root, '.gitattributes'), '*.md text eol=lf\n', 'utf8');
+  fs.writeFileSync(abs, 'linha 1\nlinha 2\n', 'utf8');
+  git(root, ['add', '.gitattributes', rel]);
+  git(root, ['commit', '-m', 'fixture']);
+
+  const indexSha = git(root, ['rev-parse', ':' + rel]).toLowerCase();
+
+  clearGitSnapshotCache(root);
+  assert(
+    'arquivo limpo usa blob canônico do índice',
+    gitWorkingTreeBlobSha(root, rel) === indexSha
+  );
+
+  // Simula working tree CRLF como pode ocorrer no Windows. Os clean filters
+  // devem produzir o mesmo blob LF versionado.
+  fs.writeFileSync(abs, 'linha 1\r\nlinha 2\r\n', 'utf8');
+  assert(
+    'CRLF equivalente mantém o mesmo BIBLE_SHA',
+    gitWorkingTreeBlobSha(root, rel) === indexSha
+  );
+
+  // Alteração semântica precisa sair do fast-path do índice e gerar novo blob.
+  fs.writeFileSync(abs, 'linha 1\r\nlinha 2 alterada\r\n', 'utf8');
+  const changedSha = gitWorkingTreeBlobSha(root, rel);
+  const expectedChanged = git(root, ['hash-object', '--path=' + rel, abs]).toLowerCase();
+  assert('mudança real usa hash-object com clean filter', changedSha === expectedChanged);
+  assert('mudança real invalida revisão anterior', changedSha !== indexSha);
+
+  const productionA = 'extension/content/a.js';
+  const productionB = 'extension/content/b.js';
+  fs.mkdirSync(path.join(root, 'extension', 'content'), { recursive: true });
+  fs.writeFileSync(path.join(root, productionA), 'A\n', 'utf8');
+  fs.writeFileSync(path.join(root, productionB), 'B\n', 'utf8');
+  git(root, ['add', productionA, productionB]);
+  git(root, ['commit', '-m', 'production fixtures']);
+  clearGitSnapshotCache(root);
+
+  const state = {
+    index: 1,
+    file: 'tests/fixture.test.js',
+    source_sha: 'a'.repeat(40),
+    bible_sha: indexSha,
+    production_files: [productionB, productionA],
+    audit_requests: [{
+      target_file: productionA,
+      related_production_file: productionB,
+    }],
+    history: [],
+  };
+  assert(
+    'production files are canonical and sorted',
+    JSON.stringify(productionFilesForState(state)) === JSON.stringify([productionA, productionB])
+  );
+  const productionSha1 = currentProductionSha(root, state);
+  const productionSha2 = currentProductionSha(root, {
+    ...state,
+    production_files: [productionA, productionB],
+  });
+  assert('production manifest SHA is deterministic', productionSha1 === productionSha2);
+
+  fs.writeFileSync(path.join(root, productionB), 'B changed\n', 'utf8');
+  assert('production change invalidates manifest SHA', currentProductionSha(root, state) !== productionSha1);
+
+  git(root, ['add', rel]);
+  assert('stage invalida o snapshot sem clear manual', gitWorkingTreeBlobSha(root,rel) === git(root,['rev-parse',':'+rel]));
+  const revisionGit=require('../../../scripts/bible/storage/git');
+  const oldHead=git(root,['rev-parse','HEAD']);
+  const oldProduction=revisionGit.headBlobSha(root,productionB,'unused');
+  git(root,['add',productionB]);git(root,['commit','-m','new head fixture']);
+  assert('HEAD novo invalida leitura em lote',revisionGit.headBlobSha(root,productionB,'unused')!==oldProduction);
+  git(root,['reset','--soft',oldHead]);
+  assert('reset soft invalida HEAD sem modificar o index',revisionGit.headBlobSha(root,productionB,'unused')===oldProduction);
+  fs.writeFileSync(abs,'same CRLF\r\n');git(root,['add',rel]);
+  const filtered=gitWorkingTreeBlobSha(root,rel);
+  fs.writeFileSync(path.join(path.dirname(abs),'.gitattributes'),'*.md -text\n');
+  assert('atributo local novo invalida filtro sem editar a fonte',gitWorkingTreeBlobSha(root,rel)!==filtered);
+  const originalExec=childProcess.execFileSync;
+  try {
+    fs.writeFileSync(abs,'failure fixture\n');
+    childProcess.execFileSync=function(command,args,options){if(command==='git'&&args[0]==='hash-object')throw Error('injected Git failure');return originalExec.call(this,command,args,options);};
+    let failed=false;try{gitWorkingTreeBlobSha(root,rel);}catch(error){failed=/injected Git failure/.test(error.message);}
+    assert('falha Git não cai em hash cru',failed);
+  } finally { childProcess.execFileSync=originalExec; }
+  console.log('Audit core Git revision self-test: SUCCESS');
+} finally {
+  clearGitSnapshotCache(root);
+  fs.rmSync(root, { recursive: true, force: true });
+}

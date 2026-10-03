@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const storage = require('../bible/storage/files');
 const path = require('path');
 const {
   parseAuditRegistry,
@@ -36,7 +37,10 @@ if (distributed.problems.length) {
   for (const problem of distributed.problems) console.error('- ' + problem);
   process.exit(1);
 }
-const pipelines = evaluateAuditPipelines(states, distributed.records, audits);
+const pipelines = evaluateAuditPipelines(states, distributed.records, audits, {
+  root,
+  baseline: distributed.baseline,
+});
 if (pipelines.problems.length) {
   console.error('Bible audit pipeline invalid:');
   for (const problem of pipelines.problems) console.error('- ' + problem);
@@ -45,7 +49,7 @@ if (pipelines.problems.length) {
 // Audit results distributed are validated above, but intentionally do not mutate
 // global projections on every append-only result. STATUS/CHECKLIST are legacy
 // compatibility views reconciled in batches.
-const generated = buildDerived(states, audits, 'states-v2');
+const generated = buildDerived(states, audits, 'states-v2', pipelines.byIndex);
 
 const outputs = [
   ['STATUS.md', generated.status],
@@ -54,7 +58,7 @@ const outputs = [
 
 if (mode === 'write') {
   for (const [name, content] of outputs) {
-    fs.writeFileSync(path.join(bibleRoot, name), normalized(content));
+    storage.atomicWrite(path.join(bibleRoot, name), normalized(content));
     process.stdout.write('wrote docs/biblia/' + name + '\n');
   }
   process.stdout.write('Bible projections regenerated: SUCCESS\n');

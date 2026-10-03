@@ -85,7 +85,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T04:02:00Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:02:00Z",
@@ -95,6 +95,28 @@
       "source_sha": "8d34dee0d632fde17c0609dac7dfe2a0ef60c927",
       "auditor": "AGENTE 23",
       "reason": "Auditoria independente SHA-bound confirmou os três cenários negativos reais, cleanup por finally e classificação correta das lacunas 082-001..003."
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:40.780Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "4305b9395e313803e1a1fa6bfbd5cc008022b47a0b65b9485b43c2e9062e562c",
+      "event_hash": "289341b619870ba39d8273f0168613689b2108a396f4db5a07f12e759c4ea416"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "289341b619870ba39d8273f0168613689b2108a396f4db5a07f12e759c4ea416",
+      "event_hash": "b2c8849fbb82941234f4176f4ca828f99ef7047a561b4dbad60289c2a81897de"
     }
   ],
   "evidence": [
@@ -106,5 +128,28 @@
       "at_utc": "2026-10-01T04:02:00Z",
       "note": "Requests 082-001..003 permanecem ACCEPTED como melhorias de robustez/meta-infra."
     }
-  ]
+  ],
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T04:02:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "REAUDIT_REQUIRED"
+    ]
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "8d34dee0d632fde17c0609dac7dfe2a0ef60c927",
+  "bible_sha": null,
+  "revision_id": "3efb9849459c6323d8a0858f2be20c30b91d3936630199a35c0e06b4d841d96b"
 }

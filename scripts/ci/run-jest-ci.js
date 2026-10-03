@@ -93,7 +93,7 @@ if (coverageRequested) {
   args.push('--coverage');
   // V8 coverage aumenta significativamente CPU/memória por worker. Limitar a
   // concorrência torna o gate determinístico sem aumentar timeouts funcionais.
-  args.push('--maxWorkers=2');
+  args.push('--runInBand');
 }
 
 const run = spawnSync(process.execPath, args, {

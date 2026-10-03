@@ -2,9 +2,9 @@
   "index": 192,
   "file": "tests/unit/content-manga/audio-synthesis.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis.test.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
+  "status": "READY_FOR_AUDIT",
   "agent": null,
-  "source_sha": "f47b6cf91846bfcea634ce1177d7d857ad9cdb46",
+  "source_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
   "started_at_utc": "2026-09-30T06:39:00Z",
   "completed_at_utc": null,
   "audit_requests": [
@@ -66,7 +66,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T20:05:44Z",
+  "updated_at_utc": "2026-10-03T03:41:52.956Z",
   "history": [
     {
       "at_utc": "2026-10-01T20:05:44Z",
@@ -85,6 +85,28 @@
       "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
       "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
       "event_hash": "f8a4f47546feb0544870934fb7a4ec4afa7fea5f08f72c9482624c1276f11753"
+    },
+    {
+      "at_utc": "2026-10-03T03:41:52.956Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "Diesper-directed-structure-review",
+      "previous_source_sha": "f47b6cf91846bfcea634ce1177d7d857ad9cdb46",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "99628f9aeb2ed5601fa565e23787260c26e2c28d67af20c63c879f674e4b01d5",
+      "source_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
+      "test_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
+      "bible_sha": "b03e282af6c0898b9ee4f287a19df889e16dfc9a",
+      "production_sha": null,
+      "revision_id": "a687cfb6ace2cfe0c7378a9a21a43e572e6d5b2d1417f1fd209ec025d9cddecf",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "192-e1-0f0c14e1b960",
+      "reason": "Implementação do plano diretamente no PR 66 por instrução explícita do usuário; atualizar vínculo sem aprovação automática.",
+      "previous_event_hash": "f8a4f47546feb0544870934fb7a4ec4afa7fea5f08f72c9482624c1276f11753",
+      "event_hash": "4bc9f34dba88e5b2cf28f7b0910b933c20a0b8cbd295ab6d73fb6f7a2652b868"
     }
   ],
   "evidence": [],
@@ -93,11 +115,11 @@
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 0,
-  "handoff_id": null,
+  "audit_epoch": 1,
+  "handoff_id": "192-e1-0f0c14e1b960",
   "production_sha": null,
-  "test_sha": "f47b6cf91846bfcea634ce1177d7d857ad9cdb46",
-  "bible_sha": null,
-  "revision_id": "99628f9aeb2ed5601fa565e23787260c26e2c28d67af20c63c879f674e4b01d5",
+  "test_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
+  "bible_sha": "b03e282af6c0898b9ee4f287a19df889e16dfc9a",
+  "revision_id": "a687cfb6ace2cfe0c7378a9a21a43e572e6d5b2d1417f1fd209ec025d9cddecf",
   "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }

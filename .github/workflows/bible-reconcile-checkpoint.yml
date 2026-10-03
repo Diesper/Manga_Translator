@@ -57,7 +57,7 @@ jobs:
           if [ "$REMOTE_SHA" != "$VALIDATED_SHA" ]; then
             PROTOCOL_CHANGED="$(
               git diff --name-only "$VALIDATED_SHA" "$REMOTE_SHA" |
-              grep -E '^(package\.json|\.github/workflows/bible-.*\.yml|docs/biblia/\.coordination/[^/]+\.js|scripts/validation/.*\.js)$' || true
+              grep -E '^(package\.json|\.github/workflows/bible-.*\.yml|scripts/bible/.*\.js|tests/infra/bible/.*\.js|scripts/validation/.*\.js)$' || true
             )"
             if [ -n "$PROTOCOL_CHANGED" ]; then
               echo "::error::Protocol infrastructure changed after validation; rerun checkpoint on the newer protocol revision."

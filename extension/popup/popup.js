@@ -2024,7 +2024,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     window.addEventListener('beforeunload', () => {
-        if (window.logPoller) { clearInterval(window.logPoller); window.logPoller = null; } if (window.logStorageListener && chrome?.storage?.onChanged?.removeListener) { chrome.storage.onChanged.removeListener(window.logStorageListener); window.logStorageListener = null; window.logListenerAdded = false; }
+        if (window.logPoller) clearInterval(window.logPoller);
+        window.logPoller = null;
+        if (window.logStorageListener && chrome?.storage?.onChanged?.removeListener) { chrome.storage.onChanged.removeListener(window.logStorageListener); window.logStorageListener = null; window.logListenerAdded = false; }
     });
 
 });

@@ -2,11 +2,11 @@
   "index": 53,
   "file": "extension/popup/popup.html",
   "bible": "docs/biblia/extension/popup/popup.html/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "05972d0fa1161a5182e0b11185a390582a720f90",
   "started_at_utc": null,
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T01:39:00Z",
   "audit_requests": [],
   "takeover_history": [
     {
@@ -19,7 +19,7 @@
   ],
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T21:49:22.210Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-01T01:39:00Z",
@@ -45,6 +45,28 @@
       "source_sha": "05972d0fa1161a5182e0b11185a390582a720f90",
       "bible_sha": "e806e586a220ad415ce7088cd578e5942084ea31",
       "reason": "053-REA-001..003 corrigidos; source inalterado. Nova revisão exige PRIMARY + ADVERSARIAL."
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:40.147Z",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "8ad5e580f7240a99e23ececb6bfed448c0654b1c6f969ae56152f0ced7aa3894",
+      "event_hash": "01f9bb7c06fe16ef83db99a18d0e050239b745489833084912d256ca8be2cf74"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "01f9bb7c06fe16ef83db99a18d0e050239b745489833084912d256ca8be2cf74",
+      "event_hash": "fe8c7d3405a73be1646c543824d57d74b5f23f4632e6d701fb43b98baabcf124"
     }
   ],
   "recovery": {
@@ -52,5 +74,28 @@
     "original_completed_at_utc": "unknown / not_recovered",
     "administrative_reopen_started_at_utc": "2026-09-30T16:03:00Z"
   },
-  "evidence": []
+  "evidence": [],
+  "review_status": "READY_FOR_AUDIT",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T01:39:00Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_PRIMARY"
+    ]
+  },
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "05972d0fa1161a5182e0b11185a390582a720f90",
+  "bible_sha": null,
+  "revision_id": "3271f6dd5bdb03d08dbe712c289ce923295ddd62ebc8dca311472db33923778a"
 }

@@ -2,11 +2,11 @@
   "index": 119,
   "file": "tests/mocks/chrome-api.mock.js",
   "bible": "docs/biblia/tests/mocks/chrome-api.mock.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "af6580a887f1eba1c2798bfff82849e1b34cb260",
   "started_at_utc": "2026-09-30T06:32:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-01T14:40:17.413Z",
   "audit_requests": [
     {
       "id": "119-001",
@@ -84,7 +84,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-02T20:05:17Z",
+  "updated_at_utc": "2026-10-03T03:42:01.220Z",
   "history": [
     {
       "at_utc": "2026-10-01T14:40:17.413Z",
@@ -155,6 +155,28 @@
       "reason": "Atualiza o binding da Bíblia #119 após reauditoria documental da correção de runtime.lastError; auditorias anteriores permanecem invalidadas.",
       "previous_event_hash": "ee61c36bfadeea55e41e9c055c51ac3c9421419e550ee6e9ad627f3826bf8b3e",
       "event_hash": "38fbd2531ea2d9ed87055aacea4771e4aefc0853cfd88caff1e195469e8ce603"
+    },
+    {
+      "type": "COMPLETION_POLICY_MIGRATION",
+      "at_utc": "2026-10-03T03:41:41.280Z",
+      "from_status": "READY_FOR_AUDIT",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Instalação inicial solicitada diretamente pelo humano no PR 66; conclusão histórica permanente, preservando revisão e histórico.",
+      "previous_event_hash": "38fbd2531ea2d9ed87055aacea4771e4aefc0853cfd88caff1e195469e8ce603",
+      "event_hash": "2e216aeff8e7d4cc68d9be9a161c27161ae85f6dd9763b3940353be264497c07"
+    },
+    {
+      "type": "COMPLETED_HUMAN_FREEZE_ACTIVATED",
+      "at_utc": "2026-10-03T03:42:01.220Z",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "READY_FOR_AUDIT",
+      "reason": "Ordem humana direta obrigatória para qualquer edição, auditoria ou reavaliação futura.",
+      "previous_event_hash": "2e216aeff8e7d4cc68d9be9a161c27161ae85f6dd9763b3940353be264497c07",
+      "event_hash": "ced1b2ff35e03a5dea43b761e45fd29793afa0c572e87ffd6e939dd39f3c48e7"
     }
   ],
   "evidence": [
@@ -177,5 +199,17 @@
   "human_approval_required": false,
   "audit_epoch": 2,
   "handoff_id": "119-e2-ae53358a60f4",
-  "revision_id": "6ca1ba049ec98dbd0f92f04a47a50b5c9708c9be5fc58e7d1619711fffd90aa7"
+  "revision_id": "6ca1ba049ec98dbd0f92f04a47a50b5c9708c9be5fc58e7d1619711fffd90aa7",
+  "review_status": "READY_FOR_AUDIT",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-01T14:40:17.413Z",
+    "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
+  },
+  "completion_quality": {
+    "status": "WITH_CAVEATS",
+    "caveats": [
+      "WAITING_PRIMARY"
+    ]
+  }
 }

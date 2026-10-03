@@ -1,12 +1,14 @@
 'use strict';
+const completion = require('../bible/core/completion');
 
 const fs = require('fs');
 const path = require('path');
 const {
   loadModel,
-} = require('../../docs/biblia/.coordination/audit-protocol');
-const lifecycleCore = require('../../docs/biblia/.coordination/lifecycle-core');
-const humanGate = require('../../docs/biblia/.coordination/human-gate');
+} = require('../bible/commands/audit-protocol');
+const lifecycleCore = require('../bible/core/lifecycle-core');
+const humanGate = require('../bible/core/human-gate');
+const completedAccess = require('../bible/core/completed-access');
 
 const DEFAULT_AUDITOR_COUNT = 80;
 const AUDIT_PHASES = new Set(['AUTO', 'PRIMARY', 'ADVERSARIAL', 'REAUDIT']);
@@ -78,10 +80,10 @@ function nextPhaseForPipeline(pipeline) {
 }
 
 function allowedForPhase(state, phase, humanAuditAuthorized = false) {
-  if (state.status === 'HUMAN_LOCKED') return humanAuditAuthorized === true;
-  if (phase === 'PRIMARY') return state.status === 'READY_FOR_AUDIT';
+  if (completion.reviewStatus(state) === 'HUMAN_LOCKED') return humanAuditAuthorized === true;
+  if (phase === 'PRIMARY') return completion.reviewStatus(state) === 'READY_FOR_AUDIT';
   if (phase === 'ADVERSARIAL' || phase === 'REAUDIT') {
-    return state.status === 'READY_FOR_AUDIT' || state.status === 'COMPLETED';
+    return completion.reviewStatus(state) === 'READY_FOR_AUDIT' || completion.reviewStatus(state) === 'COMPLETED';
   }
   return false;
 }
@@ -95,6 +97,7 @@ function planAuditWork({
   auditorOrdinal,
   shardCount = DEFAULT_AUDITOR_COUNT,
   phase = 'AUTO',
+  atUtc = new Date().toISOString(),
 }) {
   const normalizedPhase = String(phase || 'AUTO').toUpperCase();
   if (!AUDIT_PHASES.has(normalizedPhase)) throw new Error('phase inválida: ' + phase);
@@ -107,6 +110,8 @@ function planAuditWork({
   const candidates = [];
   for (const state of states || []) {
     if (claimed.has(state.index)) continue;
+    const completedOrder = completedAccess.orderFor(state, humanApprovals, atUtc);
+    if (completion.hasCompleted(state) && !completedOrder) continue;
     const lifecycle = lifecycleCore.lifecycleSnapshot(state);
     const humanAuditApproval = lifecycle.human_locked
       ? humanGate.activeHumanApproval(state, lifecycle, humanApprovals, 'ALLOW_AUDIT_ONLY')
@@ -127,6 +132,10 @@ function planAuditWork({
       steal_distance: shardRank.get(shard),
       phase: nextPhase,
       status: state.status,
+      completed_order_id: completedOrder?.approval_id || null,
+      completed: completion.hasCompleted(state),
+      audit_status: pipeline.audit_status || pipeline.decision,
+      revision_revalidation_required: Boolean(pipeline.revision_revalidation_required),
       file: state.file,
       bible: state.bible,
       source_sha: state.source_sha,
@@ -143,7 +152,8 @@ function planAuditWork({
   }
 
   candidates.sort((a, b) => (
-    b.priority_score - a.priority_score
+    Number(a.completed) - Number(b.completed)
+    || b.priority_score - a.priority_score
     || a.steal_distance - b.steal_distance
     || a.index - b.index
   ));

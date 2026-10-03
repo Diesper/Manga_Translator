@@ -1,0 +1,112 @@
+name: Bible Structure and Completion Gates
+
+on:
+  pull_request:
+    branches: [main, docs/project-bible, codex/pr66-structure-review-base-20261002]
+    paths:
+      - '.github/workflows/pr66-structure-review.yml'
+      - '.github/workflows/bible-reconcile-checkpoint.yml'
+      - 'scripts/validation/verify-bible-protocol-governance*.js'
+      - 'scripts/validation/verify-reconcile-refresh-selftest.js'
+      - 'scripts/validation/generate-bible-projections.js'
+      - 'scripts/validation/verify-bible-projection-context-selftest.js'
+      - 'docs/biblia/.coordination/PR66_STRUCTURE_REVIEW.md'
+      - 'scripts/bible/**'
+      - 'tests/infra/bible/**'
+      - 'scripts/validation/verify-completion-monotonic-selftest.js'
+      - 'scripts/validation/verify-bible-storage-selftest.js'
+      - 'extension/**'
+      - 'tests/unit/**'
+      - 'docs/biblia/.state/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bible-structure-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  governance:
+    name: Structure Governance (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Prove refresh ordering and governance mutation guards
+        run: |
+          node scripts/validation/verify-bible-protocol-governance.js
+          node scripts/validation/verify-bible-protocol-governance-selftest.js
+          node scripts/validation/verify-bible-projection-context-selftest.js
+          node scripts/validation/verify-completion-monotonic-selftest.js
+          node scripts/validation/verify-bible-storage-selftest.js
+          node scripts/validation/verify-completed-human-freeze-selftest.js
+          node scripts/validation/verify-audit-sha-progress-selftest.js
+          npm run test:bible-lifecycle:infra
+          npm run test:bible-protocol:infra
+
+  runtime:
+    name: Structure Runtime (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run test:coverage
+      - run: npm run test:coverage:verify
+      - run: npm run test:production:mutation
+
+  performance:
+    name: Isolated Performance Budget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run test:performance:isolated
+
+  workflow-lint:
+    name: Isolated Workflow Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install verified actionlint 1.7.12
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pr66-actionlint"
+          cd "$RUNNER_TEMP/pr66-actionlint"
+          curl -fsSLO https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          echo '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  actionlint_1.7.12_linux_amd64.tar.gz' | sha256sum --check --strict
+          tar -xzf actionlint_1.7.12_linux_amd64.tar.gz actionlint
+      - name: Validate repaired checkpoint and isolated review workflow
+        shell: bash
+        run: |
+          "$RUNNER_TEMP/pr66-actionlint/actionlint" -shellcheck= -pyflakes= \
+            .github/workflows/bible-reconcile-checkpoint.yml \
+            .github/workflows/pr66-structure-review.yml \
+            .github/workflows/bible-human-approval.yml

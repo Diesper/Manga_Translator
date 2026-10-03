@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const guard = require('./verify-lifecycle-artifacts-append-only');
-const life = require('../../docs/biblia/.coordination/lifecycle-core');
+const life = require('../bible/core/lifecycle-core');
 
 assert.strictEqual(
   guard.protectedArtifact('docs/biblia/.coordination/human-approvals/191/a.json'),

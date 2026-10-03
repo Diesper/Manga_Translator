@@ -3,8 +3,10 @@
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const life = require('../../docs/biblia/.coordination/lifecycle-core');
-const humanGate = require('../../docs/biblia/.coordination/human-gate');
+const life = require('../bible/core/lifecycle-core');
+const humanGate = require('../bible/core/human-gate');
+const completion = require('../bible/core/completion');
+const completedAccess = require('../bible/core/completed-access');
 
 const root = path.resolve(__dirname, '../..');
 
@@ -71,7 +73,7 @@ function humanCorrectionAuthorized(before, current) {
   if (startedNow) return true;
 
   if (!life.activeHumanAuthorizedCorrection(before)) return false;
-  if (current?.status === 'IN_PROGRESS' && current?.agent === before?.agent) return true;
+  if (completion.reviewStatus(current) === 'IN_PROGRESS' && current?.agent === before?.agent) return true;
 
   return added.some((entry) => (
     entry?.type === life.HANDOFF_EVENT
@@ -79,8 +81,16 @@ function humanCorrectionAuthorized(before, current) {
   ));
 }
 
-function problemsForHumanDiff(before, current, changed, approvals = []) {
+function problemsForHumanDiff(before, current, changed, approvals = [], options = {}) {
   const beforeLife = life.lifecycleSnapshot(before);
+  if (completion.hasCompleted(before) && before.completion?.human_order_required_since_utc) {
+    const exact = protectedPaths(before);
+    const touched = changed.filter(file => exact.has(file) || humanAuditControlPath(before.index, file));
+    if (touched.length && !completedAccess.orderFor(before, approvals, options.atUtc || current.updated_at_utc)
+      && !completedAccess.orderFor(current, approvals, options.atUtc || current.updated_at_utc, {allowClosed:true})) {
+      return ['#' + before.index + ': COMPLETED exige ordem humana direta para alteração/auditoria: ' + touched.join(', ')];
+    }
+  }
   if (!beforeLife.human_locked) return [];
 
   const exact = protectedPaths(before);
@@ -141,7 +151,7 @@ function main(argv = process.argv.slice(2)) {
   for (const current of currentStates()) {
     const before = baseState(base, current.index);
     if (!before) continue;
-    problems.push(...problemsForHumanDiff(before, current, changed, approvalLoad.approvals));
+    problems.push(...problemsForHumanDiff(before, current, changed, approvalLoad.approvals, {atUtc:git(['show','-s','--format=%cI','HEAD'])}));
   }
 
   if (problems.length) {
