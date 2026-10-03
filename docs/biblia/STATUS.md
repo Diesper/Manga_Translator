@@ -8,11 +8,11 @@
 - materializadas: **233**
 - PENDING: **0**
 - IN_PROGRESS: **0**
-- READY_FOR_AUDIT: **45**
-- CHANGES_REQUIRED: **75**
+- READY_FOR_AUDIT: **44**
+- CHANGES_REQUIRED: **72**
 - HUMAN_LOCKED: **0**
 - BLOCKED: **0**
-- COMPLETED: **113**
+- COMPLETED: **117**
 - requests OPEN: **0**
 - requests ACCEPTED: **551**
 - requests RESOLVED: **71**
@@ -106,7 +106,7 @@
 | 080 | scripts/validation/playwright-gate-reporter-selftest.js | COMPLETED | READY_FOR_AUDIT | {"status":"WITH_CAVEATS","caveats":["WAITING_PRIMARY"]} | WAITING_ADVERSARIAL | - | c3574843cf1614c9b705e6940e7502bbeb75e5be | 2 |
 | 081 | scripts/validation/validate-manifest.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | 93dbb1882c69c47482b1b07fdaf3a2a9e9d133b1 | 3 |
 | 082 | scripts/validation/verify-ci-contract-selftest.js | COMPLETED | READY_FOR_AUDIT | {"status":"WITH_CAVEATS","caveats":["WAITING_PRIMARY"]} | WAITING_ADVERSARIAL | - | 48b25e56dcaff1d2460bfbe697759d1921091968 | 3 |
-| 083 | scripts/validation/verify-ci-contract.js | COMPLETED | READY_FOR_AUDIT | {"status":"WITH_CAVEATS","caveats":["WAITING_PRIMARY"]} | WAITING_ADVERSARIAL | - | c8f392e16693f62aac272036abcc018a5f3ba278 | 2 |
+| 083 | scripts/validation/verify-ci-contract.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | c8f392e16693f62aac272036abcc018a5f3ba278 | 2 |
 | 084 | scripts/validation/verify-coverage-selftest.js | COMPLETED | COMPLETED | {"status":"WITH_CAVEATS","caveats":["REAUDIT_REQUIRED"]} | REAUDIT_REQUIRED | - | ac08dd661f2d2410a56a7fd685cd9b55e85901f9 | 4 |
 | 085 | scripts/validation/verify-coverage.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | 45f920bd2db5ba3a1273438b1814b29aeafc3be4 | 5 |
 | 086 | scripts/validation/verify-e2e-shard-plan.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | ea1149ced74425ad27ede90ec409c2548cb5b65d | 3 |
@@ -213,11 +213,11 @@
 | 187 | tests/unit/content-gemini/rpa-flow.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 4bcd24983325106d82be04e2c547a99df1a74fd5 | 3 |
 | 188 | tests/unit/content-gemini/safe-background-delete.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | cf85ff00f7cc7638ef8e0c61bba1ddd45e07648e | 3 |
 | 189 | tests/unit/content-gemini/temp-chat-activator.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | f9418a4301c97d91e06d47196729218aaedbdd37 | 3 |
-| 190 | tests/unit/content-gemini/temporary-chat-v2.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | bdf7146fac7fa9575b2fa1ab8f16e2d6b4480446 | 3 |
-| 191 | tests/unit/content-manga/audio-synthesis-full.test.js | COMPLETED | READY_FOR_AUDIT | {"status":"WITH_CAVEATS","caveats":["WAITING_ADVERSARIAL"]} | REAUDIT_REQUIRED | - | 52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38 | 33 |
-| 192 | tests/unit/content-manga/audio-synthesis.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | 83326ecdb978258919a7ad39cb10b47f9ac8ecc2 | 2 |
-| 193 | tests/unit/content-manga/auto-restore-system.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 3aa7a39030aba4577f530f575869a6d535d1c3a3 | 3 |
-| 194 | tests/unit/content-manga/auto-restorer-real.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | cf792733e62f4b787073f1f7257e2701d29547a6 | 3 |
+| 190 | tests/unit/content-gemini/temporary-chat-v2.test.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | bdf7146fac7fa9575b2fa1ab8f16e2d6b4480446 | 3 |
+| 191 | tests/unit/content-manga/audio-synthesis-full.test.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | 52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38 | 33 |
+| 192 | tests/unit/content-manga/audio-synthesis.test.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | 83326ecdb978258919a7ad39cb10b47f9ac8ecc2 | 2 |
+| 193 | tests/unit/content-manga/auto-restore-system.test.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | 3aa7a39030aba4577f530f575869a6d535d1c3a3 | 3 |
+| 194 | tests/unit/content-manga/auto-restorer-real.test.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | cf792733e62f4b787073f1f7257e2701d29547a6 | 3 |
 | 195 | tests/unit/content-manga/button-ui-real.test.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | a82baea685c1b325e8b21a9a914ef405a142ef97 | 3 |
 | 196 | tests/unit/content-manga/canonical-title-full.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | 12c203636749f69c09448a063be5384bf221e2b8 | 3 |
 | 197 | tests/unit/content-manga/canonical-title.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | 27ea51de33e3e56ed6535eae1a5dd530f8c06f67 | 3 |

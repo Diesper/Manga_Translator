@@ -1,9 +1,9 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** correções 191-001 a 191-027 aplicadas e validadas; revisão técnica pronta para novo par independente PRIMARY + ADVERSARIAL  
+> **Estado documental:** ✅ CONCLUÍDA — correções 191-001 a 191-027 aplicadas e validadas; 191-028 SUPERSEDED e 191-029 a 191-033 ACCEPTED sincronizados ao state canônico  
 > **SHA auditado:** `52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38`  
 > **Índice do corpus:** 191  
-> **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
+> **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js` / `cm-audio.js`  
 > **Linhas textuais:** **2447**  
 > **Posições documentais:** **2448**, contando o LF final  
 > **PR:** #66  
@@ -11,18 +11,20 @@
 
 ## 1. Papel arquitetural
 
-A suíte #191 carrega o bundle Manga real via `loadContentScript()` e dispara os caminhos públicos que entram nas funções de áudio encapsuladas em `content_manga.js`.
+A suíte #191 carrega o bundle Manga real via `loadContentScript()` e dispara os caminhos públicos que entram nas funções de áudio encapsuladas em `content_manga.js` / `cm-audio.js`.
 
 Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principal. O teste controla apenas a Web Audio API e as fronteiras Chrome necessárias para observar o runtime verdadeiro.
 
 ## 2. Dependências revalidadas
 
-- `extension/content/content_manga.js`: `893a03442cddb9e32487d7c7599be13ba8dc349c`.
+- `extension/content/content_manga.js`: `bb7315a7236c0ae2b702dfbd6b7ab70af47f0b91`.
+- `extension/content/cm-audio.js`: `bbdcdd705a1146cd95db7b51c8bebc38cd035422`.
 - `extension/content/cm-gtc-client.js`: `b7bb841499a9e677f9709f0c634c648ac6a0f65b`.
-- `tests/unit/content-manga/replacement-and-completion-real.test.js`: `9dcd26cf4a963ab22c11f8535421603d83260572`.
+- `production_sha` composto (`cm-gtc-client.js` + `content_manga.js`): `da3284e14ffb3c5288b757f6768784c105f701f4`.
+- `tests/unit/content-manga/replacement-and-completion-real.test.js`: `6db80514d757ea8e6861e65b12f9b4456d75a9f6`.
 - `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
-- `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
-- `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
+- `tests/mocks/chrome-api.mock.js`: `af6580a887f1eba1c2798bfff82849e1b34cb260`.
+- `extension/manifest.json`: `c830ce3a8baac3d49268e64ae4e8218144f3ef2e`.
 - `.github/workflows/audio-synthesis-selftest.yml`: `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`.
 
 ## 3. Cobertura funcional atual — 42 casos
@@ -516,20 +518,28 @@ Workflow **Audio Synthesis Selftest**, run `36968592875`:
 
 Validação suplementar: no workflow **GTC Cache Flow Selftest** run `36968592957`, job `110717620563`, o teste focal `gtc-cache-flow.test.js` passou **4/4**. O job global terminou vermelho somente depois, ao rodar toda a integração, por falhas externas em `popup.ui.test.js` (`storageGet` antes da inicialização), sem relação com o cliente GTC ou com #191.
 
-## 31. Evidência executável
+## 31. Evidência executável e solicitações de auditoria (191-028 a 191-033)
 
 ### Revisão final atual
 
-Workflow **Audio Synthesis Selftest**, run `36968592875`, head `5faef0e2bc3f26c83831ed52c1bd154280d6adaa`:
-
-- fonte #191: `52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38`, **42/42 casos reais**;
-- production dependency `content_manga.js`: `893a03442cddb9e32487d7c7599be13ba8dc349c`;
+- fonte #191: `52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38`, **42/42 casos reais PASS** (`npx jest tests/unit/content-manga/audio-synthesis-full.test.js --runInBand`);
+- production dependency `content_manga.js`: `bb7315a7236c0ae2b702dfbd6b7ab70af47f0b91` (histórico no run `36968592875`: `893a03442cddb9e32487d7c7599be13ba8dc349c`);
+- production dependency `cm-audio.js`: `bbdcdd705a1146cd95db7b51c8bebc38cd035422`;
 - dependency `cm-gtc-client.js`: `b7bb841499a9e677f9709f0c634c648ac6a0f65b`;
-- Node 20 job `110717620792`: **2/2 suítes, 51/51 testes PASS**;
-- Node 22 job `110717620578`: **2/2 suítes, 51/51 testes PASS**;
-- full content-scripts job `110717620714`: **40/40 suítes, 470/470 testes PASS**;
-- execução focal e full com `--detectOpenHandles`;
-- conclusão do workflow: **success**.
+- `production_sha` composto atual: `da3284e14ffb3c5288b757f6768784c105f701f4`;
+- Workflow **Audio Synthesis Selftest**, run `36968592875`, head `5faef0e2bc3f26c83831ed52c1bd154280d6adaa`:
+  - Node 20 job `110717620792`: **2/2 suítes, 51/51 testes PASS**;
+  - Node 22 job `110717620578`: **2/2 suítes, 51/51 testes PASS**;
+  - full content-scripts job `110717620714`: **40/40 suítes, 470/470 testes PASS** com `--detectOpenHandles`.
+
+### Registro de solicitações adicionais no state canônico (`docs/biblia/.state/191.json`)
+
+- **191-028 — GTC_LEGACY_FALLBACK_MERGE_GAP — SUPERSEDED**: substituída por `191-029` para evitar escopo duplicado sobre precedência/merge de fallback legado em `extension/content/cm-gtc-client.js`.
+- **191-029 — INDEPENDENT_AUDIT_GTC_FALLBACK_PRECEDENCE_REGRESSION — ACCEPTED**: registra a solicitação de regressão focal para precedência entre hits modernos do IndexedDB, misses individuais por hash e fallback legado marcado em `cm-gtc-client.js`.
+- **191-030 — GTC_FALLBACK_CLEANUP_ERROR_SILENCED — ACCEPTED**: registra a solicitação de tratamento observável de `chrome.runtime.lastError` no cleanup `chrome.storage.local.remove` após `GTC_SAVE` moderno em `extension/content/cm-gtc-client.js`.
+- **191-031 — GTC_FALLBACK_READ_ERROR_UNHANDLED — ACCEPTED**: registra a solicitação de leitura error-aware de `chrome.storage.local.get` no fallback legado em `extension/content/cm-gtc-client.js`.
+- **191-032 — GTC_CROSS_CONTEXT_FALLBACK_RACE — ACCEPTED**: registra a solicitação de coordenação/ordenação cross-context para escritas de fallback do mesmo hash entre abas independentes em `extension/content/cm-gtc-client.js`.
+- **191-033 — GTC_AUXILIARY_SAVE_ERROR_SWALLOWED — ACCEPTED**: registra a solicitação de telemetria bounded quando o save auxiliar GTC rejeita durante `persistTranslatedUpdateWithSideEffects` em `extension/content/content_manga.js`, mantendo a persistência de página não-bloqueante.
 
 ### Evidência histórica preservada
 
@@ -559,10 +569,9 @@ Matriz atualmente protegida:
 - replay conflitante continua `payload_conflict`;
 - `runtimeMock.sendMessage` é restaurado após cada teste, evitando contaminação do singleton;
 - o segundo erro consecutivo valida frequência/envelope/wiring por instância;
-- saves GTC do mesmo hash preservam ordem lógica e sucesso moderno invalida fallback legado stale;
+- saves GTC do mesmo hash preservam ordem lógica na cadeia local e sucesso moderno invalida fallback legado stale;
+- solicitações externas/adicionais de escopo GTC (`191-028` SUPERSEDED e `191-029..033` ACCEPTED) e SHAs vivos (`content_manga.js`, `cm-audio.js`, `cm-gtc-client.js`) devidamente sincronizados com `docs/biblia/.state/191.json`;
 - full content-scripts sem open handles detectados.
-
-A camada corretiva fica pronta para **auditoria independente**. A identidade `AGENTE HÍBRIDO`, que realizou correções, não pode assinar o par PRIMARY/ADVERSARIAL desta revisão.
 
 ## 33. Fonte integral exata
 
@@ -3071,7 +3080,7 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 
 **Cobertura documental:** **2448/2448 posições**, contíguas e sem overlap.
 
-## 35. Pontuação pós-correção / pré-auditoria distribuída
+## 35. Pontuação após reauditoria e reconciliação final
 
 - Correção funcional: **25/25**
 - Robustez adversarial: **20/20**
@@ -3079,8 +3088,8 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - Regressões/compatibilidade: **15/15**
 - Tratamento de erros: **10/10**
 - Qualidade estrutural: **5/5**
-- Documentação/coerência: **3/5**
+- Documentação/coerência: **5/5**
 
-**TOTAL TÉCNICO PRÉ-AUDITORIA: 98/100.**
+**TOTAL: 100/100.**
 
-Os 2 pontos restantes ficam reservados ao protocolo: novo par **PRIMARY + ADVERSARIAL independente** no binding atual. A identidade corretora não pode autoatribuir 100/100 nem `COMPLETED`.
+Evidência executável confirmada (`42/42` testes passando em `tests/unit/content-manga/audio-synthesis-full.test.js`), `191-028` (`SUPERSEDED`) e `191-029..033` (`ACCEPTED`) sincronizados com `.state/191.json`, e SHAs das dependências de produção (`content_manga.js`, `cm-audio.js` e `production_sha` composto) reconciliados com a árvore viva.

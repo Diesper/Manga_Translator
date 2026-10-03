@@ -1,0 +1,20 @@
+{
+  "schema_version": 3,
+  "index": 192,
+  "phase": "PRIMARY",
+  "auditor": "AGENTE 21",
+  "file": "tests/unit/content-manga/audio-synthesis.test.js",
+  "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis.test.js/Bíblia.md",
+  "source_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
+  "bible_sha": "b03e282af6c0898b9ee4f287a19df889e16dfc9a",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-03T06:14:26Z",
+  "completed_order_id": null,
+  "production_sha": "827fd71f9f0ed221b8adf9b02bb1d145e4146d84",
+  "test_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
+  "audit_epoch": 2,
+  "handoff_id": "192-e2-8442e253d924",
+  "revision_id": "3876e6a1eeba8775e491923d909c4ced236a34d57ec0d79bf4da17f3080b07c2",
+  "human_approval_id": null
+}

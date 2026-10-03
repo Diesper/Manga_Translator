@@ -2,11 +2,11 @@
   "index": 192,
   "file": "tests/unit/content-manga/audio-synthesis.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/audio-synthesis.test.js/Bíblia.md",
-  "status": "READY_FOR_AUDIT",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
   "started_at_utc": "2026-09-30T06:39:00Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-03T06:14:27Z",
   "audit_requests": [
     {
       "id": "192-001",
@@ -66,7 +66,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T04:05:34.037Z",
+  "updated_at_utc": "2026-10-03T06:14:27Z",
   "history": [
     {
       "at_utc": "2026-10-01T20:05:44Z",
@@ -129,6 +129,26 @@
       "reason": "Corrigir vínculo de SHA observado; preservar conclusão e etapa de auditoria, sem reutilizar aprovação antiga.",
       "previous_event_hash": "4bc9f34dba88e5b2cf28f7b0910b933c20a0b8cbd295ab6d73fb6f7a2652b868",
       "event_hash": "a6a48c6a088f9a8bbb346f34117f40cf57a4ca544837fed508dcbffa49073072"
+    },
+    {
+      "at_utc": "2026-10-03T06:14:27Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "source_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
+      "bible_sha": "b03e282af6c0898b9ee4f287a19df889e16dfc9a",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "3876e6a1eeba8775e491923d909c4ced236a34d57ec0d79bf4da17f3080b07c2",
+      "audit_epoch": 2,
+      "handoff_id": "192-e2-8442e253d924",
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "COMPLETED",
+      "previous_event_hash": "a6a48c6a088f9a8bbb346f34117f40cf57a4ca544837fed508dcbffa49073072",
+      "event_hash": "720ede78f1872ebe118924564ae88395f6f27b7e9977a2798f9dc3ad22ef2fcd"
     }
   ],
   "evidence": [],
@@ -143,8 +163,18 @@
   "test_sha": "83326ecdb978258919a7ad39cb10b47f9ac8ecc2",
   "bible_sha": "b03e282af6c0898b9ee4f287a19df889e16dfc9a",
   "revision_id": "3876e6a1eeba8775e491923d909c4ced236a34d57ec0d79bf4da17f3080b07c2",
-  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico.",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual.",
   "production_files": [
     "extension/content/cm-audio.js"
-  ]
+  ],
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-03T06:14:27Z",
+    "human_order_required_since_utc": "2026-10-03T06:14:27Z"
+  },
+  "completion_quality": {
+    "status": "VERIFIED",
+    "caveats": []
+  }
 }

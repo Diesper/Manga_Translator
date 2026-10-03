@@ -84,7 +84,7 @@
 - [x] 080 — `scripts/validation/playwright-gate-reporter-selftest.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
 - [x] 081 — `scripts/validation/validate-manifest.js` — COMPLETED
 - [x] 082 — `scripts/validation/verify-ci-contract-selftest.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
-- [x] 083 — `scripts/validation/verify-ci-contract.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 083 — `scripts/validation/verify-ci-contract.js` — COMPLETED
 - [x] 084 — `scripts/validation/verify-coverage-selftest.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
 - [x] 085 — `scripts/validation/verify-coverage.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
 - [x] 086 — `scripts/validation/verify-e2e-shard-plan.js` — COMPLETED
@@ -191,11 +191,11 @@
 - [ ] 187 — `tests/unit/content-gemini/rpa-flow.test.js` — CHANGES_REQUIRED
 - [ ] 188 — `tests/unit/content-gemini/safe-background-delete.test.js` — CHANGES_REQUIRED
 - [ ] 189 — `tests/unit/content-gemini/temp-chat-activator.test.js` — CHANGES_REQUIRED
-- [ ] 190 — `tests/unit/content-gemini/temporary-chat-v2.test.js` — CHANGES_REQUIRED
-- [x] 191 — `tests/unit/content-manga/audio-synthesis-full.test.js` — COMPLETED — com ressalvas: WAITING_ADVERSARIAL
-- [ ] 192 — `tests/unit/content-manga/audio-synthesis.test.js` — READY_FOR_AUDIT
-- [ ] 193 — `tests/unit/content-manga/auto-restore-system.test.js` — CHANGES_REQUIRED
-- [ ] 194 — `tests/unit/content-manga/auto-restorer-real.test.js` — CHANGES_REQUIRED
+- [x] 190 — `tests/unit/content-gemini/temporary-chat-v2.test.js` — COMPLETED
+- [x] 191 — `tests/unit/content-manga/audio-synthesis-full.test.js` — COMPLETED
+- [x] 192 — `tests/unit/content-manga/audio-synthesis.test.js` — COMPLETED
+- [x] 193 — `tests/unit/content-manga/auto-restore-system.test.js` — COMPLETED
+- [x] 194 — `tests/unit/content-manga/auto-restorer-real.test.js` — COMPLETED
 - [x] 195 — `tests/unit/content-manga/button-ui-real.test.js` — COMPLETED
 - [ ] 196 — `tests/unit/content-manga/canonical-title-full.test.js` — READY_FOR_AUDIT
 - [ ] 197 — `tests/unit/content-manga/canonical-title.test.js` — READY_FOR_AUDIT

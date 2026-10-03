@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-gemini/temporary-chat-v2.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** ✅ CONCLUÍDA — solicitações 190-001 a 190-003 sincronizadas como ACCEPTED ao state canônico e mapa posicional 144/144 reconciliado  
 > **SHA auditado:** `bdf7146fac7fa9575b2fa1ab8f16e2d6b4480446`  
 > **Agente responsável:** AGENTE 17  
 > **Tipo:** suíte Jest unitária do módulo real de conversa temporária  
@@ -105,7 +105,7 @@ As duas suítes são complementares e autênticas.
 
 ## 6. Solicitações ao auditor
 
-### 190-001 — TEST_REQUIRED — OPEN
+### 190-001 — TEST_REQUIRED — ACCEPTED
 
 **Encontrado:** `ensureActive()` possui retorno `verification_failed/aborted`, mas esta suíte não injeta `AbortSignal` abortado.
 
@@ -119,7 +119,7 @@ As duas suítes são complementares e autênticas.
 
 **Severidade:** NORMAL.
 
-### 190-002 — TEST_REQUIRED — OPEN
+### 190-002 — TEST_REQUIRED — ACCEPTED
 
 **Encontrado:** não há caso em que um controle semântico é encontrado, mas `triggerClick()` falha repetidamente, levando a `control_not_actionable`.
 
@@ -133,7 +133,7 @@ As duas suítes são complementares e autênticas.
 
 **Severidade:** NORMAL.
 
-### 190-003 — INTEGRATION_REVIEW — OPEN
+### 190-003 — INTEGRATION_REVIEW — ACCEPTED
 
 **Encontrado:** esta suíte prova os statuses do helper, mas não o efeito de cada reason no `job-runner.js`.
 
@@ -299,17 +299,24 @@ describe('gemini/temporary-chat.js — estados verificáveis', () => {
 
 | Linhas | Papel |
 |---:|---|
-| 1–8 | imports e caminho do módulo |
-| 9–16 | loader isolado |
-| 17–29 | describe/setup/cleanup |
-| 30–46 | TEMP-01 |
-| 47–64 | TEMP-02 |
-| 66–89 | TEMP-03 |
-| 90–107 | TEMP-04 |
-| 108–127 | TEMP-05 |
-| 128–142 | garantia de click único |
-| 143 | fecha describe |
-| posição 144 | newline final |
+| 1–6 | `'use strict'`, imports (`path`) e resolução de `TEMP_PATH` |
+| 7–13 | helper `loadTempChat()` via `jest.isolateModules()` |
+| 14 | linha em branco separadora |
+| 15–25 | abertura do `describe` principal, `beforeEach` e `afterEach` |
+| 26 | linha em branco separadora |
+| 27–41 | caso `TEMP-01: já ativa retorna already_active sem clicar` |
+| 42 | linha em branco separadora |
+| 43–58 | caso `TEMP-02: clique só retorna activated_verified depois de reler estado ativo` |
+| 59 | linha em branco separadora |
+| 60–83 | caso `TEMP-03: clique sem mudança real nunca retorna sucesso` |
+| 84 | linha em branco separadora |
+| 85–100 | caso `TEMP-04: ausência do controle retorna unavailable` |
+| 101 | linha em branco separadora |
+| 102–120 | caso `TEMP-05: sem fallback geométrico, botão genérico permanece unavailable` |
+| 121 | linha em branco separadora |
+| 122–142 | caso `não alterna o toggle repetidamente após um clique não confirmado` |
+| 143 | fechamento `});` do `describe` |
+| posição 144 | newline final (`\n`) |
 
 ## 9. Autoauditoria do AGENTE 17
 

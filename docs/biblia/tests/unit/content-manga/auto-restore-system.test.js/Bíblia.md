@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-manga/auto-restore-system.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** ✅ CONCLUÍDA — solicitações 193-001 a 193-003 sincronizadas como ACCEPTED ao state canônico e mapa posicional 262/262 reconciliado  
 > **SHA auditado:** `3aa7a39030aba4577f530f575869a6d535d1c3a3`  
 > **Agente responsável:** AGENTE 17  
 > **Tipo:** suíte Jest histórica baseada em mirrors/simulações locais  
@@ -140,7 +140,7 @@ A afirmação “UPDATE_IMAGE salva tudo no mesmo set” é especialmente sensí
 
 ## 10. Solicitações ao auditor
 
-### 193-001 — TEST_AUTHENTICITY — OPEN
+### 193-001 — TEST_AUTHENTICITY — ACCEPTED
 
 **Encontrado:** #193 testa apenas `createAutoRestoreSystem()` local, não `cm-auto-restore.js`.
 
@@ -156,7 +156,7 @@ A afirmação “UPDATE_IMAGE salva tudo no mesmo set” é especialmente sensí
 
 **Severidade:** HIGH.
 
-### 193-002 — STALE_TEST_CONTRACT — OPEN
+### 193-002 — STALE_TEST_CONTRACT — ACCEPTED
 
 **Encontrado:** o teste “MutationObserver com debounce” não cria MutationObserver; ele testa apenas um closure local com `setTimeout(150)`.
 
@@ -172,7 +172,7 @@ A afirmação “UPDATE_IMAGE salva tudo no mesmo set” é especialmente sensí
 
 **Severidade:** NORMAL.
 
-### 193-003 — STALE_TEST_CONTRACT — OPEN
+### 193-003 — STALE_TEST_CONTRACT — ACCEPTED
 
 **Encontrado:** o caso “UPDATE_IMAGE salva restoreMap + GTC no mesmo set” apenas executa `storageMock.set(toSet)` manualmente.
 
@@ -458,16 +458,21 @@ describe('Sistema de Auto-Restore — v3.2', () => {
 
 | Linhas | Papel |
 |---:|---|
-| 1–11 | contexto e cenários declarados |
-| 12–21 | imports/root/storage mock |
-| 23–73 | mirrors getCleanUrl/createAutoRestoreSystem |
-| 74–83 | factory de imagem fake |
-| 84–155 | testes do mirror applyAutoRestore |
-| 156–200 | persistência cross-session simulada |
-| 201–239 | debounce local |
-| 241–260 | “integração” por storageMock.set manual |
-| 261 | fecha describe |
-| posição 262 | newline final |
+| 1–12 | cabeçalho documental, contexto e cenários declarados |
+| 13–21 | linha separadora, imports (`path`, `fs`, `findRepoRoot`/`ROOT`) e `getStorageMock` |
+| 22 | linha em branco separadora |
+| 23–67 | mirrors locais `getCleanUrl` (25–31) e `createAutoRestoreSystem` (33–67) |
+| 68–76 | separador, comentário e factory `makeImgDOM` de imagem fake |
+| 77 | linha em branco separadora |
+| 78–146 | abertura da suíte `Sistema de Auto-Restore — v3.2` e bloco `applyAutoRestore() — substituição por clean URL` (6 testes do mirror) |
+| 147 | linha em branco separadora |
+| 148–182 | bloco `Persistência cross-session via storage` (2 testes sobre `storageMock` e `getCleanUrl`) |
+| 183 | linha em branco separadora |
+| 184–228 | bloco `Debounce do MutationObserver` (hooks fake timers + 1 teste de debounce local de 150ms) |
+| 229 | linha em branco separadora |
+| 230–260 | bloco `Integração: restoreMap + GTC juntos` (1 teste de `storageMock.set`/`get` manual das 3 chaves) |
+| 261 | fechamento `});` do `describe` principal |
+| posição 262 | newline final (`\n`) |
 
 ## 13. Autoauditoria do AGENTE 17
 

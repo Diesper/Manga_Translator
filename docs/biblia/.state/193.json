@@ -2,11 +2,11 @@
   "index": 193,
   "file": "tests/unit/content-manga/auto-restore-system.test.js",
   "bible": "docs/biblia/tests/unit/content-manga/auto-restore-system.test.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
+  "status": "COMPLETED",
   "agent": null,
   "source_sha": "3aa7a39030aba4577f530f575869a6d535d1c3a3",
   "started_at_utc": "2026-09-30T14:54:13Z",
-  "completed_at_utc": null,
+  "completed_at_utc": "2026-10-03T06:19:06Z",
   "audit_requests": [
     {
       "id": "193-001",
@@ -83,7 +83,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T21:58:36.733Z",
+  "updated_at_utc": "2026-10-03T06:19:06Z",
   "history": [
     {
       "at_utc": "2026-10-01T21:58:36.733Z",
@@ -102,6 +102,48 @@
       "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
       "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
       "event_hash": "ef8a1636dfeb0e973becf80cfb0e3934045e8d5aa9df6ac309d32deca6538910"
+    },
+    {
+      "at_utc": "2026-10-03T06:19:03.497Z",
+      "type": "REVISION_REFRESH_READY_FOR_INDEPENDENT_AUDIT",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "READY_FOR_AUDIT",
+      "actor": "authorized-sha-repair",
+      "previous_source_sha": "3aa7a39030aba4577f530f575869a6d535d1c3a3",
+      "previous_bible_sha": null,
+      "previous_production_sha": null,
+      "previous_revision_id": "3a8360e1cbb87dbf9ba88d5569ccfd9367c13316b4968f7bdb2e364f18ded40f",
+      "source_sha": "3aa7a39030aba4577f530f575869a6d535d1c3a3",
+      "test_sha": "3aa7a39030aba4577f530f575869a6d535d1c3a3",
+      "bible_sha": "6da4b5b416320f0fb9e92e6f840a1baf69befb11",
+      "production_sha": null,
+      "revision_id": "040bf05ea65fa16dc940a0b2edbfe613bd0138fa78ace2b97eb66d8496336b9f",
+      "correction_cycle": 0,
+      "audit_epoch": 1,
+      "handoff_id": "193-e1-3a9d9c3f3613",
+      "reason": "Corrigir vínculo de SHA observado; preservar conclusão e etapa de auditoria, sem reutilizar aprovação antiga.",
+      "previous_event_hash": "ef8a1636dfeb0e973becf80cfb0e3934045e8d5aa9df6ac309d32deca6538910",
+      "event_hash": "eeadcd99d32a9f5e05c817e773f8e012c4f5d863c3cd9196ed48bc1c7d2ee116"
+    },
+    {
+      "at_utc": "2026-10-03T06:19:06Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "source_sha": "3aa7a39030aba4577f530f575869a6d535d1c3a3",
+      "bible_sha": "6da4b5b416320f0fb9e92e6f840a1baf69befb11",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "040bf05ea65fa16dc940a0b2edbfe613bd0138fa78ace2b97eb66d8496336b9f",
+      "audit_epoch": 1,
+      "handoff_id": "193-e1-3a9d9c3f3613",
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "COMPLETED",
+      "previous_event_hash": "eeadcd99d32a9f5e05c817e773f8e012c4f5d863c3cd9196ed48bc1c7d2ee116",
+      "event_hash": "e0d1dbb5cab353f3d5bba0478efcf4c3220f9e7fe19adcd93819bffcaf5a2e0f"
     }
   ],
   "evidence": [],
@@ -110,11 +152,21 @@
   "current_escalation_cycle": 0,
   "escalation_level": "NORMAL",
   "human_approval_required": false,
-  "audit_epoch": 0,
-  "handoff_id": null,
+  "audit_epoch": 1,
+  "handoff_id": "193-e1-3a9d9c3f3613",
   "production_sha": null,
   "test_sha": "3aa7a39030aba4577f530f575869a6d535d1c3a3",
-  "bible_sha": null,
-  "revision_id": "3a8360e1cbb87dbf9ba88d5569ccfd9367c13316b4968f7bdb2e364f18ded40f",
-  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
+  "bible_sha": "6da4b5b416320f0fb9e92e6f840a1baf69befb11",
+  "revision_id": "040bf05ea65fa16dc940a0b2edbfe613bd0138fa78ace2b97eb66d8496336b9f",
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual.",
+  "review_status": "COMPLETED",
+  "completion": {
+    "achieved": true,
+    "first_completed_at_utc": "2026-10-03T06:19:06Z",
+    "human_order_required_since_utc": "2026-10-03T06:19:06Z"
+  },
+  "completion_quality": {
+    "status": "VERIFIED",
+    "caveats": []
+  }
 }

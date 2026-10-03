@@ -67,7 +67,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T06:20:00Z",
+  "updated_at_utc": "2026-10-03T06:36:23Z",
   "history": [
     {
       "at_utc": "2026-10-01T04:07:00Z",
@@ -219,6 +219,37 @@
       "reason": "Corrige a validação de dependências do CI Gate para exigir itens exatos em needs:; mantém a unidade 083 em READY_FOR_AUDIT para revisão independente.",
       "previous_event_hash": "ef34aac02d0a73e1273538a0a0b3c6f43fbc6dcabfbcb44eb48c7caa5f9ae5dc",
       "event_hash": "db25b7ee61ad9ba6227b5449c1cf894227a9ef431d4f9dc1b837248d1ff82a78"
+    },
+    {
+      "at_utc": "2026-10-03T06:36:23Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "source_sha": "c8f392e16693f62aac272036abcc018a5f3ba278",
+      "bible_sha": "b19c032114c7de0772273ddc543141bdd4d614a0",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "8ba4824eaee796716681264d13dcc12bde52b0204a22c8d6be1d9ecfded05a9f",
+      "audit_epoch": 4,
+      "handoff_id": "083-e4-d82b92fb765d",
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "COMPLETED",
+      "previous_event_hash": "db25b7ee61ad9ba6227b5449c1cf894227a9ef431d4f9dc1b837248d1ff82a78",
+      "event_hash": "70a99f7d1abf024721ab15b86d1fa1028f495e072ccbde2a358b083e12e5d4a6"
+    },
+    {
+      "type": "COMPLETED_WORK_ORDER_CLOSED",
+      "at_utc": "2026-10-03T06:36:23Z",
+      "approval_id": "083-human-db408ff36e440730",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "previous_event_hash": "70a99f7d1abf024721ab15b86d1fa1028f495e072ccbde2a358b083e12e5d4a6",
+      "event_hash": "0e3154820c607468185e555bfd0d108799a1472470db00404661b211be0a1afb"
     }
   ],
   "evidence": [
@@ -242,16 +273,15 @@
   "audit_epoch": 4,
   "handoff_id": "083-e4-d82b92fb765d",
   "revision_id": "8ba4824eaee796716681264d13dcc12bde52b0204a22c8d6be1d9ecfded05a9f",
-  "review_status": "READY_FOR_AUDIT",
+  "review_status": "COMPLETED",
   "completion": {
     "achieved": true,
     "first_completed_at_utc": "2026-10-01T04:07:00Z",
     "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
   },
   "completion_quality": {
-    "status": "WITH_CAVEATS",
-    "caveats": [
-      "REVALIDATION_REQUIRED"
-    ]
-  }
+    "status": "VERIFIED",
+    "caveats": []
+  },
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual."
 }

@@ -1,6 +1,6 @@
 # Bíblia técnica — tests/unit/content-manga/auto-restorer-real.test.js
 
-> **Estado documental:** ✅ CONCLUÍDA  
+> **Estado documental:** ✅ CONCLUÍDA — solicitações 194-001 a 194-003 sincronizadas como ACCEPTED ao state canônico  
 > **SHA auditado:** `cf792733e62f4b787073f1f7257e2701d29547a6`  
 > **Agente responsável:** AGENTE 5  
 > **Tipo:** suíte Jest/JSDOM que carrega a implementação real de `content_manga.js` e módulos auxiliares  
@@ -275,7 +275,7 @@ Essas ausências não invalidam as provas existentes; apenas delimitam o que #19
 
 ## 10. Solicitações ao auditor
 
-### 194-001 — TEST_ASSERTION_MISMATCH — OPEN
+### 194-001 — TEST_ASSERTION_MISMATCH — ACCEPTED
 
 **Encontrado:** o teste “UPDATE_IMAGE para indice inexistente nao quebra e nao cria estado de capitulo” verifica somente ausência de chave `*_images` e ausência de mutação visual.
 
@@ -295,7 +295,7 @@ Essas ausências não invalidam as provas existentes; apenas delimitam o que #19
 
 **Severidade:** HIGH.
 
-### 194-002 — TEST_DETERMINISM — OPEN
+### 194-002 — TEST_DETERMINISM — ACCEPTED
 
 **Encontrado:** REG-10 usa atraso cronológico de 180 ms para tentar manter a leitura de restoreMap em aberto, mas não possui latch/assertion provando que a inicialização ainda está pendente quando `UPDATE_IMAGE` é enviado.
 
@@ -315,7 +315,7 @@ Essas ausências não invalidam as provas existentes; apenas delimitam o que #19
 
 **Severidade:** NORMAL.
 
-### 194-003 — TEST_ROBUSTNESS — OPEN
+### 194-003 — TEST_ROBUSTNESS — ACCEPTED
 
 **Encontrado:** os três casos negativos de configuração (global off, site off, imagem bloqueada) provam ausência de efeito por `delay(250)` fixo.
 
@@ -838,4 +838,4 @@ describe('REG-04/REG-05/REG-10/CM-94/CM-95/CM-96/CM-97/CM-98/CM-107b/CM-116: con
 
 #194 é uma suíte de alta relevância porque exercita o runtime real do content manga/auto-restore e possui execução CI verde comprovada no mesmo blob. As dez primeiras famílias de assertions têm boa força probatória sobre efeitos observáveis. A principal divergência documental está no último nome de teste, que afirma ausência ampla de “estado de capítulo” sem medir o storage moderno; a implementação, na verdade, foi desenhada para persistir resultados mesmo quando o nó já não existe no DOM.
 
-A Bíblia pode ser concluída mantendo as solicitações 194-001/002/003 abertas, pois elas descrevem lacunas externas sem alterar o objeto auditado.
+A Bíblia pode ser concluída mantendo as solicitações 194-001/002/003 registradas como `ACCEPTED` em consonância com `.state/194.json`, pois elas descrevem lacunas externas sem alterar o objeto auditado.
