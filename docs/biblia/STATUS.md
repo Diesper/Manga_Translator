@@ -112,7 +112,7 @@
 | 086 | scripts/validation/verify-e2e-shard-plan.js | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | ea1149ced74425ad27ede90ec409c2548cb5b65d | 3 |
 | 087 | scripts/validation/verify-jest-worker-warning-selftest.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | 4c8ce078abcf58f66ded7918650b2f54d9fa40cf | 1 |
 | 088 | scripts/validation/verify-publish-contract.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | f5b3f6c69f85f90fe43689de2e44b6ed70cca757 | 2 |
-| 089 | scripts/validation/verify-repository-structure.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | e80da68ff70c2a26eeada261cd4e5d8cce2649b3 | 5 |
+| 089 | scripts/validation/verify-repository-structure.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | a449b27e6fc40cfa04b5de4f62c7c417322da2a1 | 5 |
 | 090 | scripts/validation/verify-test-policy-selftest.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | ac0318e4d90c5014180eb3d3a6ac4784cc70a24a | 2 |
 | 091 | scripts/validation/verify-test-policy.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | 4a821403353445023452a0b5055e3a0893beaad2 | 3 |
 | 092 | tests/e2e/cache-and-storage.spec.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["CHANGES_REQUIRED"]} | CHANGES_REQUIRED | - | b181989a9b89151ca17cbcbeb7db9342b98c9add | 3 |
@@ -202,7 +202,7 @@
 | 176 | tests/unit/content-gemini/deletion.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | c570bbdc340761412746a1347f297c352e2ff1a4 | 3 |
 | 177 | tests/unit/content-gemini/dom-modules.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 32441920c27f69aef629f33fc6175ff5b48b0859 | 3 |
 | 178 | tests/unit/content-gemini/editor-submit.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | ccfa4c881543111b13d0bd8f8198f402039b2233 | 3 |
-| 179 | tests/unit/content-gemini/helpers-and-regressions-real.test.js | READY_FOR_AUDIT | READY_FOR_AUDIT | - | WAITING_ADVERSARIAL | - | 65c66f1a756d127909ed6661386e72c19e3a3a2c | 4 |
+| 179 | tests/unit/content-gemini/helpers-and-regressions-real.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 65c66f1a756d127909ed6661386e72c19e3a3a2c | 4 |
 | 180 | tests/unit/content-gemini/image-quarantine.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | b2c73b79c8824e5507e436a75ec9abc663919c6b | 3 |
 | 181 | tests/unit/content-gemini/job-runner.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | b0daca4ce839d8a5114c8c94e116fa155c721f7b | 4 |
 | 182 | tests/unit/content-gemini/manual-assist-hud.test.js | CHANGES_REQUIRED | CHANGES_REQUIRED | - | CHANGES_REQUIRED | - | 14f53ac3c5a9d6fcf7898b12dab8ef53e6a1997f | 3 |
