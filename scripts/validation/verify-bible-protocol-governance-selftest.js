@@ -110,3 +110,5 @@ assert.ok(
 console.log('PASS CI anti-loop governance step cannot be continue-on-error');
 
 console.log('Bible protocol governance self-test: SUCCESS');
+
+require('./verify-reconcile-refresh-selftest');
