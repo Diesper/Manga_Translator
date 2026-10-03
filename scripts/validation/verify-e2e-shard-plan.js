@@ -7,6 +7,7 @@ const path = require('path');
 const repoRoot = path.resolve(__dirname, '../..');
 const plan = JSON.parse(fs.readFileSync(path.join(repoRoot, 'scripts', 'ci', 'data', 'e2e-shard-plan.json'), 'utf8'));
 const baseline = JSON.parse(fs.readFileSync(path.join(repoRoot, 'scripts', 'ci', 'data', 'test-baseline.json'), 'utf8'));
+const playwrightConfig = fs.readFileSync(path.join(repoRoot, 'playwright.config.js'), 'utf8');
 const playwrightCli = path.join(repoRoot, 'node_modules', 'playwright', 'cli.js');
 
 function fail(message) {
@@ -96,9 +97,25 @@ for (const group of plan.groups) {
   tags.add(group.tag);
 }
 
-if (!plan.groups.some(group => group.kind === 'fast')) {
-  fail('o plano precisa manter um grupo dedicado aos testes rápidos');
+if (!plan.groups.some(group => group.kind === 'fast' || group.kind === 'fast-balanced')) {
+  fail('o plano precisa manter um grupo que inclua a classe rápida');
 }
+if (baseline.e2e?.maxSkipped !== 0 || baseline.e2e?.maxFlaky !== 0) {
+  fail('o plano exige zero testes skipped e zero retries/flaky no gate global');
+}
+if (!/retries:\s*isCi\s*\?\s*0\s*:/.test(playwrightConfig)) {
+  fail('Playwright CI precisa manter retries=0 para todos os grupos');
+}
+
+const jobEstimates = plan.groups.map(group => Number(group.estimatedJobSeconds));
+if (jobEstimates.some(value => !Number.isFinite(value) || value <= 0)) {
+  fail('todos os grupos precisam de uma estimativa wall-clock positiva');
+}
+const maxJobSeconds = Math.max(...jobEstimates);
+const minJobSeconds = Math.min(...jobEstimates);
+const jobSpreadRatio = maxJobSeconds / minJobSeconds;
+if (maxJobSeconds >= 120) fail('job E2E estimado deve permanecer abaixo de 120s: ' + maxJobSeconds);
+if (jobSpreadRatio > 1.3) fail('spread estimado de job E2E excede 30%: ' + jobSpreadRatio.toFixed(3));
 
 const full = collectSpecs(runList());
 const fullSet = new Set(full);
@@ -113,7 +130,9 @@ const union = new Map();
 let sum = 0;
 
 for (const group of plan.groups) {
-  const keys = collectSpecs(runList(['--grep', group.tag]));
+  const selector = String(group.grep || group.tag);
+  if (!selector.trim()) fail('selector grep vazio no grupo ' + group.id);
+  const keys = collectSpecs(runList(['--grep', selector]));
   if (keys.length !== group.expectedTests) {
     fail(
       'grupo ' + group.id + ' coletou ' + keys.length +
@@ -124,7 +143,7 @@ for (const group of plan.groups) {
   console.log(
     '[E2E/PLAN] ' + group.id +
     ': ' + keys.length + ' teste(s), workers=' + group.workers +
-    ', ~' + group.estimatedSeconds + 's'
+    ', work~' + group.estimatedSeconds + 's, job~' + group.estimatedJobSeconds + 's'
   );
 
   sum += keys.length;
@@ -151,5 +170,6 @@ if (sum !== full.length || union.size !== full.length) {
 console.log(
   '[E2E/PLAN] Plano válido: ' + plan.groups.length +
   ' grupos, ' + full.length +
-  ' testes, cobertura exata sem omissões ou duplicatas.'
+  ' testes, cobertura exata sem omissões ou duplicatas; job spread=' +
+  jobSpreadRatio.toFixed(3) + ', max=' + maxJobSeconds + 's.'
 );

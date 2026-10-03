@@ -82,6 +82,10 @@ jobs:
         run: npm run validate:publish
       - name: Provar que o contrato da CI rejeita enfraquecimento
         run: npm run test:ci-contract:infra
+      - name: Provar que métricas de shards falhas são rejeitadas
+        run: npm run test:shard-job-metrics:infra
+      - name: Provar que gates obrigatórios recusam falhas e skips
+        run: npm run test:ci-gate:infra
       - name: Testar verificador de coverage
         run: node scripts/validation/verify-coverage-selftest.js
       - name: Testar gate E2E contra retries/flaky
@@ -144,9 +148,15 @@ jobs:
       - name: Rodar Jest com verificação de inventário
         run: npm run test:ci
 
-  coverage:
-    name: Code Coverage
-    runs-on: ubuntu-latest
+  coverage-shard:
+    name: Coverage shard (${{ matrix.os }} / ${{ matrix.shard }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -158,12 +168,63 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Instalar dependências
         run: npm ci
-      - name: Gerar coverage com Jest/V8
-        run: npm run test:coverage
-      - name: Verificar integridade e thresholds do coverage
+      - name: Executar shard integral de coverage
+        timeout-minutes: 2
+        run: npm run test:coverage:shard -- --shard=${{ matrix.shard }}
+      - name: Publicar resultado do shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}-${{ matrix.shard }}-${{ github.sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: .ci-results/coverage-shards/
+          if-no-files-found: error
+          retention-days: 1
+
+  coverage:
+    name: Code Coverage (${{ matrix.os }})
+    needs: [coverage-shard]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Instalar dependências
+        run: npm ci
+      - name: Baixar shards deste sistema operacional
+        uses: actions/download-artifact@v4
+        with:
+          path: coverage-shards
+          pattern: coverage-${{ matrix.os }}-*-${{ github.sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          merge-multiple: true
+      - name: Testar contrato e integridade do plano de coverage
+        run: npm run test:coverage:sharding:infra
+      - name: Coletar tempos reais dos jobs de shard
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npm run ci:capture-job-timings -- --output=.ci-results/github-job-timings.json
+      - name: Mesclar coverage integral dos shards
+        run: npm run test:coverage:merge -- --input=coverage-shards
+      - name: Verificar wall-clock, balanceamento e eficiência real dos shards
+        env:
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npm run ci:verify-shard-job-metrics -- --kind=coverage --os=${{ matrix.os }} --timings=.ci-results/github-job-timings.json --input=coverage-shards
+      - name: Verificar integridade e thresholds do coverage agregado
         run: npm run test:coverage:verify
       - name: Detectar configuração do Codecov
         id: codecov
+        if: matrix.os == 'ubuntu-latest'
         shell: bash
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -177,7 +238,7 @@ jobs:
           fi
       - name: Upload cobertura para Codecov
         id: codecov-upload
-        if: steps.codecov.outputs.enabled == 'true'
+        if: matrix.os == 'ubuntu-latest' && steps.codecov.outputs.enabled == 'true'
         uses: codecov/codecov-action@v4
         continue-on-error: true
         with:
@@ -187,11 +248,11 @@ jobs:
           name: manga-translator-coverage
           fail_ci_if_error: true
       - name: Reportar falha externa do Codecov
-        if: steps.codecov.outputs.enabled == 'true' && steps.codecov-upload.outcome == 'failure'
+        if: matrix.os == 'ubuntu-latest' && steps.codecov.outputs.enabled == 'true' && steps.codecov-upload.outcome == 'failure'
         run: echo "::warning::Codecov upload FAILED — o gate local de coverage já passou, mas o dashboard externo não foi atualizado."
       - name: Salvar relatório HTML de cobertura
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && matrix.os == 'ubuntu-latest'
         continue-on-error: true
         with:
           name: coverage-report-${{ github.sha }}
@@ -201,6 +262,9 @@ jobs:
   e2e-shard:
     name: E2E Shard (${{ matrix.group }})
     runs-on: ubuntu-latest
+    env:
+      GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    timeout-minutes: 2
     strategy:
       fail-fast: false
       matrix:
@@ -222,6 +286,7 @@ jobs:
         run: xvfb-run --auto-servernum -- npm run test:e2e:group -- "${{ matrix.group }}"
         env:
           CI: true
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           MANGA_E2E_BROWSER_MODE: stealth
           MANGA_E2E_SHARD: '1'
       - name: Upload blob report do shard
@@ -249,6 +314,9 @@ jobs:
     needs:
       - e2e-shard
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -262,6 +330,11 @@ jobs:
         run: npm ci
       - name: Verificar cobertura exata do plano de 5 shards
         run: npm run test:e2e:plan
+      - name: Coletar tempos reais dos jobs de shard
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npm run ci:capture-job-timings -- --output=.ci-results/github-job-timings.json
       - name: Baixar blob reports dos shards
         uses: actions/download-artifact@v4
         with:
@@ -277,6 +350,12 @@ jobs:
         run: npx playwright merge-reports --config=scripts/ci/playwright-merge.config.js ./all-blob-reports
         env:
           CI: true
+          CI_SHARD_WORK_FILE: .ci-results/e2e-shard-work.json
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verificar wall-clock, balanceamento e eficiência real dos shards
+        env:
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npm run ci:verify-shard-job-metrics -- --kind=e2e --timings=.ci-results/github-job-timings.json --work=.ci-results/e2e-shard-work.json
 
   jest-worker-diagnostic:
     name: Jest Worker Diagnostic (${{ matrix.case }})
@@ -412,6 +491,7 @@ jobs:
 
   windows-portability:
     name: Windows Portability
+    needs: [coverage]
     runs-on: windows-latest
     steps:
       - name: Checkout código
@@ -432,15 +512,12 @@ jobs:
         run: npm run test:smoke
       - name: Visual
         run: npm run test:visual
-      - name: Coverage
-        run: npm run test:coverage
-      - name: Verificar coverage e normalização de paths
-        run: npm run test:coverage:verify
 
 
   fresh-developer-flow:
     name: Fresh Developer Flow
     if: ${{ github.event_name == 'workflow_dispatch' }}
+    needs: [coverage]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout limpo
@@ -469,10 +546,6 @@ jobs:
         run: xvfb-run --auto-servernum -- npm run test:e2e
         env:
           CI: true
-      - name: Coverage
-        run: npm run test:coverage
-      - name: Verificar integridade do coverage
-        run: npm run test:coverage:verify
       - name: Entry point oficial npm test
         run: npm test
 
@@ -510,6 +583,7 @@ jobs:
       - smoke
       - visual
       - unit-and-integration
+      - coverage-shard
       - coverage
       - e2e-shard
       - e2e
@@ -522,69 +596,9 @@ jobs:
     steps:
       - name: Exigir execução e sucesso de todos os gates
         env:
-          VERSION_INTEGRITY: ${{ needs.version-integrity.result }}
-          SYNTAX_CHECK: ${{ needs.syntax-check.result }}
-          MANIFEST_VALIDATION: ${{ needs.manifest-validation.result }}
-          CI_CONTRACT: ${{ needs.ci-contract.result }}
-          SMOKE: ${{ needs.smoke.result }}
-          VISUAL: ${{ needs.visual.result }}
-          UNIT_INTEGRATION: ${{ needs.unit-and-integration.result }}
-          COVERAGE: ${{ needs.coverage.result }}
-          E2E_SHARDS: ${{ needs.e2e-shard.result }}
-          E2E: ${{ needs.e2e.result }}
+          NEEDS_JSON: ${{ toJSON(needs) }}
+          GATE_MODE: ci
           FULL_DIAGNOSTICS_REQUIRED: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
-          JEST_WORKER_DIAGNOSTIC: ${{ needs.jest-worker-diagnostic.result }}
-          FOCUSED_PROJECT_LEAK: ${{ needs.focused-project-leak-diagnostic.result }}
-          BACKGROUND_LEAK_BISECTION: ${{ needs.background-leak-bisection.result }}
-          WINDOWS_PORTABILITY: ${{ needs.windows-portability.result }}
-          FRESH_DEVELOPER_FLOW: ${{ needs.fresh-developer-flow.result }}
           BIBLE_FINAL_REQUIRED: ${{ (github.event_name == 'pull_request' && github.head_ref == 'docs/project-bible') || (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch' }}
-          BIBLE_FINAL_READINESS: ${{ needs.bible-final-readiness.result }}
-        run: |
-          failed=0
-          check() {
-            name="$1"
-            result="$2"
-            if [ "$result" != "success" ]; then
-              echo "::error::$name terminou como '$result'; CI Gate exige 'success'."
-              failed=1
-            else
-              echo "✅ $name = success"
-            fi
-          }
-          check "Version Integrity" "$VERSION_INTEGRITY"
-          check "JS Syntax Check" "$SYNTAX_CHECK"
-          check "Manifest Validation" "$MANIFEST_VALIDATION"
-          check "CI Contract" "$CI_CONTRACT"
-          check "Smoke Tests" "$SMOKE"
-          check "Visual Tests" "$VISUAL"
-          check "Unit + Integration" "$UNIT_INTEGRATION"
-          check "Code Coverage" "$COVERAGE"
-          check "E2E Shards" "$E2E_SHARDS"
-          check "E2E Tests" "$E2E"
-          check "Windows Portability" "$WINDOWS_PORTABILITY"
-
-          if [ "$BIBLE_FINAL_REQUIRED" = "true" ]; then
-            echo "🔒 Bible lifecycle/final readiness é obrigatório para esta revisão."
-            check "Bible Final Readiness" "$BIBLE_FINAL_READINESS"
-          else
-            echo "ℹ️ Bible Final Readiness não se aplica a esta PR."
-          fi
-
-          if [ "$FULL_DIAGNOSTICS_REQUIRED" = "true" ]; then
-            echo "🔒 Verificação completa pós-merge/manual: diagnósticos pesados são obrigatórios."
-            check "Jest Worker Diagnostic" "$JEST_WORKER_DIAGNOSTIC"
-            check "Focused Project Leak" "$FOCUSED_PROJECT_LEAK"
-            check "Background Leak Bisection" "$BACKGROUND_LEAK_BISECTION"
-          else
-            echo "ℹ️ Diagnósticos pesados não são obrigatórios neste evento; serão obrigatórios em push para main."
-          fi
-
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "🔒 workflow_dispatch: fluxo completo de desenvolvedor novo é obrigatório."
-            check "Fresh Developer Flow" "$FRESH_DEVELOPER_FLOW"
-          else
-            echo "ℹ️ Fresh Developer Flow é exercitado no workflow_dispatch pré-revisão."
-          fi
-
-          exit "$failed"
+          FRESH_DEVELOPER_REQUIRED: ${{ github.event_name == 'workflow_dispatch' }}
+        run: node scripts/ci/verify-required-job-results.js

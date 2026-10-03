@@ -5,6 +5,14 @@ on:
     branches: [main, docs/project-bible, codex/pr66-structure-review-base-20261002]
     paths:
       - '.github/workflows/pr66-structure-review.yml'
+      - '.github/workflows/bible-protocol-infra.yml'
+      - '.github/workflows/ci.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/ci/**'
+      - 'scripts/validation/**'
+      - 'jest.config.js'
+      - 'tests/integration/**'
       - '.github/workflows/bible-reconcile-checkpoint.yml'
       - 'scripts/validation/verify-bible-protocol-governance*.js'
       - 'scripts/validation/verify-reconcile-refresh-selftest.js'
@@ -31,64 +39,210 @@ concurrency:
 
 jobs:
   governance:
-    name: Structure Governance (${{ matrix.os }})
+    name: Structure Governance (${{ matrix.os }} / ${{ matrix.shard.id }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        shard:
+          - id: 01-governance-runtime
+            command: "node scripts/validation/verify-bible-protocol-governance.js"
+          - id: 02-governance-adversarial
+            command: "node scripts/validation/verify-bible-protocol-governance-selftest.js"
+          - id: 03-projection-context
+            command: "node scripts/validation/verify-bible-projection-context-selftest.js"
+          - id: 04-completion-monotonic
+            command: "npm run test:bible-completion:monotonic"
+          - id: 05-human-freeze
+            command: "npm run test:bible-completion:human-freeze"
+          - id: 06-sha-progress
+            command: "npm run test:bible-completion:sha-progress"
+          - id: 07-atomic-storage
+            command: "npm run test:bible-completion:storage"
+          - id: 08-protocol-history-git
+            command: "npm run test:bible-protocol:audit-history && npm run test:bible-protocol:audit-core-git"
+          - id: 09-protocol-engine
+            command: "npm run test:bible-protocol:engine"
+          - id: 10-pipeline-scheduler
+            command: "npm run test:bible-protocol:pipeline && npm run test:bible-protocol:shards"
+          - id: 11-reconcile-correction
+            command: "npm run test:bible-protocol:reconcile && npm run test:bible-protocol:correction-plan"
+          - id: 12-coordination-readiness
+            command: "node scripts/validation/verify-bible-coordination-selftest.js --shard=1/5"
+          - id: 12-coordination-state-ownership
+            command: "node scripts/validation/verify-bible-coordination-selftest.js --shard=2/5"
+          - id: 12-coordination-leases
+            command: "node scripts/validation/verify-bible-coordination-selftest.js --shard=3/5"
+          - id: 12-coordination-source-coverage
+            command: "node scripts/validation/verify-bible-coordination-selftest.js --shard=4/5"
+          - id: 12-coordination-derived-readiness
+            command: "node scripts/validation/verify-bible-coordination-selftest.js --shard=5/5"
+          - id: 13-lifecycle-core
+            command: "npm run test:bible-lifecycle:core && npm run test:bible-lifecycle:human-gate && npm run test:bible-lifecycle:human-review"
+          - id: 14-lifecycle-state
+            command: "npm run test:bible-lifecycle:findings && npm run test:bible-lifecycle:finding-events && npm run test:bible-lifecycle:transition && npm run test:bible-lifecycle:audit-result"
+          - id: 15-anti-loop-authority
+            command: "npm run test:bible-lifecycle:anti-loop-integration && npm run test:bible-lifecycle:anti-loop-adversarial && npm run test:bible-lifecycle:authority-artifacts && npm run test:bible-lifecycle:authority-state && npm run test:bible-lifecycle:authority-findings && npm run test:bible-lifecycle:metrics && npm run test:bible-lifecycle:anti-loop-bible"
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-node@v4
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - name: Prove refresh ordering and governance mutation guards
-        run: |
-          node scripts/validation/verify-bible-protocol-governance.js
-          node scripts/validation/verify-bible-protocol-governance-selftest.js
-          node scripts/validation/verify-bible-projection-context-selftest.js
-          node scripts/validation/verify-completion-monotonic-selftest.js
-          node scripts/validation/verify-bible-storage-selftest.js
-          node scripts/validation/verify-completed-human-freeze-selftest.js
-          node scripts/validation/verify-audit-sha-progress-selftest.js
-          npm run test:bible-lifecycle:infra
-          npm run test:bible-protocol:infra
 
-  runtime:
-    name: Structure Runtime (${{ matrix.os }})
+      - name: Run mandatory shard
+        run: ${{ matrix.shard.command }}
+
+  coverage-shard:
+    name: Structure coverage shard (${{ matrix.os }} / ${{ matrix.shard }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-node@v4
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run test:coverage
-      - run: npm run test:coverage:verify
-      - run: npm run test:production:mutation
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run mandatory coverage shard
+        timeout-minutes: 2
+        run: npm run test:coverage:shard -- --shard=${{ matrix.shard }}
+      - name: Upload coverage shard result
+        uses: actions/upload-artifact@v4
+        with:
+          name: structure-coverage-${{ matrix.os }}-${{ matrix.shard }}-${{ github.sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: .ci-results/coverage-shards/
+          if-no-files-found: error
+          retention-days: 1
+
+  coverage:
+    name: Structure coverage merge (${{ matrix.os }})
+    needs: [coverage-shard]
+    runs-on: ${{ matrix.os }}
+    permissions:
+      actions: read
+      contents: read
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Download this OS's coverage shards
+        uses: actions/download-artifact@v4
+        with:
+          path: coverage-shards
+          pattern: structure-coverage-${{ matrix.os }}-*-${{ github.sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          merge-multiple: true
+      - name: Test coverage plan and sharding contracts
+        run: npm run test:coverage:sharding:infra
+      - name: Capture actual shard job timings
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npm run ci:capture-job-timings -- --output=.ci-results/github-job-timings.json
+      - name: Merge full coverage from shards
+        run: npm run test:coverage:merge -- --input=coverage-shards
+      - name: Verify actual shard wall-clock, balance and efficiency
+        env:
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npm run ci:verify-shard-job-metrics -- --kind=coverage --job-prefix="Structure coverage shard" --os=${{ matrix.os }} --timings=.ci-results/github-job-timings.json --input=coverage-shards
+      - name: Verify aggregate coverage and thresholds
+        run: npm run test:coverage:verify
+
+  mutation:
+    name: Structure mutation (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run mandatory mutation
+        run: npm run test:production:mutation
 
   performance:
-    name: Isolated Performance Budget
+    name: Structure performance (${{ matrix.target }})
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [core, gtc-indexeddb]
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-node@v4
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run test:performance:isolated
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run mandatory performance
+        run: npm run test:performance:${{ matrix.target }}
 
   workflow-lint:
     name: Isolated Workflow Syntax
@@ -110,6 +264,43 @@ jobs:
         shell: bash
         run: |
           "$RUNNER_TEMP/pr66-actionlint/actionlint" -shellcheck= -pyflakes= \
+            .github/workflows/bible-protocol-infra.yml \
             .github/workflows/bible-reconcile-checkpoint.yml \
             .github/workflows/pr66-structure-review.yml \
             .github/workflows/bible-human-approval.yml
+      - name: Validate central CI workflow
+        shell: bash
+        run: |
+          "$RUNNER_TEMP/pr66-actionlint/actionlint" -shellcheck= -pyflakes=
+          .github/workflows/ci.yml
+
+  structure-review-gate:
+    name: structure-review-gate
+    needs: [governance, coverage-shard, coverage, mutation, performance, workflow-lint]
+    if: ${{ always() && !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Capture actual governance shard job timings
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npm run ci:capture-job-timings -- --output=.ci-results/github-job-timings.json
+      - name: Verify governance shard wall-clock, balance and efficiency
+        env:
+          GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npm run ci:verify-shard-job-metrics -- --kind=workflow --profile=structure --timings=.ci-results/github-job-timings.json
+      - name: Require every dependency to succeed
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: node scripts/ci/verify-required-job-results.js
