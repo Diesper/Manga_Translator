@@ -1,9 +1,0 @@
-{
-  "schema_version": 1,
-  "id": "9e2f0394-a871-491e-a036-3475c3f65918",
-  "index": 80,
-  "at_utc": "2026-10-03T03:57:41.742Z",
-  "action": "DIRECT_HUMAN_INITIAL_INSTALL_REVISION",
-  "expected_state_sha": "089355629cb33b354c38c87d149c08ab01962c08",
-  "phase": "committed"
-}

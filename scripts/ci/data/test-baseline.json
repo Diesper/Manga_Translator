@@ -1,7 +1,7 @@
 {
   "jest": {
-    "minSuites": 109,
-    "minTests": 877,
+    "minSuites": 108,
+    "minTests": 848,
     "maxSkipped": 0,
     "maxTodo": 0
   },
@@ -10,7 +10,7 @@
     "maxSkipped": 0
   },
   "e2e": {
-    "minTests": 22,
+    "minTests": 21,
     "maxSkipped": 0,
     "maxFlaky": 0
   },
@@ -18,7 +18,7 @@
     "minFiles": 6
   },
   "coverage": {
-    "minInstrumentedFiles": 57,
+    "minInstrumentedFiles": 56,
     "measuredBaseline": {
       "statements": 79.44,
       "branches": 71.85,

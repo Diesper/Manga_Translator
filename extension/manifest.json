@@ -37,7 +37,6 @@
         "content/cm-dom-replace.js",
         "content/cm-chapter.js",
         "content/cm-auto-restore.js",
-        "content/cm-audio.js",
         "content/content_manga.js"
       ]
     },

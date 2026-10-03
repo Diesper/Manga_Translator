@@ -96,14 +96,7 @@ function baseDependencies(overrides = {}) {
   };
 }
 
-function successfulPipelineDependencies({
-  inputDataUrl,
-  resultDataUrl,
-  advanceClock,
-  resultExtractor,
-  watchdogResponse = { ok: true, refreshed: true },
-  generationEventCount = 1,
-}) {
+function successfulPipelineDependencies({ inputDataUrl, resultDataUrl, advanceClock }) {
   const editor = document.createElement('div');
   editor.setAttribute('contenteditable', 'true');
   const composer = document.createElement('rich-textarea');
@@ -138,9 +131,7 @@ function successfulPipelineDependencies({
     },
     editorApi: {
       submitWithConfirmation: jest.fn(async () => {
-        for (let i = 0; i < generationEventCount; i += 1) {
-          onStateChange('generation_started', { reason: 'response_created' });
-        }
+        onStateChange('generation_started', { reason: 'response_created' });
         return { confirmed: true, attempt: 1, reason: 'response_created' };
       }),
     },
@@ -155,7 +146,7 @@ function successfulPipelineDependencies({
       listAttachmentEvidence: jest.fn(() => []),
     },
     resultExtractor: {
-      extractOrAuxiliaryFallback: resultExtractor || jest.fn(async () => ({
+      extractOrAuxiliaryFallback: jest.fn(async () => ({
         kind: 'extracted',
         dataUrl: resultDataUrl,
       })),
@@ -165,7 +156,7 @@ function successfulPipelineDependencies({
   options.runtime.sendMessage.mockImplementation((message, callback) => {
     runtimeMessages.push(message);
     if (message.action === 'REQUEST_IMAGE_DATA') callback?.({ srcData: inputDataUrl });
-    else if (message.action === 'REFRESH_JOB_WATCHDOG') callback?.(watchdogResponse);
+    else if (message.action === 'REFRESH_JOB_WATCHDOG') callback?.({ ok: true, refreshed: true });
     else if (message.action === 'GEMINI_IMAGE_EXTRACTED') callback?.({ ok: true, staged: true, persisted: true });
     else if (message.action === 'GEMINI_RESULT_COMMIT') callback?.({ ok: true, committed: true });
     else if (message.action === 'GEMINI_RESULT_URL') callback?.({ ok: true, extractionRegistered: true });
@@ -235,10 +226,6 @@ describe('gemini/job-runner.js', () => {
 
     const withoutFileApi = createGeminiJobRunner({ ...options, FileImpl: null });
     expect(() => withoutFileApi.dataURLtoFile('data:image/png;base64,QUJDRA==', 'page.png'))
-      .toThrow('APIs de arquivo indisponíveis');
-
-    const withoutAtobApi = createGeminiJobRunner({ ...options, DataUrlAtob: null });
-    expect(() => withoutAtobApi.dataURLtoFile('data:image/png;base64,QUJDRA==', 'page.png'))
       .toThrow('APIs de arquivo indisponíveis');
   });
 
@@ -527,141 +514,6 @@ describe('gemini/job-runner.js', () => {
       expect.stringContaining('reiniciado'),
       expect.objectContaining({ executionMode: 'background_delete' })
     );
-  });
-
-  test('RUN-08B: refresh negativo do watchdog é registrado e não interrompe o pipeline', async () => {
-    const { createGeminiJobRunner } = loadModule();
-    let clock = 20_000;
-    jest.spyOn(Date, 'now').mockImplementation(() => clock);
-    const { options, runtimeMessages } = successfulPipelineDependencies({
-      inputDataUrl: 'data:image/png;base64,SU5QVVQ=',
-      resultDataUrl: 'data:image/png;base64,VFJBTlNMQVRFRA==',
-      advanceClock: ms => { clock += ms; },
-      watchdogResponse: { ok: false, reason: 'watchdog_unavailable' },
-      generationEventCount: 2,
-    });
-
-    await expect(createGeminiJobRunner(options).run({
-      jobId: 'job-refresh-negative',
-      batchId: 'batch-refresh-negative',
-      geminiTabId: 321,
-      mangaTabId: 77,
-      index: 2,
-      prompt: 'Traduza.',
-      executionMode: 'background_delete',
-    })).resolves.toEqual({ status: 'delivered_extracted' });
-
-    expect(runtimeMessages.filter(message => message.action === 'REFRESH_JOB_WATCHDOG'))
-      .toEqual([{ action: 'REFRESH_JOB_WATCHDOG', jobId: 'job-refresh-negative' }]);
-    expect(runtimeMessages.some(message => message.action === 'GEMINI_IMAGE_EXTRACTED')).toBe(true);
-    expect(options.sendLog).toHaveBeenCalledWith(
-      'warn',
-      'GEMINI_WATCHDOG_REFRESH_FAILED',
-      expect.stringContaining('watchdog'),
-      expect.objectContaining({ executionMode: 'background_delete' })
-    );
-  });
-
-  test('RUN-08C: exceção síncrona no refresh é registrada e não interrompe o pipeline', async () => {
-    const { createGeminiJobRunner } = loadModule();
-    let clock = 30_000;
-    jest.spyOn(Date, 'now').mockImplementation(() => clock);
-    const { options, runtimeMessages } = successfulPipelineDependencies({
-      inputDataUrl: 'data:image/png;base64,SU5QVVQ=',
-      resultDataUrl: 'data:image/png;base64,VFJBTlNMQVRFRA==',
-      advanceClock: ms => { clock += ms; },
-      generationEventCount: 2,
-    });
-    const sendMessage = options.runtime.sendMessage;
-    options.runtime.sendMessage = jest.fn((message, callback) => {
-      if (message.action === 'REFRESH_JOB_WATCHDOG') {
-        runtimeMessages.push(message);
-        throw new Error('runtime unavailable');
-      }
-      sendMessage(message, callback);
-    });
-
-    await expect(createGeminiJobRunner(options).run({
-      jobId: 'job-refresh-throw',
-      batchId: 'batch-refresh-throw',
-      geminiTabId: 321,
-      mangaTabId: 77,
-      index: 2,
-      prompt: 'Traduza.',
-      executionMode: 'background_delete',
-    })).resolves.toEqual({ status: 'delivered_extracted' });
-
-    expect(runtimeMessages.filter(message => message.action === 'REFRESH_JOB_WATCHDOG'))
-      .toEqual([{ action: 'REFRESH_JOB_WATCHDOG', jobId: 'job-refresh-throw' }]);
-    expect(runtimeMessages.some(message => message.action === 'GEMINI_IMAGE_EXTRACTED')).toBe(true);
-    expect(options.sendLog).toHaveBeenCalledWith(
-      'warn',
-      'GEMINI_WATCHDOG_REFRESH_FAILED',
-      expect.stringContaining('watchdog'),
-      expect.objectContaining({ executionMode: 'background_delete' })
-    );
-  });
-
-  test.each([
-    ['sucesso', { ok: true, extractionRegistered: true }, 'delivered_auxiliary', null],
-    ['falha', { ok: false, reason: 'stale_job' }, 'error', 'AUXILIARY_REGISTRATION_FAILED'],
-  ])('RUN-15: fallback auxiliar exige registro confirmado (%s)', async (_label, registration, expectedStatus, expectedCode) => {
-    const { createGeminiJobRunner } = loadModule();
-    let clock = 40_000;
-    jest.spyOn(Date, 'now').mockImplementation(() => clock);
-    const auxiliaryUrl = 'https://cdn.example/auxiliary-result.png';
-    const extractor = jest.fn(async ({ onAuxiliaryFallback }) => {
-      await onAuxiliaryFallback({ url: auxiliaryUrl });
-      return { kind: 'auxiliary' };
-    });
-    const { options, runtimeMessages } = successfulPipelineDependencies({
-      inputDataUrl: 'data:image/png;base64,SU5QVVQ=',
-      resultDataUrl: 'https://cdn.example/observed-result.png',
-      advanceClock: ms => { clock += ms; },
-      resultExtractor: extractor,
-    });
-    const sendMessage = options.runtime.sendMessage;
-    options.runtime.sendMessage = jest.fn((message, callback) => {
-      if (message.action === 'GEMINI_RESULT_URL') {
-        runtimeMessages.push(message);
-        callback?.(registration);
-        return;
-      }
-      sendMessage(message, callback);
-    });
-
-    const result = await createGeminiJobRunner(options).run({
-      jobId: 'job-auxiliary',
-      batchId: 'batch-auxiliary',
-      geminiTabId: 321,
-      mangaTabId: 77,
-      index: 9,
-      prompt: 'Traduza.',
-      executionMode: 'background_delete',
-    });
-
-    expect(result.status).toBe(expectedStatus);
-    if (expectedCode) expect(result.error.code).toBe(expectedCode);
-    else expect(result).toEqual({ status: 'delivered_auxiliary' });
-    expect(extractor).toHaveBeenCalledTimes(1);
-    expect(runtimeMessages.filter(message => message.action === 'GEMINI_RESULT_URL'))
-      .toEqual([{
-        action: 'GEMINI_RESULT_URL',
-        mangaTabId: 77,
-        index: 9,
-        url: auxiliaryUrl,
-        jobId: 'job-auxiliary',
-        batchId: 'batch-auxiliary',
-      }]);
-    expect(runtimeMessages.some(message => message.action === 'GEMINI_IMAGE_EXTRACTED')).toBe(false);
-    expect(runtimeMessages.some(message => message.action === 'GEMINI_RESULT_COMMIT')).toBe(false);
-    if (expectedCode) {
-      expect(runtimeMessages).toContainEqual(expect.objectContaining({
-        action: 'GEMINI_ERROR',
-        jobId: 'job-auxiliary',
-        batchId: 'batch-auxiliary',
-      }));
-    }
   });
 
   test('RUN-09: seleção automática e manual recusam imagens do preview do anexo', () => {

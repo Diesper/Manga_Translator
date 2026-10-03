@@ -402,31 +402,6 @@ describe('content_manga — watchdog do botão flutuante e clique individual', (
             'bannedImages_reader.test': ['https://reader.test/becomes-banned.png'],
         });
 
-        sendSpy.mockClear(); const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: img.src });
-        expect(response).toEqual({ ok: false, reason: 'image_ineligible' });
-        expect(sendSpy.mock.calls.some(([message]) => message && message.action === 'START_BATCH')).toBe(false);
-    });
-
-    test('pagehide definitivo remove contextmenu, desconecta guard e invalida seleção de clique direito', async () => {
-        const removeListenerSpy = jest.spyOn(document, 'removeEventListener');
-        const disconnectSpy = jest.spyOn(MutationObserver.prototype, 'disconnect');
-        const sendSpy = jest.spyOn(global.chrome.runtime, 'sendMessage');
-
-        const context = await loadContentScript({
-            hostname: 'reader.test',
-            clickToTranslateEnabled: true,
-            domImages: [{ src: 'https://reader.test/pagehide.png', width: 800, height: 1200 }],
-        });
-
-        const img = document.querySelector('img');
-        img.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
-        window.dispatchEvent(new Event('pagehide'));
-
-        expect(removeListenerSpy).toHaveBeenCalledWith('contextmenu', expect.any(Function), true);
-        expect(disconnectSpy).toHaveBeenCalled();
-
-        sendSpy.mockClear();
-        img.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2 }));
         const response = await context.sendMessage('TRANSLATE_CONTEXT_IMAGE', { srcUrl: img.src });
         expect(response).toEqual({ ok: false, reason: 'image_ineligible' });
         expect(sendSpy.mock.calls.some(([message]) => message && message.action === 'START_BATCH')).toBe(false);

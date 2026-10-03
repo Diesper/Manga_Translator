@@ -1,9 +1,0 @@
-{
-  "schema_version": 1,
-  "id": "4a963644-acce-4486-8cba-ad22b04a19f0",
-  "index": 181,
-  "at_utc": "2026-10-03T09:32:06.652Z",
-  "action": "HANDOFF_FOR_AUDIT",
-  "expected_state_sha": "273c365f707652ee5523aa595a64801b05d4b52e",
-  "phase": "committed"
-}
