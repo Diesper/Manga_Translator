@@ -86,7 +86,7 @@
 | 060 | extension/shared/storage-manager.js | COMPLETED | READY_FOR_AUDIT | {"status":"WITH_CAVEATS","caveats":["WAITING_PRIMARY"]} | WAITING_ADVERSARIAL | - | f4e1e231fa62d22dd50fb20cf0cffbb09da98bee | 3 |
 | 061 | .gitignore | COMPLETED | COMPLETED | {"status":"WITH_CAVEATS","caveats":["REAUDIT_REQUIRED"]} | REAUDIT_REQUIRED | - | e48fc70b1acc14aabb245f0db1820bc6c7a2849e | 2 |
 | 062 | jest.config.js | COMPLETED | CHANGES_REQUIRED | {"status":"WITH_CAVEATS","caveats":["REAUDIT_REQUIRED","CHANGES_REQUIRED"]} | REAUDIT_REQUIRED | - | f0b7c55a5c8c5d87ae213e5821d7f8891b77d8cc | 2 |
-| 063 | package.json | COMPLETED | READY_FOR_AUDIT | {"status":"WITH_CAVEATS","caveats":["WAITING_PRIMARY"]} | WAITING_ADVERSARIAL | - | 049fa67c2d7a52782f244b130c7d00d664f9e3ee | 3 |
+| 063 | package.json | COMPLETED | COMPLETED | {"status":"VERIFIED","caveats":[]} | APPROVED | - | ec3fb5c66cf49e34108eba1ef995eaf3dce1b304 | 3 |
 | 064 | playwright.config.js | COMPLETED | COMPLETED | {"status":"WITH_CAVEATS","caveats":["REAUDIT_REQUIRED"]} | REAUDIT_REQUIRED | - | 6a27b774a0009db800a70969eaad18716fb5f565 | 4 |
 | 065 | .github/workflows/ci.yml | COMPLETED | READY_FOR_AUDIT | {"status":"WITH_CAVEATS","caveats":["WAITING_PRIMARY"]} | WAITING_PRIMARY | - | 9296c4f00174278e43ea811fe617badbd6ee11eb | 1 |
 | 066 | .github/workflows/publish.yml | COMPLETED | COMPLETED | {"status":"WITH_CAVEATS","caveats":["REAUDIT_REQUIRED"]} | REAUDIT_REQUIRED | - | f673d445a3cc022d473f9b59ae1e0c8972ecd013 | 5 |

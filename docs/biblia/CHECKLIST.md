@@ -64,7 +64,7 @@
 - [x] 060 — `extension/shared/storage-manager.js` — COMPLETED — com ressalvas: WAITING_PRIMARY
 - [x] 061 — `.gitignore` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
 - [x] 062 — `jest.config.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED, CHANGES_REQUIRED
-- [x] 063 — `package.json` — COMPLETED — com ressalvas: WAITING_PRIMARY
+- [x] 063 — `package.json` — COMPLETED
 - [x] 064 — `playwright.config.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
 - [x] 065 — `.github/workflows/ci.yml` — COMPLETED — com ressalvas: WAITING_PRIMARY
 - [x] 066 — `.github/workflows/publish.yml` — COMPLETED — com ressalvas: REAUDIT_REQUIRED

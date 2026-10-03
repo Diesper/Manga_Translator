@@ -5,6 +5,13 @@ on:
     branches: [main, docs/project-bible, codex/pr66-structure-review-base-20261002]
     paths:
       - '.github/workflows/pr66-structure-review.yml'
+      - '.github/workflows/bible-protocol-infra.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/ci/**'
+      - 'scripts/validation/**'
+      - 'jest.config.js'
+      - 'tests/integration/**'
       - '.github/workflows/bible-reconcile-checkpoint.yml'
       - 'scripts/validation/verify-bible-protocol-governance*.js'
       - 'scripts/validation/verify-reconcile-refresh-selftest.js'
@@ -31,64 +38,141 @@ concurrency:
 
 jobs:
   governance:
-    name: Structure Governance (${{ matrix.os }})
+    name: Structure Governance (${{ matrix.os }} / ${{ matrix.shard.id }})
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        shard:
+          - id: 01-governance-runtime
+            command: "node scripts/validation/verify-bible-protocol-governance.js"
+          - id: 02-governance-adversarial
+            command: "node scripts/validation/verify-bible-protocol-governance-selftest.js"
+          - id: 03-projection-context
+            command: "node scripts/validation/verify-bible-projection-context-selftest.js"
+          - id: 04-completion-monotonic
+            command: "npm run test:bible-completion:monotonic"
+          - id: 05-human-freeze
+            command: "npm run test:bible-completion:human-freeze"
+          - id: 06-sha-progress
+            command: "npm run test:bible-completion:sha-progress"
+          - id: 07-atomic-storage
+            command: "npm run test:bible-completion:storage"
+          - id: 08-protocol-history-git
+            command: "npm run test:bible-protocol:audit-history && npm run test:bible-protocol:audit-core-git"
+          - id: 09-protocol-engine
+            command: "npm run test:bible-protocol:engine"
+          - id: 10-pipeline-scheduler
+            command: "npm run test:bible-protocol:pipeline && npm run test:bible-protocol:shards"
+          - id: 11-reconcile-correction
+            command: "npm run test:bible-protocol:reconcile && npm run test:bible-protocol:correction-plan"
+          - id: 12-coordination
+            command: "npm run test:bible-protocol:coordination"
+          - id: 13-lifecycle-core
+            command: "npm run test:bible-lifecycle:core && npm run test:bible-lifecycle:human-gate && npm run test:bible-lifecycle:human-review"
+          - id: 14-lifecycle-state
+            command: "npm run test:bible-lifecycle:findings && npm run test:bible-lifecycle:finding-events && npm run test:bible-lifecycle:transition && npm run test:bible-lifecycle:audit-result"
+          - id: 15-anti-loop-authority
+            command: "npm run test:bible-lifecycle:anti-loop-integration && npm run test:bible-lifecycle:anti-loop-adversarial && npm run test:bible-lifecycle:authority-artifacts && npm run test:bible-lifecycle:authority-state && npm run test:bible-lifecycle:authority-findings && npm run test:bible-lifecycle:metrics && npm run test:bible-lifecycle:anti-loop-bible"
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-node@v4
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - name: Prove refresh ordering and governance mutation guards
-        run: |
-          node scripts/validation/verify-bible-protocol-governance.js
-          node scripts/validation/verify-bible-protocol-governance-selftest.js
-          node scripts/validation/verify-bible-projection-context-selftest.js
-          node scripts/validation/verify-completion-monotonic-selftest.js
-          node scripts/validation/verify-bible-storage-selftest.js
-          node scripts/validation/verify-completed-human-freeze-selftest.js
-          node scripts/validation/verify-audit-sha-progress-selftest.js
-          npm run test:bible-lifecycle:infra
-          npm run test:bible-protocol:infra
 
-  runtime:
-    name: Structure Runtime (${{ matrix.os }})
+      - name: Run mandatory shard
+        run: ${{ matrix.shard.command }}
+
+  coverage:
+    name: Structure coverage (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-node@v4
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run test:coverage
-      - run: npm run test:coverage:verify
-      - run: npm run test:production:mutation
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run mandatory coverage
+        run: npm run test:coverage && npm run test:coverage:verify
+
+  mutation:
+    name: Structure mutation (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run mandatory mutation
+        run: npm run test:production:mutation
 
   performance:
-    name: Isolated Performance Budget
+    name: Structure performance (${{ matrix.target }})
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [core, gtc-indexeddb]
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/setup-node@v4
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: npm
-      - run: npm ci --no-audit --no-fund
-      - run: npm run test:performance:isolated
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run mandatory performance
+        run: npm run test:performance:${{ matrix.target }}
 
   workflow-lint:
     name: Isolated Workflow Syntax
@@ -110,6 +194,18 @@ jobs:
         shell: bash
         run: |
           "$RUNNER_TEMP/pr66-actionlint/actionlint" -shellcheck= -pyflakes= \
+            .github/workflows/bible-protocol-infra.yml \
             .github/workflows/bible-reconcile-checkpoint.yml \
             .github/workflows/pr66-structure-review.yml \
             .github/workflows/bible-human-approval.yml
+
+  structure-review-gate:
+    name: structure-review-gate
+    needs: [governance, coverage, mutation, performance, workflow-lint]
+    if: ${{ always() && !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every dependency to succeed
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: node -e 'const jobs=JSON.parse(process.env.NEEDS_JSON); if(Object.values(jobs).some(job=>job.result!=="success")) process.exit(1);'

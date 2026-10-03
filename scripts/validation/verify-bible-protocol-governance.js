@@ -2,16 +2,13 @@
 
 const fs = require('fs');
 const path = require('path');
+const { validateSharding } = require('./bible-ci-sharding-contract');
 
 const REQUIRED = {
   protocol: [
     'os: [ubuntu-latest, windows-latest]',
     'group: bible-protocol-infra-${{ github.ref }}',
     'cancel-in-progress: false',
-    'node tests/infra/bible/anti-loop-integration-selftest.js',
-    'node tests/infra/bible/anti-loop-adversarial-selftest.js',
-    'node scripts/validation/bible-anti-loop-adversarial-selftest.js',
-    'npm run test:bible-completion:infra',
     'npm run bible:lifecycle:verify',
     'npm run bible:lifecycle:metrics',
     'npm run bible:lifecycle:metrics:check',
@@ -89,12 +86,16 @@ function loadSources(root) {
   }
   return {
     protocol: read('.github/workflows/bible-protocol-infra.yml'),
+    structure: read('.github/workflows/pr66-structure-review.yml'),
     handoff: read('.github/workflows/bible-handoff-guard.yml'),
     human: read('.github/workflows/bible-human-approval.yml'),
     transition: read('.github/workflows/bible-unit-transition.yml'),
     ci: read('.github/workflows/ci.yml'),
     reconcile: read('.github/workflows/bible-reconcile-checkpoint.yml'),
     package: read('package.json'),
+    coverageConfig: read('jest.config.js'),
+    coverageBaseline: read('scripts/ci/data/test-baseline.json'),
+    coverageVerifier: read('scripts/validation/verify-coverage.js'),
   };
 }
 
@@ -198,6 +199,7 @@ function reconcileRefreshProblems(source) {
 
 function validateSources(sources) {
   const problems = [];
+  problems.push(...validateSharding(sources));
   for (const [key, fragments] of Object.entries(REQUIRED)) {
     const source = String(sources?.[key] || '');
     if (!source) {

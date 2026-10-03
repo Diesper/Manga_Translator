@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "id": "7c87f07b-30e3-41b3-bc64-7a04f000a8ee",
+  "index": 63,
+  "at_utc": "2026-10-03T07:46:22.795Z",
+  "action": "SYNC_DOCUMENT_QUALITY",
+  "expected_state_sha": "81200329643bb79923af1ff0dfcc6775f50dcd33",
+  "phase": "intent"
+}
