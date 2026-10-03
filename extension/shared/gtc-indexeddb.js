@@ -1001,11 +1001,13 @@
         }
         function legacyGet(keys) {
             const storage = legacyStorage();
-            if (!storage || typeof storage.get !== 'function') return Promise.resolve({});
+            if (!storage) return Promise.resolve({});
+            if (typeof storage.get !== 'function') return Promise.reject(new Error('storage.local.get unavailable'));
             return new Promise((resolve, reject) => storage.get(keys, result => {
                 const error = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError;
                 if (error) reject(new Error(error.message || 'storage.local.get failed'));
-                else resolve(result && typeof result === 'object' ? result : {});
+                else if (!result || typeof result !== 'object') reject(new Error('storage.local.get returned unavailable data'));
+                else resolve(result);
             }));
         }
         function legacySet(values) {
@@ -1038,7 +1040,7 @@
                     marked: Boolean(validMarker),
                 };
             }
-            if (!value || value.schemaVersion !== 1 || typeof value.translatedDataUrl !== 'string') return null;
+            if (!value || value.schemaVersion !== 1 || typeof value.translatedDataUrl !== 'string' || !value.translatedDataUrl) return null;
             return {
                 translatedDataUrl: value.translatedDataUrl,
                 updatedAt: Number.isFinite(value.updatedAt) ? value.updatedAt : 0,
@@ -1253,6 +1255,7 @@
                             legacy = await legacyGet([`gtc_${hash}`, `gtc_meta_${hash}`]);
                         } catch (error) {
                             legacyReadError = error;
+                            throw error;
                         }
                         const fallback = legacyPayload(legacy[`gtc_${hash}`], legacy[`gtc_meta_${hash}`]);
                         const marker = legacy[`gtc_meta_${hash}`];
@@ -1292,12 +1295,12 @@
                         finalize({ ...(result || {}), legacyCleanupError: cleanupError });
                     } catch (error) {
                         if (legacyReadError) {
-                            logger('error', 'GTC_SAVE_FALLBACK_FAILED', 'Save GTC moderno falhou e o fallback não pôde ser lido com segurança', {
+                            logger('error', 'GTC_SAVE_FALLBACK_FAILED', 'Save GTC cancelado porque a precedência do fallback não pôde ser verificada', {
                                 hash,
                                 error: error && error.message ? error.message : String(error),
                                 fallbackReadError: legacyReadError.message || String(legacyReadError),
                             });
-                            fail(new Error(`${error && error.message ? error.message : String(error)}; fallback read: ${legacyReadError.message || String(legacyReadError)}`), request.action);
+                            fail(legacyReadError, request.action);
                             return;
                         }
                         try {

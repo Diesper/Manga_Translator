@@ -19,9 +19,9 @@ Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principa
 
 - `extension/content/content_manga.js`: `4aaf2ba49807ed8ad780437039aa374d6ff9d4ad`.
 - `extension/content/cm-gtc-client.js`: `69a7d3ea456ca9f85c3864ed22f3c4244842c02b`.
-- `extension/shared/gtc-indexeddb.js`: `72ddee933f637a34372f00516f9fea0ad0e8b0d0`.
+- `extension/shared/gtc-indexeddb.js`: `50ae66eaba2f7e58680f2bbb8d7b9ba5f4c39720`.
 - `tests/unit/content-manga/replacement-and-completion-real.test.js`: `34d467fe19e65f8ef654d26c5d1371b94d3a89ae`.
-- `tests/unit/gtc/legacy-fallback-coordination.test.js`: `8a21ff294e7f8b7805cb68d1704eee1516d74692`.
+- `tests/unit/gtc/legacy-fallback-coordination.test.js`: `72f160d81f2a274395779f5d478ac5609fc0b915`.
 - `tests/integration/ipc/gtc-cache-flow.test.js`: `da033713d6d647a08287bb35a24c5a09d701e455`.
 - `tests/integration/ipc/gtc-indexeddb-deep.test.js`: `84c006347dfedac8a62e858261b26c76cb2ceeb5`.
 - `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
@@ -560,6 +560,15 @@ A ausência de `storage.local.remove` com o storage legacy presente era tratada 
 - `npx jest --config jest.config.js --selectProjects gtc --runInBand --detectOpenHandles`: 3/3 suítes e 70/70 testes.
 - Regressões IPC cache flow e IndexedDB deep junto com coordenação legacy: 3/3 suítes e 25/25 testes.
 - Compatibilidade com o repositório em ambiente sem Chrome preservada pelo teste existente de handlers válidos.
+
+### Reauditoria suplementar — leitura de precedência e payload inválido
+
+- Falha no read legacy durante save: RED 1 falha/16 passes. O código permitia que um save antigo bem-sucedido eliminasse fallback mais novo. A correção aborta antes de modificar modern ou legacy se a precedência não puder ser verificada.
+- API get ausente ou callback sem dados: erro observável e nenhum save; consultas preservam os hits modernos com fallbackReadError.
+- Fallback estruturado vazio: RED 1 falha/24 passes; antes do fix, o resultado era present:"" e missing:"". O payload vazio é rejeitado; payload estruturado válido mantém a compatibilidade anterior.
+- Falhas simultâneas de read modern/legacy e write modern/legacy são observáveis e não bloqueiam a fila para retry. Resposta saved:false do repositório não é promovida a sucesso.
+- Comando focal com --coverage e --detectOpenHandles: 6/6 suítes e 135/135 testes, incluindo 46 casos #191 e 26 casos de coordenação GTC. Os três testes unitários de GTC e as duas integrações IPC estão incluídos.
+- A cobertura global de gtc-indexeddb inclui caminhos perceptuais externos a esta correção; ela não é prova de 100% do arquivo. Os caminhos de cache legacy, falhas e precedência foram revistos a partir do relatório de cobertura.
 
 ### Revisão histórica 191-027
 

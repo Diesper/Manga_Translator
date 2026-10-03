@@ -75,6 +75,45 @@ describe('GTC legacy fallback coordination', () => {
         expect(response.entriesByHash).toEqual({ ABC123: 'modern' });
     });
 
+    test.each([
+        { schemaVersion: 2, translatedDataUrl: 'unsupported', updatedAt: 200 },
+        { schemaVersion: 1, translatedDataUrl: 123, updatedAt: 200 },
+        { schemaVersion: 1, translatedDataUrl: '', updatedAt: 200 },
+    ])('malformed structured fallback %# cannot hide a modern hit or create an empty hit', async (payload) => {
+        const repository = createInMemoryRepository(() => 50);
+        await repository.put({ hash: 'present', translatedDataUrl: 'modern' });
+        await storage.set({ gtc_present: payload, gtc_missing: payload });
+        const handler = createGtcRuntimeHandler({ repository, logger });
+        const query = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['present', 'missing'] });
+
+        expect(query.entriesByHash).toEqual({ present: 'modern' });
+    });
+
+    test('valid structured legacy payload remains recoverable and outranks older modern data', async () => {
+        const repository = createInMemoryRepository(() => 50);
+        await repository.put({ hash: 'present', translatedDataUrl: 'modern-stale' });
+        const payload = { schemaVersion: 1, translatedDataUrl: 'legacy-current', updatedAt: 200 };
+        await storage.set({ gtc_present: payload, gtc_missing: payload });
+        const handler = createGtcRuntimeHandler({ repository, logger });
+        const query = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['present', 'missing'] });
+
+        expect(query.entriesByHash).toEqual({ present: 'legacy-current', missing: 'legacy-current' });
+    });
+
+    test('repository saved:false is observable and the current payload is retained as legacy fallback', async () => {
+        const repository = createInMemoryRepository();
+        repository.put = jest.fn().mockResolvedValue({ saved: false });
+        const handler = createGtcRuntimeHandler({ repository, logger });
+        const saved = await invoke(handler, {
+            action: 'GTC_SAVE', hash: 'hash', translatedDataUrl: 'fallback', operationAt: 100,
+        });
+        const query = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['hash'] });
+
+        expect(saved).toEqual(expect.objectContaining({ ok: false, error: 'GTC repository rejected the save' }));
+        expect(query.entriesByHash).toEqual({ hash: 'fallback' });
+        expect(logger).toHaveBeenCalledWith('warn', 'GTC_SAVE_FALLBACK_USED', expect.any(String), expect.any(Object));
+    });
+
     test('serializes independent save callers so an older failed save cannot revive after a newer success', async () => {
         const repository = createInMemoryRepository();
         const put = repository.put.bind(repository);
@@ -258,6 +297,105 @@ describe('GTC legacy fallback coordination', () => {
 
         expect(response).toEqual(expect.objectContaining({ ok: true, fallbackReadError: true, entriesByHash: { PRESENT: 'modern' } }));
         expect(logger).toHaveBeenCalledWith('warn', 'GTC_LEGACY_READ_FAILED', expect.any(String), expect.any(Object));
+    });
+
+    test('failed precedence read cannot replace a newer fallback with an older successful modern save', async () => {
+        const repository = createInMemoryRepository(() => 50);
+        await repository.put({ hash: 'hash', translatedDataUrl: 'modern-stale' });
+        await storage.set({
+            gtc_hash: 'newer-fallback',
+            gtc_meta_hash: { schemaVersion: 1, updatedAt: 200 },
+        });
+        const put = jest.spyOn(repository, 'put');
+        const originalGet = storage.get;
+        storage.get = (_keys, callback) => {
+            runtime.lastError = { message: 'precedence read failed' };
+            callback({});
+            runtime.lastError = null;
+        };
+        const handler = createGtcRuntimeHandler({ repository, logger });
+        const saved = await invoke(handler, {
+            action: 'GTC_SAVE', hash: 'hash', translatedDataUrl: 'older-delayed', operationAt: 100,
+        });
+        storage.get = originalGet;
+        const finalQuery = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['hash'] });
+
+        expect(saved).toEqual(expect.objectContaining({ ok: false, error: 'precedence read failed' }));
+        expect(put).not.toHaveBeenCalled();
+        expect(finalQuery.entriesByHash).toEqual({ hash: 'newer-fallback' });
+        expect(await repository.getManyEntries(['hash']))
+            .toEqual({ hash: expect.objectContaining({ translatedDataUrl: 'modern-stale' }) });
+    });
+
+    test.each([
+        ['missing get API', undefined, 'storage.local.get unavailable'],
+        ['unavailable callback data', (_keys, callback) => callback(undefined), 'storage.local.get returned unavailable data'],
+    ])('%s reports read failure and preserves cache state during a save', async (_label, get, error) => {
+        const repository = createInMemoryRepository(() => 50);
+        await repository.put({ hash: 'hash', translatedDataUrl: 'modern' });
+        await storage.set({ gtc_hash: 'newer', gtc_meta_hash: { schemaVersion: 1, updatedAt: 200 } });
+        const put = jest.spyOn(repository, 'put');
+        const originalGet = storage.get;
+        storage.get = get;
+        const handler = createGtcRuntimeHandler({ repository, logger });
+        const saved = await invoke(handler, {
+            action: 'GTC_SAVE', hash: 'hash', translatedDataUrl: 'older', operationAt: 100,
+        });
+        const query = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['HASH'] });
+        storage.get = originalGet;
+
+        expect(saved).toEqual(expect.objectContaining({ ok: false, error }));
+        expect(put).not.toHaveBeenCalled();
+        expect(query).toEqual(expect.objectContaining({
+            ok: true, fallbackReadError: true, entriesByHash: { HASH: 'modern' },
+        }));
+        expect((await storage.get('gtc_hash')).gtc_hash).toBe('newer');
+    });
+
+    test('reports simultaneous modern and legacy read failure without poisoning the operation queue', async () => {
+        const repository = createInMemoryRepository();
+        const getModern = jest.spyOn(repository, 'getManyEntries').mockRejectedValue(new Error('modern read failed'));
+        const originalGet = storage.get;
+        storage.get = (_keys, callback) => {
+            runtime.lastError = { message: 'legacy read failed' };
+            callback({});
+            runtime.lastError = null;
+        };
+        const handler = createGtcRuntimeHandler({ repository, logger });
+        const failed = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['hash'] });
+        storage.get = originalGet;
+        getModern.mockRestore();
+        const retry = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['hash'] });
+
+        expect(failed).toEqual(expect.objectContaining({ ok: false, error: 'modern read failed' }));
+        expect(logger).toHaveBeenCalledWith('warn', 'GTC_LEGACY_READ_FAILED', expect.any(String),
+            expect.objectContaining({ error: 'legacy read failed' }));
+        expect(retry).toEqual(expect.objectContaining({ ok: true, entriesByHash: {} }));
+    });
+
+    test('reports modern save and legacy write failures without losing the existing fallback', async () => {
+        const repository = createInMemoryRepository();
+        repository.put = jest.fn().mockRejectedValue(new Error('modern save failed'));
+        await storage.set({ gtc_hash: 'existing' });
+        const originalSet = storage.set;
+        storage.set = (_values, callback) => {
+            runtime.lastError = { message: 'legacy write failed' };
+            callback();
+            runtime.lastError = null;
+        };
+        const handler = createGtcRuntimeHandler({ repository, logger });
+        const saved = await invoke(handler, {
+            action: 'GTC_SAVE', hash: 'hash', translatedDataUrl: 'unsaved', operationAt: 100,
+        });
+        storage.set = originalSet;
+        const query = await invoke(handler, { action: 'GTC_QUERY_MANY', hashes: ['hash'] });
+
+        expect(saved).toEqual(expect.objectContaining({
+            ok: false, error: 'modern save failed; fallback: legacy write failed',
+        }));
+        expect(logger).toHaveBeenCalledWith('error', 'GTC_SAVE_FALLBACK_FAILED', expect.any(String),
+            expect.objectContaining({ error: 'legacy write failed' }));
+        expect(query.entriesByHash).toEqual({ hash: 'existing' });
     });
 
     test('failed cleanup durably invalidates stale fallback before a later modern read failure', async () => {
