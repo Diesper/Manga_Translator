@@ -46,7 +46,7 @@
 - [x] 042 — `extension/content/gemini/dom.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
 - [x] 043 — `extension/content/gemini/editor.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
 - [x] 044 — `extension/content/gemini/image-quarantine.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
-- [x] 045 — `extension/content/gemini/job-runner.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
+- [x] 045 — `extension/content/gemini/job-runner.js` — COMPLETED — com ressalvas: WAITING_PRIMARY, CHANGES_REQUIRED
 - [x] 046 — `extension/content/gemini/observer.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
 - [x] 047 — `extension/content/gemini/result-extractor.js` — COMPLETED — com ressalvas: REAUDIT_REQUIRED
 - [x] 048 — `extension/content/gemini/selectors.js` — COMPLETED — com ressalvas: CHANGES_REQUIRED
@@ -180,7 +180,7 @@
 - [ ] 176 — `tests/unit/content-gemini/deletion.test.js` — CHANGES_REQUIRED
 - [ ] 177 — `tests/unit/content-gemini/dom-modules.test.js` — CHANGES_REQUIRED
 - [ ] 178 — `tests/unit/content-gemini/editor-submit.test.js` — CHANGES_REQUIRED
-- [ ] 179 — `tests/unit/content-gemini/helpers-and-regressions-real.test.js` — CHANGES_REQUIRED
+- [ ] 179 — `tests/unit/content-gemini/helpers-and-regressions-real.test.js` — READY_FOR_AUDIT
 - [ ] 180 — `tests/unit/content-gemini/image-quarantine.test.js` — CHANGES_REQUIRED
 - [ ] 181 — `tests/unit/content-gemini/job-runner.test.js` — CHANGES_REQUIRED
 - [ ] 182 — `tests/unit/content-gemini/manual-assist-hud.test.js` — CHANGES_REQUIRED
