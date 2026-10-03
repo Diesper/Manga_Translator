@@ -23,20 +23,57 @@ const baseline = JSON.parse(fs.readFileSync(path.join(root, 'scripts', 'ci', 'da
 const regressionMatrixPath = path.join(root, 'scripts', 'ci', 'data', 'regression-matrix.json');
 
 const problems = [];
-if (!workflow.includes('node scripts/validation/verify-repository-structure.js')) {
+
+function executableRunLines(block) {
+  const lines = String(block || '').split(/\r?\n/);
+  const commands = [];
+  for (let i = 0; i < lines.length; i++) {
+    const match = /^(\s*)run:\s*(.*)$/.exec(lines[i]);
+    if (!match) continue;
+
+    const runIndent = match[1].length;
+    const scalar = match[2].trim();
+    if (scalar && !/^[>|][+-]?$/.test(scalar)) {
+      if (!scalar.startsWith('#')) commands.push(scalar);
+      continue;
+    }
+
+    if (!/^[>|]/.test(scalar)) continue;
+    for (let j = i + 1; j < lines.length; j++) {
+      const line = lines[j];
+      if (!line.trim()) continue;
+      const indent = (line.match(/^\s*/) || [''])[0].length;
+      if (indent <= runIndent) break;
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('#')) commands.push(trimmed);
+    }
+  }
+  return commands;
+}
+
+function executableRunText(block) {
+  return executableRunLines(block).join('\n');
+}
+
+function hasExecutableRun(block, marker) {
+  return executableRunLines(block).some((line) => line.includes(marker));
+}
+
+const ciContract = jobBlock('ci-contract');
+if (!hasExecutableRun(ciContract, 'node scripts/validation/verify-repository-structure.js')) {
   problems.push('CI Contract precisa executar o gate estrutural do repositório');
 }
 if (!repositoryStructureVerifier.includes('legacyReferenceMarkers') ||
     !repositoryStructureVerifier.includes('referência operacional legada')) {
   problems.push('gate estrutural precisa varrer referências operacionais aos caminhos legados');
 }
-if (!workflow.includes('npm run validate:test-policy')) {
+if (!hasExecutableRun(ciContract, 'npm run validate:test-policy')) {
   problems.push('CI Contract precisa executar a política anti-skip/escape-hatch');
 }
 if (pkg.scripts['validate:test-policy'] !== 'node scripts/validation/verify-test-policy.js') {
   problems.push('package.json#validate:test-policy precisa apontar para o verificador canônico');
 }
-if (!workflow.includes('npm run test:test-policy:infra')) {
+if (!hasExecutableRun(ciContract, 'npm run test:test-policy:infra')) {
   problems.push('CI Contract precisa executar o self-test da política anti-skip');
 }
 if (pkg.scripts['test:test-policy:infra'] !== 'node scripts/validation/verify-test-policy-selftest.js') {
@@ -47,7 +84,7 @@ for (const marker of ['test.skip', '--forceExit em script npm', 'teste mascarado
     problems.push('self-test da política não cobre cenário: ' + marker);
   }
 }
-if (!workflow.includes('npm run validate:publish')) {
+if (!hasExecutableRun(ciContract, 'npm run validate:publish')) {
   problems.push('CI Contract precisa executar o contrato de publicação');
 }
 if (pkg.scripts['validate:publish'] !== 'node scripts/validation/verify-publish-contract.js') {
@@ -109,10 +146,10 @@ for (const job of requiredJobs) {
 }
 
 const versionIntegrity = jobBlock('version-integrity');
-if (!versionIntegrity.includes('run: npm run version:check')) {
+if (!hasExecutableRun(versionIntegrity, 'npm run version:check')) {
   problems.push('version-integrity precisa executar npm run version:check');
 }
-if (!versionIntegrity.includes('run: node scripts/release/sync-version.js --print-env')) {
+if (!hasExecutableRun(versionIntegrity, 'node scripts/release/sync-version.js --print-env')) {
   problems.push('version-integrity precisa executar sync-version.js --print-env');
 }
 
@@ -121,25 +158,25 @@ const freshDeveloperFlow = jobBlock('fresh-developer-flow');
 if (!freshDeveloperFlow.includes("github.event_name == 'workflow_dispatch'")) {
   problems.push('fresh-developer-flow deve executar no workflow_dispatch pré-revisão');
 }
-for (const marker of [
-  'run: npm ci',
-  'run: npm run test:unit',
-  'run: npm run test:integration',
-  'run: npm run test:smoke',
-  'run: npm run test:visual',
+for (const command of [
+  'npm ci',
+  'npm run test:unit',
+  'npm run test:integration',
+  'npm run test:smoke',
+  'npm run test:visual',
   'npm run test:e2e',
-  'run: npm run test:coverage',
-  'run: npm run test:coverage:verify',
-  'run: npm test',
+  'npm run test:coverage',
+  'npm run test:coverage:verify',
+  'npm test',
 ]) {
-  if (!freshDeveloperFlow.includes(marker)) {
-    problems.push('fresh-developer-flow não preserva a sequência oficial: ' + marker);
+  if (!hasExecutableRun(freshDeveloperFlow, command)) {
+    problems.push('fresh-developer-flow não preserva a sequência oficial: ' + command);
   }
 }
-if (!freshDeveloperFlow.includes('playwright install chromium --with-deps --no-shell')) {
+if (!hasExecutableRun(freshDeveloperFlow, 'playwright install chromium --with-deps --no-shell')) {
   problems.push('fresh-developer-flow precisa instalar Chromium antes do E2E');
 }
-if (!freshDeveloperFlow.includes('xvfb-run --auto-servernum -- npm run test:e2e')) {
+if (!hasExecutableRun(freshDeveloperFlow, 'xvfb-run --auto-servernum -- npm run test:e2e')) {
   problems.push('fresh-developer-flow precisa executar o E2E da extensão com Xvfb no Linux');
 }
 
@@ -148,12 +185,14 @@ for (const marker of [
   "github.head_ref == 'docs/project-bible'",
   "github.event_name == 'push'",
   "github.ref == 'refs/heads/main'",
-  'run: npm run bible:final-readiness',
   'fetch-depth: 0',
 ]) {
   if (!bibleFinalReadiness.includes(marker)) {
     problems.push('bible-final-readiness: marcador obrigatório ausente: ' + marker);
   }
+}
+if (!hasExecutableRun(bibleFinalReadiness, 'npm run bible:final-readiness')) {
+  problems.push('bible-final-readiness: marcador obrigatório ausente: npm run bible:final-readiness');
 }
 
 for (const diagnosticJob of [
@@ -259,17 +298,17 @@ const windowsPortability = jobBlock('windows-portability');
 if (!windowsPortability.includes('runs-on: windows-latest')) {
   problems.push('windows-portability precisa executar em windows-latest');
 }
-for (const marker of [
-  'run: npm ci',
-  'run: npm run validate',
-  'run: npm run test:ci',
-  'run: npm run test:smoke',
-  'run: npm run test:visual',
-  'run: npm run test:coverage',
-  'run: npm run test:coverage:verify',
+for (const command of [
+  'npm ci',
+  'npm run validate',
+  'npm run test:ci',
+  'npm run test:smoke',
+  'npm run test:visual',
+  'npm run test:coverage',
+  'npm run test:coverage:verify',
 ]) {
-  if (!windowsPortability.includes(marker)) {
-    problems.push('windows-portability não cobre contrato obrigatório: ' + marker);
+  if (!hasExecutableRun(windowsPortability, command)) {
+    problems.push('windows-portability não cobre contrato obrigatório: ' + command);
   }
 }
 
@@ -289,7 +328,7 @@ for (const group of ['fifo', 'attachment', 'medium-a', 'medium-b', 'fast']) {
     problems.push('e2e-shard: grupo explícito ausente da matriz: ' + group);
   }
 }
-if (!e2eShard.includes('test:e2e:group') || !e2eShard.includes("MANGA_E2E_SHARD: '1'")) {
+if (!hasExecutableRun(e2eShard, 'npm run test:e2e:group') || !e2eShard.includes("MANGA_E2E_SHARD: '1'")) {
   problems.push('e2e-shard: precisa executar grupos explícitos com blob reporter');
 }
 if (/MANGA_E2E_WORKERS:\s*['"]?\d+/.test(e2eShard)) {
@@ -308,7 +347,7 @@ if (jestWorkerDiagnostic.includes("path.join(testsRoot, '.ci-results'")) {
 if (e2eShard.includes('--shard=')) {
   problems.push('e2e-shard: não deve voltar ao sharding automático por contagem');
 }
-if (!e2e.includes('test:e2e:plan')) {
+if (!hasExecutableRun(e2e, 'npm run test:e2e:plan')) {
   problems.push('e2e: precisa verificar cobertura exata dos grupos antes do merge');
 }
 if (!e2e.includes('wc -l)" -eq 5')) {
@@ -320,10 +359,10 @@ if (/npm run test:[^\n]*\|\|\s*true/.test(workflow)) {
 }
 
 const coverage = jobBlock('coverage');
-if (!/run:\s+npm run test:coverage/.test(coverage)) {
+if (!hasExecutableRun(coverage, 'npm run test:coverage')) {
   problems.push('coverage: deve executar test:coverage de forma bloqueante');
 }
-if (!/run:\s+npm run test:coverage:verify/.test(coverage)) {
+if (!hasExecutableRun(coverage, 'npm run test:coverage:verify')) {
   problems.push('coverage: deve verificar a integridade do relatório em etapa bloqueante');
 }
 if (/npm run test:coverage[^\n]*\|\|\s*true/.test(coverage)) {
@@ -451,11 +490,11 @@ if (pkg.scripts['test:unit'] !== expectedUnitScript) {
 if (pkg.scripts['test:integration'] !== 'jest --config jest.config.js --selectProjects integration') {
   problems.push('package.json#test:integration precisa selecionar exclusivamente o projeto integration');
 }
-if (!workflow.includes('node scripts/validation/verify-jest-worker-warning-selftest.js')) {
+if (!hasExecutableRun(ciContract, 'node scripts/validation/verify-jest-worker-warning-selftest.js')) {
   problems.push('CI Contract precisa testar a detecção de worker forçado');
 }
 
-if (!workflow.includes('npm run test:ci-contract:infra')) {
+if (!hasExecutableRun(ciContract, 'npm run test:ci-contract:infra')) {
   problems.push('CI Contract precisa executar o self-test negativo do próprio contrato');
 }
 if (pkg.scripts['test:ci-contract:infra'] !== 'node scripts/validation/verify-ci-contract-selftest.js') {
