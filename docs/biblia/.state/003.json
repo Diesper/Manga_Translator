@@ -2,8 +2,8 @@
   "index": 3,
   "file": "extension/background/actions/calculate-visual-fingerprint.js",
   "bible": "docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md",
-  "status": "CHANGES_REQUIRED",
-  "agent": null,
+  "status": "IN_PROGRESS",
+  "agent": "AGENTE 2",
   "source_sha": "ea474845cf9c6a6784e3ceb75298f0ac8df86e06",
   "started_at_utc": "2026-09-30T13:00:00Z",
   "completed_at_utc": null,
@@ -83,7 +83,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-01T20:40:44.124Z",
+  "updated_at_utc": "2026-10-03T03:16:58.485Z",
   "history": [
     {
       "at_utc": "2026-10-03T02:15:05.766Z",
@@ -102,6 +102,35 @@
       "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
       "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
       "event_hash": "26c533da10a74ceb2e1a418cf8021d8c4eb8d3e32e51c55b3ad12bab51c66ccc"
+    },
+    {
+      "at_utc": "2026-10-03T03:16:58.485Z",
+      "type": "EDITOR_CORRECTION_STARTED",
+      "from_status": "CHANGES_REQUIRED",
+      "to_status": "IN_PROGRESS",
+      "agent": "AGENTE 2",
+      "source_sha": "ea474845cf9c6a6784e3ceb75298f0ac8df86e06",
+      "bible_sha": "4e9e7e7879e546454ee9486c80a271ca751aa4ca",
+      "correction_cycle": 0,
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "revision_id": "f243cb993618c9b6947524146b0817b63416b4de52f834a96f1b6db6726ffb92",
+      "correction_token_id": "corr-003-bd78a58f057776c1d69e",
+      "approval_id": null,
+      "root_cause_review": null,
+      "strategy_review": null,
+      "reservation_path": "docs/biblia/.reservas/extension/background/actions/calculate-visual-fingerprint.js.lock.md",
+      "previous_event_hash": "26c533da10a74ceb2e1a418cf8021d8c4eb8d3e32e51c55b3ad12bab51c66ccc",
+      "event_hash": "50dfa949c222fc8e8660dc2d4a904b398cbe570a942c60346ea908779f7cddf6"
+    },
+    {
+      "at_utc": "2026-10-03T03:16:58.485Z",
+      "type": "CORRECTION_TOKEN_CONSUMED",
+      "correction_token_id": "corr-003-bd78a58f057776c1d69e",
+      "actor": "AGENTE 2",
+      "revision_id": "f243cb993618c9b6947524146b0817b63416b4de52f834a96f1b6db6726ffb92",
+      "previous_event_hash": "50dfa949c222fc8e8660dc2d4a904b398cbe570a942c60346ea908779f7cddf6",
+      "event_hash": "753dce6f348c1c50de99ec8d988ce76ee50165e274d35d106ad691b1cef381bd"
     }
   ],
   "evidence": [],
