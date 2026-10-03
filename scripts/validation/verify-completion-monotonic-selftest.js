@@ -48,6 +48,8 @@ assert.strictEqual(restored.review_status, 'CHANGES_REQUIRED');
 assert.deepStrictEqual(restored.history.slice(0, reopened.history.length), reopened.history);
 assert.deepStrictEqual(historyGuard.historyAppendOnlyProblems(reopened, restored), []);
 assert.deepStrictEqual(migration.migrate(restored, { decision: 'WAITING_PRIMARY' }, '2026-10-04T00:00:00Z'), restored);
+assert.strictEqual(migration.migrate(restored, { decision:'APPROVED' }, '2026-10-04T00:00:00Z'), restored);
+assert.strictEqual(migration.migrate(restored, { decision:'CHANGES_REQUIRED' }, '2026-10-04T00:00:00Z'), restored);
 const derived = require('./bible-coordination').buildDerived([result.state], new Map(), 'fixture', new Map([[1, { decision: 'WAITING_PRIMARY' }]]));
 assert.match(derived.checklist, /\[x\].*COMPLETED.*com ressalvas/);
 const readiness = require('./bible-coordination').evaluateMergeReadiness({states: [result.state], problems: [], auditPipelines: new Map([[1, {decision:'WAITING_PRIMARY'}]])});

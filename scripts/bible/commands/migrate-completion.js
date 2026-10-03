@@ -9,6 +9,8 @@ const transition = require('./unit-transition');
 
 function migrate(state, pipeline, at) {
   if (!completion.hasCompleted(state)) return state;
+  // Bootstrap only: an installed freeze cannot be re-evaluated by migration.
+  if (state.completion?.achieved && state.completion?.human_order_required_since_utc) return state;
   const next = JSON.parse(JSON.stringify(state));
   const operational = completion.reviewStatus(state);
   completion.setReviewStatus(next, operational);
