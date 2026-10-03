@@ -1,11 +1,11 @@
 # Bíblia técnica — tests/unit/content-manga/audio-synthesis-full.test.js
 
-> **Estado documental:** correções 191-001 a 191-027 aplicadas e validadas; revisão técnica pronta para novo par independente PRIMARY + ADVERSARIAL  
-> **SHA auditado:** `52ede7cfaffc6f90aa95d6d5e09817eefc2b1e38`  
+> **Estado documental:** preparação experimental no PR #83; correções de GTC verificadas, integração canônica e auditoria independente pendentes
+> **SHA da fonte experimental:** `6826ec532ae1ecd11f703b2587e1d364315befc2`
 > **Índice do corpus:** 191  
 > **Tipo:** integração Jest real da síntese/lifecycle Web Audio de `content_manga.js`  
-> **Linhas textuais:** **2447**  
-> **Posições documentais:** **2448**, contando o LF final  
+> **Linhas textuais:** **2524**
+> **Posições documentais:** **2525**, contando o LF final
 > **PR:** #66  
 > **Branch:** docs/project-bible
 
@@ -15,60 +15,68 @@ A suíte #191 carrega o bundle Manga real via `loadContentScript()` e dispara os
 
 Não há mirror local de `playErrorSound`/`playSuccessSound` como prova principal. O teste controla apenas a Web Audio API e as fronteiras Chrome necessárias para observar o runtime verdadeiro.
 
-## 2. Dependências revalidadas
+## 2. Dependências da revisão experimental
 
-- `extension/content/content_manga.js`: `893a03442cddb9e32487d7c7599be13ba8dc349c`.
-- `extension/content/cm-gtc-client.js`: `b7bb841499a9e677f9709f0c634c648ac6a0f65b`.
-- `tests/unit/content-manga/replacement-and-completion-real.test.js`: `9dcd26cf4a963ab22c11f8535421603d83260572`.
+- `extension/content/content_manga.js`: `4aaf2ba49807ed8ad780437039aa374d6ff9d4ad`.
+- `extension/content/cm-gtc-client.js`: `69a7d3ea456ca9f85c3864ed22f3c4244842c02b`.
+- `extension/shared/gtc-indexeddb.js`: `1b1975ee5381ca361d48ef022adf95dc617ea2c4`.
+- `tests/unit/content-manga/replacement-and-completion-real.test.js`: `34d467fe19e65f8ef654d26c5d1371b94d3a89ae`.
+- `tests/unit/gtc/legacy-fallback-coordination.test.js`: `b924aa12cfa4544cd2108fe6c29a36081bdcf6e7`.
+- `tests/integration/ipc/gtc-cache-flow.test.js`: `da033713d6d647a08287bb35a24c5a09d701e455`.
+- `tests/integration/ipc/gtc-indexeddb-deep.test.js`: `84c006347dfedac8a62e858261b26c76cb2ceeb5`.
 - `tests/helpers/load-content-script.js`: `0b52224bd7063db9b6bb683d827217d8f2fda69c`.
-- `tests/mocks/chrome-api.mock.js`: `c1d9a056b7777183bfd3f540c49811335f410425`.
+- `tests/mocks/chrome-api.mock.js`: `af6580a887f1eba1c2798bfff82849e1b34cb260`.
 - `extension/manifest.json`: `841fe70c183350e4110bc8ff57ab69b157169c36`.
 - `.github/workflows/audio-synthesis-selftest.yml`: `eb1bdf727d6dde90a8b8c3634fe0d724b0f09b6f`.
 
-## 3. Cobertura funcional atual — 42 casos
+## 3. Cobertura funcional atual — 46 casos
 
-1. `SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes`
-2. `erros consecutivos reutilizam um único AudioContext de notificação`
-3. `erro com contexto suspended só agenda após resume concluir`
-4. `erro registra falha de resume sem criar notas`
-5. `BATCH_COMPLETE executa arpejo real por nota e reutiliza o mesmo AudioContext`
-6. `clique real desbloqueia AudioContext suspended antes do lote`
-7. `clique real registra falha de unlock sem impedir o início do lote`
-8. `clique com contexto já running registra unlock sem chamar resume`
-9. `clique com resume resolvido sem running registra unlock incompleto e inicia lote`
-10. `clique com estado intermediário não chama resume e registra unlock incompleto`
-11. `clique sem AudioContext registra indisponibilidade e ainda inicia o lote`
-12. `falha síncrona do construtor no clique registra unlock failed e não bloqueia o lote`
-13. `tradução individual por TRANSLATE_CONTEXT_IMAGE também executa unlock real`
-14. `BATCH_COMPLETE stale não toca sucesso e o lote atual ainda conclui`
-15. `SHOW_ERROR_INTEGRATED stale não toca erro nem contamina o lote atual`
-16. `BATCH_COMPLETE duplicado do lote concluído não toca sucesso novamente`
-17. `SHOW_ERROR_INTEGRATED tardio do lote concluído não toca erro nem altera UI`
-18. `UPDATE_IMAGE tardio sem histórico persistido é rejeitado sem substituir a imagem`
-19. `replay idêntico após conclusão recupera ACK perdido sem novo save`
-20. `replay persistido do lote anterior continua confirmável depois que novo lote começa`
-21. `persistência tardia de UPDATE_IMAGE do lote cancelado não conclui o lote seguinte`
-22. `UPDATE_IMAGE duplicado enquanto persistência está pendente compartilha o primeiro commit`
-23. `UPDATE_IMAGE conflitante enquanto persistência está pendente não recebe persisted true`
-24. `UPDATE_IMAGE duplicado durante lote ativo não é confundido com retry de persistência`
-25. `UPDATE_IMAGE conflitante após persistência do índice é rejeitado`
-26. `falha de persistência não conclui o lote e retry bem-sucedido conclui`
-27. `falha GTC tardia não deixa fallback legado stale após retry final`
-28. `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`
-29. `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`
-30. `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`
-31. `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`
-32. `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`
-33. `erro em estado interrupted registra skip sem tentar resume`
-34. `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`
-35. `resume resolvido sem estado running não agenda som e registra skip`
-36. `falha ao criar oscillator no sucesso é observável e não escapa do handler`
-37. `contexto suspended só agenda sucesso depois de resume real completar`
-38. `erro com resume resolvido sem running registra skip e não cria notas`
-39. `erro sem AudioContext registra indisponibilidade e preserva a UI`
-40. `falha síncrona ao agendar som de erro é observável sem escapar do handler`
-41. `playErrorSound real usa webkitAudioContext quando AudioContext não existe`
-42. `falha ao criar AudioContext no erro é observável e não interrompe a UI`
+1. `GTC moderno com miss por hash recupera fallback legado pelo cliente real`
+2. `GTC fallback marcado mais novo prevalece sobre entrada moderna stale`
+3. `GTC legado sem marcador não sobrescreve hit moderno válido`
+4. `GTC_SAVE com resposta ok mas saved false não é tratado como persistido`
+5. `SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes`
+6. `erros consecutivos reutilizam um único AudioContext de notificação`
+7. `erro com contexto suspended só agenda após resume concluir`
+8. `erro registra falha de resume sem criar notas`
+9. `BATCH_COMPLETE executa arpejo real por nota e reutiliza o mesmo AudioContext`
+10. `clique real desbloqueia AudioContext suspended antes do lote`
+11. `clique real registra falha de unlock sem impedir o início do lote`
+12. `clique com contexto já running registra unlock sem chamar resume`
+13. `clique com resume resolvido sem running registra unlock incompleto e inicia lote`
+14. `clique com estado intermediário não chama resume e registra unlock incompleto`
+15. `clique sem AudioContext registra indisponibilidade e ainda inicia o lote`
+16. `falha síncrona do construtor no clique registra unlock failed e não bloqueia o lote`
+17. `tradução individual por TRANSLATE_CONTEXT_IMAGE também executa unlock real`
+18. `BATCH_COMPLETE stale não toca sucesso e o lote atual ainda conclui`
+19. `SHOW_ERROR_INTEGRATED stale não toca erro nem contamina o lote atual`
+20. `BATCH_COMPLETE duplicado do lote concluído não toca sucesso novamente`
+21. `SHOW_ERROR_INTEGRATED tardio do lote concluído não toca erro nem altera UI`
+22. `UPDATE_IMAGE tardio sem histórico persistido é rejeitado sem substituir a imagem`
+23. `replay idêntico após conclusão recupera ACK perdido sem novo save`
+24. `replay persistido do lote anterior continua confirmável depois que novo lote começa`
+25. `persistência tardia de UPDATE_IMAGE do lote cancelado não conclui o lote seguinte`
+26. `UPDATE_IMAGE duplicado enquanto persistência está pendente compartilha o primeiro commit`
+27. `UPDATE_IMAGE conflitante enquanto persistência está pendente não recebe persisted true`
+28. `UPDATE_IMAGE duplicado durante lote ativo não é confundido com retry de persistência`
+29. `UPDATE_IMAGE conflitante após persistência do índice é rejeitado`
+30. `falha de persistência não conclui o lote e retry bem-sucedido conclui`
+31. `falha GTC tardia não deixa fallback legado stale após retry final`
+32. `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`
+33. `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`
+34. `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`
+35. `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`
+36. `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`
+37. `erro em estado interrupted registra skip sem tentar resume`
+38. `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`
+39. `resume resolvido sem estado running não agenda som e registra skip`
+40. `falha ao criar oscillator no sucesso é observável e não escapa do handler`
+41. `contexto suspended só agenda sucesso depois de resume real completar`
+42. `erro com resume resolvido sem running registra skip e não cria notas`
+43. `erro sem AudioContext registra indisponibilidade e preserva a UI`
+44. `falha síncrona ao agendar som de erro é observável sem escapar do handler`
+45. `playErrorSound real usa webkitAudioContext quando AudioContext não existe`
+46. `falha ao criar AudioContext no erro é observável e não interrompe a UI`
 
 A matriz cobre lifecycle Web Audio, unlock pelos dois call sites reais, estados de `AudioContext`, falhas síncronas/assíncronas, mensagens stale/duplicadas/tardias, reuso de contexto e o handshake exatamente-once de `UPDATE_IMAGE`.
 
@@ -496,7 +504,7 @@ Workflow **Audio Synthesis Selftest**, run `36968467020`:
 
 ### Correção
 
-`cm-gtc-client.js` agora mantém uma fila `gtcSaveChains` por hash normalizado:
+Na revisão histórica 191-027, `cm-gtc-client.js` passou a manter uma fila `gtcSaveChains` por hash normalizado. A revisão experimental atual substitui essa coordenação local pela fila do background, para cobrir abas distintas. O contrato histórico era:
 
 - hashes diferentes continuam independentes;
 - saves do mesmo hash são executados na ordem lógica de chamada;
@@ -518,7 +526,34 @@ Validação suplementar: no workflow **GTC Cache Flow Selftest** run `3696859295
 
 ## 31. Evidência executável
 
-### Revisão final atual
+### Revisão experimental atual — PR #83
+
+Commit de produção e testes: `1f106a30a44910cb6d30052e10230b37a509608c`.
+
+- [Audio Synthesis Selftest](https://github.com/Diesper/Manga_Translator/actions/runs/37068973193): Node 20 e 22, 2/2 suítes e 59/59 testes por versão; full content-scripts, 40/40 suítes e 479/479 testes. Execução com `--detectOpenHandles`.
+- [GTC Cache Flow Selftest](https://github.com/Diesper/Manga_Translator/actions/runs/37068977041): success.
+- [GTC IndexedDB Deep Selftest](https://github.com/Diesper/Manga_Translator/actions/runs/37068980530): success.
+- Validação local após as duas últimas correções: `npx jest --config jest.config.js --selectProjects gtc content-scripts integration --runInBand --detectOpenHandles --runTestsByPath tests/unit/gtc/legacy-fallback-coordination.test.js tests/unit/content-manga/audio-synthesis-full.test.js tests/integration/ipc/gtc-cache-flow.test.js`: 3/3 suítes, 66/66 testes; fonte #191, 46/46 casos.
+
+### Correções 191-029 a 191-033
+
+- Lookup por hash consulta modern e legacy no background: miss individual recupera o legado, marker mais novo prevalece sobre modern stale e legado histórico não substitui hit moderno válido.
+- Escritas e consultas de cache são coordenadas no background. A identidade temporal de saves impede que uma resposta atrasada de outra aba ressuscite um fallback antigo.
+- Leitura, escrita e remoção legacy verificam `runtime.lastError` e dados indisponíveis.
+- Saves únicos e em lote removem payload e marker legacy antigos. Se a remoção falha, um marker persistido invalida o valor stale, inclusive após recriar o handler e perder acesso ao armazenamento moderno.
+- Rejeição ou resposta `saved:false` do save auxiliar produz `GTC_SAVE_FAILED`; a persistência da página permanece independente.
+- O caminho de erro da leitura legacy mantém as chaves exatamente como solicitadas, mesmo quando o armazenamento moderno normaliza o hash.
+
+### Evidência RED→GREEN local
+
+- `saved:false`: o cliente retornava true antes da correção e false depois.
+- Save em lote: o fallback marked stale sobrepunha o valor recém-persistido antes de limpar payload e marker.
+- Cleanup com erro: depois de recriar o handler e falhar o read moderno, o raw stale reaparecia antes do marker de invalidação.
+- Read legacy com erro: a resposta alterava a chave solicitada `PRESENT` para `present` antes da correção.
+
+O conjunto atual de regressões mantém testes anteriores; não acrescenta skips nem relaxa assertions. As evidências acima correspondem ao branch experimental. A Bíblia e o source da revisão canônica ainda não foram alterados por essas correções.
+
+### Revisão histórica 191-027
 
 Workflow **Audio Synthesis Selftest**, run `36968592875`, head `5faef0e2bc3f26c83831ed52c1bd154280d6adaa`:
 
@@ -581,6 +616,10 @@ const crypto = require('crypto');
 const { TextEncoder } = require('util');
 
 const { loadContentScript } = require('../../helpers/load-content-script.js');
+const {
+    createGtcRuntimeHandler,
+    createInMemoryRepository,
+} = require('../../../extension/shared/gtc-indexeddb.js');
 const {
     getRuntimeMock,
     getStorageMock,
@@ -775,6 +814,79 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
             sentMessages.filter(message => message.action === 'START_BATCH').length === previousCount + 1
         );
     }
+
+    function installGtcBridge(repository) {
+        const handler = createGtcRuntimeHandler({ repository });
+        const fallback = runtimeMock.sendMessage;
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            if (message.action?.startsWith('GTC_')) {
+                sentMessages.push(message);
+                return handler(message, {}, callback);
+            }
+            return fallback(message, callback);
+        });
+    }
+
+    test('GTC moderno com miss por hash recupera fallback legado pelo cliente real', async () => {
+        installRuntimeResponder();
+        await loadOnePage();
+        const repository = createInMemoryRepository();
+        await repository.put({ hash: 'modern', translatedDataUrl: 'data:modern' });
+        await storageMock.set({ gtc_miss: 'data:legacy' });
+        installGtcBridge(repository);
+
+        await expect(window.MangaTranslatorGtcClient.queryGlobalTranslationCache(['modern', 'miss']))
+            .resolves.toEqual({ modern: 'data:modern', miss: 'data:legacy' });
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'GTC_QUERY_MANY', hashes: ['modern', 'miss'],
+        }));
+    });
+
+    test('GTC fallback marcado mais novo prevalece sobre entrada moderna stale', async () => {
+        installRuntimeResponder();
+        await loadOnePage();
+        const repository = createInMemoryRepository(() => 100);
+        await repository.put({ hash: 'same', translatedDataUrl: 'data:old-modern' });
+        await storageMock.set({
+            gtc_same: 'data:new-fallback',
+            gtc_meta_same: { schemaVersion: 1, updatedAt: 200 },
+        });
+        installGtcBridge(repository);
+
+        await expect(window.MangaTranslatorGtcClient.queryGlobalTranslationCache(['same']))
+            .resolves.toEqual({ same: 'data:new-fallback' });
+    });
+
+    test('GTC legado sem marcador não sobrescreve hit moderno válido', async () => {
+        installRuntimeResponder();
+        await loadOnePage();
+        const repository = createInMemoryRepository(() => 200);
+        await repository.put({ hash: 'same', translatedDataUrl: 'data:modern' });
+        await storageMock.set({ gtc_same: 'data:old-legacy' });
+        installGtcBridge(repository);
+
+        await expect(window.MangaTranslatorGtcClient.queryGlobalTranslationCache(['same']))
+            .resolves.toEqual({ same: 'data:modern' });
+    });
+
+    test('GTC_SAVE com resposta ok mas saved false não é tratado como persistido', async () => {
+        installRuntimeResponder();
+        await loadOnePage();
+        runtimeMock.sendMessage = jest.fn((message, callback) => {
+            sentMessages.push(message);
+            if (message.action === 'GTC_SAVE') {
+                callback({ ok: true, saved: false, error: 'rejected by repository' });
+            } else {
+                callback({ ok: true });
+            }
+        });
+
+        await expect(window.MangaTranslatorGtcClient.saveGlobalTranslationCacheEntry('hash', 'data:value'))
+            .resolves.toBe(false);
+        expect(sentMessages).toContainEqual(expect.objectContaining({
+            action: 'GTC_SAVE', hash: 'hash', translatedDataUrl: 'data:value',
+        }));
+    });
 
     test('SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes', async () => {
         installRuntimeResponder();
@@ -3025,62 +3137,66 @@ describe('Síntese de áudio procedural — runtime real de content_manga.js', (
 - **83–107:** factory de AudioContext.
 - **108–124:** assertion por nota.
 - **125–209:** suíte, setup/cleanup, runtime responder e helpers de lote.
-- **210–248:** caso 1 — `SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes`.
-- **249–286:** caso 2 — `erros consecutivos reutilizam um único AudioContext de notificação`.
-- **287–319:** caso 3 — `erro com contexto suspended só agenda após resume concluir`.
-- **320–358:** caso 4 — `erro registra falha de resume sem criar notas`.
-- **359–423:** caso 5 — `BATCH_COMPLETE executa arpejo real por nota e reutiliza o mesmo AudioContext`.
-- **424–464:** caso 6 — `clique real desbloqueia AudioContext suspended antes do lote`.
-- **465–504:** caso 7 — `clique real registra falha de unlock sem impedir o início do lote`.
-- **505–539:** caso 8 — `clique com contexto já running registra unlock sem chamar resume`.
-- **540–576:** caso 9 — `clique com resume resolvido sem running registra unlock incompleto e inicia lote`.
-- **577–609:** caso 10 — `clique com estado intermediário não chama resume e registra unlock incompleto`.
-- **610–645:** caso 11 — `clique sem AudioContext registra indisponibilidade e ainda inicia o lote`.
-- **646–681:** caso 12 — `falha síncrona do construtor no clique registra unlock failed e não bloqueia o lote`.
-- **682–724:** caso 13 — `tradução individual por TRANSLATE_CONTEXT_IMAGE também executa unlock real`.
-- **725–767:** caso 14 — `BATCH_COMPLETE stale não toca sucesso e o lote atual ainda conclui`.
-- **768–825:** caso 15 — `SHOW_ERROR_INTEGRATED stale não toca erro nem contamina o lote atual`.
-- **826–865:** caso 16 — `BATCH_COMPLETE duplicado do lote concluído não toca sucesso novamente`.
-- **866–906:** caso 17 — `SHOW_ERROR_INTEGRATED tardio do lote concluído não toca erro nem altera UI`.
-- **907–967:** caso 18 — `UPDATE_IMAGE tardio sem histórico persistido é rejeitado sem substituir a imagem`.
-- **968–1043:** caso 19 — `replay idêntico após conclusão recupera ACK perdido sem novo save`.
-- **1044–1177:** caso 20 — `replay persistido do lote anterior continua confirmável depois que novo lote começa`.
-- **1178–1315:** caso 21 — `persistência tardia de UPDATE_IMAGE do lote cancelado não conclui o lote seguinte`.
-- **1316–1413:** caso 22 — `UPDATE_IMAGE duplicado enquanto persistência está pendente compartilha o primeiro commit`.
-- **1414–1508:** caso 23 — `UPDATE_IMAGE conflitante enquanto persistência está pendente não recebe persisted true`.
-- **1509–1621:** caso 24 — `UPDATE_IMAGE duplicado durante lote ativo não é confundido com retry de persistência`.
-- **1622–1722:** caso 25 — `UPDATE_IMAGE conflitante após persistência do índice é rejeitado`.
-- **1723–1861:** caso 26 — `falha de persistência não conclui o lote e retry bem-sucedido conclui`.
-- **1862–1951:** caso 27 — `falha GTC tardia não deixa fallback legado stale após retry final`.
-- **1952–2014:** caso 28 — `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`.
-- **2015–2053:** caso 29 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
-- **2054–2079:** caso 30 — `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`.
-- **2080–2110:** caso 31 — `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`.
-- **2111–2149:** caso 32 — `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`.
-- **2150–2180:** caso 33 — `erro em estado interrupted registra skip sem tentar resume`.
-- **2181–2209:** caso 34 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
-- **2210–2236:** caso 35 — `resume resolvido sem estado running não agenda som e registra skip`.
-- **2237–2265:** caso 36 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
-- **2266–2299:** caso 37 — `contexto suspended só agenda sucesso depois de resume real completar`.
-- **2300–2332:** caso 38 — `erro com resume resolvido sem running registra skip e não cria notas`.
-- **2333–2363:** caso 39 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
-- **2364–2394:** caso 40 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
-- **2395–2418:** caso 41 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
-- **2419–2447:** caso 42 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
-- **2448:** LF terminal.
+- **210–225:** helper para carregar o cliente GTC e o handler real.
+- **226–240:** caso 1 — `GTC moderno com miss por hash recupera fallback legado pelo cliente real`.
+- **241–255:** caso 2 — `GTC fallback marcado mais novo prevalece sobre entrada moderna stale`.
+- **256–267:** caso 3 — `GTC legado sem marcador não sobrescreve hit moderno válido`.
+- **268–286:** caso 4 — `GTC_SAVE com resposta ok mas saved false não é tratado como persistido`.
+- **287–325:** caso 5 — `SHOW_ERROR_INTEGRATED executa playErrorSound real com dois nós independentes`.
+- **326–363:** caso 6 — `erros consecutivos reutilizam um único AudioContext de notificação`.
+- **364–396:** caso 7 — `erro com contexto suspended só agenda após resume concluir`.
+- **397–435:** caso 8 — `erro registra falha de resume sem criar notas`.
+- **436–500:** caso 9 — `BATCH_COMPLETE executa arpejo real por nota e reutiliza o mesmo AudioContext`.
+- **501–541:** caso 10 — `clique real desbloqueia AudioContext suspended antes do lote`.
+- **542–581:** caso 11 — `clique real registra falha de unlock sem impedir o início do lote`.
+- **582–616:** caso 12 — `clique com contexto já running registra unlock sem chamar resume`.
+- **617–653:** caso 13 — `clique com resume resolvido sem running registra unlock incompleto e inicia lote`.
+- **654–686:** caso 14 — `clique com estado intermediário não chama resume e registra unlock incompleto`.
+- **687–722:** caso 15 — `clique sem AudioContext registra indisponibilidade e ainda inicia o lote`.
+- **723–758:** caso 16 — `falha síncrona do construtor no clique registra unlock failed e não bloqueia o lote`.
+- **759–801:** caso 17 — `tradução individual por TRANSLATE_CONTEXT_IMAGE também executa unlock real`.
+- **802–844:** caso 18 — `BATCH_COMPLETE stale não toca sucesso e o lote atual ainda conclui`.
+- **845–902:** caso 19 — `SHOW_ERROR_INTEGRATED stale não toca erro nem contamina o lote atual`.
+- **903–942:** caso 20 — `BATCH_COMPLETE duplicado do lote concluído não toca sucesso novamente`.
+- **943–983:** caso 21 — `SHOW_ERROR_INTEGRATED tardio do lote concluído não toca erro nem altera UI`.
+- **984–1044:** caso 22 — `UPDATE_IMAGE tardio sem histórico persistido é rejeitado sem substituir a imagem`.
+- **1045–1120:** caso 23 — `replay idêntico após conclusão recupera ACK perdido sem novo save`.
+- **1121–1254:** caso 24 — `replay persistido do lote anterior continua confirmável depois que novo lote começa`.
+- **1255–1392:** caso 25 — `persistência tardia de UPDATE_IMAGE do lote cancelado não conclui o lote seguinte`.
+- **1393–1490:** caso 26 — `UPDATE_IMAGE duplicado enquanto persistência está pendente compartilha o primeiro commit`.
+- **1491–1585:** caso 27 — `UPDATE_IMAGE conflitante enquanto persistência está pendente não recebe persisted true`.
+- **1586–1698:** caso 28 — `UPDATE_IMAGE duplicado durante lote ativo não é confundido com retry de persistência`.
+- **1699–1799:** caso 29 — `UPDATE_IMAGE conflitante após persistência do índice é rejeitado`.
+- **1800–1938:** caso 30 — `falha de persistência não conclui o lote e retry bem-sucedido conclui`.
+- **1939–2028:** caso 31 — `falha GTC tardia não deixa fallback legado stale após retry final`.
+- **2029–2091:** caso 32 — `unlock, erro e sucesso reutilizam o mesmo AudioContext entre lotes`.
+- **2092–2130:** caso 33 — `contexto closed é descartado e substituído no próximo BATCH_COMPLETE`.
+- **2131–2156:** caso 34 — `BATCH_COMPLETE em estado interrupted registra skip sem tentar resume`.
+- **2157–2187:** caso 35 — `falha do construtor no BATCH_COMPLETE registra AUDIO_SUCCESS_FAILED sem escapar`.
+- **2188–2226:** caso 36 — `BATCH_COMPLETE com resume rejeitado registra AUDIO_SUCCESS_FAILED sem agendar notas`.
+- **2227–2257:** caso 37 — `erro em estado interrupted registra skip sem tentar resume`.
+- **2258–2286:** caso 38 — `AudioContext indisponível registra AUDIO_UNAVAILABLE sem agendar som`.
+- **2287–2313:** caso 39 — `resume resolvido sem estado running não agenda som e registra skip`.
+- **2314–2342:** caso 40 — `falha ao criar oscillator no sucesso é observável e não escapa do handler`.
+- **2343–2376:** caso 41 — `contexto suspended só agenda sucesso depois de resume real completar`.
+- **2377–2409:** caso 42 — `erro com resume resolvido sem running registra skip e não cria notas`.
+- **2410–2440:** caso 43 — `erro sem AudioContext registra indisponibilidade e preserva a UI`.
+- **2441–2471:** caso 44 — `falha síncrona ao agendar som de erro é observável sem escapar do handler`.
+- **2472–2495:** caso 45 — `playErrorSound real usa webkitAudioContext quando AudioContext não existe`.
+- **2496–2524:** caso 46 — `falha ao criar AudioContext no erro é observável e não interrompe a UI`.
+- **2525:** LF terminal.
 
-**Cobertura documental:** **2448/2448 posições**, contíguas e sem overlap.
+**Cobertura documental:** **2525/2525 posições**, contíguas e sem overlap.
 
-## 35. Pontuação pós-correção / pré-auditoria distribuída
+## 35. Situação de fechamento
 
-- Correção funcional: **25/25**
-- Robustez adversarial: **20/20**
-- Cobertura/testes: **20/20**
-- Regressões/compatibilidade: **15/15**
-- Tratamento de erros: **10/10**
-- Qualidade estrutural: **5/5**
-- Documentação/coerência: **3/5**
+**STATUS: PREPARAÇÃO EXPERIMENTAL. PONTUAÇÃO FINAL: NÃO ATRIBUÍDA.**
 
-**TOTAL TÉCNICO PRÉ-AUDITORIA: 98/100.**
+Pendências verificáveis:
 
-Os 2 pontos restantes ficam reservados ao protocolo: novo par **PRIMARY + ADVERSARIAL independente** no binding atual. A identidade corretora não pode autoatribuir 100/100 nem `COMPLETED`.
+- integrar as correções na revisão canônica com autorização e reserva válidas;
+- preservar as mudanças concorrentes de teardown do content script;
+- atualizar as Bíblias dependentes e o binding após a integração;
+- obter PRIMARY e ADVERSARIAL independentes da revisão final.
+
+Os testes verdes não substituem essas pendências nem autorizam atribuir 100/100 ou COMPLETED.
