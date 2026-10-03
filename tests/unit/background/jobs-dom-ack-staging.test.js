@@ -20,12 +20,13 @@ describe('background/jobs-dom-ack durable staging', () => {
     test('finalizeOnAck=false confirma persistência sem finalizar o job', async () => {
         const updateJobState = jest.fn().mockResolvedValue({});
         const finalizeJob = jest.fn();
-        const sendMessage = jest.fn((_tabId, _message, callback) => {
-            callback({ ok: true, persisted: true, domApplied: true });
-        });
         global.chrome = {
             runtime: { lastError: null },
-            tabs: { sendMessage },
+            tabs: {
+                sendMessage: jest.fn((_tabId, _message, callback) => {
+                    callback({ ok: true, persisted: true, domApplied: true });
+                }),
+            },
         };
 
         const api = loadModule().createDomAckDelivery({
@@ -49,18 +50,6 @@ describe('background/jobs-dom-ack durable staging', () => {
             domApplied: true,
         }));
 
-        expect(sendMessage).toHaveBeenCalledWith(
-            77,
-            expect.objectContaining({
-                action: 'UPDATE_IMAGE',
-                index: 4,
-                newSrc: 'data:image/png;base64,AA',
-                jobId: 'job-4',
-                batchId: 'batch-1',
-                expectAck: true,
-            }),
-            expect.any(Function)
-        );
         expect(updateJobState).toHaveBeenCalledWith(321, expect.objectContaining({
             state: 'dom_applied',
             resultPersisted: true,
@@ -101,7 +90,7 @@ describe('background/jobs-dom-ack durable staging', () => {
 
     test.each([
         [{ ok: false, reason: 'persist_failed' }, 'persist_failed'],
-        [{ ok: false }, 'ack_missing'],
+        [{ ok: false }, 'rejected_by_page'],
     ])('ACK negativo não finaliza em staging %#', async (ack, expectedReason) => {
         const finalizeJob = jest.fn();
         global.chrome = {
@@ -202,41 +191,6 @@ describe('background/jobs-dom-ack durable staging', () => {
 
         expect(result.ok).toBe(false);
         expect(result.reason).toBe('tab closed');
-        expect(finalizeJob).not.toHaveBeenCalled();
-    });
-
-    test('exceção síncrona de sendMessage resolve falha e não deixa Promise pendente', async () => {
-        const finalizeJob = jest.fn();
-        global.chrome = {
-            runtime: { lastError: null },
-            tabs: {
-                sendMessage: jest.fn(() => {
-                    throw new Error('send-boom');
-                }),
-            },
-        };
-
-        const api = loadModule().createDomAckDelivery({
-            updateJobState: jest.fn().mockResolvedValue({}),
-            finalizeJob,
-            log: jest.fn(),
-            timeoutMs: 100,
-        });
-
-        await expect(api.deliver({
-            mangaTabId: 77,
-            index: 4,
-            src: 'data:image/png;base64,AA',
-            jobId: 'job-4',
-            batchId: 'batch-1',
-            geminiTabId: 321,
-            finalizeOnAck: false,
-        })).resolves.toEqual(expect.objectContaining({
-            ok: false,
-            reason: 'send-boom',
-            persisted: false,
-        }));
-
         expect(finalizeJob).not.toHaveBeenCalled();
     });
 

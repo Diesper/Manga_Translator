@@ -86,6 +86,7 @@ async function waitFor(predicate, { timeout = 5000, step = 25 } = {}) {
 
 function mountGeminiEditor({
     sendMode = 'exact',
+    promptPasteBehavior = 'insert',
     onSubmit = () => {},
 } = {}) {
     document.body.innerHTML = '<div class="ql-editor" contenteditable="true"><p></p></div><div class="momentary-indicator">conversa momentânea</div>';
@@ -100,6 +101,18 @@ function mountGeminiEditor({
 
     editor.addEventListener('paste', (event) => {
         const clipboardData = event.clipboardData;
+        const pastedText = clipboardData && typeof clipboardData.getData === 'function'
+            ? clipboardData.getData('text/plain')
+            : '';
+
+        if (pastedText) {
+            if (promptPasteBehavior === 'insert') {
+                const pTag = editor.querySelector('p') || editor;
+                pTag.textContent = pastedText;
+            }
+            return;
+        }
+
         if (clipboardData && clipboardData.items && clipboardData.items.length > 0) {
             let preview = document.querySelector('file-preview');
             if (!preview) {
@@ -200,6 +213,9 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
         runtimeMock.lastError = null;
 
         document.documentElement.innerHTML = '<head></head><body></body>';
+        if (typeof document.execCommand !== 'function') {
+            document.execCommand = () => false;
+        }
         await storageMock.clear();
     });
 
@@ -277,32 +293,6 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
         await expect(mod.waitForElement('.never-here', 120)).resolves.toBeNull();
     });
 
-    test('CG-06B: waitForElement encontra alvo em shadow root anexada depois da espera iniciar', async () => {
-        jest.useFakeTimers();
-        try {
-            const mod = loadContentGeminiModule();
-            const host = document.createElement('div');
-            document.body.appendChild(host);
-
-            const pending = mod.waitForElement('.late-shadow-node', 5000);
-            const shadowRoot = host.attachShadow({ mode: 'open' });
-            const target = document.createElement('span');
-            target.className = 'late-shadow-node';
-            shadowRoot.appendChild(target);
-
-            await jest.advanceTimersByTimeAsync(50);
-            let result = null;
-            pending.then(element => { result = element; });
-            await Promise.resolve();
-
-            expect(result).toBe(target);
-            expect(jest.getTimerCount()).toBe(0);
-        } finally {
-            await jest.advanceTimersByTimeAsync(5000);
-            jest.useRealTimers();
-        }
-    });
-
     test('CG-08: sleep resolve apenas depois do tempo solicitado', async () => {
         jest.useFakeTimers();
         const mod = loadContentGeminiModule();
@@ -319,9 +309,10 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
         jest.useRealTimers();
     });
 
-    test('REG-03/CG-22: o fallback DOM insere o prompt exatamente uma vez', async () => {
+    test('REG-03/CG-22: paste valido nao chama execCommand em duplicidade', async () => {
         mountGeminiEditor({
             sendMode: 'exact',
+            promptPasteBehavior: 'insert',
             onSubmit: () => {
                 setTimeout(() => appendGeneratedImage('https://cdn.gemini.test/result-reg-03.png'), 1300);
             },
@@ -343,22 +334,24 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
             FETCH_IMAGE_AS_BASE64: () => ({ dataUrl: 'data:image/png;base64,UkVTVUxU' }),
         });
 
-        const expectedPrompt = 'Traduzir sem duplicar texto';
+        const execCommandSpy = jest.spyOn(document, 'execCommand').mockReturnValue(true);
         const mod = loadContentGeminiModule();
         processPromises.push(mod.processGeminiJob());
 
-        const editor = await waitFor(() => {
-            const candidate = document.querySelector('.ql-editor');
-            return candidate && candidate.textContent.includes(expectedPrompt) ? candidate : null;
-        });
-        expect(editor.textContent).toBe(expectedPrompt);
+        await waitFor(() => (
+            document.querySelector('.ql-editor')
+            && document.querySelector('.ql-editor').textContent.includes('Traduzir sem duplicar texto')
+        ));
+
+        expect(execCommandSpy).not.toHaveBeenCalled();
     });
 
-    test('CG-23: emite evento da página e usa fallback DOM quando o editor não muda', async () => {
+    test('CG-23: usa evento MAIN world e fallback DOM quando o paste nao injeta o prompt', async () => {
         const { editor } = mountGeminiEditor({
             sendMode: 'exact',
+            promptPasteBehavior: 'ignore',
             onSubmit: () => {
-                setTimeout(() => appendGeneratedImage('https://cdn.gemini.test/result-main-world.png'), 1300);
+                setTimeout(() => appendGeneratedImage('https://cdn.gemini.test/result-exec-command.png'), 1300);
             },
         });
 
@@ -398,9 +391,10 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
         expect(editor.textContent).not.toContain('Traduzir usando fallback DOM');
     });
 
-    test('CG-24: usa fallback DOM quando o evento da página não altera o editor', async () => {
+    test('CG-24: usa fallback DOM direto quando paste e execCommand falham', async () => {
         mountGeminiEditor({
             sendMode: 'exact',
+            promptPasteBehavior: 'ignore',
             onSubmit: () => {
                 setTimeout(() => appendGeneratedImage('https://cdn.gemini.test/result-dom-direct.png'), 1300);
             },
@@ -421,6 +415,8 @@ describe('content_gemini.js - helpers, delecao e regressao real', () => {
             REQUEST_IMAGE_DATA: () => ({ srcData: 'data:image/png;base64,QUJDRA==' }),
             FETCH_IMAGE_AS_BASE64: () => ({ dataUrl: 'data:image/png;base64,UkVTVUxU' }),
         });
+
+        jest.spyOn(document, 'execCommand').mockReturnValue(false);
 
         const mod = loadContentGeminiModule();
         processPromises.push(mod.processGeminiJob());

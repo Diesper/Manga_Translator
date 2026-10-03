@@ -1,9 +1,0 @@
-{
-  "schema_version": 1,
-  "id": "51d41c08-f426-4bf7-9310-86c3c78592d6",
-  "index": 91,
-  "at_utc": "2026-10-03T03:42:02.755Z",
-  "action": "COMPLETION_POLICY_MIGRATION",
-  "expected_state_sha": "702de8e1bdb242111acb78deddd3cf97e38a6235",
-  "phase": "committed"
-}

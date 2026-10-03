@@ -199,7 +199,6 @@
 
       return new Promise(resolve => {
         let timer = null;
-        let shadowRootDiscoveryTimer = null;
         let observer = null;
         let settled = false;
         const observedRoots = new WeakSet();
@@ -210,9 +209,6 @@
           if (timer !== null) {
             try { scope.clearTimeout(timer); } catch (_e) {}
           }
-          if (shadowRootDiscoveryTimer !== null) {
-            try { clearIntervalFn(shadowRootDiscoveryTimer); } catch (_e) {}
-          }
           if (observer) {
             try { observer.disconnect(); } catch (_e) {}
           }
@@ -220,21 +216,16 @@
         };
 
         const observeTarget = target => {
-          if (!observer || !target || observedRoots.has(target)) return false;
+          if (!observer || !target || observedRoots.has(target)) return;
           try {
             observer.observe(target, { childList: true, subtree: true });
             observedRoots.add(target);
-            return true;
           } catch (_e) {}
-          return false;
         };
 
         const observeDeepRoots = () => {
-          let discoveredRoot = observeTarget(root.body || root.documentElement || root);
-          for (const shadowRoot of collectOpenShadowRoots()) {
-            if (observeTarget(shadowRoot)) discoveredRoot = true;
-          }
-          return discoveredRoot;
+          observeTarget(root.body || root.documentElement || root);
+          for (const shadowRoot of collectOpenShadowRoots()) observeTarget(shadowRoot);
         };
 
         timer = scope.setTimeout(
@@ -249,11 +240,6 @@
         });
 
         observeDeepRoots();
-        shadowRootDiscoveryTimer = setIntervalFn(() => {
-          if (!observeDeepRoots()) return;
-          const element = queryFirstDeep(selector);
-          if (element) finish(element);
-        }, 50);
       });
     }
 

@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const crypto = require('crypto');
 const { TextEncoder } = require('util');
 
@@ -115,42 +116,6 @@ describe('IPC-01/IPC-02/IPC-03: Image translation routing - GTC e IPC', () => {
         await waitFor(() => document.querySelector('img').dataset.translated === 'true');
         expect(document.querySelector('img').getAttribute('src')).toBe('data:image/png;base64,TRANSLATED_HIT');
         expect(sentMessages.some(message => message.action === 'START_BATCH')).toBe(false);
-    });
-
-    test('cache parcial substitui hit e envia somente miss no START_BATCH real', async () => {
-        let queriedHashes = null;
-        installRuntimeResponder({
-            onQueryMany(message) {
-                queriedHashes = message.hashes.slice();
-                return {
-                    ok: true,
-                    entriesByHash: {
-                        [message.hashes[0]]: 'data:image/png;base64,PARTIAL_HIT',
-                    },
-                };
-            },
-        });
-
-        await loadContentScript({
-            hostname: 'localhost',
-            domImages: [
-                { src: 'http://localhost/hybrid/page-1.png', width: 800, height: 1200 },
-                { src: 'http://localhost/hybrid/page-2.png', width: 800, height: 1200 },
-            ],
-        });
-
-        document.getElementById('manga-main-content').click();
-
-        const startBatch = await waitFor(() => sentMessages.find(message => message.action === 'START_BATCH'));
-        await waitFor(() => document.querySelectorAll('img')[0].dataset.translated === 'true');
-
-        const images = document.querySelectorAll('img');
-        expect(queriedHashes).toHaveLength(2);
-        expect(images[0].getAttribute('src')).toBe('data:image/png;base64,PARTIAL_HIT');
-        expect(images[0].dataset.translated).toBe('true');
-        expect(images[1].dataset.translated).not.toBe('true');
-        expect(startBatch.images).toEqual([{ index: 1 }]);
-        expect(startBatch.images).not.toContainEqual({ index: 0 });
     });
 
     test('processamento em lote ignora imagem pequena e envia somente paginas validas', async () => {

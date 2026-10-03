@@ -2,10 +2,6 @@
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-    const storageGet = (keys, callback) => chrome.storage.local.get(keys, data => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao ler configurações: ${error.message}`, 'error'); if (callback) callback({}); return; } if (callback) callback(data || {}); });
-    const storageSet = (items, callback, onError) => chrome.storage.local.set(items, () => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao salvar configurações: ${error.message}`, 'error'); if (onError) onError(error); return; } if (callback) callback(true); });
-    const storageRemove = (keys, callback, onError) => chrome.storage.local.remove(keys, () => { const error = chrome.runtime?.lastError; if (error) { showPopupToast(`Falha ao remover configurações: ${error.message}`, 'error'); if (onError) onError(error); return; } if (callback) callback(true); });
-
     const styleFix = document.createElement('style');
     styleFix.textContent = `
         html { width: auto; height: auto; }
@@ -55,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     `;
     document.head.appendChild(styleFix);
 
-    storageGet(['popupSize'], (data) => {
+    chrome.storage.local.get(['popupSize'], (data) => {
         if (data.popupSize) {
             document.body.style.width = data.popupSize.width + 'px';
             document.body.style.height = Math.min(data.popupSize.height, 600) + 'px';
@@ -109,7 +105,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('mouseup', () => {
         if (resizeAxis) {
             resizeAxis = null;
-            storageSet({
+            chrome.storage.local.set({
                 popupSize: {
                     width: document.body.offsetWidth,
                     height: document.body.offsetHeight
@@ -171,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function showPopupToast(msg, type = 'success') {
         const t = document.createElement('div');
-        t.textContent = msg;
+        t.innerText = msg;
         t.style.cssText = `
             position: fixed;
             bottom: 20px;
@@ -197,6 +193,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 3000);
     }
 
+    // ── Ponte com o armazenamento do background ──────────────────────────────
+    // As páginas traduzidas vivem no IndexedDB da extensão (storage-manager.js).
+    // O popup nunca carrega Base64 para montar listas: pede só metadados.
     /** Base64 de uma página, sob demanda (exportação/download). */
     async function smGetPage(chapterId, pageIndex) {
         const resp = await smRequest({ action: 'SM_GET_PAGE', chapterId, pageIndex });
@@ -212,14 +211,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const resp = await smRequest({ action: 'SM_PAGE_INDEX', chapterId });
         const pages = (resp && resp.ok && resp.pages) || [];
         if (pages.length === 0) {
-            const legacy = await new Promise(r => storageGet([`${chapterId}_images`], r));
+            const legacy = await new Promise(r => chrome.storage.local.get([`${chapterId}_images`], r));
             return legacy[`${chapterId}_images`] || {};
         }
-        const out = {}, results = new Array(pages.length), queue = pages.map((page, index) => ({ page, index }));
-        const workers = Array.from({ length: Math.min(4, queue.length) }, async () => {
-            while (queue.length) { const { page, index } = queue.shift(); results[index] = [page.pageIndex, await smGetPage(chapterId, page.pageIndex)]; }
-        });
-        await Promise.all(workers); results.forEach(([pageIndex, dataUrl]) => { if (dataUrl) out[pageIndex] = dataUrl; });
+        const out = {};
+        for (const page of pages) {
+            const dataUrl = await smGetPage(chapterId, page.pageIndex);
+            if (dataUrl) out[page.pageIndex] = dataUrl;
+        }
         return out;
     }
 
@@ -239,7 +238,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         if (pendingLegacy.length > 0) {
             const keys = pendingLegacy.map(id => `${id}_images`);
-            const legacy = await new Promise(r => storageGet(keys, r));
+            const legacy = await new Promise(r => chrome.storage.local.get(keys, r));
             pendingLegacy.forEach(id => {
                 counts[id] = Object.keys(legacy[`${id}_images`] || {}).length;
             });
@@ -290,7 +289,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return pages.slice().sort((a, b) => Number(a.pageIndex) - Number(b.pageIndex));
         }
 
-        const legacy = await new Promise(resolve => storageGet([`${chapterId}_images`], resolve));
+        const legacy = await new Promise(resolve => chrome.storage.local.get([`${chapterId}_images`], resolve));
         const images = legacy[`${chapterId}_images`] || {};
         return Object.keys(images)
             .map(Number)
@@ -411,7 +410,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const url      = new URL(tab.url);
     const hostname = url.hostname;
     bannedKey = `bannedImages_${hostname}`;
-    const getOwnedTabId = async () => { try { const [active] = await chrome.tabs.query({ active: true, currentWindow: true }); if (!active || active.id !== currentTabId) { showPopupToast('A aba ativa mudou. Reabra o popup para continuar.', 'error'); return null; } return currentTabId; } catch (error) { showPopupToast(`Não foi possível validar a aba: ${error.message}`, 'error'); return null; } };
+
     function showPage(el) {
         [enablePage, appContent, settingsPage].forEach(p => {
             p.classList.remove('active');
@@ -434,10 +433,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 🔄 Recarregar Página
             </button>
         `;
-        document.getElementById('btn-force-reload').addEventListener('click', async () => { const ownedTabId = await getOwnedTabId(); if (ownedTabId === null) return;
-            chrome.scripting.executeScript({ target: { tabId: ownedTabId }, func: () => window.location.reload(true) })
+        document.getElementById('btn-force-reload').addEventListener('click', () => {
+            chrome.scripting.executeScript({ target: { tabId: currentTabId }, func: () => window.location.reload(true) })
                 .then(() => window.close())
-                .catch(() => { chrome.tabs.reload(ownedTabId, { bypassCache: true }); window.close(); });
+                .catch(() => { chrome.tabs.reload(currentTabId, { bypassCache: true }); window.close(); });
         });
     }
 
@@ -453,7 +452,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 clearInterval(window.logPoller);
                 window.logPoller = null;
             }
-            storageGet(['enabledDomains'], (data) => {
+            chrome.storage.local.get(['enabledDomains'], (data) => {
                 if ((data.enabledDomains || []).includes(hostname)) {
                     showPage(appContent);
                     // Reconsulta a página porque o usuário pode ter acabado de
@@ -470,8 +469,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const el = document.getElementById('chk-auto-download');
         if (!el || el._bound) return;
         el._bound = true;
-        storageGet(['autoDownload'], (data) => { el.checked = data.autoDownload === true; });
-        el.addEventListener('change', () => storageSet({ autoDownload: el.checked }));
+        chrome.storage.local.get(['autoDownload'], (data) => { el.checked = data.autoDownload === true; });
+        el.addEventListener('change', () => chrome.storage.local.set({ autoDownload: el.checked }));
     }
     
     const translatedTabBtn = document.querySelector('[data-target="translated-tab"]');
@@ -507,8 +506,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    const sendMessageToTab = async (message, callback) => { const ownedTabId = await getOwnedTabId(); if (ownedTabId === null) { if (callback) callback({ ok: false, reason: 'tab_changed' }); return; }
-        chrome.tabs.sendMessage(ownedTabId, message, (response) => {
+    const sendMessageToTab = (message, callback) => {
+        chrome.tabs.sendMessage(currentTabId, message, (response) => {
             if (chrome.runtime.lastError) {
                 if (message.action === 'HIGHLIGHT_IMAGE') return;
                 if (message.action === 'START_TRANSLATION_FROM_POPUP') {
@@ -523,7 +522,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    storageGet(['enabledDomains', bannedKey], (data) => {
+    chrome.storage.local.get(['enabledDomains', bannedKey], (data) => {
         bannedUrls = data[bannedKey] || [];
         if ((data.enabledDomains || []).includes(hostname)) {
             initApp();
@@ -533,13 +532,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     btnEnable.addEventListener('click', () => {
-        storageGet(['enabledDomains'], (data) => {
+        chrome.storage.local.get(['enabledDomains'], (data) => {
             const domains = data.enabledDomains || [];
             if (domains.includes(hostname)) return;
             domains.push(hostname);
             const metaKey  = `siteMeta_${hostname}`;
             const siteMeta = { title: tab.title || hostname, addedAt: Date.now() };
-            storageSet({ enabledDomains: domains, [metaKey]: siteMeta }, () => {
+            chrome.storage.local.set({ enabledDomains: domains, [metaKey]: siteMeta }, () => {
                 sendMessageToTab({ action: 'ENABLE_PAGE' }, () => {
                     justEnabledSite = true;
                     initApp();
@@ -553,7 +552,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadMainImages();
         loadBannedImages();
         initAutoDownload();
-        storageGet(['mt_state'], (d) => {
+        chrome.storage.local.get(['mt_state'], (d) => {
             if (d.mt_state && d.mt_state.activeJobsCount > 0) {
                 const dot   = document.getElementById('translating-dot');
                 const label = document.getElementById('translating-label');
@@ -595,10 +594,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (input.parentNode === nameContainer) nameContainer.replaceChild(nameSpan, input);
                 editBtn.style.display = 'inline-block';
 
-                storageGet([`siteMeta_${host}`], (d) => {
+                chrome.storage.local.get([`siteMeta_${host}`], (d) => {
                     const meta = d[`siteMeta_${host}`] || { hostname: host, addedAt: Date.now() };
                     meta.title = newName;
-                    storageSet({ [`siteMeta_${host}`]: meta });
+                    chrome.storage.local.set({ [`siteMeta_${host}`]: meta });
                 });
             };
 
@@ -611,8 +610,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    async function tryGetImages(retries, delayMs, callback) { const ownedTabId = await getOwnedTabId(); if (ownedTabId === null) { callback(null); return; }
-        chrome.tabs.sendMessage(ownedTabId, { action: 'GET_PAGE_IMAGES' }, (response) => {
+    function tryGetImages(retries, delayMs, callback) {
+        chrome.tabs.sendMessage(currentTabId, { action: 'GET_PAGE_IMAGES' }, (response) => {
             if (!chrome.runtime.lastError && response?.images) { callback(response); return; }
             if (retries <= 1) { callback(null); return; }
             setTimeout(() => tryGetImages(retries - 1, delayMs, callback), delayMs);
@@ -702,7 +701,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         imageGrid.querySelectorAll('.image-card.selected').forEach(card => {
             if (!bannedUrls.includes(card.dataset.src)) bannedUrls.push(card.dataset.src);
         });
-        storageSet({ [bannedKey]: bannedUrls }, () => { loadMainImages(); loadBannedImages(); });
+        chrome.storage.local.set({ [bannedKey]: bannedUrls }, () => { loadMainImages(); loadBannedImages(); });
     });
     
     btnTranslate.addEventListener('click', () => {
@@ -760,7 +759,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             return;
                         }
 
-                        storageGet(['mt_state', 'mt_popup_state'], (d) => {
+                        chrome.storage.local.get(['mt_state', 'mt_popup_state'], (d) => {
                             const state = d.mt_state || {};
                             const popupState = d.mt_popup_state || {};
                             const popupStatus = popupState.status || null;
@@ -800,7 +799,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                             if (allDone) {
                                 clearInterval(pollProgress);
-                                storageRemove('mt_popup_state');
+                                chrome.storage.local.remove('mt_popup_state');
                                 progressText.textContent = geminiDone > 0 || cacheHits > 0
                                     ? '✅ Tradução concluída!'
                                     : '⚠️ Concluído com erros';
@@ -852,7 +851,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateBannedSelection();
         bannedSiteList.innerHTML = '<div class="empty-msg">Carregando...</div>';
 
-        storageGet(['enabledDomains'], (initData) => {
+        chrome.storage.local.get(['enabledDomains'], (initData) => {
             const domains = initData.enabledDomains || [];
             const keysToFetch = ['enabledDomains', `bannedImages_${hostname}`, `siteMeta_${hostname}`];
             domains.forEach(host => {
@@ -860,7 +859,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 keysToFetch.push(`siteMeta_${host}`);
             });
 
-            storageGet(keysToFetch, (data) => {
+            chrome.storage.local.get(keysToFetch, (data) => {
                 const siteGroups = [];
                 const processedHosts = new Set();
 
@@ -997,7 +996,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         const hosts = Object.keys(byHost);
         const storageKeys = hosts.map(h => `bannedImages_${h}`);
-        storageGet(storageKeys, (data) => {
+        chrome.storage.local.get(storageKeys, (data) => {
             const updates = {};
             hosts.forEach(h => {
                 const current = data[`bannedImages_${h}`] || [];
@@ -1006,7 +1005,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (byHost[hostname]) {
                 bannedUrls = (data[`bannedImages_${hostname}`] || []).filter(u => !byHost[hostname].includes(u));
             }
-            storageSet(updates, () => {
+            chrome.storage.local.set(updates, () => {
                 loadBannedImages();
                 loadMainImages();
             });
@@ -1034,7 +1033,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (btnExportAll) {
             btnExportAll.addEventListener('click', () => {
-                storageGet(['chapterList'], (listData) => {
+                chrome.storage.local.get(['chapterList'], (listData) => {
                     const list = listData.chapterList || [];
                     if (!list.length) { alert('Nenhum capítulo salvo.'); return; }
 
@@ -1084,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const chapterListEl = document.getElementById('chapter-list');
         chapterListEl.innerHTML = '<div class="empty-msg">Carregando...</div>';
 
-        storageGet(['chapterList'], (listData) => {
+        chrome.storage.local.get(['chapterList'], (listData) => {
             const list = listData.chapterList || [];
             if (!list.length) { chapterListEl.innerHTML = '<div class="empty-msg">Nenhuma pasta salva ainda.</div>'; return; }
 
@@ -1097,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 keysToFetch.push(`siteMeta_${host}`);
             });
 
-            storageGet(keysToFetch, async (data) => {
+            chrome.storage.local.get(keysToFetch, async (data) => {
                 const pageCounts = await smChapterCounts(list.map(c => c.id));
                 if (renderGeneration !== translatedRenderGeneration) return;
                 const groups = {};
@@ -1163,7 +1162,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         `;
 
                         const pathLabel = item.querySelector('.chap-disk-path');
-                        storageGet([chap.id + '_paths'], (pd) => {
+                        chrome.storage.local.get([chap.id + '_paths'], (pd) => {
                             const paths = pd[chap.id + '_paths'] || {};
                             const idxs = Object.keys(paths).map(Number).sort((a,b)=>a-b);
                             if (!idxs.length) {
@@ -1171,16 +1170,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 return;
                             }
                             const samplePath = paths[idxs[idxs.length - 1]];
-                            const slashPos = Math.max(samplePath.lastIndexOf('/'), samplePath.lastIndexOf('\\'));
-                            const folderPath = slashPos >= 0
-                                ? samplePath.slice(0, slashPos)
-                                : '';
+                            const sep = samplePath.includes('\\\\') ? '\\\\' : '/';
+                            const parts = samplePath.split(sep);
+                            parts.pop();
+                            const folderPath = parts.join(sep);
                             pathLabel.textContent = '📂 ' + folderPath;
                             pathLabel.title = folderPath;
                         });
 
                         const ti = item.querySelector('.chap-title-input');
-                        ti.addEventListener('change', (e) => { chap.title = e.target.value; storageSet({ chapterList: list }); });
+                        ti.addEventListener('change', (e) => { chap.title = e.target.value; chrome.storage.local.set({ chapterList: list }); });
                         item.querySelector('.btn-read-chap').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL(`reader/reader.html?id=${chap.id}`) }));
                         item.querySelector('.btn-open-chap-folder').addEventListener('click', (e) => {
                             
@@ -1194,7 +1193,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 if (!resp?.ok) showPopupToast(resp?.error || 'Não foi possível abrir a pasta.', 'error');
                             }
 
-                            storageGet(['autoDownload', chap.id + '_paths', chap.id + '_dlId'], async (d) => {
+                            chrome.storage.local.get(['autoDownload', chap.id + '_paths', chap.id + '_dlId'], async (d) => {
                                 const paths = d[chap.id + '_paths'] || {};
                                 const idxs = Object.keys(paths).map(Number).sort((a,b)=>a-b);
                                 const safe = chap.title.replace(/[^a-z0-9]/gi, '_');
@@ -1216,10 +1215,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 } else {
                                     if (idxs.length > 0) {
                                         const samplePath = paths[idxs[idxs.length - 1]];
-                                        const slashPos = Math.max(samplePath.lastIndexOf('/'), samplePath.lastIndexOf('\\'));
-                                        const folderPath = slashPos >= 0
-                                            ? samplePath.slice(0, slashPos)
-                                            : '';
+                                        const sep = samplePath.includes('\\\\') ? '\\\\' : '/';
+                                        const parts = samplePath.split(sep);
+                                        parts.pop();
+                                        const folderPath = parts.join(sep);
                                         chrome.runtime.sendMessage({
                                             action: 'SHOW_EXISTING_FOLDER',
                                             folderPath: folderPath,
@@ -1248,7 +1247,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             btnEl.textContent = '⏱️';
                             btnEl.disabled = true;
 
-                            storageGet([`${chap.id}_dlId`], async (d) => {
+                            chrome.storage.local.get([`${chap.id}_dlId`], async (d) => {
                                 const imgs = await smChapterImages(chap.id);
                                 const dlId = d[`${chap.id}_dlId`] || null;
                                 const idxs = Object.keys(imgs).map(Number).sort((a,b)=>a-b);
@@ -1284,28 +1283,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                             deleteInProgress = true;
                             const newList = list.filter(c => c.id !== chap.id);
-
-                            // O storage canônico é a autoridade. Não esconda o capítulo
-                            // da lista antes de confirmar a exclusão de páginas/restores/assets.
-                            smRequest({ action: 'SM_DELETE_CHAPTER', chapterId: chap.id }).then((result) => {
-                                if (!result?.ok) {
-                                    deleteInProgress = false;
-                                    showPopupToast('Falha ao excluir capítulo. Nenhum registro local foi removido.', 'error');
-                                    return;
-                                }
-
-                                storageSet({ chapterList: newList }, () => {
-                                    storageRemove([
+                            chrome.storage.local.set({ chapterList: newList }, () => {
+                                // Remove o capítulo nos DOIS armazenamentos: o novo
+                                // (páginas + restores + assets, em uma transação) e
+                                // os resíduos legados em chrome.storage.local.
+                                smRequest({ action: 'SM_DELETE_CHAPTER', chapterId: chap.id }).then(() => {
+                                    chrome.storage.local.remove([
                                         `${chap.id}_images`, `${chap.id}_paths`, `${chap.id}_dlId`,
                                         `${chap.id}_restoreMap`, `${chap.id}_restoreMeta`, `_sm_migrated_${chap.id}`
                                     ], () => {
                                         deleteInProgress = false;
                                         loadTranslatedChapters();
-                                    }, () => { deleteInProgress = false; });
-                                }, () => { deleteInProgress = false; });
-                            }, () => {
-                                deleteInProgress = false;
-                                showPopupToast('Falha ao excluir capítulo. Nenhum registro local foi removido.', 'error');
+                                    });
+                                });
                             });
                         });
                         attachChapterThumbnails(item, chap, renderGeneration);
@@ -1336,7 +1326,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.logPoller = null;
         }
 
-        storageGet(['customPrompt', 'defaultPrompt'], (data) => {
+        chrome.storage.local.get(['customPrompt', 'defaultPrompt'], (data) => {
             const val = data.customPrompt || data.defaultPrompt || '';
             settingsPrompt.value = val;
             updateCharCount(val);
@@ -1374,7 +1364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             shape.textContent = `${width} × ${height}`;
         };
         const save = (width, height) => {
-            storageSet({ imageMinWidth: width, imageMinHeight: height });
+            chrome.storage.local.set({ imageMinWidth: width, imageMinHeight: height });
         };
         const updateFrom = (source) => {
             const width = clamp(source === 'width' ? widthInput.value : widthRange.value, 300);
@@ -1383,7 +1373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             save(width, height);
         };
 
-        storageGet(['imageMinWidth', 'imageMinHeight'], (data) => {
+        chrome.storage.local.get(['imageMinWidth', 'imageMinHeight'], (data) => {
             render(clamp(data.imageMinWidth, 300), clamp(data.imageMinHeight, 400));
         });
 
@@ -1425,7 +1415,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             },
         ].filter(item => item.element);
 
-        storageGet(controls.map(item => item.key), (data) => {
+        chrome.storage.local.get(controls.map(item => item.key), (data) => {
             controls.forEach(({ element, key, defaultValue }) => {
                 const stored = data[key];
                 element.checked = stored === undefined ? defaultValue : stored === true;
@@ -1437,7 +1427,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (element[boundKey]) return;
             element[boundKey] = true;
             element.addEventListener('change', () => {
-                storageSet({ [key]: element.checked }, () => {
+                chrome.storage.local.set({ [key]: element.checked }, () => {
                     showSettingsStatus(
                         element.checked ? onText : offText,
                         element.checked ? '#4CAF50' : '#FF9800'
@@ -1449,14 +1439,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function renderSettingsAutoRestore() {
         if (!settingsAutoRestoreEnabled) return;
-        storageGet(['autoRestoreEnabled'], data => {
+        chrome.storage.local.get(['autoRestoreEnabled'], data => {
             settingsAutoRestoreEnabled.checked = data.autoRestoreEnabled !== false;
         });
 
         if (!settingsAutoRestoreEnabled._autoRestoreBound) {
             settingsAutoRestoreEnabled._autoRestoreBound = true;
             settingsAutoRestoreEnabled.addEventListener('change', () => {
-                storageSet({ autoRestoreEnabled: settingsAutoRestoreEnabled.checked }, () => {
+                chrome.storage.local.set({ autoRestoreEnabled: settingsAutoRestoreEnabled.checked }, () => {
                     showSettingsStatus(
                         settingsAutoRestoreEnabled.checked
                             ? 'Auto-substituição global ativada.'
@@ -1508,7 +1498,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         blockBtn.textContent = isBlocked ? 'Permitir' : 'Bloquear';
         blockBtn.style.background = isBlocked ? '#2d7a38' : '#8a1c1c';
         blockBtn.addEventListener('click', () => {
-            storageGet(['autoRestoreBlockedImages'], d => {
+            chrome.storage.local.get(['autoRestoreBlockedImages'], d => {
                 const current = normalizeBlockedImages(d.autoRestoreBlockedImages);
                 if (current[entry.cleanUrl]) {
                     delete current[entry.cleanUrl];
@@ -1521,7 +1511,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         blockedAt: Date.now(),
                     };
                 }
-                storageSet({ autoRestoreBlockedImages: current }, () => {
+                chrome.storage.local.set({ autoRestoreBlockedImages: current }, () => {
                     renderSettingsSites();
                     showSettingsStatus(
                         current[entry.cleanUrl] ? 'Imagem bloqueada para auto-substituição.' : 'Imagem permitida novamente.',
@@ -1569,7 +1559,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             text.textContent = on ? '🟠 Debug ATIVADO — abas não serão fechadas' : 'Debug desativado';
         }
 
-        storageGet(['debugMode'], d => applyState(d.debugMode === true));
+        chrome.storage.local.get(['debugMode'], d => applyState(d.debugMode === true));
 
         row.addEventListener('click', () => {
             const next = !debugOn;
@@ -1581,7 +1571,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const parallelSlider = document.getElementById('settings-parallel');
         const parallelVal = document.getElementById('settings-parallel-val');
         if (parallelSlider && parallelVal) {
-            storageGet(['maxConcurrentJobs'], d => {
+            chrome.storage.local.get(['maxConcurrentJobs'], d => {
                 const maxCon = parseInt(d.maxConcurrentJobs) || 1;
                 parallelSlider.value = maxCon;
                 parallelVal.textContent = maxCon;
@@ -1589,7 +1579,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             parallelSlider.addEventListener('input', (e) => {
                 const val = e.target.value;
                 parallelVal.textContent = val;
-                storageSet({ maxConcurrentJobs: parseInt(val) });
+                chrome.storage.local.set({ maxConcurrentJobs: parseInt(val) });
             });
         }
     }
@@ -1600,7 +1590,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const popupGeminiDeleteRadio = document.getElementById('popup-gemini-mode-delete');
         if (!popupGeminiTempRadio && !popupGeminiMinRadio && !popupGeminiDeleteRadio) return;
 
-        storageGet(['geminiExecutionMode'], (d) => {
+        chrome.storage.local.get(['geminiExecutionMode'], (d) => {
             const mode = d.geminiExecutionMode || 'temp_chat';
             if (mode === 'minimized_window') {
                 if (popupGeminiMinRadio) popupGeminiMinRadio.checked = true;
@@ -1617,7 +1607,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 radio.addEventListener('change', () => {
                     if (radio.checked) {
                         const val = radio.value;
-                        storageSet({ geminiExecutionMode: val }, () => {
+                        chrome.storage.local.set({ geminiExecutionMode: val }, () => {
                             const label = val === 'minimized_window'
                                 ? 'Janela Minimizada'
                                 : val === 'background_delete'
@@ -1638,22 +1628,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     sBtnSave.addEventListener('click', () => {
         const val = settingsPrompt.value.trim();
-        storageSet({ customPrompt: val || null }, () => {
-            if (!val) storageRemove('customPrompt');
+        chrome.storage.local.set({ customPrompt: val || null }, () => {
+            if (!val) chrome.storage.local.remove('customPrompt');
             showSettingsStatus('✔ Salvo com sucesso!', '#4CAF50');
         });
     });
 
     sBtnRestore.addEventListener('click', () => {
         if (!confirm('Restaurar o prompt padrão?')) return;
-        storageRemove('customPrompt', () => {
-            storageGet(['defaultPrompt'], (data) => {
+        chrome.storage.local.remove('customPrompt', () => {
+            chrome.storage.local.get(['defaultPrompt'], (data) => {
                 const HD_PROMPT = typeof DEFAULT_HD_PROMPT !== 'undefined'
                     ? DEFAULT_HD_PROMPT
                     : "Objetivo primário: voce vai criar uma imagem , exata da imagem fornecida e traduzir ela pro português brasileiro . \nNão altere nenhum pixel fora das áreas de texto e Remova o texto original dos balões de fala, preenchendo o fundo com a cor correspondente. \nConverta os diálogos para PT-BR, mantendo a informalidade do contexto. Tipografia: Renderize o novo texto em caixa alta, fonte padrão de HQ (sans-serif), alinhamento centralizado.\nEfeitos Sonoros: Traduza e recrie as onomatopeias  mantendo as fontes estilizadas, cores, contornos e inclinação originais. lembre-se que todas as palavras devem sem traduzidas sem exceção";
                 settingsPrompt.value = data.defaultPrompt || HD_PROMPT;
                 updateCharCount(settingsPrompt.value);
-                storageSet({ defaultPrompt: HD_PROMPT, customPrompt: HD_PROMPT });
+                chrome.storage.local.set({ defaultPrompt: HD_PROMPT, customPrompt: HD_PROMPT });
                 showSettingsStatus('✔ Prompt restaurado para o padrão.', '#FF9800');
             });
         });
@@ -1672,7 +1662,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (settingsClearAutoBlocks) {
         settingsClearAutoBlocks.addEventListener('click', () => {
             if (!confirm('Remover todos os bloqueios de imagens específicas?')) return;
-            storageSet({ autoRestoreBlockedImages: {} }, () => {
+            chrome.storage.local.set({ autoRestoreBlockedImages: {} }, () => {
                 renderSettingsSites();
                 showSettingsStatus('Bloqueios de imagem removidos.', '#FF9800');
             });
@@ -1682,7 +1672,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderSettingsSites() {
         // Não puxa mais `${chapterId}_restoreMap` de todos os capítulos (cada um
         // carregava as imagens Base64 inteiras). Agora só metadados.
-        storageGet(['enabledDomains', 'autoRestoreDisabledSites', 'autoRestoreBlockedImages', 'chapterList'], async (initData) => {
+        chrome.storage.local.get(['enabledDomains', 'autoRestoreDisabledSites', 'autoRestoreBlockedImages', 'chapterList'], async (initData) => {
             const data = initData;
             const chapterList = initData.chapterList || [];
             {
@@ -1746,12 +1736,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 autoCheck.addEventListener('click', event => event.stopPropagation());
                 autoCheck.addEventListener('change', (event) => {
                     event.stopPropagation();
-                    storageGet(['autoRestoreDisabledSites'], d => {
+                    chrome.storage.local.get(['autoRestoreDisabledSites'], d => {
                         const current = Array.isArray(d.autoRestoreDisabledSites) ? d.autoRestoreDisabledSites : [];
                         const next = autoCheck.checked
                             ? current.filter(h => h !== host)
                             : Array.from(new Set([...current, host]));
-                        storageSet({ autoRestoreDisabledSites: next }, () => {
+                        chrome.storage.local.set({ autoRestoreDisabledSites: next }, () => {
                             renderSettingsSites();
                             showSettingsStatus(
                                 autoCheck.checked
@@ -1773,15 +1763,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 removeBtn.addEventListener('click', (event) => {
                     event.preventDefault();
                     event.stopPropagation();
-                    storageGet(['enabledDomains', 'autoRestoreDisabledSites'], (d) => {
+                    chrome.storage.local.get(['enabledDomains', 'autoRestoreDisabledSites'], (d) => {
                         const updated = (d.enabledDomains || []).filter(h => h !== host);
                         const updatedDisabledSites = (d.autoRestoreDisabledSites || []).filter(h => h !== host);
-                        storageSet({
+                        chrome.storage.local.set({
                             enabledDomains: updated,
                             autoRestoreDisabledSites: updatedDisabledSites,
                         }, () => {
                             expandedSettingsSites.delete(host);
-                            storageRemove([`siteMeta_${host}`], () => {
+                            chrome.storage.local.remove([`siteMeta_${host}`], () => {
                                 renderSettingsSites();
                                 showSettingsStatus(`Permissão de "${host}" removida.`, '#FF9800');
                             });
@@ -1862,11 +1852,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!window.logListenerAdded) {
                     window.logListenerAdded = true;
                     if (chrome?.storage?.onChanged?.addListener) {
-                        window.logStorageListener = (changes, area) => {
+                        chrome.storage.onChanged.addListener((changes, area) => {
                             if (area === 'local' && changes.translatorLog) {
                                 renderLogs();
                             }
-                        }; chrome.storage.onChanged.addListener(window.logStorageListener);
+                        });
                     }
                 }
             } else {
@@ -1944,7 +1934,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function renderLogs() {
-        storageGet(['translatorLog'], (result) => {
+        chrome.storage.local.get(['translatorLog'], (result) => {
             currentLogData = result.translatorLog || [];
             updateLogView();
         });
@@ -1957,7 +1947,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if(btnClearLog) btnClearLog.addEventListener('click', () => {
         if (!confirm('Apagar todo o log de atividades?')) return;
-        storageSet({ translatorLog: [] }, () => {
+        chrome.storage.local.set({ translatorLog: [] }, () => {
             renderLogs();
         });
     });
@@ -2018,15 +2008,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             url: url,
             filename: 'mangatranslator_log.txt',
             saveAs: true
-        }, () => {
-            if (typeof URL.revokeObjectURL === 'function') URL.revokeObjectURL(url);
         });
     });
 
     window.addEventListener('beforeunload', () => {
-        if (window.logPoller) clearInterval(window.logPoller);
-        window.logPoller = null;
-        if (window.logStorageListener && chrome?.storage?.onChanged?.removeListener) { chrome.storage.onChanged.removeListener(window.logStorageListener); window.logStorageListener = null; window.logListenerAdded = false; }
+        if (window.logPoller) { clearInterval(window.logPoller); window.logPoller = null; }
     });
 
 });

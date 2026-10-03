@@ -1,9 +1,0 @@
-{
-  "schema_version": 1,
-  "id": "739ac00c-0eab-40a0-8879-121811fb3ec9",
-  "index": 89,
-  "at_utc": "2026-10-03T08:24:17.278Z",
-  "action": "START_CORRECTION",
-  "expected_state_sha": "f843798239e034f44503936d46cb4478f12aad3e",
-  "phase": "intent"
-}

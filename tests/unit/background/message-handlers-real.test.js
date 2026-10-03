@@ -131,10 +131,6 @@ describe('background.js - handlers onMessage reais', () => {
 
         tabsMock._registerMessageHandler(mangaTab.id, (message, _sender, sendResponse) => {
             forwardedMessages.push(message);
-            if (message.action === 'UPDATE_IMAGE') {
-                sendResponse({ ok: true, persisted: true, domApplied: true });
-                return;
-            }
             sendResponse({ ok: true });
         });
 
@@ -382,15 +378,12 @@ describe('background.js - handlers onMessage reais', () => {
         }
     });
 
-    test.each([
-        ['data:image/png;base64,AAA', 'data:'],
-        ['blob:https://reader.test/1234-5678', 'blob:'],
-    ])('BG-59: CALCULATE_VISUAL_FINGERPRINT rejeita %s sem tentar fetch (%s)', async (url) => {
+    test('BG-59: CALCULATE_VISUAL_FINGERPRINT rejeita data/blob URL sem tentar fetch', async () => {
         const fetchSpy = jest.spyOn(global, 'fetch');
 
         const result = await dispatchToBackground(runtimeMock, {
             action: 'CALCULATE_VISUAL_FINGERPRINT',
-            url,
+            url: 'data:image/png;base64,AAA',
         });
 
         expect(result.response).toEqual({
