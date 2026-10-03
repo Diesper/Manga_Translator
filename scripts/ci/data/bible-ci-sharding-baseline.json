@@ -208,17 +208,6 @@
   },
   "workflowInventories": {
     "protocol": [
-      "node --check scripts/validation/bible-anti-loop-adversarial-selftest.js",
-      "node --check scripts/validation/bible-lifecycle-metrics-selftest.js",
-      "node --check scripts/validation/verify-bible-audit-results-append-only-selftest.js",
-      "node --check scripts/validation/verify-bible-protocol-governance-selftest.js",
-      "node --check scripts/validation/verify-bible-state-history-append-only-selftest.js",
-      "node --check scripts/validation/verify-human-protected-diff-selftest.js",
-      "node --check scripts/validation/verify-lifecycle-artifacts-append-only-selftest.js",
-      "node --check scripts/validation/verify-unverified-findings-append-only-selftest.js",
-      "node --check tests/infra/bible/anti-loop-adversarial-selftest.js",
-      "node --check tests/infra/bible/anti-loop-integration-selftest.js",
-      "node --check tests/infra/bible/audit-core-git-selftest.js",
       "node scripts/validation/bible-anti-loop-adversarial-selftest.js",
       "node scripts/validation/bible-lifecycle-metrics-selftest.js",
       "node scripts/validation/verify-audit-sha-progress-selftest.js",
@@ -424,6 +413,9 @@
           "docs/project-bible"
         ],
         "paths": [
+          "scripts/bible/**",
+          "scripts/validation/**",
+          "tests/infra/bible/**",
           "scripts/bible/core/audit-core.js",
           "scripts/bible/commands/audit-result.js",
           "tests/infra/bible/audit-result-selftest.js",

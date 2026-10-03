@@ -1,0 +1,20 @@
+{
+  "schema_version": 3,
+  "index": 63,
+  "phase": "ADVERSARIAL",
+  "auditor": "adversarial-ci-sharding",
+  "file": "package.json",
+  "bible": "docs/biblia/package.json/Bíblia.md",
+  "source_sha": "ec3fb5c66cf49e34108eba1ef995eaf3dce1b304",
+  "bible_sha": "71580d6fb4546f27faafc57eb05ecb907fdf2bd4",
+  "verdict": "APPROVED",
+  "findings": [],
+  "completed_at_utc": "2026-10-03T07:47:05.021Z",
+  "completed_order_id": "063-human-2ce3b78e701f97c3",
+  "production_sha": "60a2595e3c7713a80f43a74e125a207f33bdc2af",
+  "test_sha": "ec3fb5c66cf49e34108eba1ef995eaf3dce1b304",
+  "audit_epoch": 3,
+  "handoff_id": "063-e3-6bc35eb2436d",
+  "revision_id": "39382beb81dee8c700b061ad59d3a6e357d94fab43da08ee952a91edb93b8d7d",
+  "human_approval_id": null
+}

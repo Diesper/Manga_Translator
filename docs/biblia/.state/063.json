@@ -84,7 +84,7 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": "2026-10-03T07:46:22.788Z",
+  "updated_at_utc": "2026-10-03T07:47:56.477Z",
   "history": [
     {
       "at_utc": "2026-10-01T02:36:00Z",
@@ -248,6 +248,37 @@
       "reason": "Metadados factuais derivados de fonte/documento atuais; nenhuma concessão de aprovação.",
       "previous_event_hash": "a8717282e29433937774df8cf021ba937dce12c58918b789cd3679af731808be",
       "event_hash": "8d92d89ab4c946bd560982569167a9afa50f36b9b3cc06bff3afc1a39c523161"
+    },
+    {
+      "at_utc": "2026-10-03T07:47:56.477Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "source_sha": "ec3fb5c66cf49e34108eba1ef995eaf3dce1b304",
+      "bible_sha": "71580d6fb4546f27faafc57eb05ecb907fdf2bd4",
+      "decision": "APPROVED",
+      "primary": "APPROVED",
+      "adversarial": "APPROVED",
+      "reaudit": null,
+      "revision_id": "39382beb81dee8c700b061ad59d3a6e357d94fab43da08ee952a91edb93b8d7d",
+      "audit_epoch": 3,
+      "handoff_id": "063-e3-6bc35eb2436d",
+      "reason": "PRIMARY + ADVERSARIAL (e REAUDIT quando necessária) produziram decisão final APPROVED para a revisão atual.",
+      "from_review_status": "READY_FOR_AUDIT",
+      "to_review_status": "COMPLETED",
+      "previous_event_hash": "8d92d89ab4c946bd560982569167a9afa50f36b9b3cc06bff3afc1a39c523161",
+      "event_hash": "e6625a6ef489c4ecac2ed8858b14e3bc06575a87dc406c63139457df2aef7dd7"
+    },
+    {
+      "type": "COMPLETED_WORK_ORDER_CLOSED",
+      "at_utc": "2026-10-03T07:47:56.477Z",
+      "approval_id": "063-human-2ce3b78e701f97c3",
+      "from_status": "COMPLETED",
+      "to_status": "COMPLETED",
+      "from_review_status": "COMPLETED",
+      "to_review_status": "COMPLETED",
+      "previous_event_hash": "e6625a6ef489c4ecac2ed8858b14e3bc06575a87dc406c63139457df2aef7dd7",
+      "event_hash": "1c28156b1ca4c865b2d9724e5bc0f93c2e85a7f73e142a6b60ace15567ed9c39"
     }
   ],
   "evidence": [
@@ -271,16 +302,15 @@
   "human_approval_required": false,
   "audit_epoch": 3,
   "handoff_id": "063-e3-6bc35eb2436d",
-  "review_status": "READY_FOR_AUDIT",
+  "review_status": "COMPLETED",
   "completion": {
     "achieved": true,
     "first_completed_at_utc": "2026-10-01T02:36:00Z",
     "human_order_required_since_utc": "2026-10-03T03:42:01.220Z"
   },
   "completion_quality": {
-    "status": "WITH_CAVEATS",
-    "caveats": [
-      "REVALIDATION_REQUIRED"
-    ]
-  }
+    "status": "VERIFIED",
+    "caveats": []
+  },
+  "progress_note": "Decisão distribuída final APPROVED vinculada à revisão atual."
 }

@@ -6,6 +6,9 @@ on:
     branches:
       - docs/project-bible
     paths:
+      - 'scripts/bible/**'
+      - 'scripts/validation/**'
+      - 'tests/infra/bible/**'
       - 'scripts/bible/core/audit-core.js'
       - 'scripts/bible/commands/audit-result.js'
       - 'tests/infra/bible/audit-result-selftest.js'

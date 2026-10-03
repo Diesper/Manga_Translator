@@ -107,7 +107,7 @@ function testInventory(workflow, scripts) {
     for (let command of commands) {
       if (command === 'npm run test:performance:${{ matrix.target }}') command = 'npm run test:performance:core && npm run test:performance:gtc-indexeddb';
       for (const leaf of expand(command, scripts)) {
-        if (/^node .*selftest\.js$/.test(leaf)) inventory.push(leaf);
+        if (/^node (?!\-\-check ).*selftest\.js$/.test(leaf)) inventory.push(leaf);
         else if (leaf === 'node scripts/ci/run-jest-ci.js --coverage') inventory.push('JEST_INTEGRAL');
         else if (leaf === 'node scripts/validation/verify-production-test-mutation.js') inventory.push(leaf);
         else if (leaf.startsWith('jest ') && leaf.includes('performance.test.js')) inventory.push('JEST:tests/integration/performance.test.js');
