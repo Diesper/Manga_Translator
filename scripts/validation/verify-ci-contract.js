@@ -56,7 +56,17 @@ function executableRunText(block) {
 }
 
 function hasExecutableRun(block, marker) {
-  return executableRunLines(block).some((line) => line.includes(marker));
+  return executableRunLines(block).some((line) => {
+    let from = 0;
+    while (from <= line.length) {
+      const index = line.indexOf(marker, from);
+      if (index < 0) return false;
+      const next = line[index + marker.length] || '';
+      if (!next || /\s|[;&|)]/.test(next)) return true;
+      from = index + marker.length;
+    }
+    return false;
+  });
 }
 
 const ciContract = jobBlock('ci-contract');
@@ -223,17 +233,11 @@ for (const diagnosticJob of [
     problems.push(diagnosticJob + ': não pode mascarar falha com continue-on-error no job');
   }
 
-  const lines = block.split(/\r?\n/);
-  const diagnosticRun = lines.findIndex((line) =>
-    /run:\s+npm run test:diagnose-(?:workers|background-leak)/.test(line)
-  );
-  if (diagnosticRun < 0) {
+  const diagnosticCommand = diagnosticJob === 'background-leak-bisection'
+    ? 'npm run test:diagnose-background-leak'
+    : 'npm run test:diagnose-workers';
+  if (!hasExecutableRun(block, diagnosticCommand)) {
     problems.push(diagnosticJob + ': comando de diagnóstico obrigatório ausente');
-  } else {
-    const nearby = lines.slice(Math.max(0, diagnosticRun - 3), diagnosticRun).join('\n');
-    if (/continue-on-error:\s*true/.test(nearby)) {
-      problems.push(diagnosticJob + ': passo de diagnóstico não pode usar continue-on-error');
-    }
   }
 }
 
@@ -354,7 +358,7 @@ if (!e2e.includes('wc -l)" -eq 5')) {
   problems.push('e2e: precisa exigir exatamente 5 blob reports');
 }
 
-if (/npm run test:[^\n]*\|\|\s*true/.test(workflow)) {
+if (/npm run test:[^\n]*\|\|\s*true/.test(executableRunText(workflow))) {
   problems.push('workflow mascara comando de testes com "|| true"');
 }
 
@@ -365,7 +369,7 @@ if (!hasExecutableRun(coverage, 'npm run test:coverage')) {
 if (!hasExecutableRun(coverage, 'npm run test:coverage:verify')) {
   problems.push('coverage: deve verificar a integridade do relatório em etapa bloqueante');
 }
-if (/npm run test:coverage[^\n]*\|\|\s*true/.test(coverage)) {
+if (/npm run test:coverage[^\n]*\|\|\s*true/.test(executableRunText(coverage))) {
   problems.push('coverage: não pode mascarar Jest/coverage com "|| true"');
 }
 if (!coverage.includes('CODECOV_TOKEN not configured')) {
