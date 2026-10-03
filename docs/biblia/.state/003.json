@@ -2,11 +2,11 @@
   "index": 3,
   "file": "extension/background/actions/calculate-visual-fingerprint.js",
   "bible": "docs/biblia/extension/background/actions/calculate-visual-fingerprint.js/Bíblia.md",
-  "status": "COMPLETED",
+  "status": "CHANGES_REQUIRED",
   "agent": null,
   "source_sha": "ea474845cf9c6a6784e3ceb75298f0ac8df86e06",
   "started_at_utc": "2026-09-30T13:00:00Z",
-  "completed_at_utc": "2026-09-30T13:06:00Z",
+  "completed_at_utc": null,
   "audit_requests": [
     {
       "id": "003-001",
@@ -83,7 +83,38 @@
   },
   "schema_version": 2,
   "coordination_status": "OK",
-  "updated_at_utc": null,
-  "history": [],
-  "evidence": []
+  "updated_at_utc": "2026-10-03T02:15:05.766Z",
+  "history": [
+    {
+      "at_utc": "2026-10-03T02:15:05.766Z",
+      "type": "DISTRIBUTED_AUDIT_DECISION",
+      "from_status": "COMPLETED",
+      "to_status": "CHANGES_REQUIRED",
+      "source_sha": "ea474845cf9c6a6784e3ceb75298f0ac8df86e06",
+      "bible_sha": "4e9e7e7879e546454ee9486c80a271ca751aa4ca",
+      "decision": "CHANGES_REQUIRED",
+      "primary": "APPROVED",
+      "adversarial": "CHANGES_REQUIRED",
+      "reaudit": "CHANGES_REQUIRED",
+      "revision_id": "f243cb993618c9b6947524146b0817b63416b4de52f834a96f1b6db6726ffb92",
+      "audit_epoch": 0,
+      "handoff_id": null,
+      "reason": "Pipeline distribuído produziu decisão final CHANGES_REQUIRED para a revisão atual.",
+      "previous_event_hash": "42a0019604660c889f2690cdf125843f6f02d8a627c3d68eff40b4c4eb997231",
+      "event_hash": "26c533da10a74ceb2e1a418cf8021d8c4eb8d3e32e51c55b3ad12bab51c66ccc"
+    }
+  ],
+  "evidence": [],
+  "correction_cycle": 0,
+  "lifetime_correction_cycles": 0,
+  "current_escalation_cycle": 0,
+  "escalation_level": "NORMAL",
+  "human_approval_required": false,
+  "audit_epoch": 0,
+  "handoff_id": null,
+  "production_sha": null,
+  "test_sha": "ea474845cf9c6a6784e3ceb75298f0ac8df86e06",
+  "bible_sha": "4e9e7e7879e546454ee9486c80a271ca751aa4ca",
+  "revision_id": "f243cb993618c9b6947524146b0817b63416b4de52f834a96f1b6db6726ffb92",
+  "progress_note": "Decisão distribuída final CHANGES_REQUIRED; correção exige token canônico."
 }
